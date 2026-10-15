@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0D0A06">
+<link rel="icon" href="https://grntzero.com/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="https://grntzero.com/img/favicon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GZ 스케줄">
+<meta name="description" content="GRUNT ZERO 아티스트 공연 스케줄.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GRUNT ZERO">
+<meta property="og:title" content="GRUNT ZERO 아티스트 스케줄">
+<meta property="og:description" content="공연 일정을 실시간으로 확인하세요.">
+<meta property="og:image" content="https://grntzero.com/img/og_schedule.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://schedule.grntzero.com/">
+<meta name="twitter:card" content="summary_large_image">
+<title>GRUNT ZERO — 스케줄</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<script>
+/* ▼ Apps Script 웹앱 주소 — 배포 후 여기 한 줄만 채우면 실제 캘린더와 연결된다. 비어 있으면 예시 화면. */
+window.SCHEDULE_API = "";
+</script>
+<style>
+:root{
+  --ink:#0D0A06; --ink2:#141009; --ink3:#1B1610; --ink4:#221C13;
+  --line:#2C2418; --line-hi:#453A26;
+  --gold:#C6A35C; --gold2:#E8D2A0; --gold-dim:#8A7440;
+  --bone:#EFE9DC; --mut:#968D7C; --dim:#6E6759;
+  --red:#E0674E; --grn:#7FB685; --blu:#7FA6D6;
+  --f-disp:"Big Shoulders Display","IBM Plex Sans KR","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --wrap:760px; --pad:16px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--ink);color:var(--bone);font-family:var(--f-body);font-weight:400;
+  -webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;min-height:100vh}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+.hide{display:none!important}
+
+/* 상단바 */
+.top{position:sticky;top:0;z-index:30;background:rgba(13,10,6,.94);
+  backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);
+  border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.top .wrap{display:flex;align-items:center;gap:10px;height:54px}
+.top img{height:22px;width:auto;display:block}
+.top .tt{font-family:var(--f-disp);font-weight:800;font-size:17px;letter-spacing:.14em;color:var(--gold)}
+.top .sp{flex:1}
+.ib{font-size:12px;color:var(--mut);border:1px solid var(--line);padding:6px 10px;border-radius:2px;white-space:nowrap}
+.ib:hover{color:var(--gold2);border-color:var(--line-hi)}
+
+/* 예시 배너 */
+.demo{background:#2A1F0C;border-bottom:1px solid #5A4520;color:var(--gold2);font-size:12.5px;line-height:1.6;padding:9px 0}
+.demo b{font-weight:600}
+
+/* PIN */
+.pin{min-height:calc(100vh - 54px);display:flex;align-items:center;justify-content:center;padding:40px 16px}
+.pin .box{width:100%;max-width:340px;text-align:center}
+.pin h1{font-family:var(--f-disp);font-weight:800;font-size:44px;letter-spacing:.04em;margin:0;line-height:1}
+.pin h1 em{font-style:normal;color:var(--gold)}
+.pin p{color:var(--mut);font-size:13.5px;margin:12px 0 22px;line-height:1.7}
+.pin input{width:100%;background:var(--ink3);border:1px solid var(--line-hi);color:var(--bone);
+  font-family:var(--f-mono);font-size:22px;letter-spacing:.3em;text-align:center;text-transform:uppercase;
+  padding:14px 10px;border-radius:2px;outline:none}
+.pin input:focus{border-color:var(--gold)}
+.pin .go{margin-top:12px;width:100%;background:var(--gold);color:var(--ink);font-weight:600;font-size:15px;padding:14px;border-radius:2px}
+.pin .err{color:var(--red);font-size:13px;min-height:20px;margin-top:10px}
+
+/* 툴바 */
+.bar{padding:14px 0 6px}
+.seg{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.seg button{flex:1;padding:9px 0;font-size:13.5px;color:var(--mut);background:var(--ink2)}
+.seg button.on{background:var(--ink4);color:var(--gold2);font-weight:600;box-shadow:inset 0 -2px 0 var(--gold)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;font-size:12.5px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;color:var(--mut);background:var(--ink2);white-space:nowrap}
+.chip.on{border-color:var(--gold);color:var(--ink);background:var(--gold);font-weight:600}
+.chip .pinmark{margin-left:4px;font-size:10px}
+.meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dim);padding:6px 0 2px;flex-wrap:wrap}
+.meta .sp{flex:1}
+.meta button{color:var(--mut);text-decoration:underline;text-underline-offset:3px;font-size:12px}
+.meta label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.meta input{accent-color:var(--gold)}
+
+/* 요약 */
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}
+.sum div{background:var(--ink2);border:1px solid var(--line);padding:10px 12px}
+.sum b{display:block;font-family:var(--f-disp);font-weight:800;font-size:28px;line-height:1;color:var(--bone)}
+.sum span{font-size:11.5px;color:var(--mut)}
+
+/* 목록 */
+.day{margin-top:22px}
+.dh{display:flex;align-items:baseline;gap:10px;padding:0 0 8px;border-bottom:1px solid var(--line);margin-bottom:10px;position:sticky;top:54px;background:var(--ink);z-index:5;padding-top:8px}
+.dh .d{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-spacing:.02em;line-height:1}
+.dh .w{font-size:13px;color:var(--mut)}
+.dh .tag{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;padding:3px 8px;border:1px solid var(--line-hi);color:var(--gold2)}
+.dh .tag.today{background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:600}
+.dh .tag.tmr{border-color:var(--gold);color:var(--gold)}
+.dh.past .d,.dh.past .w{color:var(--dim)}
+.sun{color:var(--red)!important}.sat{color:var(--blu)!important}
+
+.ev{background:var(--ink2);border:1px solid var(--line);border-left:3px solid var(--gold);margin-bottom:8px}
+.ev.past{opacity:.55;border-left-color:var(--dim)}
+.ev.rel{border-left-color:var(--blu)}
+.ev .hd{display:flex;gap:12px;padding:12px 12px 12px 14px;width:100%;text-align:left;align-items:flex-start}
+.ev .tm{font-family:var(--f-mono);font-size:15px;color:var(--gold2);min-width:46px;padding-top:1px}
+.ev.rel .tm{color:var(--blu);font-size:11px;letter-spacing:.05em;padding-top:4px}
+.ev .bd{flex:1;min-width:0}
+.ev .ti{font-size:15.5px;font-weight:600;line-height:1.4;word-break:keep-all}
+.ev .pl{font-size:13px;color:var(--mut);margin-top:3px;line-height:1.5;word-break:keep-all}
+.ev .ar{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.ev .ar span{font-size:11.5px;padding:2px 7px;background:var(--ink4);border:1px solid var(--line);color:var(--bone)}
+.ev .ar span.me{border-color:var(--gold);color:var(--gold2)}
+.ev .badge{display:inline-block;font-size:11px;padding:2px 6px;border:1px dashed var(--red);color:var(--red);margin-left:6px;vertical-align:2px;font-weight:500}
+.ev .car{color:var(--dim);font-size:18px;line-height:1;transition:transform .15s;padding-top:2px}
+.ev.open .car{transform:rotate(90deg);color:var(--gold)}
+.ev .dt{display:none;border-top:1px solid var(--line);padding:10px 14px 14px}
+.ev.open .dt{display:block}
+.ev dl{margin:0;display:grid;grid-template-columns:76px 1fr;gap:7px 10px;font-size:13.5px;line-height:1.55}
+.ev dt{color:var(--dim)}
+.ev dd{margin:0;color:var(--bone);word-break:break-all}
+.ev .acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.ev .acts a{font-size:12.5px;padding:7px 11px;border:1px solid var(--line-hi);color:var(--gold2)}
+.ev .acts a:hover{border-color:var(--gold)}
+
+.empty{padding:50px 0;text-align:center;color:var(--dim);font-size:14px;line-height:1.8}
+
+/* 달력 */
+.cal{margin-top:14px}
+.cal .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal .mh b{font-family:var(--f-disp);font-weight:800;font-size:26px;letter-spacing:.03em}
+.cal .mh button{width:38px;height:38px;border:1px solid var(--line);color:var(--mut);font-size:16px}
+.cal .grid{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.cal .wd{font-size:11.5px;text-align:center;padding:6px 0;color:var(--mut);border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--ink2)}
+.cal .c{min-height:64px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px;text-align:left;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.cal .c.out{background:#0A0805}
+.cal .c.out .n{color:#3a342a}
+.cal .c .n{font-size:12px;color:var(--mut);font-family:var(--f-mono)}
+.cal .c.today .n{color:var(--ink);background:var(--gold);border-radius:999px;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:600}
+.cal .c.sel{outline:2px solid var(--gold);outline-offset:-2px;background:var(--ink3)}
+.cal .c i{font-style:normal;font-size:10.5px;line-height:1.25;background:var(--ink4);border-left:2px solid var(--gold);padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--bone)}
+.cal .c i.r{border-left-color:var(--blu)}
+.cal .c i s{text-decoration:none;color:var(--gold2)}
+.cal .c i.more{background:none;border:0;color:var(--dim)}
+.cal .pick{margin-top:16px}
+@media (max-width:520px){ .cal .c{min-height:56px;padding:3px 2px} .cal .c i{font-size:9.5px;padding:1px 2px} .cal .c i s{display:none} }
+
+.foot{padding:40px 0 calc(40px + env(safe-area-inset-bottom));text-align:center;color:var(--dim);font-size:11.5px;line-height:1.8}
+.foot a{text-decoration:underline;text-underline-offset:3px}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--line-hi);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <img src="https://grntzero.com/img/gz_logo.png" alt="GRUNT ZERO">
+  <span class="tt">SCHEDULE</span>
+  <span class="sp"></span>
+  <button class="ib hide" id="lockBtn" title="접속 코드 지우기">잠금</button>
+  <a class="ib" href="https://grntzero.com/">홈</a>
+</div></header>
+
+<div class="demo hide" id="demo"><div class="wrap">
+  <b>예시 화면</b> — 아직 캘린더와 연결 전이라 가상의 일정이 보입니다. 연결되면 실제 [공식]그런트제로 캘린더가 실시간으로 표시됩니다.
+</div></div>
+
+<section class="pin hide" id="pinView"><div class="box">
+  <h1>GRUNT <em>ZERO</em></h1>
+  <p>아티스트 스케줄<br>담당자에게 받은 접속 코드를 입력하세요.</p>
+  <form id="pinForm" autocomplete="off">
+    <input id="pinIn" inputmode="text" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="CODE">
+    <button class="go" type="submit">들어가기</button>
+  </form>
+  <div class="err" id="pinErr"></div>
+</div></section>
+
+<main class="wrap hide" id="app">
+  <div class="bar">
+    <div class="seg" role="tablist">
+      <button class="on" data-view="list">목록</button>
+      <button data-view="cal">달력</button>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="meta">
+      <span id="upd"></span>
+      <button id="reload">새로고침</button>
+      <span class="sp"></span>
+      <label><input type="checkbox" id="showPast"> 지난 일정</label>
+    </div>
+  </div>
+  <div class="sum" id="sum"></div>
+  <div id="listView"></div>
+  <div id="calView" class="cal hide"></div>
+</main>
+
+<footer class="foot hide" id="foot"><div class="wrap">
+  일정은 [공식]그런트제로 캘린더에서 자동으로 불러옵니다 · 2분마다 갱신<br>
+  금액·연락처는 표시하지 않습니다. 내용이 다르면 담당 매니저에게 알려주세요.<br>
+  <a href="https://grntzero.com/">grntzero.com</a>
+</div></footer>
+
+<script>
+(function(){
+"use strict";
+var API = (window.SCHEDULE_API||"").trim();
+var DEMO = !API;
+var LS = {get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},
+          set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}},
+          del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
+var ARTISTS = ["SEFO","허조교","MOSHEE","POY","LOKI","KillaTon","D'ETA","ANNACONDA","HAENA","BORNGI","ROGUN","WOAD","SSENI","BERRI"];
+var WD = ["일","월","화","수","목","금","토"];
+var FIELDS = [["when","공연시간"],["content","출연내용"],["host","주최"],["place","장소"],["gear","장비"],
+              ["manager","담당 매니저"],["car","차량"],["from","출발지"],["returnTo","복귀"],["etc","기타"],["memo","메모"]];
+
+var state = {events:[], updated:null, filter:LS.get("gz_me")||"ALL", me:LS.get("gz_me")||"",
+             view:LS.get("gz_view")||"list", past:false, month:null, sel:null, open:{}};
+var $ = function(id){return document.getElementById(id)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+
+/* 한국 시간 기준 오늘 */
+function todayStr(){
+  var p = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+  return p; // yyyy-mm-dd
+}
+function parseD(s){var a=s.split("-");return new Date(Date.UTC(+a[0],+a[1]-1,+a[2]))}
+function fmtD(d){return d.toISOString().slice(0,10)}
+function addDays(s,n){var d=parseD(s);d.setUTCDate(d.getUTCDate()+n);return fmtD(d)}
+function diffDays(a,b){return Math.round((parseD(a)-parseD(b))/864e5)}
+function wday(s){return parseD(s).getUTCDay()}
+
+/* ── 예시 데이터 (가상) ── */
+function demoData(){
+  var t = todayStr();
+  var E = [
+    {d:-6,time:"14:00",artists:["SEFO","SSENI","BERRI"],event:"예시) 가을 어린이 축제",place:"예시시 중앙공원 야외무대",host:"예시시청",content:"어린이 DJ 공연 30분",manager:"담당자A",car:"스타리아",from:"사무실",returnTo:"사무실"},
+    {d:0,time:"19:00",artists:["MOSHEE","POY"],event:"예시) 대학 축제 메인무대",place:"예시대학교 대운동장",host:"예시대 총학생회",content:"DJ 공연 40분",when:"19:00~19:40 (리허설 17:30)",gear:"CDJ 3000 ×2, DJM-A9",manager:"담당자B",car:"개인차량",from:"사무실",returnTo:"각자 귀가",memo:"백스테이지 대기실 B동"},
+    {d:1,time:"11:30",artists:["LOKI","D'ETA"],event:"예시) 쇼핑몰 패밀리데이",place:"예시몰 1층 중앙광장",host:"예시몰 문화센터",content:"어린이클럽 공연 30분 ×2회",when:"11:30 / 15:00",manager:"담당자A",car:"스타리아",from:"사무실",returnTo:"사무실",etc:"긴팔 의상"},
+    {d:1,time:"20:00",artists:["KillaTon"],event:"예시) 클럽 게스트",place:"예시클럽 (서울)",content:"DJ 90분",manager:"담당자B",pending:true},
+    {d:3,kind:"release",title:"예시) 신규 싱글 발매"},
+    {d:5,time:"13:00",artists:["ANNACONDA","HAENA"],event:"예시) 기업 가족행사",place:"예시컨벤션 그랜드홀",host:"예시기업",content:"나나걸스 공연 30분",gear:"무선마이크 2",manager:"담당자A",car:"스타리아",from:"사무실",returnTo:"사무실"},
+    {d:9,time:"18:00",artists:["허조교","BORNGI"],event:"예시) 군부대 위문공연",place:"예시부대 연병장",content:"DJ 공연 60분",manager:"담당자B",pending:true},
+    {d:12,time:"15:00",artists:["ROGUN"],event:"예시) 문화아카데미 어린이클럽",place:"예시플라자 문화홀",content:"어린이 DJ 공연 30분",manager:"담당자A"},
+    {d:16,time:"21:00",artists:["WOAD","SEFO"],event:"예시) 페스티벌 서브스테이지",place:"예시 페스티벌 B스테이지",content:"B2B 60분",gear:"CDJ 3000 ×4",manager:"담당자B"}
+  ];
+  return E.map(function(x,i){
+    var o = {id:"demo"+i,kind:x.kind||"show",date:addDays(t,x.d)};
+    for(var k in x) if(k!=="d"&&k!=="kind") o[k]=x[k];
+    return o;
+  });
+}
+
+/* ── 데이터 불러오기 ── */
+var loading=false;
+function load(manual){
+  if(DEMO){ state.events=demoData(); state.updated=new Date().toISOString(); render(); return; }
+  var pin = LS.get("gz_pin"); if(!pin){ showPin(); return; }
+  if(loading) return; loading=true;
+  $("upd").innerHTML='<span class="spin"></span> 불러오는 중';
+  fetch(API+(API.indexOf("?")<0?"?":"&")+"pin="+encodeURIComponent(pin)+"&t="+Date.now(),{cache:"no-store"})
+    .then(function(r){return r.json()})
+    .then(function(j){
+      loading=false;
+      if(!j||!j.ok){ if(j&&j.error==="pin"){ LS.del("gz_pin"); showPin("코드가 맞지 않거나 변경되었습니다."); return; } throw 0; }
+      state.events=j.events||[]; state.updated=j.updated||new Date().toISOString();
+      LS.set("gz_cache",JSON.stringify(j)); render();
+    })
+    .catch(function(){
+      loading=false;
+      var c=LS.get("gz_cache");
+      if(c&&!state.events.length){try{var j=JSON.parse(c);state.events=j.events||[];state.updated=j.updated}catch(e){}}
+      render(); $("upd").textContent="연결 실패 — 마지막으로 받은 일정 표시 중";
+    });
+}
+
+function showPin(msg){
+  $("app").classList.add("hide"); $("foot").classList.add("hide"); $("lockBtn").classList.add("hide");
+  $("pinView").classList.remove("hide"); $("pinErr").textContent=msg||""; setTimeout(function(){$("pinIn").focus()},50);
+}
+$("pinForm").addEventListener("submit",function(e){
+  e.preventDefault(); var v=$("pinIn").value.trim().toUpperCase(); if(!v) return;
+  LS.set("gz_pin",v); $("pinView").classList.add("hide"); $("pinErr").textContent=""; load(true);
+});
+$("lockBtn").addEventListener("click",function(){ LS.del("gz_pin"); LS.del("gz_cache"); state.events=[]; showPin(); });
+
+/* ── 필터 ── */
+function visible(){
+  var t=todayStr();
+  return state.events.filter(function(e){
+    if(state.filter!=="ALL" && e.kind!=="release" && (e.artists||[]).indexOf(state.filter)<0) return false;
+    return true;
+  }).map(function(e){e._past = e.date<t; return e});
+}
+
+function renderChips(){
+  var used={}; state.events.forEach(function(e){(e.artists||[]).forEach(function(a){used[a]=1})});
+  var list=ARTISTS.filter(function(a){return used[a]||a===state.me||a===state.filter});
+  var h='<button class="chip'+(state.filter==="ALL"?" on":"")+'" data-a="ALL">전체</button>';
+  if(state.me && list.indexOf(state.me)>=0){ list.splice(list.indexOf(state.me),1); list.unshift(state.me); }
+  list.forEach(function(a){
+    h+='<button class="chip'+(state.filter===a?" on":"")+'" data-a="'+esc(a)+'">'+esc(a)+(state.me===a?'<span class="pinmark">★</span>':'')+'</button>';
+  });
+  $("chips").innerHTML=h;
+}
+$("chips").addEventListener("click",function(e){
+  var b=e.target.closest(".chip"); if(!b) return;
+  var a=b.getAttribute("data-a");
+  state.filter=a;
+  /* 아티스트를 고르면 '내 이름'으로 기억 → 다음에 열면 바로 내 일정 */
+  if(a==="ALL"){ state.me=""; LS.del("gz_me"); } else { state.me=a; LS.set("gz_me",a); }
+  render();
+});
+
+/* ── 그리기 ── */
+function dayTag(d){
+  var n=diffDays(d,todayStr());
+  if(n===0) return '<span class="tag today">오늘</span>';
+  if(n===1) return '<span class="tag tmr">내일</span>';
+  if(n>1) return '<span class="tag">D-'+n+'</span>';
+  return '<span class="tag" style="color:var(--dim);border-color:var(--line)">'+(-n)+'일 전</span>';
+}
+function dLabel(s){var a=s.split("-");return (+a[1])+"."+(+a[2])}
+function wcls(s){var w=wday(s);return w===0?"sun":w===6?"sat":""}
+
+function evHTML(e){
+  var cls="ev"+(e.kind==="release"?" rel":"")+(e._past?" past":"")+(state.open[e.id]?" open":"");
+  if(e.kind==="release"){
+    return '<div class="'+cls+'"><div class="hd"><div class="tm">RELEASE</div><div class="bd"><div class="ti">'+esc(e.title||"발매")+'</div></div></div></div>';
+  }
+  var ar=(e.artists||[]).map(function(a){return '<span'+(a===state.me?' class="me"':'')+'>'+esc(a)+'</span>'}).join("");
+  var dl="";
+  FIELDS.forEach(function(f){ if(e[f[0]]) dl+='<dt>'+f[1]+'</dt><dd>'+esc(e[f[0]])+'</dd>'; });
+  if(!dl) dl='<dt>안내</dt><dd>세부 내용은 담당 매니저에게 확인하세요.</dd>';
+  var acts="";
+  if(e.place) acts+='<a href="https://map.naver.com/p/search/'+encodeURIComponent(e.place)+'" target="_blank" rel="noopener">네이버 지도 ↗</a>';
+  if(e.place) acts+='<a href="https://map.kakao.com/link/search/'+encodeURIComponent(e.place)+'" target="_blank" rel="noopener">카카오맵 ↗</a>';
+  return '<div class="'+cls+'" data-id="'+esc(e.id)+'">'+
+    '<button class="hd" aria-expanded="'+(state.open[e.id]?"true":"false")+'">'+
+      '<div class="tm">'+esc(e.time||"—")+'</div>'+
+      '<div class="bd"><div class="ti">'+esc(e.event||"공연")+(e.pending?'<span class="badge">세부 확인중</span>':'')+'</div>'+
+        (e.place?'<div class="pl">'+esc(e.place)+'</div>':'')+
+        (ar?'<div class="ar">'+ar+'</div>':'')+
+      '</div><span class="car">›</span></button>'+
+    '<div class="dt"><dl>'+dl+'</dl>'+(acts?'<div class="acts">'+acts+'</div>':'')+'</div></div>';
+}
+
+function groupHTML(evs){
+  var by={},order=[];
+  evs.forEach(function(e){ if(!by[e.date]){by[e.date]=[];order.push(e.date)} by[e.date].push(e); });
+  return order.map(function(d){
+    var past=d<todayStr();
+    return '<div class="day"><div class="dh'+(past?" past":"")+'"><span class="d">'+dLabel(d)+'</span><span class="w '+wcls(d)+'">'+WD[wday(d)]+'요일</span>'+dayTag(d)+'</div>'+
+      by[d].map(evHTML).join("")+'</div>';
+  }).join("");
+}
+
+function renderSummary(all){
+  var t=todayStr(), wk=addDays(t,6), m=t.slice(0,7);
+  var shows=all.filter(function(e){return e.kind==="show"});
+  var n7=shows.filter(function(e){return e.date>=t&&e.date<=wk}).length;
+  var nm=shows.filter(function(e){return e.date.slice(0,7)===m}).length;
+  var nx=shows.filter(function(e){return e.date>=t})[0];
+  $("sum").innerHTML='<div><b>'+n7+'</b><span>이번 7일 공연</span></div><div><b>'+nm+'</b><span>'+(+m.slice(5))+'월 공연</span></div>'+
+    '<div><b>'+(nx?(diffDays(nx.date,t)===0?"오늘":"D-"+diffDays(nx.date,t)):"—")+'</b><span>다음 공연</span></div>';
+}
+
+function renderList(all){
+  var t=todayStr();
+  var evs=all.filter(function(e){return state.past||e.date>=t});
+  if(state.past){ /* 지난 일정은 아래로 접어서 최근 것부터 */
+    var fut=evs.filter(function(e){return e.date>=t}), pst=evs.filter(function(e){return e.date<t}).reverse();
+    $("listView").innerHTML=(fut.length?groupHTML(fut):'<div class="empty">예정된 일정이 없습니다.</div>')+
+      (pst.length?'<div style="margin-top:34px;font-size:12px;color:var(--dim);letter-spacing:.1em">지난 일정</div>'+groupHTML(pst):"");
+  } else {
+    $("listView").innerHTML=evs.length?groupHTML(evs):'<div class="empty">예정된 일정이 없습니다.<br>'+(state.filter!=="ALL"?'다른 이름을 고르거나 「전체」를 눌러 보세요.':'')+'</div>';
+  }
+}
+
+function renderCal(all){
+  var t=todayStr();
+  if(!state.month) state.month=t.slice(0,7);
+  var y=+state.month.slice(0,4), m=+state.month.slice(5,7);
+  var first=new Date(Date.UTC(y,m-1,1)), start=new Date(first); start.setUTCDate(1-first.getUTCDay());
+  var by={}; all.forEach(function(e){(by[e.date]=by[e.date]||[]).push(e)});
+  var h='<div class="mh"><button data-m="-1" aria-label="이전 달">‹</button><b>'+y+'. '+m+'</b><button data-m="1" aria-label="다음 달">›</button></div><div class="grid">';
+  WD.forEach(function(w,i){h+='<div class="wd'+(i===0?" sun":i===6?" sat":"")+'">'+w+'</div>'});
+  for(var i=0;i<42;i++){
+    var d=new Date(start); d.setUTCDate(start.getUTCDate()+i); var ds=fmtD(d);
+    if(i>=35 && d.getUTCMonth()!==m-1) break;
+    var es=by[ds]||[];
+    var c="c"+(d.getUTCMonth()!==m-1?" out":"")+(ds===t?" today":"")+(ds===state.sel?" sel":"");
+    h+='<button class="'+c+'" data-d="'+ds+'"><span class="n '+(ds===t?"":wcls(ds))+'">'+d.getUTCDate()+'</span>';
+    es.slice(0,2).forEach(function(e){ h+='<i class="'+(e.kind==="release"?"r":"")+'">'+(e.time&&e.kind!=="release"?'<s>'+esc(e.time.replace(":",""))+' </s>':'')+esc(e.kind==="release"?"발매":(e.artists&&e.artists.length?e.artists.join("·"):(e.event||"")))+'</i>'; });
+    if(es.length>2) h+='<i class="more">+'+(es.length-2)+'</i>';
+    h+='</button>';
+  }
+  h+='</div><div class="pick" id="pick"></div>';
+  $("calView").innerHTML=h;
+  var sel=state.sel||t;
+  var es=(by[sel]||[]);
+  $("pick").innerHTML='<div class="day"><div class="dh" style="position:static"><span class="d">'+dLabel(sel)+'</span><span class="w '+wcls(sel)+'">'+WD[wday(sel)]+'요일</span>'+dayTag(sel)+'</div>'+
+    (es.length?es.map(evHTML).join(""):'<div class="empty" style="padding:24px 0">이 날은 일정이 없습니다.</div>')+'</div>';
+}
+$("calView").addEventListener("click",function(e){
+  var mb=e.target.closest("[data-m]");
+  if(mb){ var y=+state.month.slice(0,4), m=+state.month.slice(5,7)+(+mb.getAttribute("data-m"));
+    if(m<1){m=12;y--} if(m>12){m=1;y++} state.month=y+"-"+("0"+m).slice(-2); render(); return; }
+  var c=e.target.closest(".c[data-d]");
+  if(c){ state.sel=c.getAttribute("data-d"); if(state.sel.slice(0,7)!==state.month) state.month=state.sel.slice(0,7); render(); }
+});
+
+/* 펼치기 */
+document.addEventListener("click",function(e){
+  var hd=e.target.closest(".ev .hd"); if(!hd) return;
+  var ev=hd.parentNode, id=ev.getAttribute("data-id"); if(!id) return;
+  state.open[id]=!state.open[id]; ev.classList.toggle("open",!!state.open[id]); hd.setAttribute("aria-expanded",state.open[id]?"true":"false");
+});
+
+/* 보기 전환 */
+document.querySelector(".seg").addEventListener("click",function(e){
+  var b=e.target.closest("[data-view]"); if(!b) return; state.view=b.getAttribute("data-view"); LS.set("gz_view",state.view); render();
+});
+$("showPast").addEventListener("change",function(){state.past=this.checked; render()});
+$("reload").addEventListener("click",function(){load(true)});
+
+function ago(iso){
+  if(!iso) return ""; var s=Math.max(0,(Date.now()-new Date(iso))/1000);
+  if(s<60) return "방금 갱신"; if(s<3600) return Math.floor(s/60)+"분 전 갱신"; return Math.floor(s/3600)+"시간 전 갱신";
+}
+
+function render(){
+  $("pinView").classList.add("hide"); $("app").classList.remove("hide"); $("foot").classList.remove("hide");
+  $("demo").classList.toggle("hide",!DEMO); $("lockBtn").classList.toggle("hide",DEMO);
+  if(state.filter!=="ALL" && ARTISTS.indexOf(state.filter)<0){state.filter="ALL"}
+  document.querySelectorAll(".seg button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-view")===state.view)});
+  renderChips();
+  var all=visible();
+  renderSummary(all);
+  $("listView").classList.toggle("hide",state.view!=="list");
+  $("calView").classList.toggle("hide",state.view!=="cal");
+  $("showPast").parentNode.style.visibility = state.view==="list"?"visible":"hidden";
+  if(state.view==="list") renderList(all); else renderCal(all);
+  $("upd").textContent=ago(state.updated);
+}
+
+/* 2분마다 자동 갱신 (화면을 보고 있을 때만) */
+setInterval(function(){ if(document.visibilityState==="visible") load(false); else $("upd").textContent=ago(state.updated); }, 120000);
+document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible" && state.updated && (Date.now()-new Date(state.updated))>120000) load(false); });
+
+/* 시작 */
+if(!DEMO){
+  var c=LS.get("gz_cache");
+  if(c && LS.get("gz_pin")){ try{var j=JSON.parse(c);state.events=j.events||[];state.updated=j.updated;render()}catch(e){} }
+}
+load(true);
+})();
+</script>
+</body>
+</html>

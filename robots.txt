@@ -3,3 +3,4 @@ Disallow: /lineup.html
 Disallow: /dl/
 Disallow: /my/
 Disallow: /kids/
+Disallow: /schedule/
