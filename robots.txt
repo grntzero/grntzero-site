@@ -1,4 +1,3 @@
 User-agent: *
-Allow: /
-
-Sitemap: https://www.grntzero.com/sitemap.xml
+Disallow: /lineup.html
+Disallow: /dl/

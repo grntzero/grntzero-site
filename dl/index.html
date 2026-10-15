@@ -1,0 +1,468 @@
+<meta name="robots" content="noindex,nofollow">
+<title>GRUNT ZERO 로고·프로필 자료실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* 라인업 페이지와 같은 먹색+골드 아이덴티티. 카드 = 아티스트 1팀: 위에 로고·프로필 미리보기, 아래 받기 버튼 목록 */
+  :root{
+    --ink:#0D0A06; --ink-2:#141009; --ink-3:#1B1610;
+    --line:#2C2418; --line-hi:#453A26;
+    --gold:#C6A35C; --gold-hi:#E8D2A0; --gold-dim:#8A7440;
+    --bone:#EFE9DC; --mute:#968D7C; --mute-2:#6E6759;
+    --warn:#D08A6A;
+    --f-disp:"Big Shoulders Display","IBM Plex Sans KR","Arial Narrow",sans-serif;
+    --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    --f-mono:"IBM Plex Mono","SFMono-Regular",Menlo,monospace;
+    --wrap:1180px; --pad:clamp(20px,5vw,56px);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--f-body);font-size:16px;line-height:1.7;
+    -webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
+  a{color:inherit}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+  .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dim);margin:0}
+
+  header{padding-block:clamp(44px,7vw,78px) clamp(22px,3.4vw,32px)}
+  h1{font-family:var(--f-disp);font-weight:800;font-size:clamp(46px,11vw,120px);line-height:.88;letter-spacing:.01em;
+    margin:12px 0 0;color:var(--gold);text-transform:uppercase;text-wrap:balance}
+  .h1sub{font-family:var(--f-body);font-weight:700;font-size:clamp(20px,3.4vw,34px);letter-spacing:-.02em;
+    margin:10px 0 0;color:var(--bone)}
+  .sub{font-size:clamp(15.5px,1.8vw,18px);font-weight:500;letter-spacing:-.01em;margin:14px 0 0;max-width:34ch;color:var(--bone)}
+  .lead{color:var(--mute);margin:12px 0 0;max-width:52ch;font-size:15.5px}
+  .top-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px;padding:13px 22px;border-radius:2px;
+    text-decoration:none;border:1px solid var(--gold);color:var(--ink);background:var(--gold);transition:background .18s ease}
+  .btn:hover{background:var(--gold-hi);border-color:var(--gold-hi)}
+  .btn.ghost{background:transparent;color:var(--gold-hi);border-color:var(--line-hi)}
+  .btn.ghost:hover{border-color:var(--gold);background:rgba(198,163,92,.08)}
+
+  .toolbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(13,10,6,.94);
+    backdrop-filter:blur(10px);border-block:1px solid var(--line)}
+  .toolbar .inner{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-block:12px}
+  .search{flex:1 1 220px;min-width:0}
+  .search input{width:100%;background:var(--ink-2);border:1px solid var(--line-hi);color:var(--bone);
+    font-family:var(--f-body);font-size:14.5px;padding:10px 14px;border-radius:2px}
+  .search input::placeholder{color:var(--mute-2)}
+  .search input:focus-visible{outline:2px solid var(--gold-dim);outline-offset:1px}
+  .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;font-family:var(--f-body);font-size:13px;font-weight:500;padding:8px 15px;border:1px solid var(--line-hi);
+    background:transparent;color:var(--mute);border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .16s ease}
+  .chip:hover{color:var(--bone);border-color:var(--gold-dim)}
+  .chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:600}
+  .chip:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+
+  main{padding-block:clamp(26px,4vw,40px) clamp(48px,7vw,80px)}
+  .grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+  @media(min-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(min-width:1060px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  .card{background:var(--ink-2);padding:clamp(16px,2.2vw,22px);min-width:0;display:flex;flex-direction:column}
+  .card.is-hidden{display:none}
+  .tiles{display:grid;grid-template-columns:1.5fr 1fr;gap:8px;min-width:0;align-items:stretch}
+  .tile{border:1px solid var(--line);overflow:hidden;height:clamp(150px,17vw,190px);min-width:0}
+  .tile.logo{display:flex;align-items:center;justify-content:center;padding:14px;
+    background:radial-gradient(72% 72% at 50% 42%,rgba(198,163,92,.13),rgba(198,163,92,0) 72%),var(--ink-3)}
+  .tile.logo img{max-width:100%;max-height:100%;object-fit:contain}
+  .tile.photo{background:#000;display:flex;align-items:center;justify-content:center;padding:6px}
+  .tile.photo img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  h3{font-family:var(--f-disp);font-weight:800;font-size:clamp(25px,3vw,32px);line-height:1;letter-spacing:.01em;
+    margin:16px 0 0;text-transform:uppercase;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+  h3 span{font-family:var(--f-body);font-size:13.5px;font-weight:500;letter-spacing:-.01em;color:var(--mute);text-transform:none}
+  .role{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-dim);margin:7px 0 0}
+  .btns{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:14px}
+  .dl{display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;text-align:left;
+    background:var(--ink);border:0;cursor:pointer;padding:10px 13px;color:var(--bone);font-family:var(--f-body);
+    transition:background .16s ease,color .16s ease}
+  .dl:hover{background:var(--ink-3);color:var(--gold-hi)}
+  .dl:focus-visible{outline:2px solid var(--gold-hi);outline-offset:-2px}
+  .dl .t{font-size:13.5px;font-weight:600;letter-spacing:-.01em;min-width:0}
+  .dl .t::before{content:"↓ ";color:var(--gold-dim)}
+  .dl .s{font-family:var(--f-mono);font-size:10px;letter-spacing:.04em;color:var(--mute-2);flex:none;
+    font-variant-numeric:tabular-nums}
+  .dl[data-state="saving"] .t::before{content:"· "}
+  .dl[data-state="saved"] .t::before{content:"✓ ";color:var(--gold)}
+  .dl[data-state="failed"] .t::before{content:"! ";color:var(--warn)}
+  .empty{padding:56px 0;text-align:center;color:var(--mute-2);font-family:var(--f-mono);font-size:13px;letter-spacing:.06em}
+
+  .note{margin-top:clamp(26px,4vw,38px);border:1px solid var(--line);background:var(--ink-2);padding:clamp(20px,3vw,28px)}
+  .note h2{font-family:var(--f-body);font-weight:700;font-size:18px;letter-spacing:-.02em;margin:10px 0 0}
+  .note ul{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+  .note li{font-size:14.5px;color:var(--mute);padding-left:16px;position:relative;line-height:1.65}
+  .note li::before{content:"";position:absolute;left:0;top:11px;width:6px;height:1px;background:var(--gold-dim)}
+  .note b{color:var(--bone);font-weight:600}
+  #fallback{display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+  #fallback.on{display:block}
+
+  footer{border-top:1px solid var(--line);padding-block:26px 44px;display:flex;flex-wrap:wrap;gap:10px 22px;
+    justify-content:space-between;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;color:var(--mute-2);
+    text-transform:uppercase}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="wrap">
+  <p class="eyebrow">Logo &amp; Profile · Press Assets</p>
+  <h1>GRUNT ZERO</h1>
+  <p class="h1sub">로고 · 프로필 자료실</p>
+  <p class="sub">포스터 · LED 백월 · 현수막에 쓰실 로고와 프로필 사진입니다.</p>
+  <p class="lead">아티스트 18팀의 로고(투명 PNG)와 프로필 사진(JPG)을 바로 받으실 수 있습니다. 로고는 화이트가 기본이고, 밝은 배경에 쓰실 때만 블랙을 쓰시면 됩니다. 인쇄용 벡터(AI)와 고해상도 원본, 공연 사진·영상은 네이버 박스에 있습니다.</p>
+  <div class="top-actions">
+    <a class="btn" href="http://naver.me/5UrHsp21" target="_blank" rel="noopener">원본 전체 받기 (네이버 박스)</a>
+    <a class="btn ghost" href="https://claude.ai/artifact/KNdCnicj1QQuXcC8qDu1rM" target="_blank" rel="noopener">라인업 · 출연료 보기</a>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="wrap inner">
+    <div class="search">
+      <label for="q" hidden>아티스트 검색</label>
+      <input id="q" type="search" placeholder="아티스트 이름 검색 (예: 킬라톤, SEFO)" autocomplete="off">
+    </div>
+    <div class="chips" role="group" aria-label="분류">
+      <button class="chip" type="button" data-g="all" aria-pressed="true">전체 18팀</button>
+      <button class="chip" type="button" data-g="company" aria-pressed="false">회사</button>
+      <button class="chip" type="button" data-g="solo" aria-pressed="false">솔로</button>
+      <button class="chip" type="button" data-g="duo" aria-pressed="false">듀오</button>
+      <button class="chip" type="button" data-g="kids" aria-pressed="false">어린이 디제이</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="grid" id="grid">
+      <article class="card" data-group="company" data-q="grunt zero 그런트제로">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/gruntzero_logo_w.png" alt="GRUNT ZERO 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/gruntzero_pv.webp" alt="GRUNT ZERO 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>GRUNT ZERO<span>그런트제로</span></h3>
+        <p class="role">회사 로고 · 단체 사진</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/gruntzero_logo_w.png" data-name="GRUNT ZERO_GRUNT ZERO_logo.png"><span class="t">워드마크 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×286</span></button>
+            <button class="dl" type="button" data-f="assets/gruntzero_logo_b.png" data-name="GRUNT ZERO_GRUNT ZERO_logo.png"><span class="t">워드마크 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×286</span></button>
+            <button class="dl" type="button" data-f="assets/gruntzero_logo2_w.png" data-name="GRUNT ZERO_GRUNT ZERO_logo.png"><span class="t">심볼 G.O · 어두운 배경용</span><span class="s">PNG 투명 · 1000×998</span></button>
+            <button class="dl" type="button" data-f="assets/gruntzero_photo.jpg" data-name="GRUNT ZERO_GRUNT ZERO_단체 사진.jpg"><span class="t">단체 사진 (12인) · 배경 있음</span><span class="s">JPG · 2000×1125</span></button>
+            <button class="dl" type="button" data-f="assets/gruntzero_cut.png" data-name="GRUNT ZERO_GRUNT ZERO_단체 사진_누끼.png"><span class="t">단체 사진 (12인) · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 2000×1125</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="sefo 세포">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/sefo_logo_w.png" alt="SEFO 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/sefo_pv.webp" alt="SEFO 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>SEFO<span>세포</span></h3>
+        <p class="role">대표 · 헤드라이너</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/sefo_logo_w.png" data-name="GRUNT ZERO_SEFO_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×597</span></button>
+            <button class="dl" type="button" data-f="assets/sefo_logo_c.png" data-name="GRUNT ZERO_SEFO_logo.png"><span class="t">컬러</span><span class="s">PNG 투명 · 1000×597</span></button>
+            <button class="dl" type="button" data-f="assets/sefo_photo.jpg" data-name="GRUNT ZERO_SEFO_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/sefo_cut.png" data-name="GRUNT ZERO_SEFO_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="허조교 gunner">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/gunner_logo_kw.png" alt="허조교 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/gunner_pv.webp" alt="허조교 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>허조교<span>GUNNER</span></h3>
+        <p class="role">전자음악 전투훈련</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/gunner_logo_kw.png" data-name="GRUNT ZERO_허조교_logo.png"><span class="t">한글 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×160</span></button>
+            <button class="dl" type="button" data-f="assets/gunner_logo_kb.png" data-name="GRUNT ZERO_허조교_logo.png"><span class="t">한글 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×160</span></button>
+            <button class="dl" type="button" data-f="assets/gunner_photo.jpg" data-name="GRUNT ZERO_허조교_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/gunner_cut.png" data-name="GRUNT ZERO_허조교_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="moshee 모시">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/moshee_logo_w.png" alt="MOSHEE 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/moshee_pv.webp" alt="MOSHEE 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>MOSHEE<span>모시</span></h3>
+        <p class="role">프로듀서 · DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/moshee_logo_w.png" data-name="GRUNT ZERO_MOSHEE_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×457</span></button>
+            <button class="dl" type="button" data-f="assets/moshee_logo_b.png" data-name="GRUNT ZERO_MOSHEE_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×457</span></button>
+            <button class="dl" type="button" data-f="assets/moshee_photo.jpg" data-name="GRUNT ZERO_MOSHEE_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/moshee_cut.png" data-name="GRUNT ZERO_MOSHEE_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="duo" data-q="poy &amp; loki 포이 &amp; 로키">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/poyloki_logo_w.png" alt="POY &amp; LOKI 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/poyloki_pv.webp" alt="POY &amp; LOKI 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>POY &amp; LOKI<span>포이 &amp; 로키</span></h3>
+        <p class="role">듀오</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/poyloki_logo_w.png" data-name="GRUNT ZERO_POY &amp; LOKI_logo.png"><span class="t">화이트 박스 · 어두운 배경용</span><span class="s">PNG 투명 · 921×232</span></button>
+            <button class="dl" type="button" data-f="assets/poyloki_logo_b.png" data-name="GRUNT ZERO_POY &amp; LOKI_logo.png"><span class="t">블랙 박스 · 밝은 배경용</span><span class="s">PNG 투명 · 921×232</span></button>
+            <button class="dl" type="button" data-f="assets/poyloki_photo.jpg" data-name="GRUNT ZERO_POY &amp; LOKI_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/poyloki_cut.png" data-name="GRUNT ZERO_POY &amp; LOKI_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1042×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="duo" data-q="annaconda &amp; haena 애나콘다 &amp; 해나">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/annahaena_logo_w.png" alt="ANNACONDA &amp; HAENA 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/annahaena_pv.webp" alt="ANNACONDA &amp; HAENA 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>ANNACONDA &amp; HAENA<span>애나콘다 &amp; 해나</span></h3>
+        <p class="role">듀오</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/annahaena_logo_w.png" data-name="GRUNT ZERO_ANNACONDA &amp; HAENA_logo.png"><span class="t">로고 (검정 배경 포함)</span><span class="s">PNG 투명 · 932×326</span></button>
+            <button class="dl" type="button" data-f="assets/annahaena_photo.jpg" data-name="GRUNT ZERO_ANNACONDA &amp; HAENA_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1174×1600</span></button>
+            <button class="dl" type="button" data-f="assets/annahaena_cut.png" data-name="GRUNT ZERO_ANNACONDA &amp; HAENA_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1174×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="killaton 킬라톤">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/killaton_logo_w.png" alt="KillaTon 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/killaton_pv.webp" alt="KillaTon 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>KillaTon<span>킬라톤</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/killaton_logo_w.png" data-name="GRUNT ZERO_KillaTon_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×371</span></button>
+            <button class="dl" type="button" data-f="assets/killaton_logo_b.png" data-name="GRUNT ZERO_KillaTon_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×371</span></button>
+            <button class="dl" type="button" data-f="assets/killaton_photo.jpg" data-name="GRUNT ZERO_KillaTon_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/killaton_cut.png" data-name="GRUNT ZERO_KillaTon_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="d&#x27;eta 데타">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/deta_logo_w.png" alt="D&#x27;ETA 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/deta_pv.webp" alt="D&#x27;ETA 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>D&#x27;ETA<span>데타</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/deta_logo_w.png" data-name="GRUNT ZERO_D&#x27;ETA_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×964</span></button>
+            <button class="dl" type="button" data-f="assets/deta_logo_b.png" data-name="GRUNT ZERO_D&#x27;ETA_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×964</span></button>
+            <button class="dl" type="button" data-f="assets/deta_photo.jpg" data-name="GRUNT ZERO_D&#x27;ETA_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/deta_cut.png" data-name="GRUNT ZERO_D&#x27;ETA_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="poy 포이">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/poy_logo_w.png" alt="POY 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/poy_pv.webp" alt="POY 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>POY<span>포이</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/poy_logo_w.png" data-name="GRUNT ZERO_POY_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×471</span></button>
+            <button class="dl" type="button" data-f="assets/poy_logo_b.png" data-name="GRUNT ZERO_POY_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×471</span></button>
+            <button class="dl" type="button" data-f="assets/poy_photo.jpg" data-name="GRUNT ZERO_POY_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/poy_cut.png" data-name="GRUNT ZERO_POY_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="loki 로키">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/loki_logo_w.png" alt="LOKI 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/loki_pv.webp" alt="LOKI 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>LOKI<span>로키</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/loki_logo_w.png" data-name="GRUNT ZERO_LOKI_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×429</span></button>
+            <button class="dl" type="button" data-f="assets/loki_logo_b.png" data-name="GRUNT ZERO_LOKI_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×429</span></button>
+            <button class="dl" type="button" data-f="assets/loki_photo.jpg" data-name="GRUNT ZERO_LOKI_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/loki_cut.png" data-name="GRUNT ZERO_LOKI_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="annaconda 애나콘다">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/annaconda_logo_w.png" alt="ANNACONDA 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/annaconda_pv.webp" alt="ANNACONDA 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>ANNACONDA<span>애나콘다</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/annaconda_logo_w.png" data-name="GRUNT ZERO_ANNACONDA_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×480</span></button>
+            <button class="dl" type="button" data-f="assets/annaconda_logo_b.png" data-name="GRUNT ZERO_ANNACONDA_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×479</span></button>
+            <button class="dl" type="button" data-f="assets/annaconda_photo.jpg" data-name="GRUNT ZERO_ANNACONDA_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/annaconda_cut.png" data-name="GRUNT ZERO_ANNACONDA_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="haena 해나">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/haena_logo_w.png" alt="HAENA 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/haena_pv.webp" alt="HAENA 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>HAENA<span>해나</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/haena_logo_w.png" data-name="GRUNT ZERO_HAENA_logo.png"><span class="t">영문 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×441</span></button>
+            <button class="dl" type="button" data-f="assets/haena_logo_b.png" data-name="GRUNT ZERO_HAENA_logo.png"><span class="t">영문 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×441</span></button>
+            <button class="dl" type="button" data-f="assets/haena_logo_kw.png" data-name="GRUNT ZERO_HAENA_logo.png"><span class="t">한글 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×539</span></button>
+            <button class="dl" type="button" data-f="assets/haena_photo.jpg" data-name="GRUNT ZERO_HAENA_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1200×1600</span></button>
+            <button class="dl" type="button" data-f="assets/haena_cut.png" data-name="GRUNT ZERO_HAENA_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1200×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="borngi 봉기">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/borngi_logo_w.png" alt="BORNGI 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/borngi_pv.webp" alt="BORNGI 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>BORNGI<span>봉기</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/borngi_logo_w.png" data-name="GRUNT ZERO_BORNGI_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×914</span></button>
+            <button class="dl" type="button" data-f="assets/borngi_logo_b.png" data-name="GRUNT ZERO_BORNGI_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×914</span></button>
+            <button class="dl" type="button" data-f="assets/borngi_logo_c.png" data-name="GRUNT ZERO_BORNGI_logo.png"><span class="t">컬러</span><span class="s">PNG 투명 · 1000×906</span></button>
+            <button class="dl" type="button" data-f="assets/borngi_photo.jpg" data-name="GRUNT ZERO_BORNGI_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/borngi_cut.png" data-name="GRUNT ZERO_BORNGI_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="rogun 로건">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/rogun_logo_w.png" alt="ROGUN 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/rogun_pv.webp" alt="ROGUN 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>ROGUN<span>로건</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/rogun_logo_w.png" data-name="GRUNT ZERO_ROGUN_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×444</span></button>
+            <button class="dl" type="button" data-f="assets/rogun_logo_c.png" data-name="GRUNT ZERO_ROGUN_logo.png"><span class="t">컬러</span><span class="s">PNG 투명 · 1000×463</span></button>
+            <button class="dl" type="button" data-f="assets/rogun_photo.jpg" data-name="GRUNT ZERO_ROGUN_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/rogun_cut.png" data-name="GRUNT ZERO_ROGUN_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="solo" data-q="woad 오드">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/woad_logo_w.png" alt="WOAD 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/woad_pv.webp" alt="WOAD 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>WOAD<span>오드</span></h3>
+        <p class="role">DJ</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/woad_logo_w.png" data-name="GRUNT ZERO_WOAD_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×902</span></button>
+            <button class="dl" type="button" data-f="assets/woad_photo.jpg" data-name="GRUNT ZERO_WOAD_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/woad_cut.png" data-name="GRUNT ZERO_WOAD_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="kids" data-q="sseni &amp; berri 쎄니 &amp; 베리">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/sseniberri_logo_w.png" alt="SSENI &amp; BERRI 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/sseniberri_pv.webp" alt="SSENI &amp; BERRI 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>SSENI &amp; BERRI<span>쎄니 &amp; 베리</span></h3>
+        <p class="role">어린이 디제이 듀오</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/sseniberri_logo_w.png" data-name="GRUNT ZERO_SSENI &amp; BERRI_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×237</span></button>
+            <button class="dl" type="button" data-f="assets/sseniberri_logo_b.png" data-name="GRUNT ZERO_SSENI &amp; BERRI_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×237</span></button>
+            <button class="dl" type="button" data-f="assets/sseniberri_photo.jpg" data-name="GRUNT ZERO_SSENI &amp; BERRI_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1465×1600</span></button>
+            <button class="dl" type="button" data-f="assets/sseniberri_cut.png" data-name="GRUNT ZERO_SSENI &amp; BERRI_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1465×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="kids" data-q="sseni 쎄니">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/sseni_logo_w.png" alt="SSENI 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/sseni_pv.webp" alt="SSENI 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>SSENI<span>쎄니</span></h3>
+        <p class="role">어린이 디제이</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/sseni_logo_w.png" data-name="GRUNT ZERO_SSENI_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×327</span></button>
+            <button class="dl" type="button" data-f="assets/sseni_logo_b.png" data-name="GRUNT ZERO_SSENI_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×327</span></button>
+            <button class="dl" type="button" data-f="assets/sseni_photo.jpg" data-name="GRUNT ZERO_SSENI_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1067×1600</span></button>
+            <button class="dl" type="button" data-f="assets/sseni_cut.png" data-name="GRUNT ZERO_SSENI_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+      <article class="card" data-group="kids" data-q="berri 베리">
+        <div class="tiles">
+          <div class="tile logo"><img src="assets/berri_logo_w.png" alt="BERRI 로고" loading="lazy" decoding="async"></div>
+          <div class="tile photo"><img src="assets/berri_pv.webp" alt="BERRI 프로필 사진" loading="lazy" decoding="async"></div>
+        </div>
+        <h3>BERRI<span>베리</span></h3>
+        <p class="role">어린이 디제이</p>
+        <div class="btns">
+            <button class="dl" type="button" data-f="assets/berri_logo_w.png" data-name="GRUNT ZERO_BERRI_logo.png"><span class="t">화이트 · 어두운 배경용</span><span class="s">PNG 투명 · 1000×594</span></button>
+            <button class="dl" type="button" data-f="assets/berri_logo_b.png" data-name="GRUNT ZERO_BERRI_logo.png"><span class="t">블랙 · 밝은 배경용</span><span class="s">PNG 투명 · 1000×594</span></button>
+            <button class="dl" type="button" data-f="assets/berri_photo.jpg" data-name="GRUNT ZERO_BERRI_프로필 사진.jpg"><span class="t">프로필 사진 · 배경 있음</span><span class="s">JPG · 1131×1600</span></button>
+            <button class="dl" type="button" data-f="assets/berri_cut.png" data-name="GRUNT ZERO_BERRI_프로필 사진_누끼.png"><span class="t">프로필 사진 · 누끼 (배경 없음)</span><span class="s">PNG 투명 · 1067×1600</span></button>
+        </div>
+      </article>
+  </div>
+  <p class="empty" id="empty" hidden>검색 결과가 없습니다</p>
+
+  <section class="note">
+    <p class="eyebrow">사용 안내</p>
+    <h2>로고를 쓰실 때</h2>
+    <ul>
+      <li>비율을 유지해 주시고, 색을 바꾸거나 글자를 다시 쓰지 말아 주세요.</li>
+      <li>프로필 사진은 원본 비율 그대로 받으실 수 있습니다. 미리보기가 작게 보여도 받으시면 전체 사진입니다.</li>
+      <li>화이트가 기본입니다. 포스터·LED 백월·현수막처럼 어두운 배경에는 화이트를, 바탕이 밝을 때만 블랙을 쓰시면 됩니다.</li>
+      <li>허조교는 한글 로고만 씁니다. 아티스트명은 <b>ANNACONDA · D'ETA · KillaTon · 허조교</b>처럼 이 페이지에 적힌 그대로 표기해 주세요.</li>
+      <li>인쇄용 벡터(AI)와 고해상도 원본은 네이버 박스에 있습니다. 급하시면 <b>1800-8790</b>으로 연락 주세요.</li>
+    </ul>
+    <div id="fallback">
+      <h2>받기 버튼이 안 눌릴 때</h2>
+      <ul>
+        <li>미리보기 이미지를 길게 누르거나 오른쪽 클릭해서 저장하시거나, 위의 네이버 박스에서 받아 주세요.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>GRUNT ZERO · 1800-8790</span>
+  <span>GRNT@GRNTZERO.COM</span>
+  <span>WWW.GRNTZERO.COM</span>
+</footer>
+
+<script>
+  const cards = [...document.querySelectorAll('.card')];
+  const q = document.getElementById('q');
+  const empty = document.getElementById('empty');
+  const fallback = document.getElementById('fallback');
+  let group = 'all';
+
+  function apply() {
+    const t = (q.value || '').trim().toLowerCase();
+    let n = 0;
+    for (const c of cards) {
+      const ok = (group === 'all' || c.dataset.group === group) && (!t || c.dataset.q.includes(t));
+      c.classList.toggle('is-hidden', !ok);
+      if (ok) n++;
+    }
+    empty.hidden = n > 0;
+  }
+  q.addEventListener('input', apply);
+  for (const ch of document.querySelectorAll('.chip')) {
+    ch.addEventListener('click', () => {
+      group = ch.dataset.g;
+      for (const o of document.querySelectorAll('.chip')) o.setAttribute('aria-pressed', String(o === ch));
+      apply();
+    });
+  }
+
+  let downloads = null, asked = false;
+  async function ensure() {
+    if (!asked) {
+      asked = true;
+      try { downloads = await window.claude?.use?.('downloads'); } catch (e) { downloads = null; }
+      if (!downloads) fallback.classList.add('on');
+    }
+    return downloads;
+  }
+  ensure();
+
+  for (const b of document.querySelectorAll('.dl')) {
+    b.addEventListener('click', async () => {
+      const d = await ensure();
+      if (!d) { b.dataset.state = 'failed'; fallback.classList.add('on'); return; }
+      b.dataset.state = 'saving';
+      try {
+        const res = await fetch(b.dataset.f);
+        const blob = await res.blob();
+        await d.save({ filename: b.dataset.name, data: blob });
+        b.dataset.state = 'saved';
+      } catch (e) {
+        if (e && e.code === 'declined') { b.dataset.state = ''; return; }
+        b.dataset.state = 'failed';
+        fallback.classList.add('on');
+      }
+    });
+  }
+</script>
