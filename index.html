@@ -617,7 +617,7 @@ if(af){af.addEventListener('submit',async function(e){
   ].join('\n');
   var fd=new FormData();
   fd.append('access_key', af.querySelector('[name=access_key]').value);
-  fd.append('subject', '[홈페이지 문의] '+(g('f_company')||'업체명 미기재')+' — '+(g('f_event')||'행사명 미기재'));
+  fd.append('subject', '[공연 문의] '+(g('f_company')||'업체명 미기재')+' — '+(g('f_event')||'행사명 미기재'));
   fd.append('from_name', 'GRUNT ZERO 홈페이지');
   fd.append('name', g('f_manager'));
   fd.append('email', g('f_email'));
