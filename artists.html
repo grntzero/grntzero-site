@@ -152,8 +152,8 @@ img{max-width:100%;display:block}
 .empty.on{display:block}
 /* 상단 단체사진 + 아티스트 바로가기 */
 .crew{border-bottom:1px solid var(--line);background:var(--ink2)}
-.crew .ph{position:relative;height:clamp(240px,33vw,430px);overflow:hidden;background:var(--ink)}
-.crew .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 42%;display:block}
+.crew .ph{position:relative;height:clamp(250px,36vw,480px);overflow:hidden;background:var(--ink)}
+.crew .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 14%;display:block}
 .crew .ph::after{content:"";position:absolute;inset:0;
   background:linear-gradient(0deg,rgba(13,10,6,.94) 0%,rgba(13,10,6,.10) 52%,rgba(13,10,6,.40) 100%)}
 .crew .cap{position:absolute;left:0;right:0;bottom:clamp(13px,2.2vw,24px);z-index:2;text-align:center;padding:0 16px}
@@ -169,7 +169,8 @@ img{max-width:100%;display:block}
 .jlist a:hover{border-color:var(--gold);color:var(--gold2)}
 .card{scroll-margin-top:122px}
 @media(max-width:860px){
-  .crew .ph{height:clamp(190px,50vw,290px)}
+  .crew .ph{height:56vw}
+  .crew .ph img{object-position:50% 50%}
   .card{scroll-margin-top:152px}
   .jlist a{font-size:12.5px;padding:6px 11px}
 }
