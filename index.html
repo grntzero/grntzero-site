@@ -124,6 +124,38 @@ ul{margin:0;padding:0;list-style:none}
 .trust h4{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.15em;color:var(--gold2);margin-bottom:9px}
 .trust p{font-size:14.5px;color:#C9C1B1;line-height:1.8}
 
+/* 공연 영상 */
+.vids{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.4vw,16px)}
+@media(max-width:900px){.vids{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:620px){.vids{grid-template-columns:repeat(2,1fr)}}
+.vid{position:relative;display:block;padding:0;margin:0;border:1px solid var(--line);
+  background:var(--ink2);aspect-ratio:9/16;overflow:hidden;cursor:pointer;
+  width:100%;font:inherit;color:inherit;text-align:left;-webkit-tap-highlight-color:transparent}
+.vid img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s ease,opacity .3s}
+.vid:hover img,.vid:focus-visible img{transform:scale(1.05);opacity:.82}
+.vid::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(0deg,rgba(9,7,4,.92) 0%,rgba(9,7,4,.35) 34%,rgba(9,7,4,0) 62%)}
+.vid .play{position:absolute;left:50%;top:44%;width:46px;height:46px;margin:-23px 0 0 -23px;
+  border:1.5px solid rgba(239,233,220,.85);border-radius:50%;z-index:2;
+  background:rgba(13,10,6,.42);transition:background .25s,border-color .25s}
+.vid .play::before{content:"";position:absolute;left:52%;top:50%;transform:translate(-50%,-50%);
+  border-left:13px solid rgba(239,233,220,.95);border-top:8px solid transparent;border-bottom:8px solid transparent}
+.vid:hover .play{background:var(--gold);border-color:var(--gold)}
+.vid:hover .play::before{border-left-color:#120D06}
+.vcap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:14px 13px 13px}
+.vcap b{display:block;font-size:14px;font-weight:700;color:#F2ECDF;line-height:1.4;
+  letter-spacing:-.01em;text-shadow:0 1px 10px rgba(0,0,0,.6)}
+.vcap i{display:block;font-style:normal;font-size:11.5px;color:var(--gold2);
+  margin-top:5px;letter-spacing:.02em;opacity:.92}
+@media(max-width:620px){.vcap{padding:11px 10px 10px}.vcap b{font-size:12.5px}.vcap i{font-size:10.5px}}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vfull{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px 26px;align-items:center}
+.vfull span{font-size:13.5px;color:var(--mut)}
+.vfull a{font-size:13.5px;color:var(--gold2);text-decoration:none;
+  border-bottom:1px solid rgba(198,163,92,.4);padding-bottom:2px}
+.vfull a:hover{border-bottom-color:var(--gold)}
+
 /* 고객사 */
 .cgrp{margin-bottom:22px}
 .cgrp h4{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.2em;color:var(--gold);
@@ -196,6 +228,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
   <a href="#top"><img src="img/gz_logo.png" alt="GRUNT ZERO"></a>
   <nav class="nav">
     <a href="#solution">SOLUTION</a>
+    <a href="#live">LIVE</a>
     <a href="#artist">ARTIST</a>
     <a href="#clients">CLIENTS</a>
     <a href="#academy">ACADEMY</a>
@@ -291,7 +324,43 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
   </div>
 </div></section>
 
-<section class="band"><div class="wrap">
+<section class="band" id="live"><div class="wrap">
+  <div class="shd"><h2>LIVE</h2><span class="kr">공연 영상</span></div>
+  <p class="lede">실제 현장입니다. 누르면 바로 재생됩니다.</p>
+  <div class="vids">
+    <button class="vid" type="button" data-yt="WDE9QDS8Ql4">
+      <img src="img/vid/WDE9QDS8Ql4.jpg" alt="루나빛축제 공연 영상" loading="lazy">
+      <span class="play"></span><span class="vcap"><b>루나빛축제</b><i>동탄호수공원 · 지역축제</i></span></button>
+    <button class="vid" type="button" data-yt="DCt0ECjvPas">
+      <img src="img/vid/DCt0ECjvPas.jpg" alt="춘천마임축제 공연 영상" loading="lazy">
+      <span class="play"></span><span class="vcap"><b>춘천마임축제</b><i>왕복 4차선 차 없는 거리</i></span></button>
+    <button class="vid" type="button" data-yt="q_sH-mkC8KY">
+      <img src="img/vid/q_sH-mkC8KY.jpg" alt="안양춤축제 공연 영상" loading="lazy">
+      <span class="play"></span><span class="vcap"><b>안양춤축제</b><i>거리예술 · 물 연출</i></span></button>
+    <button class="vid" type="button" data-yt="mFehUgyHUfo">
+      <img src="img/vid/mFehUgyHUfo.jpg" alt="한강 사일런트디스코 공연 영상" loading="lazy">
+      <span class="play"></span><span class="vcap"><b>한강 사일런트디스코</b><i>헤드폰 공연 · 야간</i></span></button>
+    <button class="vid" type="button" data-yt="Kqb-ZNl-Hpw">
+      <img src="img/vid/Kqb-ZNl-Hpw.jpg" alt="거제 옥포대첩축제 키즈 공연 영상" loading="lazy">
+      <span class="play"></span><span class="vcap"><b>거제 옥포대첩축제</b><i>키즈 워터밤 · 어린이클럽</i></span></button>
+    <button class="vid" type="button" data-yt="fXi67Z2bQ8E">
+      <img src="img/vid/fXi67Z2bQ8E.jpg" alt="기업 사내 행사 공연 영상" loading="lazy">
+      <span class="play"></span><span class="vcap"><b>회사 행사에서 이게 가능하다고?</b><i>기업 사내 행사 · 착석 객석</i></span></button>
+    <button class="vid" type="button" data-yt="Vsi7Tc7yONE">
+      <img src="img/vid/Vsi7Tc7yONE.jpg" alt="워터파크 공연 영상" loading="lazy">
+      <span class="play"></span><span class="vcap"><b>공연으로 인공파도 만들기</b><i>아마존 당진 워터파크</i></span></button>
+    <button class="vid" type="button" data-yt="jLQNxNHsyc4">
+      <img src="img/vid/jLQNxNHsyc4.jpg" alt="워터퐝페스티벌 공연 영상" loading="lazy">
+      <span class="play"></span><span class="vcap"><b>워터퐝페스티벌</b><i>포항 영일대해수욕장</i></span></button>
+  </div>
+  <div class="vfull">
+    <span>편집 없는 풀 영상</span>
+    <a href="https://youtu.be/AwjUAd_vvSg" target="_blank" rel="noopener">WE ARE FESTIVAL 2023 — 한 세트 전체</a>
+    <a href="https://youtu.be/IMFo2j01Ztw" target="_blank" rel="noopener">송도맥주축제 — 경인방송 대형 야외무대</a>
+  </div>
+</div></section>
+
+<section class="band alt"><div class="wrap">
   <div class="shd"><h2>WHY GRUNT ZERO</h2><span class="kr">왜 그런트제로인가</span></div>
   <div class="trust">
     <div><h4>DJ 장비까지 함께</h4>
@@ -306,7 +375,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
   </div>
 </div></section>
 
-<section class="band alt" id="artist"><div class="wrap">
+<section class="band" id="artist"><div class="wrap">
   <div class="shd"><h2>ARTIST</h2><span class="kr">소속 아티스트</span></div>
   <div class="crew">
     <img src="img/crew.jpg" alt="GRUNT ZERO 소속 아티스트 단체 사진">
@@ -321,7 +390,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
   </div>
 </div></section>
 
-<section class="band" id="clients"><div class="wrap">
+<section class="band alt" id="clients"><div class="wrap">
   <div class="shd"><h2>CLIENTS</h2><span class="kr">함께한 곳</span></div>
   <p class="lede">정부 부처와 공공기관, 광역·기초 지자체, 문화재단, 대학, 기업까지
     <strong>226개 이상의 기관·기업</strong>과 일했습니다.</p>
@@ -409,7 +478,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     특정 지역이나 행사 성격의 레퍼런스가 필요하시면 담당자에게 요청해 주세요.</p>
 </div></section>
 
-<section class="band alt" id="academy"><div class="wrap">
+<section class="band" id="academy"><div class="wrap">
   <div class="shd"><h2>GCS ACADEMY</h2><span class="kr">디제잉 아카데미</span></div>
   <p class="lede">수원 영통 본사에서 <strong>DJ·MIDI 아카데미</strong>를 직접 운영합니다.
     공연에 쓰는 음원이 여기서 만들어지고, 무대에 서는 아티스트도 여기서 나옵니다.
@@ -428,7 +497,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     수강 상담은 카카오톡 <b>djpoy</b> 또는 <b>010-6539-4247</b> 로 연락 주세요.</p>
 </div></section>
 
-<section class="band" id="about"><div class="wrap">
+<section class="band alt" id="about"><div class="wrap">
   <div class="shd"><h2>ABOUT</h2><span class="kr">회사 소개</span></div>
   <p class="lede">그런트제로는 특색 있는 아티스트 발굴과 육성으로 어린이, 시민, 실버, 예술 사각지대 등
     기존에 디제잉 공연과 거리가 있었던 영역으로 진출하며 공연을 확장하고 있는 기업입니다.
@@ -441,7 +510,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
   </div>
 </div></section>
 
-<section class="band alt" id="contact"><div class="wrap">
+<section class="band" id="contact"><div class="wrap">
   <div class="shd"><h2>CONTACT</h2><span class="kr">섭외 문의</span></div>
   <p class="lede">행사 성격과 예상 인원만 알려주시면, 그에 맞는 공연 구성과 견적을
     영업일 기준 1일 이내에 보내 드립니다.</p>
@@ -488,6 +557,18 @@ document.getElementById('copyTel').addEventListener('click', async function(){
     btn.textContent='번호를 선택했습니다';
   }
   setTimeout(function(){btn.textContent='번호 복사';},2200);
+});
+document.querySelectorAll('.vid').forEach(function(b){
+  b.addEventListener('click',function(){
+    var id=b.getAttribute('data-yt'); if(!id||b.dataset.on) return;
+    b.dataset.on='1';
+    var f=document.createElement('iframe');
+    f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1';
+    f.title=b.querySelector('.vcap b').textContent;
+    f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+    f.allowFullscreen=true;
+    b.innerHTML=''; b.style.cursor='default'; b.appendChild(f);
+  });
 });
 document.querySelectorAll('.nav a, a[href^="#"]').forEach(function(a){
   a.addEventListener('click',function(e){
