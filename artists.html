@@ -75,13 +75,19 @@ img{max-width:100%;display:block}
   padding-block:clamp(26px,4vw,44px) clamp(40px,6vw,76px)}
 @media(max-width:860px){.grid{grid-template-columns:1fr}}
 
-.card{border:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column}
+.card{border:1px solid var(--line);background:var(--panel);display:grid;
+  grid-template-columns:minmax(150px,34%) 1fr}
 .card.hide{display:none}
-.cph{aspect-ratio:4/3;overflow:hidden;background:var(--ink2);position:relative}
-.cph img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;
+.cph{overflow:hidden;background:var(--ink2);position:relative;border-right:1px solid var(--line)}
+.cph img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;
   transition:transform .5s ease}
 .card:hover .cph img{transform:scale(1.035)}
-.cbd{padding:clamp(18px,2.2vw,26px);display:flex;flex-direction:column;gap:11px;flex:1}
+.cbd{padding:clamp(16px,2vw,24px);display:flex;flex-direction:column;gap:10px;min-width:0}
+@media(max-width:520px){
+  .card{grid-template-columns:1fr}
+  .cph{border-right:0;border-bottom:1px solid var(--line);aspect-ratio:4/3}
+  .cph img{object-position:50% 16%}
+}
 .crole{font-family:var(--disp);font-weight:700;font-size:13.5px;letter-spacing:.17em;
   color:var(--gold);text-transform:uppercase}
 .cname{font-size:clamp(21px,2.4vw,27px);font-weight:700;letter-spacing:-.02em;line-height:1.2}
@@ -96,8 +102,8 @@ img{max-width:100%;display:block}
 .vwrap{margin-top:auto;padding-top:15px;border-top:1px solid var(--line)}
 .vlab{font-family:var(--disp);font-weight:700;font-size:12.5px;letter-spacing:.18em;
   color:var(--dim);margin-bottom:9px}
-.vstage{position:relative;aspect-ratio:9/16;max-height:420px;margin:0 auto 11px;
-  width:min(236px,100%);border:1px solid var(--line);background:var(--ink2);display:none}
+.vstage{position:relative;aspect-ratio:9/16;max-height:380px;margin:0 auto 11px;
+  width:min(214px,100%);border:1px solid var(--line);background:var(--ink2);display:none}
 .vstage.on{display:block}
 .vstage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vlist{display:flex;flex-wrap:wrap;gap:6px}
@@ -163,7 +169,7 @@ img{max-width:100%;display:block}
 
 <main class="wrap"><div class="grid">
 <article class="card" data-tags="festival univ kids water corp silent">
-  <div class="cph"><img src="img/artist/sefo.webp" alt="SEFO 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/sefo.webp" alt="SEFO 프로필"></div>
   <div class="cbd">
     <p class="crole">Headliner · 대표 아티스트</p>
     <h2 class="cname">SEFO</h2>
@@ -174,7 +180,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ water corp">
-  <div class="cph"><img src="img/artist/gunner.webp" alt="허조교 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/gunner.webp" alt="허조교 프로필"></div>
   <div class="cbd">
     <p class="crole">Performance · 전자음악 전투훈련</p>
     <h2 class="cname">허조교</h2>
@@ -185,7 +191,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ water corp youth">
-  <div class="cph"><img src="img/artist/moshee.webp" alt="MOSHEE 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/moshee.webp" alt="MOSHEE 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ · 마스크 퍼포먼스</p>
     <h2 class="cname">MOSHEE</h2>
@@ -196,7 +202,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp youth silent">
-  <div class="cph"><img src="img/artist/poyloki.webp" alt="POY &amp; LOKI 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/poyloki.webp" alt="POY &amp; LOKI 프로필"></div>
   <div class="cbd">
     <p class="crole">Duo · 남자 듀오</p>
     <h2 class="cname">POY &amp; LOKI</h2>
@@ -207,7 +213,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp youth silent">
-  <div class="cph"><img src="img/artist/anna_haena.webp" alt="ANNACONDA &amp; HAENA 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/anna_haena.webp" alt="ANNACONDA &amp; HAENA 프로필"></div>
   <div class="cbd">
     <p class="crole">Duo · 여자 듀오</p>
     <h2 class="cname">ANNACONDA &amp; HAENA</h2>
@@ -218,7 +224,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp youth">
-  <div class="cph"><img src="img/artist/killaton.webp" alt="KillaTon 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/killaton.webp" alt="KillaTon 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ</p>
     <h2 class="cname">KillaTon</h2>
@@ -229,7 +235,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp youth silent">
-  <div class="cph"><img src="img/artist/deta.webp" alt="D&#x27;ETA 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/deta.webp" alt="D&#x27;ETA 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ</p>
     <h2 class="cname">D&#x27;ETA</h2>
@@ -240,7 +246,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp youth silent">
-  <div class="cph"><img src="img/artist/poy.webp" alt="POY 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/poy.webp" alt="POY 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ</p>
     <h2 class="cname">POY</h2>
@@ -251,7 +257,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp youth silent">
-  <div class="cph"><img src="img/artist/loki.webp" alt="LOKI 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/loki.webp" alt="LOKI 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ · MC</p>
     <h2 class="cname">LOKI</h2>
@@ -262,7 +268,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp youth silent">
-  <div class="cph"><img src="img/artist/annaconda.webp" alt="ANNACONDA 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/annaconda.webp" alt="ANNACONDA 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ</p>
     <h2 class="cname">ANNACONDA</h2>
@@ -273,7 +279,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp youth">
-  <div class="cph"><img src="img/artist/haena.webp" alt="HAENA 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/haena.webp" alt="HAENA 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ</p>
     <h2 class="cname">HAENA</h2>
@@ -284,7 +290,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival water corp silent">
-  <div class="cph"><img src="img/artist/borngi.webp" alt="BORNGI 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/borngi.webp" alt="BORNGI 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ · 사일런트디스코 메인</p>
     <h2 class="cname">BORNGI</h2>
@@ -295,7 +301,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ kids water corp silent">
-  <div class="cph"><img src="img/artist/rogun.webp" alt="ROGUN 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/rogun.webp" alt="ROGUN 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ</p>
     <h2 class="cname">ROGUN</h2>
@@ -306,7 +312,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival univ water corp youth">
-  <div class="cph"><img src="img/artist/woad.webp" alt="WOAD 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/woad.webp" alt="WOAD 프로필"></div>
   <div class="cbd">
     <p class="crole">Solo DJ</p>
     <h2 class="cname">WOAD</h2>
@@ -317,7 +323,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival kids water corp youth">
-  <div class="cph"><img src="img/artist/sseni_berri.webp" alt="SSENI &amp; BERRI 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/sseni_berri.webp" alt="SSENI &amp; BERRI 프로필"></div>
   <div class="cbd">
     <p class="crole">Kids DJ Duo · 대한민국 최초 어린이 DJ 듀오</p>
     <h2 class="cname">SSENI &amp; BERRI</h2>
@@ -328,7 +334,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival kids water corp youth">
-  <div class="cph"><img src="img/artist/sseni.webp" alt="SSENI 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/sseni.webp" alt="SSENI 프로필"></div>
   <div class="cbd">
     <p class="crole">Kids DJ · 어린이 디제이</p>
     <h2 class="cname">SSENI</h2>
@@ -339,7 +345,7 @@ img{max-width:100%;display:block}
   </div>
 </article>
 <article class="card" data-tags="festival kids water corp youth">
-  <div class="cph"><img src="img/artist/berri.webp" alt="BERRI 프로필" loading="lazy"></div>
+  <div class="cph"><img src="img/artist/berri.webp" alt="BERRI 프로필"></div>
   <div class="cbd">
     <p class="crole">Kids DJ · 어린이 디제이</p>
     <h2 class="cname">BERRI</h2>
