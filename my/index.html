@@ -98,14 +98,6 @@ section{padding:clamp(30px,5.5vw,52px) 0}
 .c .bt i{font-style:normal;font-size:11px;letter-spacing:.08em;color:var(--gold-dim)}
 .c:hover .bt i{color:var(--gold)}
 
-/* ── 종료 ── */
-.past{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
-.past button{cursor:pointer;font:inherit;color:var(--mut);text-align:left;
-  border:1px solid var(--line);background:transparent;padding:13px 15px;font-size:13.5px;transition:.16s;
-  display:flex;align-items:center;justify-content:space-between;gap:8px}
-.past button:hover{color:var(--gold2);border-color:var(--gold-dim)}
-.past button i{font-style:normal;font-size:11px;color:var(--dim);letter-spacing:.06em}
-
 /* ── 꼬리말 ── */
 footer{border-top:1px solid var(--line);padding:30px 0 46px;background:var(--ink2)}
 footer p{margin:0;font-size:12.5px;line-height:1.85;color:var(--dim)}
@@ -115,7 +107,6 @@ footer b{color:var(--mut);font-weight:500}
   .grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .wide{padding:16px;gap:13px}
   .wide .go{display:none}
-  .past{grid-template-columns:1fr}
 }
 </style>
 
@@ -132,7 +123,7 @@ footer b{color:var(--mut);font-weight:500}
   <div class="note">
     정산서는 <b>본인 구글 계정에만 열람 권한</b>이 있습니다.
     열리지 않거나 권한 요청 화면이 뜨면, 구글에 로그인된 계정이 회사에 알려주신 주소와 같은지 먼저 확인해 주세요.
-    그래도 안 되면 <b>SEFO</b>에게 알려주시면 바로 열어드립니다.
+    그래도 안 되면 <b>담당자</b>에게 알려주시면 바로 열어드립니다.
   </div>
 </div></div>
 
@@ -153,15 +144,11 @@ footer b{color:var(--mut);font-weight:500}
   <div class="grid" id="g"></div>
 </div></section>
 
-<section style="padding-top:0"><div class="wrap">
-  <div class="sect"><h2>계약 종료</h2><span>잔여 정산 확인용</span><span class="rule"></span></div>
-  <div class="past" id="p"></div>
-</div></section>
 
 <footer><div class="wrap">
   <p>
     <b>GRUNT ZERO</b> · 아티스트 정산 포털<br>
-    정산 내역에 빠지거나 잘못된 건이 있으면 확인 즉시 SEFO에게 알려주세요.<br>
+    정산 내역에 빠지거나 잘못된 건이 있으면 확인 즉시 담당자에게 알려주세요.<br>
     이 페이지는 검색에 노출되지 않습니다.
   </p>
 </div></footer>
@@ -183,11 +170,6 @@ var A=[
  ["SSENI","sseni","1h9FGwl5a3eGby9FoWOpL8EovvbHKswOBYzpNnSkQrHw"],
  ["BERRI","berri","1sDxvfippnWm87ThnzrwIF2mZZ5qksdyvqURYLaHCIgY"]
 ];
-var P=[
- ["Bagagee","1Bi5x4Y6qDwUAeyuYwZGZKuKQcG9TOQeLivnNRevQzTU"],
- ["MC KHAN","1OJOqp1OgsK7iY3tqXtrDB9BiwLHobPZNLRx4-yWATqQ"],
- ["Geeni","1ZY_QUpbYTe0odoDOdMsYhDwX8vJc9t57xQ2yGLwPJFE"]
-];
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 var g=document.getElementById('g');
 A.forEach(function(a){
@@ -197,13 +179,6 @@ A.forEach(function(a){
     +'<span class="nm">'+esc(a[0])+'</span></span>'
     +'<span class="bt">정산서 열기 <i>OPEN</i></span>';
   g.appendChild(b);
-});
-var p=document.getElementById('p');
-P.forEach(function(a){
-  var b=document.createElement('button');
-  b.setAttribute('data-s',a[1]);
-  b.innerHTML=esc(a[0])+' <i>OPEN</i>';
-  p.appendChild(b);
 });
 document.addEventListener('click',function(e){
   var t=e.target.closest('[data-s]'); if(!t) return;
