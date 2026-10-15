@@ -225,6 +225,63 @@ footer .biz{font-size:12.5px;line-height:1.9;color:#9F9888}
 footer .cross{display:inline-block;margin-top:14px;font-size:13.5px;color:#fff;text-decoration:none;border-bottom:1px solid #B9A4FF;padding-bottom:1px}
 footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:#7D7769}
 
+
+/* 메인 영상 */
+.feature{position:relative;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 18px 50px -24px rgba(60,40,120,.55);border:1px solid var(--line-2)}
+.feature .yt{position:relative;aspect-ratio:16/9;background:#111 center/cover no-repeat;cursor:pointer;display:block;width:100%;border:0;padding:0}
+.feature .yt::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.6))}
+.feature .yt .play{width:78px;height:78px;margin:-39px 0 0 -39px;box-shadow:0 0 0 10px rgba(255,255,255,.18)}
+.feature .yt .play::before{border-left-width:24px;border-top-width:14px;border-bottom-width:14px;margin-left:6px}
+.feature .cap{position:absolute;left:18px;right:18px;bottom:14px;z-index:2;color:#fff;text-align:left;pointer-events:none}
+.feature .cap b{display:block;font-family:var(--f-head);font-size:clamp(16px,2vw,19px);font-weight:800;letter-spacing:-.03em}
+.feature .cap span{font-size:12.5px;opacity:.8}
+.feature iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.feature-tabs{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.feature-tabs button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);padding:6px 12px;border-radius:999px;cursor:pointer}
+.feature-tabs button[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
+
+/* 쇼츠 */
+.shorts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:12px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+@media(min-width:1040px){.shorts{grid-auto-columns:calc((100% - 5*12px)/6)}}
+.short{scroll-snap-align:start;text-decoration:none;color:inherit;display:block}
+.short .sv{position:relative;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#222}
+.short .sv img{width:100%;height:100%;object-fit:cover;transform:scale(1.36)}
+.short .sv::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.65))}
+.short .sv .play{width:44px;height:44px;margin:-22px 0 0 -22px}
+.short .sv .play::before{border-left-width:14px;border-top-width:9px;border-bottom-width:9px;margin-left:4px}
+.short .st{position:absolute;left:10px;right:10px;bottom:10px;z-index:2;color:#fff;font-size:13.5px;font-weight:800;line-height:1.35;letter-spacing:-.02em}
+.short:hover .sv img{transform:scale(1.42);transition:transform .3s}
+
+/* 아티스트 한눈에 */
+.crewbox{display:grid;gap:clamp(20px,3vw,36px);align-items:center;margin-bottom:clamp(24px,3vw,36px)}
+@media(min-width:900px){.crewbox{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}}
+.crewbox .hero-img{box-shadow:none}
+
+
+.live{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
+@media(min-width:760px){.live{grid-template-columns:repeat(4,1fr)}}
+.live figure{margin:0;border-radius:14px;overflow:hidden;aspect-ratio:3/4;background:var(--card)}
+.live img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.live figure:hover img{transform:scale(1.04)}
+
+/* FAQ */
+.faq{display:grid;gap:10px;max-width:820px}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 20px}
+.faq summary{cursor:pointer;list-style:none;padding:17px 0;font-weight:700;font-size:15.5px;display:flex;justify-content:space-between;gap:14px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--f-mono);font-size:20px;color:var(--violet);flex:none;transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{margin:0 0 18px;color:var(--mute);font-size:14.8px;line-height:1.75}
+
+/* 영상 팝업 */
+.vm{position:fixed;inset:0;z-index:300;background:rgba(10,8,20,.88);display:none;align-items:center;justify-content:center;padding:56px 16px 24px}
+.vm.open{display:flex}
+.vm .box{position:relative;width:min(960px,100%);aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden}
+.vm.vertical .box{width:min(400px,100%,calc((100vh - 110px)*9/16));aspect-ratio:9/16}
+.vm iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vm .x{position:fixed;top:12px;right:14px;font:inherit;font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:9px 16px;cursor:pointer}
+.vm .yt-out{position:fixed;top:18px;left:16px;font-size:12.5px;color:rgba(255,255,255,.7)}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -239,6 +296,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <a href="#artists">아티스트</a>
       <a href="#music">영상·음악</a>
       <a href="#where">함께한 곳</a>
+      <a href="#faq">FAQ</a>
       <a class="shop" href="https://smartstore.naver.com/sefoent" target="_blank" rel="noopener">쇼핑 ↗</a>
       <a class="cta" href="#contact">공연 문의</a>
     </nav>
@@ -261,17 +319,17 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
         </div>
       </div>
       <div>
-        <figure class="hero-img">
-          <img src="img/crew.webp" width="1500" height="1061" alt="세포의 어린이클럽 아티스트 — 세포, 쎄니, 베리, 포키, 나나걸스, 타잔, 깡구" fetchpriority="high">
-          <a class="hot" href="#k-sefo" style="left:16.5%;top:10%;width:20.5%;height:38%" aria-label="세포 소개 보기"></a>
-          <a class="hot" href="#k-sseni" style="left:40%;top:10%;width:20%;height:38%" aria-label="쎄니 소개 보기"></a>
-          <a class="hot" href="#k-berri" style="left:62.5%;top:10%;width:20.5%;height:38%" aria-label="베리 소개 보기"></a>
-          <a class="hot" href="#k-poki" style="left:5.5%;top:50%;width:20.5%;height:40%" aria-label="포키 소개 보기"></a>
-          <a class="hot" href="#k-nana" style="left:28%;top:50%;width:20.5%;height:40%" aria-label="나나걸스 소개 보기"></a>
-          <a class="hot" href="#k-tarzan" style="left:51%;top:50%;width:20.5%;height:40%" aria-label="타잔 소개 보기"></a>
-          <a class="hot" href="#k-ganggu" style="left:73.5%;top:50%;width:20.5%;height:40%" aria-label="깡구 소개 보기"></a>
-        </figure>
-        <p class="hint">사진 속 아티스트를 누르면 소개로 이동합니다</p>
+        <div class="feature" id="feature">
+          <button class="yt" type="button" data-id="iVu2Yzi469o" style="background-image:url(https://i.ytimg.com/vi/iVu2Yzi469o/maxresdefault.jpg)" aria-label="영상 재생: 워크돌 어린이클럽 편">
+            <span class="play" aria-hidden="true"></span>
+            <span class="cap"><b>워크맨 〈워크돌〉 — 어린이클럽 편</b><span>누르면 바로 재생됩니다</span></span>
+          </button>
+        </div>
+        <div class="feature-tabs" role="group" aria-label="대표 영상 고르기">
+          <button type="button" aria-pressed="true" data-id="iVu2Yzi469o" data-t="워크맨 〈워크돌〉 — 어린이클럽 편">워크맨 워크돌</button>
+          <button type="button" aria-pressed="false" data-id="iKiR_ZjMOCA" data-t="SBS 스브스뉴스 — 어린이클럽 편">SBS 스브스뉴스</button>
+          <button type="button" aria-pressed="false" data-id="N0y1ZKw9eYs" data-t="세포체조 — 어린이클럽 대표곡">세포체조</button>
+        </div>
       </div>
     </div>
 
@@ -292,14 +350,36 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <p>어린이클럽이 어떤 공연인지 가장 빠르게 보시려면 이 두 편이면 충분합니다.</p>
     </div>
     <div class="onair">
-      <a class="vcard" href="https://youtu.be/iVu2Yzi469o" target="_blank" rel="noopener">
+      <a data-yt="iVu2Yzi469o" class="vcard" href="https://youtu.be/iVu2Yzi469o" target="_blank" rel="noopener">
         <div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/iVu2Yzi469o/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div>
         <div class="meta"><div class="k">YouTube · 워크맨</div><div class="t">워크돌 — 어린이클럽 편</div><div class="d">워크맨이 직접 찾아온 어린이클럽 현장</div></div>
       </a>
-      <a class="vcard" href="https://youtu.be/iKiR_ZjMOCA" target="_blank" rel="noopener">
+      <a data-yt="iKiR_ZjMOCA" class="vcard" href="https://youtu.be/iKiR_ZjMOCA" target="_blank" rel="noopener">
         <div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/iKiR_ZjMOCA/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div>
         <div class="meta"><div class="k">SBS · 스브스뉴스</div><div class="t">어린이클럽 편</div><div class="d">SBS 스브스뉴스가 취재한 어린이 디제잉 문화</div></div>
       </a>
+    </div>
+  </div>
+</section>
+
+<section class="sect" id="shorts">
+  <div class="wrap">
+    <div class="sect-head">
+      <p class="eyebrow">Shorts</p>
+      <h2>요즘 유치원·운동회, 다 이거 해요</h2>
+      <p>현장 분위기는 영상 한 편이면 충분합니다. 옆으로 넘겨보세요.</p>
+    </div>
+    <div class="shorts">
+      <a class="short" href="https://youtube.com/shorts/eE3d0jwpC58" data-yt="eE3d0jwpC58" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/eE3d0jwpC58/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">요즘 유치원 다 이거함</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/UhDyIHH9kA4" data-yt="UhDyIHH9kA4" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/UhDyIHH9kA4/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">요즘 운동회 다 이거함</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/fn9ssvtqDrc" data-yt="fn9ssvtqDrc" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/fn9ssvtqDrc/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">요즘 유치원 섭외 1순위</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/l95NJnEeJr8" data-yt="l95NJnEeJr8" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/l95NJnEeJr8/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">어린이 행사 섭외 1순위</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/2WaI7Og5k_U" data-yt="2WaI7Og5k_U" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/2WaI7Og5k_U/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">교육부가 선택한 디제이</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/Kqb-ZNl-Hpw" data-yt="Kqb-ZNl-Hpw" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/Kqb-ZNl-Hpw/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">거제옥포 키즈워터밤</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/SWGDVSJIqP0" data-yt="SWGDVSJIqP0" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/SWGDVSJIqP0/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">어린이공연 미슐랭 맛집</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/27poX1dS0_k" data-yt="27poX1dS0_k" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/27poX1dS0_k/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">EDM 조기교육 중</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/btYyzQyq4r8" data-yt="btYyzQyq4r8" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/btYyzQyq4r8/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">키즈풀파티</span></div></a>
+      <a class="short" href="https://youtube.com/shorts/Rt1klGepzz4" data-yt="Rt1klGepzz4" data-v="1" target="_blank" rel="noopener"><div class="sv"><img src="https://i.ytimg.com/vi/Rt1klGepzz4/hqdefault.jpg" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="st">어린이날 제일 HOT했던 그 곳</span></div></a>
     </div>
   </div>
 </section>
@@ -345,79 +425,106 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
     <div class="sect-head">
       <p class="eyebrow">Artists</p>
       <h2>어린이클럽 아티스트</h2>
-      <p>현장에서 숙련된 아티스트들이 무대를 이끕니다. 행사 규모와 예산에 맞춰 조합해 드립니다.</p>
+      <p>현장에서 숙련된 아티스트들이 무대를 이끕니다. 행사 규모와 예산에 맞춰 조합해 드립니다. 사진 속 얼굴을 누르면 해당 아티스트로 이동해요.</p>
+    </div>
+    <div class="crewbox">
+      <div>        <figure class="hero-img">
+          <img src="img/crew.webp" width="1500" height="1061" alt="세포의 어린이클럽 아티스트 — 세포, 쎄니, 베리, 포키, 나나걸스, 타잔, 깡구" fetchpriority="high">
+          <a class="hot" href="#k-sefo" style="left:16.5%;top:10%;width:20.5%;height:38%" aria-label="세포 소개 보기"></a>
+          <a class="hot" href="#k-sseni" style="left:40%;top:10%;width:20%;height:38%" aria-label="쎄니 소개 보기"></a>
+          <a class="hot" href="#k-berri" style="left:62.5%;top:10%;width:20.5%;height:38%" aria-label="베리 소개 보기"></a>
+          <a class="hot" href="#k-poki" style="left:5.5%;top:50%;width:20.5%;height:40%" aria-label="포키 소개 보기"></a>
+          <a class="hot" href="#k-nana" style="left:28%;top:50%;width:20.5%;height:40%" aria-label="나나걸스 소개 보기"></a>
+          <a class="hot" href="#k-tarzan" style="left:51%;top:50%;width:20.5%;height:40%" aria-label="타잔 소개 보기"></a>
+          <a class="hot" href="#k-ganggu" style="left:73.5%;top:50%;width:20.5%;height:40%" aria-label="깡구 소개 보기"></a>
+        </figure>
+        <p class="hint">사진 속 아티스트를 누르면 소개로 이동합니다</p>
+      </div>
+      <div class="faq" style="max-width:none">
+        <p style="margin:0;font-family:var(--f-head);font-weight:800;font-size:20px;letter-spacing:-.03em">어떤 아티스트가 맞을지 모르겠다면</p>
+        <p style="margin:0;color:var(--mute);font-size:15px">행사 성격(유치원·운동회·축제), 아이들 연령, 예상 인원만 알려주세요. 현장 경험을 바탕으로 가장 잘 맞는 조합을 추천해 드립니다.</p>
+        <p style="margin:6px 0 0"><a class="btn" href="#contact">아티스트 추천 받기</a></p>
+      </div>
     </div>
     <div class="roster">
       <article class="art" id="k-sefo">
-        <div class="ph" style="--tint:#FFEFB4"><img src="img/sefo.webp" width="720" height="960" alt="세포" loading="lazy"></div>
+        <div class="ph" style="--tint:#FFEFB4"><img src="img/sefo.webp" width="900" height="1200" alt="세포" loading="lazy"></div>
         <div class="body">
           <h3>세포</h3><div class="en">SEFO</div>
           <p class="quote">“어린이클럽의 아이콘”</p>
           <ul><li>유튜브 워크맨 〈워크돌 — 어린이클럽 편〉, SBS 스브스뉴스 출연</li><li>예술로 아이들을 연결하고 성장시키는 감성 리더</li><li>예술나눔재단 ‘아이프칠드런’ 홍보대사</li></ul>
-          <div class="vids"><a href="https://youtube.com/shorts/eE3d0jwpC58" target="_blank" rel="noopener">요즘 유치원 다 이거함</a><a href="https://youtube.com/shorts/UhDyIHH9kA4" target="_blank" rel="noopener">요즘 운동회 다 이거함</a><a href="https://youtube.com/shorts/2WaI7Og5k_U" target="_blank" rel="noopener">교육부가 선택한 디제이</a><a href="https://youtube.com/shorts/Kqb-ZNl-Hpw" target="_blank" rel="noopener">거제옥포 키즈워터밤</a></div>
+          <div class="vids"><a data-yt="eE3d0jwpC58" data-v="1" href="https://youtube.com/shorts/eE3d0jwpC58" target="_blank" rel="noopener">요즘 유치원 다 이거함</a><a data-yt="UhDyIHH9kA4" data-v="1" href="https://youtube.com/shorts/UhDyIHH9kA4" target="_blank" rel="noopener">요즘 운동회 다 이거함</a><a data-yt="2WaI7Og5k_U" data-v="1" href="https://youtube.com/shorts/2WaI7Og5k_U" target="_blank" rel="noopener">교육부가 선택한 디제이</a><a data-yt="Kqb-ZNl-Hpw" data-v="1" href="https://youtube.com/shorts/Kqb-ZNl-Hpw" target="_blank" rel="noopener">거제옥포 키즈워터밤</a></div>
         </div>
       </article>
       <article class="art" id="k-sb">
-        <div class="ph" style="--tint:#E8DCFB"><img src="img/sseniberri.webp" width="720" height="960" alt="쎄니 & 베리" loading="lazy"></div>
+        <div class="ph" style="--tint:#E8DCFB"><img src="img/sseniberri.webp" width="900" height="1200" alt="쎄니 & 베리" loading="lazy"></div>
         <div class="body">
           <h3>쎄니 &amp; 베리</h3><div class="en">SSENI &amp; BERRI</div>
           <p class="quote">“대한민국 최초 어린이 DJ 듀오”</p>
           <ul><li>반전 매력 힙함의 쎄니, 밝은 에너지 비타민 베리</li><li>무대를 종횡무진 누비는 어린이 디제이 듀오</li></ul>
-          <div class="vids"><a href="https://youtube.com/shorts/VOfNs4YOb34" target="_blank" rel="noopener">한강에 나타난 어린이 DJ 듀오</a><a href="https://youtube.com/shorts/ej7yOrKGHdM" target="_blank" rel="noopener">워터파크를 뒤집었다</a></div>
+          <div class="vids"><a data-yt="VOfNs4YOb34" data-v="1" href="https://youtube.com/shorts/VOfNs4YOb34" target="_blank" rel="noopener">한강에 나타난 어린이 DJ 듀오</a><a data-yt="ej7yOrKGHdM" data-v="1" href="https://youtube.com/shorts/ej7yOrKGHdM" target="_blank" rel="noopener">워터파크를 뒤집었다</a></div>
         </div>
       </article>
       <article class="art" id="k-sseni">
-        <div class="ph" style="--tint:#CFEFE3"><img src="img/sseni.webp" width="720" height="960" alt="쎄니" loading="lazy"></div>
+        <div class="ph" style="--tint:#CFEFE3"><img src="img/sseni.webp" width="900" height="1200" alt="쎄니" loading="lazy"></div>
         <div class="body">
           <h3>쎄니</h3><div class="en">SSENI</div>
           <p class="quote">“어린이 DJ”</p>
           <ul><li>귀엽지만 무대 위에선 힙합 어린이 DJ, 반전 매력의 차세대 스타</li><li>KPOP 커버댄스부터 어린이클럽까지, 아이들 눈높이에 맞춘 공연</li></ul>
-          <div class="vids"><a href="https://youtube.com/shorts/NsNKEOQ8Mqc" target="_blank" rel="noopener">아이유키즈 댄서의 변신</a><a href="https://youtube.com/shorts/_ujFxrlwd-o" target="_blank" rel="noopener">어린이 DJ 키즈워터밤</a></div>
+          <div class="vids"><a data-yt="NsNKEOQ8Mqc" data-v="1" href="https://youtube.com/shorts/NsNKEOQ8Mqc" target="_blank" rel="noopener">아이유키즈 댄서의 변신</a><a data-yt="_ujFxrlwd-o" data-v="1" href="https://youtube.com/shorts/_ujFxrlwd-o" target="_blank" rel="noopener">어린이 DJ 키즈워터밤</a></div>
         </div>
       </article>
       <article class="art" id="k-berri">
-        <div class="ph" style="--tint:#FBD9E4"><img src="img/berri.webp" width="720" height="960" alt="베리" loading="lazy"></div>
+        <div class="ph" style="--tint:#FBD9E4"><img src="img/berri.webp" width="900" height="1200" alt="베리" loading="lazy"></div>
         <div class="body">
           <h3>베리</h3><div class="en">BERRI</div>
           <p class="quote">“어린이 DJ”</p>
           <ul><li>밝고 상큼한 에너지로 무대를 환하게 밝히는 차세대 스타</li><li>KPOP 커버댄스부터 어린이클럽까지, 아이들 눈높이에 맞춘 공연</li></ul>
-          <div class="vids"><a href="https://youtube.com/shorts/1YgaM78fwGI" target="_blank" rel="noopener">귀여움 폭발 어린이 디제이</a><a href="https://youtube.com/shorts/qyewztExNxM" target="_blank" rel="noopener">이 음악을 튼 건 어린이였습니다</a></div>
+          <div class="vids"><a data-yt="1YgaM78fwGI" data-v="1" href="https://youtube.com/shorts/1YgaM78fwGI" target="_blank" rel="noopener">귀여움 폭발 어린이 디제이</a><a data-yt="qyewztExNxM" data-v="1" href="https://youtube.com/shorts/qyewztExNxM" target="_blank" rel="noopener">이 음악을 튼 건 어린이였습니다</a></div>
         </div>
       </article>
       <article class="art" id="k-poki">
-        <div class="ph" style="--tint:#D5E7FB"><img src="img/poki.webp" width="720" height="960" alt="포키" loading="lazy"></div>
+        <div class="ph" style="--tint:#D5E7FB"><img src="img/poki.webp" width="900" height="1200" alt="포키" loading="lazy"></div>
         <div class="body">
           <h3>포키</h3><div class="en">POKI</div>
           <p class="quote">“두 번째로 많이 찾는 어린이클럽 아티스트”</p>
           <ul><li>홈플러스·롯데마트·AK플라자 문화센터 전국투어</li><li>현장감을 살리는 활기찬 퍼포먼스</li></ul>
-          <div class="vids"><a href="https://youtube.com/shorts/ZOkOysGcSjE" target="_blank" rel="noopener">어린이날 공연</a><a href="https://youtube.com/shorts/wIRkTu-_Fjc" target="_blank" rel="noopener">부천중앙초 6학년 텐션</a></div>
+          <div class="vids"><a data-yt="ZOkOysGcSjE" data-v="1" href="https://youtube.com/shorts/ZOkOysGcSjE" target="_blank" rel="noopener">어린이날 공연</a><a data-yt="wIRkTu-_Fjc" data-v="1" href="https://youtube.com/shorts/wIRkTu-_Fjc" target="_blank" rel="noopener">부천중앙초 6학년 텐션</a></div>
         </div>
       </article>
       <article class="art" id="k-nana">
-        <div class="ph" style="--tint:#FFDCC7"><img src="img/nana.webp" width="720" height="960" alt="나나걸스" loading="lazy"></div>
+        <div class="ph" style="--tint:#FFDCC7"><img src="img/nana.webp" width="900" height="1200" alt="나나걸스" loading="lazy"></div>
         <div class="body">
           <h3>나나걸스</h3><div class="en">NANA GIRLS</div>
           <p class="quote">“언니(누나)가 함께 놀아줄게”</p>
           <ul><li>아이들과 눈높이를 맞추는 따뜻한 언니(누나) 듀오</li><li>웃음과 즐거움으로 무장한 다정한 여자 디제이 듀오</li></ul>
-          <div class="vids"><a href="https://youtube.com/shorts/ZnMG53zPGSM" target="_blank" rel="noopener">휘닉스파크</a><a href="https://youtube.com/shorts/NBoCr6mYkdg" target="_blank" rel="noopener">마산 로봇랜드</a></div>
+          <div class="vids"><a data-yt="ZnMG53zPGSM" data-v="1" href="https://youtube.com/shorts/ZnMG53zPGSM" target="_blank" rel="noopener">휘닉스파크</a><a data-yt="NBoCr6mYkdg" data-v="1" href="https://youtube.com/shorts/NBoCr6mYkdg" target="_blank" rel="noopener">마산 로봇랜드</a></div>
         </div>
       </article>
       <article class="art" id="k-tarzan">
-        <div class="ph" style="--tint:#DCF0C6"><img src="img/tarzan.webp" width="720" height="960" alt="타잔" loading="lazy"></div>
+        <div class="ph" style="--tint:#DCF0C6"><img src="img/tarzan.webp" width="900" height="1200" alt="타잔" loading="lazy"></div>
         <div class="body">
           <h3>타잔</h3><div class="en">TARZAN</div>
           <p class="quote">“에너지 폭발! 파워 디제이”</p>
           <ul><li>아이들의 흥을 끌어올리는 강력한 무대 장악력</li><li>현장 분위기를 한순간에 바꾸는 마법사</li></ul>
-          <div class="vids"><a href="https://youtube.com/shorts/GwxNO5MuLaE" target="_blank" rel="noopener">타잔의 어린이클럽</a></div>
+          <div class="vids"><a data-yt="GwxNO5MuLaE" data-v="1" href="https://youtube.com/shorts/GwxNO5MuLaE" target="_blank" rel="noopener">타잔의 어린이클럽</a></div>
         </div>
       </article>
       <article class="art" id="k-ganggu">
-        <div class="ph" style="--tint:#FFD7D0"><img src="img/ganggu.webp" width="720" height="960" alt="깡구" loading="lazy"></div>
+        <div class="ph" style="--tint:#FFD7D0"><img src="img/ganggu.webp" width="900" height="1200" alt="깡구" loading="lazy"></div>
         <div class="body">
           <h3>깡구</h3><div class="en">GANGGU</div>
           <p class="quote">“장난꾸러기와 찰떡궁합”</p>
           <ul><li>악동 같은 아이들과 신나게 어울리는 에너지 만렙</li><li>개구쟁이들과 함께 만드는 자유로운 놀이 현장</li></ul>
-          <div class="vids"><a href="https://youtube.com/shorts/ikSheZGiLYk" target="_blank" rel="noopener">아마존 당진</a></div>
+          <div class="vids"><a data-yt="ikSheZGiLYk" data-v="1" href="https://youtube.com/shorts/ikSheZGiLYk" target="_blank" rel="noopener">아마존 당진</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-rogun">
+        <div class="ph" style="--tint:#D9EEF7"><img src="img/rogun.webp" width="900" height="1200" alt="로건" loading="lazy"></div>
+        <div class="body">
+          <h3>로건</h3><div class="en">ROGUN</div>
+          <p class="quote">“신나는 리듬, 다정한 디제이”</p>
+          <ul><li>AK플라자 문화아카데미 어린이클럽 패밀리데이 출연</li><li>아이들 눈높이에 맞춘 차분하고 친근한 진행</li></ul>
         </div>
       </article>
       <article class="art" id="k-sefokids">
@@ -444,13 +551,13 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <p>세포체조부터 국민동요 리믹스까지, 어린이클럽을 위해 직접 만든 곡들입니다.</p>
     </div>
     <div class="music">
-      <a class="mcard" href="https://youtu.be/N0y1ZKw9eYs" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/N0y1ZKw9eYs/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">세포체조<small>어린이클럽 대표곡</small></div></a>
-      <a class="mcard" href="https://youtu.be/S19J2kRVzn4" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/S19J2kRVzn4/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">그대로 멈춰라<small>국민동요 Remix</small></div></a>
-      <a class="mcard" href="https://youtu.be/fSTRXj0JbEQ" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/fSTRXj0JbEQ/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">아기상어<small>세계동요 Baby Shark</small></div></a>
-      <a class="mcard" href="https://youtu.be/4tbvb-K75XU" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/4tbvb-K75XU/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">Baby Shark<small>Festival Mix</small></div></a>
-      <a class="mcard" href="https://youtu.be/mlt2FbRmLfg" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/mlt2FbRmLfg/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">Let's Vaunce<small>바운스슈퍼파크 × SEFO</small></div></a>
-      <a class="mcard" href="https://youtu.be/Ohy3k36YJIE" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/Ohy3k36YJIE/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">세포구조대<small>어린이클럽 오리지널</small></div></a>
-      <a class="mcard" href="https://youtu.be/VnppaMOXLLA" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/VnppaMOXLLA/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">폭주기관차<small>클래식 Remix</small></div></a>
+      <a data-yt="N0y1ZKw9eYs" class="mcard" href="https://youtu.be/N0y1ZKw9eYs" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/N0y1ZKw9eYs/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">세포체조<small>어린이클럽 대표곡</small></div></a>
+      <a data-yt="S19J2kRVzn4" class="mcard" href="https://youtu.be/S19J2kRVzn4" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/S19J2kRVzn4/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">그대로 멈춰라<small>국민동요 Remix</small></div></a>
+      <a data-yt="fSTRXj0JbEQ" class="mcard" href="https://youtu.be/fSTRXj0JbEQ" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/fSTRXj0JbEQ/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">아기상어<small>세계동요 Baby Shark</small></div></a>
+      <a data-yt="4tbvb-K75XU" class="mcard" href="https://youtu.be/4tbvb-K75XU" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/4tbvb-K75XU/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">Baby Shark<small>Festival Mix</small></div></a>
+      <a data-yt="mlt2FbRmLfg" class="mcard" href="https://youtu.be/mlt2FbRmLfg" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/mlt2FbRmLfg/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">Let's Vaunce<small>바운스슈퍼파크 × SEFO</small></div></a>
+      <a data-yt="Ohy3k36YJIE" class="mcard" href="https://youtu.be/Ohy3k36YJIE" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/Ohy3k36YJIE/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">세포구조대<small>어린이클럽 오리지널</small></div></a>
+      <a data-yt="VnppaMOXLLA" class="mcard" href="https://youtu.be/VnppaMOXLLA" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/VnppaMOXLLA/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">폭주기관차<small>클래식 Remix</small></div></a>
     </div>
   </div>
 </section>
@@ -461,6 +568,12 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <p class="eyebrow">Where</p>
       <h2>어린이가 있는 곳이라면 어디서나</h2>
       <p>실내 강당부터 야외 축제 무대까지, 같은 구성으로 진행할 수 있습니다.</p>
+    </div>
+    <div class="live">
+      <figure><img src="img/sefo_live.webp" alt="세포 공연 현장 — 아이들과 함께 환호" loading="lazy"></figure>
+      <figure><img src="img/sseniberri_live.webp" alt="쎄니와 베리의 디제잉 무대" loading="lazy"></figure>
+      <figure><img src="img/tarzan_live.webp" alt="키즈 풀파티 현장" loading="lazy"></figure>
+      <figure><img src="img/nana_live.webp" alt="나나걸스 공연 현장" loading="lazy"></figure>
     </div>
     <div class="where">
       <span>유치원 · 어린이집</span><span>초등학교 운동회</span><span>키즈카페</span><span>놀이공원 · 테마파크</span><span>워터파크 · 키즈 풀파티</span><span>백화점 · 마트 문화센터</span><span>지자체 · 문화재단 축제</span><span>기업 가족 행사</span><span>태권도장 · 학원 행사</span>
@@ -484,6 +597,24 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <span class="arrow" aria-hidden="true">↓</span>
     </a>
     <div class="callout"><p><b>지자체 · 관공서 · 학교 담당자님께</b> — 면세사업자도 함께 운영하고 있어 부가가치세 없이 계약하실 수 있습니다. 계약 형태(일반과세 / 면세)에 맞춰 견적서를 발행해 드립니다.</p></div>
+  </div>
+</section>
+
+<section class="sect" id="faq">
+  <div class="wrap">
+    <div class="sect-head">
+      <p class="eyebrow">FAQ</p>
+      <h2>담당자님들이 자주 물어보세요</h2>
+    </div>
+    <div class="faq">
+      <details><summary>공연 시간은 얼마나 되나요?</summary><p>기본 30분 단위로 진행합니다. 행사 일정에 맞춰 회차를 나누거나 시간을 늘리는 구성도 가능하니 원하시는 진행 순서를 알려주세요.</p></details>
+      <details><summary>실내 강당이나 야외에서도 가능한가요?</summary><p>유치원 교실·강당·체육관부터 야외 축제 무대, 워터파크까지 같은 구성으로 진행합니다. 현장 크기와 관객 수를 알려주시면 동선과 무대를 맞춰 드립니다.</p></details>
+      <details><summary>음향·DJ 장비는 어떻게 준비하나요?</summary><p>음향 장비는 기본 제공되지 않으며, 필요하시면 DJ 장비·스피커·DJ 테이블을 렌탈로 함께 준비해 드립니다. 주최 측 준비 항목은 ‘행사 준비 자료’의 테크니컬 라이더에 정리되어 있습니다.</p></details>
+      <details><summary>지방 행사도 가능한가요?</summary><p>전국 어디든 진행합니다. 다만 공연 날짜와 장소(이동 거리)에 따라 추가 비용이 생길 수 있어 견적 시 함께 안내해 드립니다.</p></details>
+      <details><summary>출연료는 어떻게 되나요?</summary><p>아티스트와 요일(평일·주말·공휴일)에 따라 다릅니다. 행사 정보를 남겨주시면 일정 확인과 함께 바로 견적을 보내드립니다. 출연료는 부가가치세 별도 기준입니다.</p></details>
+      <details><summary>학교·관공서인데 면세 계약이 되나요?</summary><p>네. 면세사업자도 함께 운영하고 있어 부가가치세 없이 계약하실 수 있습니다. 계약 형태(일반과세 / 면세)에 맞춰 견적서와 계약서를 발행해 드립니다.</p></details>
+      <details><summary>어린이 DJ(쎄니·베리)도 섭외할 수 있나요?</summary><p>가능합니다. 단독 공연도, 세포 공연과 함께하는 구성도 할 수 있습니다. 또래 친구가 무대에 서면 아이들 반응이 훨씬 커집니다.</p></details>
+    </div>
   </div>
 </section>
 
@@ -516,7 +647,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       </div>
       <div class="frow two">
         <label class="f"><span>희망 아티스트</span>
-          <select id="f_artist"><option value="">미정 · 추천 받고 싶어요</option><option>세포</option><option>쎄니 &amp; 베리</option><option>쎄니</option><option>베리</option><option>포키</option><option>나나걸스</option><option>타잔</option><option>깡구</option><option>세포 + 세포키즈</option></select>
+          <select id="f_artist"><option value="">미정 · 추천 받고 싶어요</option><option>세포</option><option>쎄니 &amp; 베리</option><option>쎄니</option><option>베리</option><option>포키</option><option>나나걸스</option><option>타잔</option><option>깡구</option><option>로건</option><option>세포 + 세포키즈</option></select>
         </label>
         <label class="f"><span>예상 인원 (어린이 수)</span><input id="f_count" placeholder="예) 어린이 120명 + 학부모"></label>
       </div>
@@ -558,6 +689,12 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
   </div>
 </footer>
 
+<div class="vm" id="vm" role="dialog" aria-modal="true" aria-label="영상 보기">
+  <a class="yt-out" id="vmOut" href="#" target="_blank" rel="noopener">유튜브에서 보기 ↗</a>
+  <button class="x" type="button" id="vmX">닫기 ✕</button>
+  <div class="box" id="vmBox"></div>
+</div>
+
 <script>
 (function(){
   // 사진 속 아티스트 → 카드로 이동 후 반짝
@@ -567,6 +704,39 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       if(!t) return; t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash');
     });
   });
+
+  // 영상: 메인 플레이어
+  var fe=document.getElementById('feature');
+  function embed(id){return 'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1&modestbranding=1'}
+  function loadFeature(id){
+    fe.innerHTML='<iframe src="'+embed(id)+'" title="어린이클럽 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+    fe.style.aspectRatio='16/9';
+  }
+  fe.addEventListener('click',function(e){var b=e.target.closest('.yt'); if(b) loadFeature(b.getAttribute('data-id'));});
+  document.querySelectorAll('.feature-tabs button').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('.feature-tabs button').forEach(function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true'); loadFeature(b.getAttribute('data-id'));
+    });
+  });
+  // 영상: 팝업
+  var vm=document.getElementById('vm'), box=document.getElementById('vmBox'), out=document.getElementById('vmOut');
+  function openV(id,vert){
+    vm.classList.toggle('vertical',!!vert);
+    box.innerHTML='<iframe src="'+embed(id)+'" title="영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+    out.href=vert?'https://youtube.com/shorts/'+id:'https://youtu.be/'+id;
+    vm.classList.add('open'); document.body.style.overflow='hidden';
+  }
+  function closeV(){vm.classList.remove('open'); box.innerHTML=''; document.body.style.overflow='';}
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[data-yt]'); if(!a) return;
+    if(e.metaKey||e.ctrlKey||e.shiftKey) return;
+    e.preventDefault(); openV(a.getAttribute('data-yt'), a.hasAttribute('data-v'));
+  });
+  document.getElementById('vmX').addEventListener('click',closeV);
+  vm.addEventListener('click',function(e){ if(e.target===vm) closeV(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&vm.classList.contains('open')) closeV(); });
+
   // 문의 폼 (Web3Forms)
   var f=document.getElementById('ask'), out=document.getElementById('f_out'), btn=document.getElementById('f_send');
   function g(id){var e=document.getElementById(id);return e?e.value.trim():''}
