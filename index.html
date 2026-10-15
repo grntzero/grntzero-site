@@ -69,7 +69,15 @@ ul{margin:0;padding:0;list-style:none}
 .hero .veil{position:absolute;inset:0;
   background:linear-gradient(90deg,rgba(13,10,6,.95) 0%,rgba(13,10,6,.82) 42%,rgba(13,10,6,.35) 100%),
              linear-gradient(0deg,rgba(13,10,6,.9) 0%,rgba(13,10,6,0) 55%)}
-.hero .wrap{position:relative;padding-block:clamp(64px,10vw,124px)}
+.hero .wrap{position:relative;padding-block:clamp(56px,8vw,96px) 0}
+.herocrew{position:relative;margin-top:clamp(18px,3vw,34px);
+  width:100%;display:block;line-height:0}
+.herocrew img{width:100%;display:block;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 88%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 88%,transparent 100%)}
+@media(max-width:700px){
+  .herocrew{width:126%;margin-left:-13%}
+}
 .eyebrow{font-family:var(--disp);font-weight:700;font-size:clamp(14px,1.9vw,18px);
   letter-spacing:.3em;color:var(--gold);margin-bottom:16px}
 .hero h1{font-size:clamp(34px,6.2vw,64px);line-height:1.16;letter-spacing:-.035em;max-width:16ch}
@@ -239,7 +247,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 </div></header>
 
 <section class="hero" id="top">
-  <div class="bg"><img src="img/dj_sefo.jpg" alt="대형 LED 무대 위 DJ 부스에서 공연 중인 그런트제로 DJ"></div>
+  <div class="bg"><img src="img/dj_sefo.jpg" alt=""></div>
   <div class="veil"></div>
   <div class="wrap">
     <div class="eyebrow">DJ PERFORMANCE AGENCY</div>
@@ -252,6 +260,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
       <a class="btn" href="https://claude.ai/artifact/KNdCnicj1QQuXcC8qDu1rM">아티스트 라인업</a>
       <a class="btn" href="https://claude.ai/code/artifact/aa2eb6c2-6aaf-497b-8933-1840bcc2e585">소개자료 · 기술자료</a>
     </div>
+    <div class="herocrew"><img src="img/crew.jpg" alt="GRUNT ZERO 소속 아티스트 14인 단체 사진"></div>
   </div>
 </section>
 
@@ -354,11 +363,6 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
       <img src="img/vid/jLQNxNHsyc4.jpg" alt="워터퐝페스티벌 공연 영상">
       <span class="play"></span><span class="vcap"><b>워터퐝페스티벌</b><i>포항 영일대해수욕장</i></span></div>
   </div>
-  <div class="vfull">
-    <span>편집 없는 풀 영상</span>
-    <a href="https://youtu.be/AwjUAd_vvSg" target="_blank" rel="noopener">WE ARE FESTIVAL 2023 — 한 세트 전체</a>
-    <a href="https://youtu.be/IMFo2j01Ztw" target="_blank" rel="noopener">송도맥주축제 — 경인방송 대형 야외무대</a>
-  </div>
 </div></section>
 
 <section class="band alt"><div class="wrap">
@@ -378,10 +382,6 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 
 <section class="band" id="artist"><div class="wrap">
   <div class="shd"><h2>ARTIST</h2><span class="kr">소속 아티스트</span></div>
-  <div class="crew">
-    <img src="img/crew.jpg" alt="GRUNT ZERO 소속 아티스트 단체 사진">
-    <div class="crewcap">GRUNT ZERO ARTISTS</div>
-  </div>
   <p class="lede">DJ·MC·댄서 <strong>17팀</strong>이 소속돼 있습니다.
     페스티벌 메인 스테이지를 맡는 팀부터 어린이 공연 전담 팀, 어린이 DJ 듀오까지
     행사 성격에 맞춰 조합합니다.
