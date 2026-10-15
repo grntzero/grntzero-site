@@ -125,13 +125,14 @@ ul{margin:0;padding:0;list-style:none}
 .trust p{font-size:14.5px;color:#C9C1B1;line-height:1.8}
 
 /* 고객사 */
-.cgrp{margin-bottom:26px}
+.cgrp{margin-bottom:22px}
 .cgrp h4{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.2em;color:var(--gold);
   margin-bottom:12px;display:flex;align-items:center;gap:12px}
 .cgrp h4::after{content:"";flex:1;height:1px;background:var(--line)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font-size:13.5px;line-height:1;padding:9px 13px;border:1px solid var(--line);
-  background:var(--ink2);color:#D4CCBC}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;line-height:1;padding:7px 11px;border:1px solid var(--line);
+  background:var(--ink2);color:#D4CCBC;white-space:nowrap}
+@media(max-width:640px){.chip{font-size:11.5px;padding:6px 9px}}
 .chip.k{border-color:rgba(198,163,92,.55);color:var(--gold2);font-weight:600}
 .cnote{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
   font-size:14px;color:var(--mut);line-height:1.8}
@@ -210,8 +211,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     <div class="eyebrow">DJ PERFORMANCE AGENCY</div>
     <h1>축제의 한가운데,<br><em>DJ가 있습니다.</em></h1>
     <p class="sub">그런트제로는 <b>DJ 공연 전문 기획사</b>입니다.
-      소속 DJ·MC·댄서 17팀과 협력 아티스트 55명으로
-      페스티벌 메인 스테이지부터 유치원 강당까지,
+      소속 DJ·MC·댄서 17팀이 페스티벌 메인 스테이지부터 소규모 공연까지,
       행사 성격에 맞는 공연을 설계하고 운영합니다.</p>
     <div class="cta">
       <a class="btn pri" href="#contact">섭외 문의하기</a>
@@ -238,20 +238,20 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 
   <div class="sols">
     <article class="sol">
-      <div class="ph"><img src="img/kids_dome.jpg" alt="DJ 부스 앞을 가득 메운 어린이 관객"></div>
+      <div class="ph"><img src="img/kids_dome.jpg" alt="SEFO LED 무대 위에서 아이들과 함께하는 DJ 공연"></div>
       <div class="bd">
         <h3><small>SOLUTION 01</small>세포의 어린이클럽</h3>
         <p>어린이 전용 자체 음원 12곡을 중심으로 한 참여형 DJ 공연입니다.
           세포체조·폭주기관차처럼 동작이 정해진 곡을 써서 처음 보는 아이도 10초 안에 따라 합니다.
-          유치원 강당부터 어린이날 큰잔치까지 같은 포맷으로 운영됩니다.</p>
+          소규모 공연부터 어린이날 큰잔치까지 같은 포맷으로 운영됩니다.</p>
         <dl><dt>RUNNING</dt><dd>20 · 30 · 40분</dd>
             <dt>AUDIENCE</dt><dd>5세~초등 + 보호자</dd>
-            <dt>추천</dt><dd>어린이날 · 가족축제 · 유치원 · 육아지원센터</dd></dl>
+            <dt>추천</dt><dd>어린이날 · 가족축제 · 육아지원센터 · 지역 어린이행사</dd></dl>
       </div>
     </article>
 
     <article class="sol">
-      <div class="ph"><img src="img/out_gunner.jpg" alt="야외 메인 스테이지의 DJ 부스와 LED 스크린"></div>
+      <div class="ph"><img src="img/out_gunner.jpg" alt="야외 메인 스테이지 LED 앞을 가득 메운 관객"></div>
       <div class="bd">
         <h3><small>SOLUTION 02</small>시민 EDM 공연</h3>
         <p>야외 메인 스테이지용 표준 구성입니다. 대중적인 EDM·K-POP 리믹스를 축으로
@@ -299,10 +299,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
         주최측이 장비를 따로 구하지 못해도 그대로 진행됩니다.</p></div>
     <div><h4>약속된 시간에</h4>
       <p>현장 체크리스트와 자체 대응 매뉴얼로 운영합니다.
-        아티스트 55명 네트워크가 있어 변수가 생겨도 공연이 비지 않습니다.</p></div>
-    <div><h4>자체 음원 보유</h4>
-      <p>공연용 음원과 율동을 직접 만듭니다. 솔루션 전용 음원 20여 곡과
-        아카데미를 보유해 행사에 맞춘 제작이 가능합니다.</p></div>
+        소속 아티스트가 서로 백업하는 구조라 변수가 생겨도 공연이 비지 않습니다.</p></div>
+    <div><h4>음원 · 퍼포먼스 자체 제작</h4>
+      <p>공연용 음원과 퍼포먼스를 직접 만듭니다. 자체 음원과 리믹스를 폭넓게 보유해
+        행사 성격과 연령대에 맞춰 선곡과 구성을 바꿉니다.</p></div>
   </div>
 </div></section>
 
@@ -312,69 +312,100 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     <img src="img/crew.jpg" alt="GRUNT ZERO 소속 아티스트 단체 사진">
     <div class="crewcap">GRUNT ZERO ARTISTS</div>
   </div>
-  <div class="arow">
-    <div class="txt">
-      <p class="lede" style="margin-bottom:24px">DJ·MC·댄서 <strong>17팀</strong>이 소속돼 있습니다.
-        페스티벌 메인 스테이지를 맡는 팀부터 어린이 공연 전담 팀, 어린이 DJ 듀오까지
-        행사 성격에 맞춰 조합합니다.<br><br>
-        라인업 페이지에서 팀별 영상과 공연 이력, 섭외 가능 구성을 확인하실 수 있습니다.
-        내용이 바뀌면 바로 반영되므로 항상 최신입니다.</p>
-      <div class="cta" style="margin-top:0">
-        <a class="btn pri" href="https://claude.ai/artifact/KNdCnicj1QQuXcC8qDu1rM">라인업 전체 보기</a>
-        <a class="btn" href="https://claude.ai/artifact/LB2PhSp7nfwhXZzS7vDL9F">세포의 어린이클럽</a>
-      </div>
-    </div>
-    <div class="gal">
-      <figure><img src="img/cdj_killa.jpg" alt="CDJ를 조작하는 DJ의 손과 부스"></figure>
-      <figure><img src="img/anna_booth.jpg" alt="헤드폰을 쓰고 믹서를 조작하는 DJ"></figure>
-      <figure><img src="img/duo_poyloki.jpg" alt="두 명의 DJ가 함께 서는 부스"></figure>
-      <figure><img src="img/led_mosh.jpg" alt="아티스트 이름이 띄워진 LED 무대와 DJ 부스"></figure>
-    </div>
+  <p class="lede">DJ·MC·댄서 <strong>17팀</strong>이 소속돼 있습니다.
+    페스티벌 메인 스테이지를 맡는 팀부터 어린이 공연 전담 팀, 어린이 DJ 듀오까지
+    행사 성격에 맞춰 조합합니다.
+    라인업 페이지에서 팀별 영상과 공연 이력, 섭외 가능 구성을 확인하실 수 있습니다.</p>
+  <div class="cta" style="margin-top:28px">
+    <a class="btn pri" href="https://claude.ai/artifact/KNdCnicj1QQuXcC8qDu1rM">라인업 전체 보기</a>
   </div>
 </div></section>
 
 <section class="band" id="clients"><div class="wrap">
   <div class="shd"><h2>CLIENTS</h2><span class="kr">함께한 곳</span></div>
-  <p class="lede">정부 부처와 공공기관, 광역·기초 지자체, 문화재단, 기업까지
-    <strong>226개 이상의 기관·기업</strong>과 일했습니다. 아래는 그중 일부입니다.</p>
+  <p class="lede">정부 부처와 공공기관, 광역·기초 지자체, 문화재단, 대학, 기업까지
+    <strong>226개 이상의 기관·기업</strong>과 일했습니다.</p>
 
   <div class="cgrp"><h4>정부 · 공공기관</h4><div class="chips">
-    <span class="chip k">문화체육관광부</span><span class="chip k">교육부</span>
-    <span class="chip k">중소기업부</span><span class="chip">문화재청</span>
+    <span class="chip k">문화체육관광부</span><span class="chip k">교육부</span><span class="chip k">중소기업부</span>
+    <span class="chip">문화재청</span><span class="chip">여성가족부</span>
     <span class="chip">한국콘텐츠진흥원</span><span class="chip">한국국제문화교류진흥원</span>
-    <span class="chip">한국토지주택공사</span><span class="chip">여성가족부</span>
-    <span class="chip">대한장애인체육회</span><span class="chip">인천경제자유구역청</span>
-    <span class="chip">국립부산과학관</span><span class="chip">서울시 한강사업본부</span>
+    <span class="chip">한국토지주택공사</span><span class="chip">대한장애인체육회</span>
+    <span class="chip">인천경제자유구역청</span><span class="chip">국립부산과학관</span>
+    <span class="chip">서울시 한강사업본부</span><span class="chip">주한미군</span>
+    <span class="chip">충청남도체육회</span><span class="chip">울산 남구도시관리공단</span>
+    <span class="chip">김천농업기술센터</span>
   </div></div>
 
   <div class="cgrp"><h4>기업 · 브랜드</h4><div class="chips">
     <span class="chip k">메르세데스-벤츠 사회공헌위원회</span><span class="chip k">한화시스템</span>
-    <span class="chip k">신세계아카데미</span><span class="chip">AK PLAZA</span>
+    <span class="chip k">신세계아카데미</span><span class="chip k">AK PLAZA 문화아카데미</span>
     <span class="chip">반얀트리 클럽 앤 스파 서울</span><span class="chip">파라다이스 스파 도고</span>
-    <span class="chip">스노우피크</span><span class="chip">두나무</span>
-    <span class="chip">CHAGEE</span><span class="chip">캐리비안베이</span>
+    <span class="chip">캐리비안베이</span><span class="chip">아마존 아쿠아파크 당진</span>
+    <span class="chip">스노우피크</span><span class="chip">두나무</span><span class="chip">CHAGEE</span>
+    <span class="chip">Zuellig Pharma</span><span class="chip">KEB하나은행 노동조합</span>
+    <span class="chip">세원물산</span><span class="chip">인바코리아</span>
+    <span class="chip">굿러너컴퍼니</span><span class="chip">코린토</span><span class="chip">김해축협</span>
   </div></div>
 
   <div class="cgrp"><h4>지자체</h4><div class="chips">
-    <span class="chip k">서울특별시</span><span class="chip k">부산광역시</span>
-    <span class="chip k">대구광역시</span><span class="chip">인천광역시</span>
-    <span class="chip">광주광역시</span><span class="chip">대전광역시</span>
-    <span class="chip k">경기도</span><span class="chip">수원시</span>
-    <span class="chip">용인시</span><span class="chip">평택시</span>
-    <span class="chip">안양시</span><span class="chip">화성시</span>
-    <span class="chip">평창군</span><span class="chip">정선군</span>
-    <span class="chip">거제시</span><span class="chip">남해군</span>
+    <span class="chip k">서울특별시</span><span class="chip k">부산광역시</span><span class="chip k">대구광역시</span>
+    <span class="chip">인천광역시</span><span class="chip">광주광역시</span><span class="chip">대전광역시</span>
+    <span class="chip k">경기도</span><span class="chip">수원시</span><span class="chip">용인시</span>
+    <span class="chip">평택시</span><span class="chip">안양시</span><span class="chip">화성시</span>
+    <span class="chip">시흥시</span><span class="chip">오산시</span><span class="chip">포천시</span>
+    <span class="chip">양평군</span><span class="chip">평창군</span><span class="chip">정선군</span>
+    <span class="chip">거제시</span><span class="chip">남해군</span><span class="chip">성주군</span>
+    <span class="chip">구미시</span><span class="chip">창원시</span><span class="chip">진주시</span>
+    <span class="chip">천안시</span><span class="chip">강진군</span><span class="chip">산청군</span>
+    <span class="chip">고창군</span><span class="chip">강남구</span><span class="chip">구로구</span>
+    <span class="chip">서대문구</span><span class="chip">도봉구</span><span class="chip">영등포구</span>
+    <span class="chip">종로구</span><span class="chip">서울 중구</span><span class="chip">대구 중구</span>
+    <span class="chip">대구 서구</span><span class="chip">부산 수영구</span>
   </div></div>
 
-  <div class="cgrp"><h4>재단 · 방송 · 대학</h4><div class="chips">
-    <span class="chip k">경인방송</span><span class="chip">EBS</span>
-    <span class="chip">부산MBC</span><span class="chip">서울문화재단</span>
-    <span class="chip">백제문화재단</span><span class="chip">용인문화재단</span>
-    <span class="chip">화성시문화관광재단</span><span class="chip">경상국립대학교</span>
-    <span class="chip">동국대학교</span><span class="chip">종로청소년문화의집</span>
+  <div class="cgrp"><h4>문화재단 · 센터</h4><div class="chips">
+    <span class="chip k">서울문화재단</span><span class="chip">안양문화예술재단</span>
+    <span class="chip">용인문화재단</span><span class="chip">화성시문화관광재단</span>
+    <span class="chip">화성특례시 환경재단</span><span class="chip">백제문화재단</span>
+    <span class="chip">칠곡문화재단</span><span class="chip">오산문화재단</span>
+    <span class="chip">원주문화재단</span><span class="chip">달성문화재단</span>
+    <span class="chip">여주세종문화관광재단</span><span class="chip">홍주문화관광재단</span>
+    <span class="chip">생거진천문화재단</span><span class="chip">태백문화재단</span>
+    <span class="chip">인제문화재단</span><span class="chip">평택시문화재단</span>
+    <span class="chip">거제문화예술재단</span><span class="chip">평택시국제교류재단</span>
+    <span class="chip">김포시청소년문화재단</span><span class="chip">종로청소년문화의집</span>
+    <span class="chip">포천시가족센터</span><span class="chip">홍천군가족센터</span>
+    <span class="chip">고창군가족센터</span><span class="chip">전라북도 가족문화센터</span>
+    <span class="chip">양천구육아종합지원센터</span><span class="chip">홍성군자원봉사센터</span>
+    <span class="chip">아이프칠드런</span>
   </div></div>
 
-  <p class="cnote">위 48곳 외 <b>226개 이상의 기관·기업</b>과 함께했습니다.
+  <div class="cgrp"><h4>방송 · 언론</h4><div class="chips">
+    <span class="chip k">경인방송</span><span class="chip k">EBS</span><span class="chip">부산MBC</span>
+    <span class="chip">경북도민일보</span><span class="chip">경주 프라임 방송</span>
+  </div></div>
+
+  <div class="cgrp"><h4>대학 · 학교</h4><div class="chips">
+    <span class="chip k">경상국립대학교</span><span class="chip k">동국대학교</span>
+    <span class="chip">강원대학교</span><span class="chip">성결대학교</span>
+    <span class="chip">한서대학교</span><span class="chip">명지전문대학</span>
+    <span class="chip">농협대학교</span><span class="chip">안산대학교</span>
+    <span class="chip">여주대학교</span><span class="chip">선린대학교</span>
+    <span class="chip">춘해보건대학교</span><span class="chip">송호대학교</span>
+    <span class="chip">구미대학교</span><span class="chip">거제대학교</span>
+    <span class="chip">오산대학교</span>
+  </div></div>
+
+  <div class="cgrp"><h4>협회 · 단체</h4><div class="chips">
+    <span class="chip k">한국프로탁구연맹</span>
+    <span class="chip">2026 강릉세계마스터즈탁구선수권대회</span>
+    <span class="chip">세계예술치료협회 WATA</span><span class="chip">서울YMCA</span>
+    <span class="chip">서울시립일시청소년쉼터</span><span class="chip">인천연극협회</span>
+    <span class="chip">김해시아동위원협의회</span><span class="chip">미담문화콘텐츠연구소</span>
+  </div></div>
+
+  <p class="cnote">위 외에도 <b>226개 이상의 기관·기업</b>과 함께했습니다.
     특정 지역이나 행사 성격의 레퍼런스가 필요하시면 담당자에게 요청해 주세요.</p>
 </div></section>
 
@@ -405,7 +436,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     누구에게나, 언제나, 어디서나 에너지를 전달하는 공연을 기획하고 운영합니다.</p>
   <div class="trust">
     <div><h4>공연 기획 · 제공</h4><p>축제·지자체·기업 행사의 DJ 공연을 기획하고 운영합니다. 장비와 음향 렌탈도 함께 제공합니다.</p></div>
-    <div><h4>아카데미 운영</h4><p>DJ·MIDI 교육을 운영합니다. 공연용 음원과 율동을 자체 제작하는 기반이자 아티스트를 길러내는 곳입니다.</p></div>
+    <div><h4>아카데미 운영</h4><p>DJ·MIDI 교육을 운영합니다. 공연용 음원과 퍼포먼스를 자체 제작하는 기반이자 아티스트를 길러내는 곳입니다.</p></div>
     <div><h4>음원 기획 · 발매</h4><p>어린이클럽 음원을 비롯해 공연에 쓰는 곡을 직접 만들고 발매합니다.</p></div>
   </div>
 </div></section>
