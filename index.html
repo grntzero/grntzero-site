@@ -559,20 +559,18 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
       <h4>온라인 문의</h4>
       <form class="form" id="askForm">
         <input type="hidden" name="access_key" value="4c3353a4-9b3d-49af-a722-8efa077fbb28">
-        <input type="hidden" name="subject" value="[홈페이지] 공연 섭외 문의">
-        <input type="hidden" name="from_name" value="GRUNT ZERO 홈페이지">
         <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
-        <div><label>업체·기관명 <span class="req">*</span></label><input name="업체명" required></div>
-        <div><label>담당자 성함 <span class="req">*</span></label><input name="담당자" required></div>
-        <div><label>연락처 <span class="req">*</span></label><input name="연락처" required placeholder="010-0000-0000"></div>
-        <div><label>이메일 <span class="req">*</span></label><input type="email" name="이메일" required placeholder="견적서 받으실 주소"></div>
-        <div><label>행사명 <span class="req">*</span></label><input name="행사명" required></div>
-        <div><label>행사 일자 <span class="req">*</span></label><input name="행사일자" required placeholder="미정이면 '미정'"></div>
-        <div class="full"><label>장소 <span class="req">*</span></label><input name="장소" required placeholder="지역 · 행사장명"></div>
-        <div><label>희망 아티스트</label><input name="희망아티스트" placeholder="미정이면 비워두세요"></div>
-        <div><label>예상 관객 수</label><input name="예상관객수" placeholder="예: 500명"></div>
-        <div class="full"><label>예산</label><input name="예산" placeholder="대략이어도 괜찮습니다"></div>
-        <div class="full"><label>추가 요청사항</label><textarea name="추가요청" placeholder="공연 길이, 희망 시간대, 장비·음향 준비 여부 등"></textarea></div>
+        <div><label>업체·기관명 <span class="req">*</span></label><input name="f_company" required></div>
+        <div><label>담당자 성함 <span class="req">*</span></label><input name="f_manager" required></div>
+        <div><label>연락처 <span class="req">*</span></label><input name="f_phone" required placeholder="010-0000-0000"></div>
+        <div><label>이메일 <span class="req">*</span></label><input type="email" name="f_email" required placeholder="견적서 받으실 주소"></div>
+        <div><label>행사명 <span class="req">*</span></label><input name="f_event" required></div>
+        <div><label>행사 일자 <span class="req">*</span></label><input name="f_date" required placeholder="미정이면 '미정'"></div>
+        <div class="full"><label>장소 <span class="req">*</span></label><input name="f_place" required placeholder="지역 · 행사장명"></div>
+        <div><label>희망 아티스트</label><input name="f_artist" placeholder="미정이면 비워두세요"></div>
+        <div><label>예상 관객 수</label><input name="f_audience" placeholder="예: 500명"></div>
+        <div class="full"><label>예산</label><input name="f_budget" placeholder="대략이어도 괜찮습니다"></div>
+        <div class="full"><label>추가 요청사항</label><textarea name="f_message" placeholder="공연 길이, 희망 시간대, 장비·음향 준비 여부 등"></textarea></div>
         <label class="agree"><input type="checkbox" required>
           문의 처리를 위한 개인정보(담당자 성함·연락처·이메일) 수집·이용에 동의합니다.</label>
         <div class="fsub">
@@ -596,9 +594,37 @@ var af=document.getElementById('askForm');
 if(af){af.addEventListener('submit',async function(e){
   e.preventDefault();
   var btn=af.querySelector('button[type=submit]'), msg=document.getElementById('fmsg');
+  var g=function(n){var el=af.querySelector('[name="'+n+'"]');return el?el.value.trim():''};
+  var L=[
+    '■ 문의 업체',
+    '업체·기관명 : '+g('f_company'),
+    '담당자 : '+g('f_manager'),
+    '연락처 : '+g('f_phone'),
+    '이메일 : '+g('f_email'),
+    '',
+    '■ 행사',
+    '행사명 : '+g('f_event'),
+    '행사 일자 : '+g('f_date'),
+    '장소 : '+g('f_place'),
+    '',
+    '■ 요청',
+    '희망 아티스트 : '+(g('f_artist')||'-'),
+    '예상 관객 수 : '+(g('f_audience')||'-'),
+    '예산 : '+(g('f_budget')||'-'),
+    '',
+    '추가 요청사항',
+    (g('f_message')||'-')
+  ].join('\n');
+  var fd=new FormData();
+  fd.append('access_key', af.querySelector('[name=access_key]').value);
+  fd.append('subject', '[홈페이지 문의] '+(g('f_company')||'업체명 미기재')+' — '+(g('f_event')||'행사명 미기재'));
+  fd.append('from_name', 'GRUNT ZERO 홈페이지');
+  fd.append('name', g('f_manager'));
+  fd.append('email', g('f_email'));
+  fd.append('message', L);
   btn.disabled=true; msg.className='fmsg'; msg.textContent='보내는 중…';
   try{
-    var r=await fetch('https://api.web3forms.com/submit',{method:'POST',body:new FormData(af)});
+    var r=await fetch('https://api.web3forms.com/submit',{method:'POST',body:fd});
     var j=await r.json();
     if(!j.success) throw new Error(j.message||'fail');
     af.reset(); msg.className='fmsg ok';
