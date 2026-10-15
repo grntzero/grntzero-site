@@ -2,3 +2,4 @@ User-agent: *
 Disallow: /lineup.html
 Disallow: /dl/
 Disallow: /my/
+Disallow: /kids/

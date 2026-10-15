@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>세포의 어린이클럽 | 디제잉 기반 참여형 어린이 공연</title>
+<meta name="description" content="1,150회+ 공연으로 검증된 어린이 디제잉 공연. 유치원·운동회·키즈카페·지자체 행사까지, 아이가 주인공이 되는 30분. 공연 문의 1800-8790.">
+<link rel="icon" href="img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="세포의 어린이클럽">
+<meta property="og:title" content="세포의 어린이클럽 — 지금까지 이런 어린이 공연은 없었다">
+<meta property="og:description" content="1,150회+ 공연 · 워크맨 · SBS 스브스뉴스. 아이가 주인공이 되는 디제잉 참여형 공연.">
+<meta property="og:image" content="https://grntzero.com/kids/img/og_kids.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Gothic+A1:wght@500;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EFEBDE; --paper-2:#F7F4EA; --card:#FFFDF6;
+  --ink:#16140E; --ink-2:#3B372C; --mute:#6E6857; --mute-2:#8C8674;
+  --line:#DAD4C2; --line-2:#C2BAA2;
+  --violet:#6244BE; --violet-2:#7C5BDB; --violet-soft:#EDE7FB;
+  --sun:#E8A400; --sun-soft:#FFF2CC;
+  --f-disp:"Big Shoulders Display","Gothic A1",Arial,sans-serif;
+  --f-head:"Gothic A1","IBM Plex Sans KR","Apple SD Gothic Neo",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",Menlo,monospace;
+  --pad:clamp(16px,5vw,56px); --wrap:1120px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;
+  word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+a{color:inherit}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+.sect{padding:clamp(56px,8vw,96px) 0}
+.sect + .sect{border-top:1px solid var(--line)}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--violet);margin:0}
+h2{font-family:var(--f-head);font-weight:800;font-size:clamp(25px,3.6vw,36px);letter-spacing:-.035em;line-height:1.3;margin:10px 0 0;text-wrap:balance}
+.sect-head{max-width:62ch;margin-bottom:clamp(26px,4vw,42px)}
+.sect-head p{color:var(--mute);margin:14px 0 0;font-size:15.5px}
+
+/* 헤더 */
+.top{position:sticky;top:0;z-index:50;background:rgba(239,235,222,.92);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;height:62px}
+.logo{text-decoration:none;display:flex;align-items:baseline;gap:8px;flex:none}
+.logo b{font-family:var(--f-head);font-weight:900;font-size:19px;letter-spacing:-.04em}
+.logo b em{font-style:normal;color:var(--violet)}
+.logo small{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;color:var(--mute-2)}
+.nav{display:flex;gap:2px;margin-left:auto;align-items:center}
+.nav a{text-decoration:none;font-size:14px;font-weight:600;color:var(--ink-2);padding:8px 11px;border-radius:999px;white-space:nowrap}
+.nav a:hover{background:var(--violet-soft);color:var(--violet)}
+.nav .shop{color:var(--mute)}
+.nav .cta{background:var(--violet);color:#fff;margin-left:6px}
+.nav .cta:hover{background:var(--violet-2);color:#fff}
+@media(max-width:900px){
+  .top .wrap{height:auto;flex-wrap:wrap;padding-top:10px;padding-bottom:8px;gap:6px}
+  .nav{margin-left:0;width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{font-size:13px;padding:6px 10px}
+  html{scroll-padding-top:104px}
+}
+
+/* 버튼 */
+.btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:15px;font-weight:700;padding:14px 24px;border-radius:999px;
+  background:var(--violet);color:#fff;border:2px solid var(--violet);transition:background .18s,border-color .18s,color .18s,transform .18s;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--violet-2);border-color:var(--violet-2);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--violet)}
+.btn.ghost:hover{background:var(--violet-soft)}
+
+/* 히어로 */
+.hero{padding:clamp(36px,6vw,76px) 0 clamp(40px,6vw,72px)}
+.hero-grid{display:grid;gap:clamp(28px,4vw,52px);align-items:center}
+@media(min-width:920px){.hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,48%)}}
+.hero h1{font-family:var(--f-head);font-weight:900;font-size:clamp(36px,6.6vw,66px);line-height:1.12;letter-spacing:-.05em;margin:14px 0 0;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--violet);position:relative}
+.hero h1 em::after{content:"";position:absolute;left:-2%;right:-2%;bottom:.06em;height:.22em;background:var(--sun);opacity:.35;border-radius:4px;z-index:-1}
+.hero-lead{font-size:clamp(16.5px,2vw,19px);font-weight:600;margin:20px 0 0;max-width:34ch;color:var(--ink-2)}
+.hero-body{color:var(--mute);margin:12px 0 0;max-width:46ch;font-size:15.5px}
+.cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.hero-img{position:relative;margin:0;border:1px solid var(--line-2);border-radius:20px;overflow:hidden;background:var(--card);box-shadow:0 14px 40px -24px rgba(60,40,120,.45)}
+.hero-img img{width:100%;height:auto}
+.hot{position:absolute;display:block;border-radius:14px;transition:background .16s,box-shadow .16s;-webkit-tap-highlight-color:transparent}
+.hot:hover,.hot:focus-visible{background:rgba(255,255,255,.3);box-shadow:inset 0 0 0 3px var(--violet);outline:none}
+.hint{margin:12px 0 0;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--mute-2)}
+
+/* 숫자 */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:clamp(36px,5vw,56px)}
+@media(min-width:860px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 20px 18px}
+.stat b{display:block;font-family:var(--f-head);font-weight:900;font-size:clamp(26px,3.4vw,34px);letter-spacing:-.04em;color:var(--violet);line-height:1.1}
+.stat span{display:block;font-size:13.5px;color:var(--mute);margin-top:8px;line-height:1.5}
+
+/* 방송 */
+.onair{display:grid;gap:16px}
+@media(min-width:760px){.onair{grid-template-columns:1fr 1fr}}
+.vcard{display:block;text-decoration:none;border-radius:18px;overflow:hidden;background:var(--ink);color:#fff;transition:transform .18s}
+.vcard:hover{transform:translateY(-3px)}
+.vthumb{position:relative;aspect-ratio:16/9;background:#222 center/cover no-repeat}
+.vthumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.45))}
+.play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:rgba(98,68,190,.92);z-index:2;display:flex;align-items:center;justify-content:center}
+.play::before{content:"";border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:5px}
+.vcard .meta{padding:18px 22px 20px}
+.vcard .k{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;opacity:.7}
+.vcard .t{font-family:var(--f-head);font-weight:800;font-size:19px;letter-spacing:-.03em;margin-top:6px;line-height:1.35}
+.vcard .d{font-size:14px;opacity:.75;margin-top:4px}
+
+/* 목적 */
+.manifesto{display:grid;gap:clamp(24px,4vw,48px);align-items:center}
+@media(min-width:900px){.manifesto{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.manifesto blockquote{margin:0;font-family:var(--f-head);font-weight:900;font-size:clamp(26px,4vw,40px);line-height:1.3;letter-spacing:-.045em}
+.manifesto blockquote em{font-style:normal;color:var(--violet)}
+.manifesto p{color:var(--ink-2);margin:0 0 14px;font-size:16px}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.tags span{font-family:var(--f-mono);font-size:13px;color:var(--violet);background:var(--violet-soft);padding:5px 12px;border-radius:999px}
+
+/* 프로그램 */
+.points{display:grid;gap:14px}
+@media(min-width:820px){.points{grid-template-columns:repeat(3,1fr)}}
+.points > div{border:2px dashed var(--line-2);border-radius:16px;padding:26px 24px;background:var(--paper-2)}
+.points .n{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--violet)}
+.points h3{font-family:var(--f-head);font-weight:800;font-size:18px;letter-spacing:-.03em;margin:10px 0 0}
+.points p{color:var(--mute);font-size:14.5px;margin:8px 0 0}
+.flow{margin-top:clamp(28px,4vw,44px);display:grid;gap:12px}
+@media(min-width:860px){.flow{grid-template-columns:repeat(3,1fr)}}
+.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 22px 20px}
+.step .time{font-family:var(--f-mono);font-size:11.5px;color:var(--mute-2);letter-spacing:.08em}
+.step h4{font-family:var(--f-head);font-weight:800;font-size:17.5px;margin:6px 0 0;letter-spacing:-.03em}
+.step h4 i{font-style:normal;color:var(--violet)}
+.step p{font-size:14px;color:var(--mute);margin:8px 0 0;line-height:1.6}
+.step q{display:block;margin-top:12px;font-size:14px;font-weight:700;color:var(--ink-2);background:var(--sun-soft);padding:9px 12px;border-radius:10px;quotes:none}
+.flow-note{font-size:12.5px;color:var(--mute-2);margin-top:14px}
+
+/* 어디서나 */
+.where{display:flex;flex-wrap:wrap;gap:8px}
+.where span{background:var(--card);border:1px solid var(--line-2);border-radius:999px;padding:9px 16px;font-size:14.5px;font-weight:600;color:var(--ink-2)}
+.with{margin-top:26px;padding:22px 24px;border-radius:16px;background:var(--violet-soft);border:1px solid #D8CCF6}
+.with b{font-family:var(--f-head);font-size:15px;color:var(--violet)}
+.with p{margin:8px 0 0;font-size:14.5px;color:var(--ink-2);line-height:1.8}
+
+/* 아티스트 */
+.roster{display:grid;gap:18px}
+@media(min-width:700px){.roster{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1040px){.roster{grid-template-columns:repeat(3,1fr)}}
+.art{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;scroll-margin-top:90px}
+.art .ph{position:relative;aspect-ratio:3/4;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,0) 58%),var(--tint,#EDE7FB);overflow:hidden}
+.art .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.art .body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1}
+.art h3{font-family:var(--f-head);font-weight:900;font-size:25px;letter-spacing:-.045em;margin:0;line-height:1.2}
+.art .en{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;color:var(--mute-2);text-transform:uppercase;margin-top:4px}
+.art .quote{margin:12px 0 0;font-size:15px;font-weight:700;color:var(--violet);line-height:1.5}
+.art ul{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:5px}
+.art li{font-size:13.8px;color:var(--mute);line-height:1.6;padding-left:13px;position:relative}
+.art li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--line-2)}
+.vids{margin-top:auto;padding-top:16px;display:flex;flex-wrap:wrap;gap:6px}
+.vids a{font-size:12.5px;text-decoration:none;color:var(--violet);background:var(--violet-soft);padding:5px 11px;border-radius:999px;transition:background .15s}
+.vids a:hover{background:#DED2FA}
+.vids a::before{content:"▶ ";font-size:9px}
+.flash{animation:flash 1.6s ease}
+@keyframes flash{from{box-shadow:0 0 0 4px var(--violet)}to{box-shadow:0 0 0 0 transparent}}
+.art-cta{margin-top:26px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:22px 24px;border-radius:16px;background:var(--ink);color:#fff}
+.art-cta p{margin:0;font-size:15px}
+.art-cta p b{color:#FFD873}
+.art-cta .btn{background:#fff;color:var(--ink);border-color:#fff}
+.art-cta .btn:hover{background:var(--sun-soft)}
+
+/* 음악 */
+.music{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.mcard{text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:transform .16s,border-color .16s}
+.mcard:hover{transform:translateY(-2px);border-color:var(--violet)}
+.mcard .vthumb{aspect-ratio:16/9}
+.mcard .play{width:44px;height:44px;margin:-22px 0 0 -22px}
+.mcard .play::before{border-left-width:14px;border-top-width:9px;border-bottom-width:9px;margin-left:4px}
+.mcard .t{padding:12px 14px 14px;font-size:14.5px;font-weight:700;line-height:1.45}
+.mcard .t small{display:block;font-weight:400;color:var(--mute);font-size:12.5px;margin-top:2px}
+
+/* 자료 */
+.dl{display:flex;align-items:center;justify-content:space-between;gap:20px;border:2px solid var(--violet);border-radius:18px;text-decoration:none;padding:24px 26px;background:var(--violet-soft);transition:background .16s,transform .16s}
+.dl:hover{background:#E3D9F9;transform:translateY(-1px)}
+.dl .t{display:block;font-family:var(--f-head);font-size:19px;font-weight:800;letter-spacing:-.03em;color:var(--violet)}
+.dl .d{display:block;font-size:13.5px;color:var(--mute);margin-top:6px;line-height:1.6}
+.dl .arrow{font-size:24px;color:var(--violet);flex:none}
+.callout{margin-top:16px;border-radius:14px;padding:18px 22px;background:var(--sun-soft);border:1px solid #F1D98A}
+.callout p{margin:0;font-size:14.5px;line-height:1.7;color:var(--ink-2)}
+.callout b{color:#9A6B00}
+
+/* 문의 */
+.contact-grid{display:grid;gap:clamp(24px,4vw,44px)}
+@media(min-width:960px){.contact-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)}}
+.ch{display:grid;gap:10px;margin-top:24px}
+.ch a{display:block;text-decoration:none;padding:18px 20px;border-radius:14px;background:var(--card);border:1px solid var(--line-2);transition:border-color .16s,background .16s}
+.ch a:hover{border-color:var(--violet);background:var(--violet-soft)}
+.ch .k{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute-2)}
+.ch .v{font-family:var(--f-head);font-size:19px;font-weight:800;letter-spacing:-.03em;margin-top:4px;word-break:break-all}
+form{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:clamp(20px,3vw,30px)}
+.frow{display:grid;gap:12px}
+@media(min-width:620px){.frow.two{grid-template-columns:1fr 1fr}}
+.f{display:block;margin-bottom:12px}
+.f span{display:block;font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+.f span i{font-style:normal;color:var(--violet)}
+.f input,.f textarea,.f select{width:100%;font:inherit;font-size:15px;padding:12px 14px;border:1px solid var(--line-2);border-radius:12px;background:#fff;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-soft)}
+.f textarea{min-height:110px;resize:vertical}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--mute);margin:6px 0 16px;line-height:1.6}
+.agree input{margin-top:4px;width:18px;height:18px;accent-color:var(--violet);flex:none}
+.fmsg{margin:12px 0 0;font-size:14px;font-weight:600}
+.fmsg.ok{color:#2E7D4F}.fmsg.err{color:#B3402B}
+form .btn{width:100%;justify-content:center}
+
+/* 푸터 */
+footer{background:var(--ink);color:#CFC9BA;padding:44px 0 56px;margin-top:0}
+footer .row{display:flex;flex-wrap:wrap;gap:20px 40px;justify-content:space-between}
+footer .brand{font-family:var(--f-head);font-weight:900;font-size:20px;color:#fff;letter-spacing:-.04em}
+footer .brand em{font-style:normal;color:#B9A4FF}
+footer .sns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+footer .sns a{text-decoration:none;font-size:13px;border:1px solid #4A4436;border-radius:999px;padding:6px 13px;color:#E8E2D2}
+footer .sns a:hover{border-color:#B9A4FF;color:#fff}
+footer .biz{font-size:12.5px;line-height:1.9;color:#9F9888}
+footer .cross{display:inline-block;margin-top:14px;font-size:13.5px;color:#fff;text-decoration:none;border-bottom:1px solid #B9A4FF;padding-bottom:1px}
+footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:#7D7769}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="세포의 어린이클럽 처음으로"><b>세포의 <em>어린이클럽</em></b><small>by GRUNT ZERO</small></a>
+    <nav class="nav" aria-label="주요 메뉴">
+      <a href="#about">소개</a>
+      <a href="#program">프로그램</a>
+      <a href="#artists">아티스트</a>
+      <a href="#music">영상·음악</a>
+      <a href="#where">함께한 곳</a>
+      <a class="shop" href="https://smartstore.naver.com/sefoent" target="_blank" rel="noopener">쇼핑 ↗</a>
+      <a class="cta" href="#contact">공연 문의</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Since 2022 · GRUNT ZERO</p>
+        <h1>지금까지 이런<br>어린이 공연은<br><em>없었다.</em></h1>
+        <p class="hero-lead">아이가 관객이 아니라 주인공이 되는 30분. 디제잉으로 함께 뛰는 참여형 어린이 공연입니다.</p>
+        <p class="hero-body">음악과 율동으로 아이들의 신체 협응력과 감정 표현을 키우고, 부모님·선생님까지 함께 움직이며 가족이 같은 순간을 나누도록 설계했습니다.</p>
+        <div class="cta-row">
+          <a class="btn" href="#contact">공연 문의하기</a>
+          <a class="btn ghost" href="#artists">아티스트 보기</a>
+        </div>
+      </div>
+      <div>
+        <figure class="hero-img">
+          <img src="img/crew.webp" width="1500" height="1061" alt="세포의 어린이클럽 아티스트 — 세포, 쎄니, 베리, 포키, 나나걸스, 타잔, 깡구" fetchpriority="high">
+          <a class="hot" href="#k-sefo" style="left:16.5%;top:10%;width:20.5%;height:38%" aria-label="세포 소개 보기"></a>
+          <a class="hot" href="#k-sseni" style="left:40%;top:10%;width:20%;height:38%" aria-label="쎄니 소개 보기"></a>
+          <a class="hot" href="#k-berri" style="left:62.5%;top:10%;width:20.5%;height:38%" aria-label="베리 소개 보기"></a>
+          <a class="hot" href="#k-poki" style="left:5.5%;top:50%;width:20.5%;height:40%" aria-label="포키 소개 보기"></a>
+          <a class="hot" href="#k-nana" style="left:28%;top:50%;width:20.5%;height:40%" aria-label="나나걸스 소개 보기"></a>
+          <a class="hot" href="#k-tarzan" style="left:51%;top:50%;width:20.5%;height:40%" aria-label="타잔 소개 보기"></a>
+          <a class="hot" href="#k-ganggu" style="left:73.5%;top:50%;width:20.5%;height:40%" aria-label="깡구 소개 보기"></a>
+        </figure>
+        <p class="hint">사진 속 아티스트를 누르면 소개로 이동합니다</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b>1,150회+</b><span>누적 공연으로 검증된<br>어린이 참여형 공연</span></div>
+      <div class="stat"><b>74개 매장</b><span>홈플러스·롯데마트·AK플라자<br>문화센터 정규 편성</span></div>
+      <div class="stat"><b>20곡+</b><span>직접 만든 어린이클럽<br>음원 · 율동 콘텐츠</span></div>
+      <div class="stat"><b>방송 출연</b><span>유튜브 워크맨 ·<br>SBS 스브스뉴스</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sect" id="onair">
+  <div class="wrap">
+    <div class="sect-head">
+      <p class="eyebrow">On Air</p>
+      <h2>방송이 먼저 찾아온 어린이 공연</h2>
+      <p>어린이클럽이 어떤 공연인지 가장 빠르게 보시려면 이 두 편이면 충분합니다.</p>
+    </div>
+    <div class="onair">
+      <a class="vcard" href="https://youtu.be/iVu2Yzi469o" target="_blank" rel="noopener">
+        <div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/iVu2Yzi469o/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div>
+        <div class="meta"><div class="k">YouTube · 워크맨</div><div class="t">워크돌 — 어린이클럽 편</div><div class="d">워크맨이 직접 찾아온 어린이클럽 현장</div></div>
+      </a>
+      <a class="vcard" href="https://youtu.be/iKiR_ZjMOCA" target="_blank" rel="noopener">
+        <div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/iKiR_ZjMOCA/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div>
+        <div class="meta"><div class="k">SBS · 스브스뉴스</div><div class="t">어린이클럽 편</div><div class="d">SBS 스브스뉴스가 취재한 어린이 디제잉 문화</div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="sect" id="about">
+  <div class="wrap manifesto">
+    <div>
+      <p class="eyebrow">Why</p>
+      <blockquote style="margin-top:12px">자유롭게 뛰노는 아이,<br><em>진짜 성장의 감동</em>이 됩니다.</blockquote>
+    </div>
+    <div>
+      <p>아이들에게는 유행하는 챌린지만큼이나 <b>형식 없는 자유로움</b>도 필요합니다.</p>
+      <p>세포의 어린이클럽은 직접 제작한 음악으로 아이들의 자유로운 활동을 이끌어 냅니다. 아이들은 정답을 강요하지 않는 곳에서 스스로 움직이며 몸과 마음의 건강을 찾아갑니다.</p>
+      <p>틀에서 벗어나 마음껏 에너지를 발산하는 시간 — ‘자유로운 놀이터’의 감동적인 순간을 선물해 주세요.</p>
+      <div class="tags"><span>#자유</span><span>#건강</span><span>#감동</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sect" id="program">
+  <div class="wrap">
+    <div class="sect-head">
+      <p class="eyebrow">Program</p>
+      <h2>보고만 있는 공연이 아닙니다</h2>
+      <p>아이, 부모, 선생님이 모두 움직이는 전 세대 참여형 공연. 거부감 없이 다가가 열광적인 참여까지 단계적으로 이끌어 냅니다.</p>
+    </div>
+    <div class="points">
+      <div><span class="n">01 · 신체</span><h3>몸으로 배우는 리듬</h3><p>음악에 맞춰 몸을 움직이며 신체 협응력을 기릅니다. ‘세포체조’처럼 아이들이 바로 따라 할 수 있는 동작으로 설계했습니다.</p></div>
+      <div><span class="n">02 · 정서</span><h3>감정을 표현하는 법</h3><p>음악을 통해 감정을 알아차리고 표현하는 경험을 만듭니다. 무대 앞의 아이가 관객이 아니라 주인공이 됩니다.</p></div>
+      <div><span class="n">03 · 가족</span><h3>같이 뛰는 부모</h3><p>아이만 노는 공연이 아니라 온 가족이 함께 움직입니다. 부모와 아이가 같은 순간을 공유하도록 구성했습니다.</p></div>
+    </div>
+    <div class="flow">
+      <div class="step"><div class="time">0 – 10분</div><h4><i>1단계</i> 친근감 형성</h4><p>자체 IP ‘세포체조’로 아이들의 관심을 바로 끌어옵니다.</p><q>“체조 아저씨다!” 환호하며 달려오는 아이들</q></div>
+      <div class="step"><div class="time">10 – 20분</div><h4><i>2단계</i> 에너지 폭발</h4><p>막춤·소리·웃음 모두 환영. 자유롭게 표현하는 시간입니다.</p><q>부모님도, 선생님도 함께 뛰기 시작</q></div>
+      <div class="step"><div class="time">20 – 30분</div><h4><i>3단계</i> 감동 완성</h4><p>즐거움이 감동으로, 감동이 유대감으로 이어집니다.</p><q>“사랑해요!” 고백 타임에 눈물까지</q></div>
+    </div>
+    <p class="flow-note">※ 모든 공연은 30분 단위이며, 세부 구성은 주최 측 요청과 현장 환경에 맞춰 조정합니다.</p>
+  </div>
+</section>
+
+<section class="sect" id="artists">
+  <div class="wrap">
+    <div class="sect-head">
+      <p class="eyebrow">Artists</p>
+      <h2>어린이클럽 아티스트</h2>
+      <p>현장에서 숙련된 아티스트들이 무대를 이끕니다. 행사 규모와 예산에 맞춰 조합해 드립니다.</p>
+    </div>
+    <div class="roster">
+      <article class="art" id="k-sefo">
+        <div class="ph" style="--tint:#FFEFB4"><img src="img/sefo.webp" width="720" height="960" alt="세포" loading="lazy"></div>
+        <div class="body">
+          <h3>세포</h3><div class="en">SEFO</div>
+          <p class="quote">“어린이클럽의 아이콘”</p>
+          <ul><li>유튜브 워크맨 〈워크돌 — 어린이클럽 편〉, SBS 스브스뉴스 출연</li><li>예술로 아이들을 연결하고 성장시키는 감성 리더</li><li>예술나눔재단 ‘아이프칠드런’ 홍보대사</li></ul>
+          <div class="vids"><a href="https://youtube.com/shorts/eE3d0jwpC58" target="_blank" rel="noopener">요즘 유치원 다 이거함</a><a href="https://youtube.com/shorts/UhDyIHH9kA4" target="_blank" rel="noopener">요즘 운동회 다 이거함</a><a href="https://youtube.com/shorts/2WaI7Og5k_U" target="_blank" rel="noopener">교육부가 선택한 디제이</a><a href="https://youtube.com/shorts/Kqb-ZNl-Hpw" target="_blank" rel="noopener">거제옥포 키즈워터밤</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-sb">
+        <div class="ph" style="--tint:#E8DCFB"><img src="img/sseniberri.webp" width="720" height="960" alt="쎄니 & 베리" loading="lazy"></div>
+        <div class="body">
+          <h3>쎄니 &amp; 베리</h3><div class="en">SSENI &amp; BERRI</div>
+          <p class="quote">“대한민국 최초 어린이 DJ 듀오”</p>
+          <ul><li>반전 매력 힙함의 쎄니, 밝은 에너지 비타민 베리</li><li>무대를 종횡무진 누비는 어린이 디제이 듀오</li></ul>
+          <div class="vids"><a href="https://youtube.com/shorts/VOfNs4YOb34" target="_blank" rel="noopener">한강에 나타난 어린이 DJ 듀오</a><a href="https://youtube.com/shorts/ej7yOrKGHdM" target="_blank" rel="noopener">워터파크를 뒤집었다</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-sseni">
+        <div class="ph" style="--tint:#CFEFE3"><img src="img/sseni.webp" width="720" height="960" alt="쎄니" loading="lazy"></div>
+        <div class="body">
+          <h3>쎄니</h3><div class="en">SSENI</div>
+          <p class="quote">“어린이 DJ”</p>
+          <ul><li>귀엽지만 무대 위에선 힙합 어린이 DJ, 반전 매력의 차세대 스타</li><li>KPOP 커버댄스부터 어린이클럽까지, 아이들 눈높이에 맞춘 공연</li></ul>
+          <div class="vids"><a href="https://youtube.com/shorts/NsNKEOQ8Mqc" target="_blank" rel="noopener">아이유키즈 댄서의 변신</a><a href="https://youtube.com/shorts/_ujFxrlwd-o" target="_blank" rel="noopener">어린이 DJ 키즈워터밤</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-berri">
+        <div class="ph" style="--tint:#FBD9E4"><img src="img/berri.webp" width="720" height="960" alt="베리" loading="lazy"></div>
+        <div class="body">
+          <h3>베리</h3><div class="en">BERRI</div>
+          <p class="quote">“어린이 DJ”</p>
+          <ul><li>밝고 상큼한 에너지로 무대를 환하게 밝히는 차세대 스타</li><li>KPOP 커버댄스부터 어린이클럽까지, 아이들 눈높이에 맞춘 공연</li></ul>
+          <div class="vids"><a href="https://youtube.com/shorts/1YgaM78fwGI" target="_blank" rel="noopener">귀여움 폭발 어린이 디제이</a><a href="https://youtube.com/shorts/qyewztExNxM" target="_blank" rel="noopener">이 음악을 튼 건 어린이였습니다</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-poki">
+        <div class="ph" style="--tint:#D5E7FB"><img src="img/poki.webp" width="720" height="960" alt="포키" loading="lazy"></div>
+        <div class="body">
+          <h3>포키</h3><div class="en">POKI</div>
+          <p class="quote">“두 번째로 많이 찾는 어린이클럽 아티스트”</p>
+          <ul><li>홈플러스·롯데마트·AK플라자 문화센터 전국투어</li><li>현장감을 살리는 활기찬 퍼포먼스</li></ul>
+          <div class="vids"><a href="https://youtube.com/shorts/ZOkOysGcSjE" target="_blank" rel="noopener">어린이날 공연</a><a href="https://youtube.com/shorts/wIRkTu-_Fjc" target="_blank" rel="noopener">부천중앙초 6학년 텐션</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-nana">
+        <div class="ph" style="--tint:#FFDCC7"><img src="img/nana.webp" width="720" height="960" alt="나나걸스" loading="lazy"></div>
+        <div class="body">
+          <h3>나나걸스</h3><div class="en">NANA GIRLS</div>
+          <p class="quote">“언니(누나)가 함께 놀아줄게”</p>
+          <ul><li>아이들과 눈높이를 맞추는 따뜻한 언니(누나) 듀오</li><li>웃음과 즐거움으로 무장한 다정한 여자 디제이 듀오</li></ul>
+          <div class="vids"><a href="https://youtube.com/shorts/ZnMG53zPGSM" target="_blank" rel="noopener">휘닉스파크</a><a href="https://youtube.com/shorts/NBoCr6mYkdg" target="_blank" rel="noopener">마산 로봇랜드</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-tarzan">
+        <div class="ph" style="--tint:#DCF0C6"><img src="img/tarzan.webp" width="720" height="960" alt="타잔" loading="lazy"></div>
+        <div class="body">
+          <h3>타잔</h3><div class="en">TARZAN</div>
+          <p class="quote">“에너지 폭발! 파워 디제이”</p>
+          <ul><li>아이들의 흥을 끌어올리는 강력한 무대 장악력</li><li>현장 분위기를 한순간에 바꾸는 마법사</li></ul>
+          <div class="vids"><a href="https://youtube.com/shorts/GwxNO5MuLaE" target="_blank" rel="noopener">타잔의 어린이클럽</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-ganggu">
+        <div class="ph" style="--tint:#FFD7D0"><img src="img/ganggu.webp" width="720" height="960" alt="깡구" loading="lazy"></div>
+        <div class="body">
+          <h3>깡구</h3><div class="en">GANGGU</div>
+          <p class="quote">“장난꾸러기와 찰떡궁합”</p>
+          <ul><li>악동 같은 아이들과 신나게 어울리는 에너지 만렙</li><li>개구쟁이들과 함께 만드는 자유로운 놀이 현장</li></ul>
+          <div class="vids"><a href="https://youtube.com/shorts/ikSheZGiLYk" target="_blank" rel="noopener">아마존 당진</a></div>
+        </div>
+      </article>
+      <article class="art" id="k-sefokids">
+        <div class="ph" style="--tint:#EADCF7"><img src="img/sefokids.webp" width="719" height="960" alt="세포키즈 어린이 댄서팀" loading="lazy"></div>
+        <div class="body">
+          <h3>세포키즈</h3><div class="en">SEFO KIDS</div>
+          <p class="quote">“세포와 함께하는 어린이 댄서팀”</p>
+          <ul><li>무대 위에서 직접 춤추며 현장을 빛내는 어린이클럽의 무브먼트 메이커</li><li>세포 공연에 2인 단위로 함께 구성할 수 있습니다</li></ul>
+        </div>
+      </article>
+    </div>
+    <div class="art-cta">
+      <p><b>출연료·견적</b>은 행사 일정과 장소에 맞춰 바로 안내해 드립니다.</p>
+      <a class="btn" href="#contact">견적 문의하기</a>
+    </div>
+  </div>
+</section>
+
+<section class="sect" id="music">
+  <div class="wrap">
+    <div class="sect-head">
+      <p class="eyebrow">Music</p>
+      <h2>공연에서 실제로 쓰는 노래들</h2>
+      <p>세포체조부터 국민동요 리믹스까지, 어린이클럽을 위해 직접 만든 곡들입니다.</p>
+    </div>
+    <div class="music">
+      <a class="mcard" href="https://youtu.be/N0y1ZKw9eYs" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/N0y1ZKw9eYs/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">세포체조<small>어린이클럽 대표곡</small></div></a>
+      <a class="mcard" href="https://youtu.be/S19J2kRVzn4" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/S19J2kRVzn4/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">그대로 멈춰라<small>국민동요 Remix</small></div></a>
+      <a class="mcard" href="https://youtu.be/fSTRXj0JbEQ" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/fSTRXj0JbEQ/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">아기상어<small>세계동요 Baby Shark</small></div></a>
+      <a class="mcard" href="https://youtu.be/4tbvb-K75XU" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/4tbvb-K75XU/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">Baby Shark<small>Festival Mix</small></div></a>
+      <a class="mcard" href="https://youtu.be/mlt2FbRmLfg" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/mlt2FbRmLfg/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">Let's Vaunce<small>바운스슈퍼파크 × SEFO</small></div></a>
+      <a class="mcard" href="https://youtu.be/Ohy3k36YJIE" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/Ohy3k36YJIE/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">세포구조대<small>어린이클럽 오리지널</small></div></a>
+      <a class="mcard" href="https://youtu.be/VnppaMOXLLA" target="_blank" rel="noopener"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/VnppaMOXLLA/hqdefault.jpg)"><span class="play" aria-hidden="true"></span></div><div class="t">폭주기관차<small>클래식 Remix</small></div></a>
+    </div>
+  </div>
+</section>
+
+<section class="sect" id="where">
+  <div class="wrap">
+    <div class="sect-head">
+      <p class="eyebrow">Where</p>
+      <h2>어린이가 있는 곳이라면 어디서나</h2>
+      <p>실내 강당부터 야외 축제 무대까지, 같은 구성으로 진행할 수 있습니다.</p>
+    </div>
+    <div class="where">
+      <span>유치원 · 어린이집</span><span>초등학교 운동회</span><span>키즈카페</span><span>놀이공원 · 테마파크</span><span>워터파크 · 키즈 풀파티</span><span>백화점 · 마트 문화센터</span><span>지자체 · 문화재단 축제</span><span>기업 가족 행사</span><span>태권도장 · 학원 행사</span>
+    </div>
+    <div class="with">
+      <b>함께한 곳</b>
+      <p>홈플러스 · 롯데마트 · AK플라자 문화센터 전국투어, 휘닉스파크, 마산 로봇랜드, 바운스슈퍼파크, 거제 옥포 키즈워터밤, 부천중앙초등학교 외 전국의 유치원·학교·지자체 행사</p>
+    </div>
+  </div>
+</section>
+
+<section class="sect" id="materials">
+  <div class="wrap">
+    <div class="sect-head">
+      <p class="eyebrow">Materials</p>
+      <h2>행사 준비 자료</h2>
+      <p>담당자분이 내부 보고나 무대 준비에 쓰실 자료를 한 번에 받으실 수 있습니다.</p>
+    </div>
+    <a class="dl" href="https://naver.me/52anNo4I" target="_blank" rel="noopener">
+      <span><span class="t">전체 자료 다운로드</span><span class="d">어린이클럽 소개서 · 아티스트 소개서 · 테크니컬 라이더 · 장비 렌탈 안내 (PDF)</span></span>
+      <span class="arrow" aria-hidden="true">↓</span>
+    </a>
+    <div class="callout"><p><b>지자체 · 관공서 · 학교 담당자님께</b> — 면세사업자도 함께 운영하고 있어 부가가치세 없이 계약하실 수 있습니다. 계약 형태(일반과세 / 면세)에 맞춰 견적서를 발행해 드립니다.</p></div>
+  </div>
+</section>
+
+<section class="sect" id="contact">
+  <div class="wrap contact-grid">
+    <div>
+      <p class="eyebrow">Booking</p>
+      <h2>아이들에게 잊지 못할<br>30분을 선물해 주세요.</h2>
+      <p style="color:var(--mute);margin:14px 0 0">행사 정보를 남겨주시면 가능한 아티스트와 견적을 빠르게 안내해 드립니다. 급하시면 전화가 가장 빠릅니다.</p>
+      <div class="ch">
+        <a href="tel:18008790"><div class="k">Tel</div><div class="v">1800-8790</div></a>
+        <a href="mailto:grnt@grntzero.com"><div class="k">Email</div><div class="v">grnt@grntzero.com</div></a>
+      </div>
+    </div>
+    <form id="ask" novalidate>
+      <input type="hidden" name="access_key" value="4c3353a4-9b3d-49af-a722-8efa077fbb28">
+      <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+      <div class="frow two">
+        <label class="f"><span>기관 · 업체명 <i>*</i></span><input id="f_org" required autocomplete="organization"></label>
+        <label class="f"><span>담당자 <i>*</i></span><input id="f_name" required autocomplete="name"></label>
+      </div>
+      <div class="frow two">
+        <label class="f"><span>연락처 <i>*</i></span><input id="f_phone" type="tel" required autocomplete="tel" placeholder="010-0000-0000"></label>
+        <label class="f"><span>이메일 <i>*</i></span><input id="f_email" type="email" required autocomplete="email"></label>
+      </div>
+      <label class="f"><span>행사명 <i>*</i></span><input id="f_event" required placeholder="예) ○○유치원 가을 운동회"></label>
+      <div class="frow two">
+        <label class="f"><span>행사 일자 <i>*</i></span><input id="f_date" required placeholder="예) 11월 8일(토) 오전"></label>
+        <label class="f"><span>장소 <i>*</i></span><input id="f_place" required placeholder="예) 수원 ○○초 강당"></label>
+      </div>
+      <div class="frow two">
+        <label class="f"><span>희망 아티스트</span>
+          <select id="f_artist"><option value="">미정 · 추천 받고 싶어요</option><option>세포</option><option>쎄니 &amp; 베리</option><option>쎄니</option><option>베리</option><option>포키</option><option>나나걸스</option><option>타잔</option><option>깡구</option><option>세포 + 세포키즈</option></select>
+        </label>
+        <label class="f"><span>예상 인원 (어린이 수)</span><input id="f_count" placeholder="예) 어린이 120명 + 학부모"></label>
+      </div>
+      <label class="f"><span>예산</span><input id="f_budget" placeholder="예) 100만 원 내외 / 미정"></label>
+      <label class="f"><span>추가 요청사항</span><textarea id="f_msg" placeholder="행사 성격, 음향 장비 유무, 실내·야외 등"></textarea></label>
+      <label class="agree"><input type="checkbox" id="f_agree" required><span>문의 응대를 위해 이름·연락처·이메일을 수집하며, 상담 완료 후 1년 이내 파기합니다. 동의합니다. <i style="font-style:normal;color:var(--violet)">*</i></span></label>
+      <button class="btn" type="submit" id="f_send">문의 보내기</button>
+      <p class="fmsg" id="f_out" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div>
+        <div class="brand">세포의 <em>어린이클럽</em></div>
+        <div class="sns">
+          <a href="https://www.youtube.com/sefoentertainment" target="_blank" rel="noopener">YouTube</a>
+          <a href="https://www.instagram.com/sefoent" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://www.tiktok.com/@sefoent" target="_blank" rel="noopener">TikTok</a>
+          <a href="https://smartstore.naver.com/sefoent" target="_blank" rel="noopener">스마트스토어</a>
+        </div>
+        <a class="cross" href="https://grntzero.com" target="_blank" rel="noopener">페스티벌 · 성인 행사는 GRUNT ZERO →</a>
+      </div>
+      <div class="biz">
+        상호 그런트제로 · 대표이사 김태준<br>
+        경기도 수원시 영통구 영통로 105, 7층<br>
+        대표번호 1800-8790 · grnt@grntzero.com<br>
+        사업자등록번호 246-05-01691<br>
+        대중문화예술기획업 제24109-2022-000003호<br>
+        음반·음악영상물제작업 제2024-000004호<br>
+        통신판매업 2024-수원팔달-0664호
+      </div>
+    </div>
+    <small>© 2022 GRUNT ZERO · 세포의 어린이클럽</small>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 사진 속 아티스트 → 카드로 이동 후 반짝
+  document.querySelectorAll('.hot').forEach(function(a){
+    a.addEventListener('click',function(){
+      var t=document.querySelector(a.getAttribute('href'));
+      if(!t) return; t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash');
+    });
+  });
+  // 문의 폼 (Web3Forms)
+  var f=document.getElementById('ask'), out=document.getElementById('f_out'), btn=document.getElementById('f_send');
+  function g(id){var e=document.getElementById(id);return e?e.value.trim():''}
+  f.addEventListener('submit',function(e){
+    e.preventDefault(); out.className='fmsg'; out.textContent='';
+    var need=['f_org','f_name','f_phone','f_email','f_event','f_date','f_place'];
+    for(var i=0;i<need.length;i++){ if(!g(need[i])){ out.className='fmsg err'; out.textContent='* 표시된 항목을 모두 입력해 주세요.'; document.getElementById(need[i]).focus(); return; } }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('f_email'))){ out.className='fmsg err'; out.textContent='이메일 주소를 다시 확인해 주세요.'; document.getElementById('f_email').focus(); return; }
+    if(!document.getElementById('f_agree').checked){ out.className='fmsg err'; out.textContent='개인정보 수집에 동의해 주세요.'; return; }
+    var L=['■ 문의 기관','기관·업체명 : '+g('f_org'),'담당자 : '+g('f_name'),'연락처 : '+g('f_phone'),'이메일 : '+g('f_email'),'',
+      '■ 행사','행사명 : '+g('f_event'),'행사 일자 : '+g('f_date'),'장소 : '+g('f_place'),'',
+      '■ 요청','희망 아티스트 : '+(g('f_artist')||'미정'),'예상 인원 : '+(g('f_count')||'-'),'예산 : '+(g('f_budget')||'-'),'','추가 요청사항',(g('f_msg')||'-')].join('\n');
+    var fd=new FormData();
+    fd.append('access_key', f.querySelector('[name=access_key]').value);
+    fd.append('subject','[어린이클럽 문의] '+g('f_org')+' — '+g('f_event'));
+    fd.append('from_name','세포의 어린이클럽 홈페이지');
+    fd.append('name',g('f_name')); fd.append('email',g('f_email')); fd.append('message',L);
+    if(f.querySelector('[name=botcheck]').checked) return;
+    btn.disabled=true; btn.textContent='보내는 중…';
+    fetch('https://api.web3forms.com/submit',{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(j){
+      if(j.success){ out.className='fmsg ok'; out.textContent='문의가 접수되었습니다. 확인 후 빠르게 연락드리겠습니다.'; f.reset(); }
+      else { throw new Error(j.message||'fail'); }
+    }).catch(function(){ out.className='fmsg err'; out.textContent='전송에 실패했습니다. 1800-8790으로 전화 주시면 바로 도와드리겠습니다.'; })
+      .finally(function(){ btn.disabled=false; btn.textContent='문의 보내기'; });
+  });
+})();
+</script>
+</body>
+</html>
