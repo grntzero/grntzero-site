@@ -573,7 +573,7 @@ document.querySelectorAll('.jlist a').forEach(function(a){
     out.href=vert?'https://youtube.com/shorts/'+id:'https://youtu.be/'+id;m.classList.add('open');document.body.style.overflow='hidden';}
   function close(){m.classList.remove('open');box.innerHTML='';document.body.style.overflow='';}
   document.addEventListener('click',function(e){
-    if(!mq.matches)return;var t=e.target.closest('.vt[data-yt],.vbtn[data-yt]');if(!t||t.classList.contains('playing'))return;
+    var t=e.target.closest('.vt[data-yt],.vbtn[data-yt],.vid[data-yt]');if(!t||t.classList.contains('playing'))return;
     e.preventDefault();e.stopPropagation();var b=t.querySelector('b');open(t.dataset.yt,b?b.textContent:t.textContent);
   },true);
   document.getElementById('vmodX').addEventListener('click',close);
