@@ -328,6 +328,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 .rt-card{margin:0;border:1px solid var(--tr-line);border-radius:var(--tr-rad-s);background:var(--tr-card);overflow:hidden;display:flex;flex-direction:column}
 .rt-img{background:#fff;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;padding:10px}
 .rt-img img{max-width:100%;max-height:100%;object-fit:contain}
+.rt-img.photo{padding:0;background:var(--tr-card)}
+.rt-img.photo img{width:100%;height:100%;max-height:none;object-fit:cover}
 .rt-card figcaption{padding:10px 12px 12px;display:grid;gap:2px}
 .rt-nm{font-size:13.5px;font-weight:700;color:var(--tr-ink);line-height:1.4}
 .rt-pr{font-size:15px;font-weight:800;color:var(--tr-accent);font-variant-numeric:tabular-nums}
@@ -343,6 +345,93 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 .tr-dark{--tr-ink:var(--cream);--tr-ink2:#CFC7B7;--tr-mute:var(--mut);--tr-card:var(--panel);--tr-line:#3A3122;--tr-ledfill:#120E07;--tr-accent:var(--gold2);--tr-dlbg:rgba(198,163,92,.08);--tr-red:#EF5D63;--tr-green:#58BE6B;--tr-blue:#4DA3F0;--tr-rad:0px;--tr-rad-s:0px}
 .tr-dark .rt-label{font-family:var(--disp);font-size:15px;letter-spacing:.2em}
 .tr-dark .rt-title{font-size:20px}
+.agrid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,2vw,24px);
+  padding-block:clamp(18px,3vw,28px) 0;align-items:start}
+@media(max-width:980px){.agrid{grid-template-columns:1fr}}
+
+.card{border:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column}
+.card.hide{display:none}
+.ctop{display:grid;grid-template-columns:minmax(132px,30%) 1fr;gap:0}
+.cph{aspect-ratio:3/4;overflow:hidden;background:var(--ink2);
+  border-right:1px solid var(--line)}
+.cph img{width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+.cbd{padding:clamp(15px,1.8vw,22px);display:flex;flex-direction:column;gap:9px;min-width:0}
+.crole{font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:.17em;
+  color:var(--gold);text-transform:uppercase;line-height:1.35}
+.cname{font-size:clamp(20px,2.2vw,26px);font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.cen{font-size:13px;color:var(--mut);margin-top:-5px}
+.cdesc{list-style:none;display:flex;flex-direction:column;gap:5px}
+.cdesc li{font-size:13.5px;color:#C5BDAC;line-height:1.65;padding-left:12px;position:relative}
+.cdesc li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--gold)}
+.ctags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:6px}
+.ctag{font-size:11px;line-height:1;padding:5px 8px;border:1px solid var(--line);
+  background:var(--ink2);color:var(--mut);white-space:nowrap}
+@media(max-width:520px){
+  .ctop{grid-template-columns:1fr}
+  .cph{border-right:0;border-bottom:1px solid var(--line);aspect-ratio:1/1}
+  .cph img{object-position:50% 100%}
+}
+
+.vwrap{border-top:1px solid var(--line);padding:clamp(14px,1.8vw,18px)}
+.vlab{font-family:var(--disp);font-weight:700;font-size:12.5px;letter-spacing:.18em;
+  color:var(--dim);margin-bottom:10px}
+.vthumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+@media(max-width:400px){.vthumbs{grid-template-columns:repeat(2,1fr)}}
+.vt{position:relative;aspect-ratio:9/16;border:1px solid var(--line);background:var(--ink2);
+  overflow:hidden;cursor:pointer;padding:0;width:100%;font:inherit;color:inherit;text-align:left;
+  display:block}
+.vt.blank{cursor:default;background:repeating-linear-gradient(135deg,#141009,#141009 7px,#171208 7px,#171208 14px)}
+.vt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .45s ease,opacity .3s}
+.vt:hover img{transform:scale(1.05);opacity:.84}
+.vt::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(0deg,rgba(9,7,4,.93) 0%,rgba(9,7,4,.3) 36%,rgba(9,7,4,0) 64%)}
+.vt .pl{position:absolute;left:50%;top:44%;width:30px;height:30px;margin:-15px 0 0 -15px;
+  border:1.5px solid rgba(239,233,220,.85);border-radius:50%;z-index:2;
+  background:rgba(13,10,6,.42);transition:background .25s,border-color .25s}
+.vt .pl::before{content:"";position:absolute;left:54%;top:50%;transform:translate(-50%,-50%);
+  border-left:9px solid rgba(239,233,220,.95);border-top:5.5px solid transparent;
+  border-bottom:5.5px solid transparent}
+.vt:hover .pl{background:var(--gold);border-color:var(--gold)}
+.vt:hover .pl::before{border-left-color:#120D06}
+.vt b{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:8px 7px;
+  font-size:11.5px;font-weight:600;color:#F2ECDF;line-height:1.3;
+  text-shadow:0 1px 9px rgba(0,0,0,.65)}
+.vt.playing{cursor:default}
+.vt.playing::after,.vt.playing .pl,.vt.playing b{display:none}
+.vt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.vbtn{font-size:12.5px;padding:7px 11px;border:1px solid var(--line);background:var(--ink2);
+  color:#C9C1B1;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;
+  text-align:left;transition:.18s}
+.vbtn:hover{border-color:var(--gold);color:var(--gold2)}
+.vbtn::before{content:"";border-left:7px solid currentColor;border-top:4.5px solid transparent;
+  border-bottom:4.5px solid transparent;flex:none;opacity:.8}
+.vmore{font-size:12.5px;padding:7px 11px;border:1px dashed var(--line);background:none;
+  color:var(--dim);cursor:pointer;font-family:inherit}
+.vmore:hover{color:var(--gold2);border-color:var(--gold)}
+.vhide{display:none}
+
+.jump{padding:clamp(15px,2vw,22px) 0 clamp(16px,2.2vw,24px)}
+.jump h3{font-family:var(--disp);font-weight:700;font-size:12.5px;letter-spacing:.17em;
+  color:var(--dim);margin-bottom:11px}
+.jlist{display:flex;flex-wrap:wrap;gap:7px}
+.jlist a{display:inline-block;padding:7px 13px;border:1px solid var(--line);background:var(--ink);
+  font-size:13px;color:var(--mut);letter-spacing:.02em;transition:border-color .15s,color .15s}
+.jlist a:hover{border-color:var(--gold);color:var(--gold2)}
+
+/* 라인업: 단체사진 핫스팟 */
+.crewmap{margin-top:clamp(18px,3vw,28px);margin-bottom:0}
+.crewph{position:relative;line-height:0}
+.crewph img{width:100%;display:block}
+.hot{position:absolute;display:block;border:2px solid transparent;transition:border-color .15s,background .15s}
+.hot span{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:.12em;line-height:1;white-space:nowrap;padding:5px 8px;background:rgba(13,10,6,.82);color:var(--gold2);opacity:0;transition:opacity .15s}
+.hot:hover,.hot:focus-visible{border-color:var(--gold);background:rgba(198,163,92,.10);outline:none}
+.hot:hover span,.hot:focus-visible span{opacity:1}
+.card{scroll-margin-top:90px}
+@media(max-width:860px){.card{scroll-margin-top:130px}}
+@keyframes cardflash{from{box-shadow:0 0 0 2px var(--gold)}to{box-shadow:0 0 0 2px transparent}}
+.card.flash{animation:cardflash 1.6s ease}
 </style>
 </head>
 <body>
@@ -351,13 +440,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 <header class="hdr"><div class="wrap">
   <a href="#top"><img src="img/gz_logo.png" alt="GRUNT ZERO"></a>
   <nav class="nav">
-    <a href="#solution">SOLUTION</a>
-    <a href="#live">LIVE</a>
     <a href="#artist">ARTIST</a>
     <a href="#fee">FEE</a>
     <a href="#tech">RIDER</a>
-    <a href="#clients">CLIENTS</a>
-    <a href="academy.html">ACADEMY</a>
     <a href="#contact">CONTACT</a>
   </nav>
   <a class="callbtn" href="tel:1800-8790">1800-8790</a>
@@ -374,7 +459,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
       행사 성격에 맞는 공연을 설계하고 운영합니다.</p>
     <div class="cta">
       <a class="btn pri" href="#contact">섭외 문의하기</a>
-      <a class="btn" href="artists.html">아티스트 라인업</a>
+      <a class="btn" href="#artist">아티스트 라인업</a>
     </div>
   </div>
 </section>
@@ -385,98 +470,6 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     <div><b>393</b><span>2025년 공연 횟수</span></div>
     <div><b>40<span style="font-size:.55em">만+</span></b><span>누적 관객</span></div>
     <div><b>17</b><span>소속 아티스트 팀</span></div>
-  </div>
-</div></section>
-
-<section class="band alt" id="solution"><div class="wrap">
-  <div class="shd"><h2>PERFORMANCE SOLUTION</h2><span class="kr">공연 솔루션</span></div>
-  <p class="lede">행사 성격에 따라 네 가지 중 하나를 기본으로 잡고, 주최측 큐시트에 맞춰
-    길이와 참여 구간을 조정합니다. 어느 구성이든 <strong>DJ가 직접 진행까지 맡아</strong>
-    별도 MC 없이 운영할 수 있습니다.</p>
-
-  <div class="sols">
-    <article class="sol">
-      <div class="ph"><img src="img/kids_dome.jpg" alt="SEFO LED 무대 위에서 아이들과 함께하는 DJ 공연"></div>
-      <div class="bd">
-        <h3><small>SOLUTION 01</small>세포의 어린이클럽</h3>
-        <p>어린이 전용 자체 음원 12곡을 중심으로 한 참여형 DJ 공연입니다.
-          세포체조·폭주기관차처럼 동작이 정해진 곡을 써서 처음 보는 아이도 10초 안에 따라 합니다.
-          소규모 공연부터 어린이날 큰잔치까지 같은 포맷으로 운영됩니다.</p>
-        <dl><dt>RUNNING</dt><dd>20 · 30 · 40분</dd>
-            <dt>AUDIENCE</dt><dd>5세~초등 + 보호자</dd>
-            <dt>추천</dt><dd>어린이날 · 가족축제 · 육아지원센터 · 지역 어린이행사</dd></dl>
-      </div>
-    </article>
-
-    <article class="sol">
-      <div class="ph"><img src="img/out_gunner.jpg" alt="야외 메인 스테이지 LED 앞을 가득 메운 관객"></div>
-      <div class="bd">
-        <h3><small>SOLUTION 02</small>시민 EDM 공연</h3>
-        <p>야외 메인 스테이지용 표준 구성입니다. 대중적인 EDM·K-POP 리믹스를 축으로
-          중반에 떼창과 파도타기를 배치해 넓은 객석을 하나로 묶습니다.
-          개막식·폐막식처럼 식전 식후가 붙는 진행에도 대응합니다.</p>
-        <dl><dt>RUNNING</dt><dd>30 · 45 · 60분</dd>
-            <dt>AUDIENCE</dt><dd>전 연령 · 300~10,000명</dd>
-            <dt>추천</dt><dd>지역축제 · 맥주축제 · 대학축제 · 워터파크</dd></dl>
-      </div>
-    </article>
-
-    <article class="sol">
-      <div class="ph"><img src="img/dome_mosh.jpg" alt="실내 공연장 DJ 부스에서 관객을 향해 손을 든 DJ"></div>
-      <div class="bd">
-        <h3><small>SOLUTION 03</small>예술 사각지대 프로그램</h3>
-        <p>디제잉 공연과 거리가 있던 영역으로 들어갑니다. 어르신·장애인·청소년 쉼터 등
-          문화 접근성이 낮은 현장에 맞춰 음량과 템포, 참여 방식을 다시 설계합니다.
-          공공기관에서 가장 많이 찾는 구성입니다.</p>
-        <dl><dt>RUNNING</dt><dd>30~60분</dd>
-            <dt>AUDIENCE</dt><dd>어르신 · 청소년 · 복지시설</dd>
-            <dt>추천</dt><dd>복지관 · 가족센터 · 자원봉사 행사</dd></dl>
-      </div>
-    </article>
-
-    <article class="sol">
-      <div class="ph"><img src="img/mil_gunner.jpg" alt="군복 차림으로 공연하는 전자음악 전투훈련 무대"></div>
-      <div class="bd">
-        <h3><small>SOLUTION 04</small>전자음악 전투훈련</h3>
-        <p>전직 조교 출신 DJ가 진행하는 군대 컨셉 특화 공연입니다.
-          관객이 '훈련'에 참여하는 형식이라 몰입도가 높고, 국방TV 방영 이력이 있습니다.
-          주한미군 지역 행사에서 출발해 지역 콘텐츠로 자리 잡았습니다.</p>
-        <dl><dt>RUNNING</dt><dd>40~60분</dd>
-            <dt>AUDIENCE</dt><dd>군 장병 · 청년 · 시민</dd>
-            <dt>추천</dt><dd>군 행사 · 청년축제 · 지역 특화 프로그램</dd></dl>
-      </div>
-    </article>
-  </div>
-</div></section>
-
-<section class="band" id="live"><div class="wrap">
-  <div class="shd"><h2>LIVE</h2><span class="kr">공연 영상</span></div>
-  <p class="lede">실제 현장입니다. 누르면 바로 재생됩니다.</p>
-  <div class="vids">
-    <div class="vid" role="button" tabindex="0" data-yt="WDE9QDS8Ql4">
-      <img src="img/vid/WDE9QDS8Ql4.jpg" alt="루나빛축제 공연 영상">
-      <span class="play"></span><span class="vcap"><b>루나빛축제</b><i>SEFO · 동탄호수공원</i></span></div>
-    <div class="vid" role="button" tabindex="0" data-yt="q_sH-mkC8KY">
-      <img src="img/vid/q_sH-mkC8KY.jpg" alt="안양춤축제 공연 영상">
-      <span class="play"></span><span class="vcap"><b>안양춤축제</b><i>SEFO · 거리예술 · 물 연출</i></span></div>
-    <div class="vid" role="button" tabindex="0" data-yt="Yp_tDb_cjkg">
-      <img src="img/vid/Yp_tDb_cjkg.jpg" alt="송탄 미군기지 공연 영상">
-      <span class="play"></span><span class="vcap"><b>송탄 미군기지</b><i>허조교 · 미군부대 앞</i></span></div>
-    <div class="vid" role="button" tabindex="0" data-yt="oeunM1gm-Ss">
-      <img src="img/vid/oeunM1gm-Ss.jpg" alt="군 행사 공연 영상">
-      <span class="play"></span><span class="vcap"><b>전군 단합의 현장</b><i>허조교 · 군 행사</i></span></div>
-    <div class="vid" role="button" tabindex="0" data-yt="TlCcPQZNz_I">
-      <img src="img/vid/TlCcPQZNz_I.jpg" alt="대학교 축제 공연 영상">
-      <span class="play"></span><span class="vcap"><b>대학교 축제</b><i>MOSHEE</i></span></div>
-    <div class="vid" role="button" tabindex="0" data-yt="qjZwnVzXcmQ">
-      <img src="img/vid/qjZwnVzXcmQ.jpg" alt="한강 사일런트디스코 공연 영상">
-      <span class="play"></span><span class="vcap"><b>한강 무소음파티</b><i>POY &amp; LOKI · 사일런트디스코</i></span></div>
-    <div class="vid" role="button" tabindex="0" data-yt="3Wmk8mPiQpI">
-      <img src="img/vid/3Wmk8mPiQpI.jpg" alt="캠핑페스티벌 공연 영상">
-      <span class="play"></span><span class="vcap"><b>카즈미 캠핑페스티벌</b><i>ANNA &amp; HAENA</i></span></div>
-    <div class="vid" role="button" tabindex="0" data-yt="ej7yOrKGHdM">
-      <img src="img/vid/ej7yOrKGHdM.jpg" alt="어린이 DJ 워터파크 공연 영상">
-      <span class="play"></span><span class="vcap"><b>어린이 DJ가 워터파크를 뒤집었다</b><i>SSENI &amp; BERRI · 키즈</i></span></div>
   </div>
 </div></section>
 
@@ -497,16 +490,237 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 
 <section class="band" id="artist"><div class="wrap">
   <div class="shd"><h2>ARTIST</h2><span class="kr">소속 아티스트</span></div>
-  <div class="crew">
-    <img src="img/crew.jpg" alt="GRUNT ZERO 소속 아티스트 단체 사진">
-    <div class="crewcap">GRUNT ZERO ARTISTS</div>
-  </div>
   <p class="lede">DJ·MC·댄서 <strong>17팀</strong>이 소속돼 있습니다.
-    페스티벌 메인 스테이지를 맡는 팀부터 어린이 공연 전담 팀, 어린이 DJ 듀오까지
-    행사 성격에 맞춰 조합합니다.
-    라인업 페이지에서 팀별 영상과 공연 이력, 섭외 가능 구성을 확인하실 수 있습니다.</p>
-  <div class="cta" style="margin-top:28px">
-    <a class="btn pri" href="artists.html">라인업 전체 보기</a>
+    페스티벌 메인 스테이지를 맡는 팀부터 어린이 공연 전담 팀, 어린이 DJ 듀오까지 행사 성격에 맞춰 조합합니다.
+    단체사진에서 아티스트를 누르면 해당 소개와 공연 영상으로 이동합니다.</p>
+  <div class="crew crewmap">
+    <div class="crewph"><img src="img/crew.jpg" alt="GRUNT ZERO 소속 아티스트 단체 사진"><a class="hot" href="#a-woad" style="left:8.9%;top:4%;width:8.3%;height:26%" aria-label="WOAD 소개 보기"><span>WOAD</span></a><a class="hot" href="#a-borngi" style="left:20.5%;top:4%;width:7.8%;height:26%" aria-label="BORNGI 소개 보기"><span>BORNGI</span></a><a class="hot" href="#a-killaton" style="left:32.8%;top:4%;width:7.8%;height:26%" aria-label="KillaTon 소개 보기"><span>KillaTon</span></a><a class="hot" href="#a-loki" style="left:44.4%;top:4%;width:8.3%;height:26%" aria-label="LOKI 소개 보기"><span>LOKI</span></a><a class="hot" href="#a-poy" style="left:56.1%;top:4%;width:8.3%;height:26%" aria-label="POY 소개 보기"><span>POY</span></a><a class="hot" href="#a-deta" style="left:68.3%;top:4%;width:8.3%;height:26%" aria-label="DETA 소개 보기"><span>DETA</span></a><a class="hot" href="#a-rogun" style="left:80.6%;top:4%;width:8.3%;height:26%" aria-label="ROGUN 소개 보기"><span>ROGUN</span></a><a class="hot" href="#a-berri" style="left:3.3%;top:32%;width:12.2%;height:55%" aria-label="BERRI 소개 보기"><span>BERRI</span></a><a class="hot" href="#a-haena" style="left:16.1%;top:32%;width:11.7%;height:55%" aria-label="HAENA 소개 보기"><span>HAENA</span></a><a class="hot" href="#a-gunner" style="left:28.1%;top:32%;width:13.1%;height:55%" aria-label="허조교 소개 보기"><span>허조교</span></a><a class="hot" href="#a-sefo" style="left:41.4%;top:32%;width:16.1%;height:55%" aria-label="SEFO 소개 보기"><span>SEFO</span></a><a class="hot" href="#a-moshee" style="left:57.8%;top:32%;width:13.6%;height:55%" aria-label="MOSHEE 소개 보기"><span>MOSHEE</span></a><a class="hot" href="#a-annaconda" style="left:71.7%;top:32%;width:11.9%;height:55%" aria-label="ANNACONDA 소개 보기"><span>ANNACONDA</span></a><a class="hot" href="#a-sseni" style="left:83.9%;top:32%;width:12.8%;height:55%" aria-label="SSENI 소개 보기"><span>SSENI</span></a></div>
+    <div class="crewcap">사진 속 아티스트를 누르면 소개로 이동합니다</div>
+  </div>
+  <div class="jump"><h3>ARTIST 바로가기</h3><div class="jlist"><a href="#a-sefo">SEFO</a><a href="#a-gunner">허조교</a><a href="#a-moshee">MOSHEE</a><a href="#a-poyloki">POY &amp; LOKI</a><a href="#a-anna_haena">ANNACONDA &amp; HAENA</a><a href="#a-killaton">KillaTon</a><a href="#a-deta">DETA</a><a href="#a-poy">POY</a><a href="#a-loki">LOKI</a><a href="#a-annaconda">ANNACONDA</a><a href="#a-haena">HAENA</a><a href="#a-borngi">BORNGI</a><a href="#a-rogun">ROGUN</a><a href="#a-woad">WOAD</a><a href="#a-sseni_berri">SSENI &amp; BERRI</a><a href="#a-sseni">SSENI</a><a href="#a-berri">BERRI</a></div></div>
+  <div class="agrid">
+<article class="card" id="a-sefo" data-tags="festival univ kids water corp silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/sefo.webp" alt="SEFO 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Headliner · 대표 아티스트</p>
+      <h2 class="cname">SEFO</h2>
+      <p class="cen">세포 · 어린이클럽의 아이콘</p>
+      <ul class="cdesc"><li>1,000회 이상의 공연으로 EDM 문화를 남녀노소가 즐길 수 있도록 만든 혁신적인 아티스트</li><li>독보적인 무대 장악력으로 심장과 귀를 뜨겁게 두드리는 아티스트</li><li>예술나눔재단 아이프칠드런 홍보대사</li></ul>
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">대학축제</span><span class="ctag">가족·어린이</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 17편</p><div class="vthumbs"><button class="vt" type="button" data-yt="WDE9QDS8Ql4"><img src="img/vt/WDE9QDS8Ql4.jpg" alt=""><span class="pl"></span><b>루나빛축제</b></button><button class="vt" type="button" data-yt="q_sH-mkC8KY"><img src="img/vt/q_sH-mkC8KY.jpg" alt=""><span class="pl"></span><b>안양춤축제</b></button><button class="vt" type="button" data-yt="mFehUgyHUfo"><img src="img/vt/mFehUgyHUfo.jpg" alt=""><span class="pl"></span><b>한강 사일런트디스코</b></button><button class="vt" type="button" data-yt="jLQNxNHsyc4"><img src="img/vt/jLQNxNHsyc4.jpg" alt=""><span class="pl"></span><b>워터퐝페스티벌</b></button></div><div class="vlist"><button class="vbtn" type="button" data-yt="IMFo2j01Ztw">송도맥주축제</button><button class="vbtn" type="button" data-yt="Vsi7Tc7yONE">공연으로 인공파도 만들기</button><button class="vbtn" type="button" data-yt="AwjUAd_vvSg">열정적인 공연이란? (30분 풀영상)</button><button class="vbtn" type="button" data-yt="DCt0ECjvPas">춘천마임축제</button><button class="vbtn vhide" type="button" data-yt="7dj3Di4Q88Y">서울시립대 오티 현장</button><button class="vbtn vhide" type="button" data-yt="1TlFbSJljyE">야시장 전체가 일어섰다</button><button class="vbtn vhide" type="button" data-yt="eZ48-PnoBEw">광주맥주축제</button><button class="vbtn vhide" type="button" data-yt="Kqb-ZNl-Hpw">거제옥포대첩축제</button><button class="vbtn vhide" type="button" data-yt="fXi67Z2bQ8E">회사에서 이게 가능하다고?</button><button class="vbtn vhide" type="button" data-yt="bCpEjWh51kY">워터파크 분위기 못 식힘</button><button class="vbtn vhide" type="button" data-yt="N0y1ZKw9eYs">세포체조</button><button class="vbtn vhide" type="button" data-yt="S19J2kRVzn4">그대로 멈춰라</button><button class="vbtn vhide" type="button" data-yt="4tbvb-K75XU">Baby Shark (Festival Mix)</button><button class="vmore" type="button">＋ 9편 더</button></div></div>
+</article>
+<article class="card" id="a-gunner" data-tags="festival univ water corp">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/gunner.webp" alt="허조교 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Performance · 전자음악 전투훈련</p>
+      <h2 class="cname">허조교</h2>
+      <p class="cen">GUNNER</p>
+      <ul class="cdesc"><li>이것은 훈련인가 놀이인가, 전자음악 통제관 허조교</li><li>국방TV(KFN) 방영으로 공식 인증받은 아티스트</li><li>“지금부터 본 조교가 통제한다”</li></ul>
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">대학축제</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 9편</p><div class="vthumbs"><button class="vt" type="button" data-yt="Yp_tDb_cjkg"><img src="img/vt/Yp_tDb_cjkg.jpg" alt=""><span class="pl"></span><b>송탄 미군기지</b></button><button class="vt" type="button" data-yt="xNnJ1vXjShQ"><img src="img/vt/xNnJ1vXjShQ.jpg" alt=""><span class="pl"></span><b>워터퐝페스티벌</b></button><button class="vt" type="button" data-yt="oeunM1gm-Ss"><img src="img/vt/oeunM1gm-Ss.jpg" alt=""><span class="pl"></span><b>전군 단합의 현장</b></button><button class="vt" type="button" data-yt="Lns23GwJtSo"><img src="img/vt/Lns23GwJtSo.jpg" alt=""><span class="pl"></span><b>감히 웃어?</b></button></div><div class="vlist"><button class="vbtn" type="button" data-yt="eW3rVi5dchs">송도맥주축제</button><button class="vbtn" type="button" data-yt="YGbPwF3OLBg">여자들도 아는 군가</button><button class="vbtn" type="button" data-yt="LY6yawOs1ko">미군도 열외는 없다</button><button class="vbtn" type="button" data-yt="xbTmJunWaEU">장흥물축제</button><button class="vbtn vhide" type="button" data-yt="w1gzjJhuGPA">부트캠프</button><button class="vmore" type="button">＋ 1편 더</button></div></div>
+</article>
+<article class="card" id="a-moshee" data-tags="festival univ water corp youth">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/moshee.webp" alt="MOSHEE 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ · 마스크 퍼포먼스</p>
+      <h2 class="cname">MOSHEE</h2>
+      <p class="cen">모시</p>
+      <ul class="cdesc"><li>빛나는 음악과 신비함으로 사람들의 호기심을 유발하는 전자제품</li><li>다양한 음악 스펙트럼을 가진 DJ, 유튜브 12만 구독자가 선택한 독창적 뮤직 크리에이터</li><li>클라이언트의 요구대로 커스터마이징 가능한 헤드기어</li></ul>
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">대학축제</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span><span class="ctag">청소년</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 7편</p><div class="vthumbs"><button class="vt" type="button" data-yt="TlCcPQZNz_I"><img src="img/vt/TlCcPQZNz_I.jpg" alt=""><span class="pl"></span><b>대학교 축제</b></button><button class="vt" type="button" data-yt="PUqmjE7H7lw"><img src="img/vt/PUqmjE7H7lw.jpg" alt=""><span class="pl"></span><b>안양춤축제</b></button><button class="vt" type="button" data-yt="UBJuCkNygeo"><img src="img/vt/UBJuCkNygeo.jpg" alt=""><span class="pl"></span><b>맥주축제에서 취할 수 없는 이유</b></button><button class="vt" type="button" data-yt="jaJZkczTrrA"><img src="img/vt/jaJZkczTrrA.jpg" alt=""><span class="pl"></span><b>워터퐝페스티벌</b></button></div><div class="vlist"><button class="vbtn" type="button" data-yt="Tgknqoyci2c">부산 화명생태공원 축제</button><button class="vbtn" type="button" data-yt="io3ARyPrdx8">송도맥주축제</button><button class="vbtn" type="button" data-yt="Rrk6zSn5u4E">MOSHEE IMPACT MODE</button></div></div>
+</article>
+<article class="card" id="a-poyloki" data-tags="festival univ kids water corp youth silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/poyloki.webp" alt="POY &amp; LOKI 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Duo · 남자 듀오</p>
+      <h2 class="cname">POY &amp; LOKI</h2>
+      <p class="cen">포이 &amp; 로키</p>
+      <ul class="cdesc"><li>멜로디컬하고 강력한 EDM에 재치있는 퍼포먼스로 눈과 귀를 사로잡는 남자 듀오</li></ul>
+      
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 7편</p><div class="vthumbs"><button class="vt" type="button" data-yt="EOC2nwazNfg"><img src="img/vt/EOC2nwazNfg.jpg" alt=""><span class="pl"></span><b>영등포맥주축제</b></button><button class="vt" type="button" data-yt="5JzFAxMfvaE"><img src="img/vt/5JzFAxMfvaE.jpg" alt=""><span class="pl"></span><b>워터퐝페스티벌</b></button><button class="vt" type="button" data-yt="qjZwnVzXcmQ"><img src="img/vt/qjZwnVzXcmQ.jpg" alt=""><span class="pl"></span><b>한강 무소음파티</b></button><button class="vt" type="button" data-yt="_hTZHCLuzaw"><img src="img/vt/_hTZHCLuzaw.jpg" alt=""><span class="pl"></span><b>공연하랬더니 휴가 즐김</b></button></div><div class="vlist"><button class="vbtn" type="button" data-yt="DnHV5G5s0gU">대학교축제 제대로 즐기기</button><button class="vbtn" type="button" data-yt="eMbXOE4EJ_w">잘 노는 대학교란?</button><button class="vbtn" type="button" data-yt="XqngClwpwvM">질풍가도 공식 리믹스</button></div></div>
+</article>
+<article class="card" id="a-anna_haena" data-tags="festival univ kids water corp youth silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/anna_haena.webp" alt="ANNACONDA &amp; HAENA 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Duo · 여자 듀오</p>
+      <h2 class="cname">ANNACONDA &amp; HAENA</h2>
+      <p class="cen">애나콘다 &amp; 해나</p>
+      <ul class="cdesc"><li>이국적 매력과 해처럼 빛나는 에너지가 어우러진, 폭발적인 무대를 선사하는 여자 듀오</li></ul>
+      
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 5편</p><div class="vthumbs"><button class="vt" type="button" data-yt="1p_ZN25ViJc"><img src="img/vt/1p_ZN25ViJc.jpg" alt=""><span class="pl"></span><b>한강 사일런트디스코 × 여전사들</b></button><button class="vt" type="button" data-yt="pR5ncOOW-MU"><img src="img/vt/pR5ncOOW-MU.jpg" alt=""><span class="pl"></span><b>대학교 축제</b></button><button class="vt" type="button" data-yt="3Wmk8mPiQpI"><img src="img/vt/3Wmk8mPiQpI.jpg" alt=""><span class="pl"></span><b>카즈미 캠핑페스티벌</b></button><button class="vt" type="button" data-yt="ZiZ8MaiMhic"><img src="img/vt/ZiZ8MaiMhic.jpg" alt=""><span class="pl"></span><b>물벼락만 맞다 끝남</b></button></div><div class="vlist"><button class="vbtn" type="button" data-yt="ZnMG53zPGSM">휘닉스파크 패밀리 풀파티</button></div></div>
+</article>
+<article class="card" id="a-killaton" data-tags="festival univ kids water corp youth">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/killaton.webp" alt="KillaTon 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ</p>
+      <h2 class="cname">KillaTon</h2>
+      <p class="cen">킬라톤</p>
+      <ul class="cdesc"><li>무대에 등장하는 순간부터 끊임없는 에너지가 넘치는 아티스트</li></ul>
+      
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 6편</p><div class="vthumbs"><button class="vt" type="button" data-yt="XFCGOgH7_0U"><img src="img/vt/XFCGOgH7_0U.jpg" alt=""><span class="pl"></span><b>물놀이하러 왔다가 제대로 미쳐버림</b></button><button class="vt" type="button" data-yt="53ErmxeyiDY"><img src="img/vt/53ErmxeyiDY.jpg" alt=""><span class="pl"></span><b>경상국립대학교 축제</b></button><button class="vt" type="button" data-yt="7861UOkDxqg"><img src="img/vt/7861UOkDxqg.jpg" alt=""><span class="pl"></span><b>오산대 축제</b></button><button class="vt" type="button" data-yt="gdAMi_J_maw"><img src="img/vt/gdAMi_J_maw.jpg" alt=""><span class="pl"></span><b>안산대학교 축제</b></button></div><div class="vlist"><button class="vbtn" type="button" data-yt="E_WHJM-IuJI">평창 더위사냥</button><button class="vbtn" type="button" data-yt="IaMl-bQRd6w">탁구 세계챔피언 갈라쇼</button></div></div>
+</article>
+<article class="card" id="a-deta" data-tags="festival univ kids water corp youth silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/deta.webp" alt="DETA 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ</p>
+      <h2 class="cname">DETA</h2>
+      <p class="cen">데타</p>
+      <ul class="cdesc"><li>넘치는 에너지로 관객과 공간을 뜨겁게 만들어내는 사나이</li></ul>
+      
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 5편</p><div class="vthumbs"><button class="vt" type="button" data-yt="zGqsd7V6lXk"><img src="img/vt/zGqsd7V6lXk.jpg" alt=""><span class="pl"></span><b>오산 사일런트파티</b></button><button class="vt" type="button" data-yt="geZue9s7lsY"><img src="img/vt/geZue9s7lsY.jpg" alt=""><span class="pl"></span><b>나는 DETA다</b></button><button class="vt" type="button" data-yt="joHTxwbLEh4"><img src="img/vt/joHTxwbLEh4.jpg" alt=""><span class="pl"></span><b>안양 청년축제</b></button><button class="vt" type="button" data-yt="ikSheZGiLYk"><img src="img/vt/ikSheZGiLYk.jpg" alt=""><span class="pl"></span><b>아마존 당진</b></button></div><div class="vlist"><button class="vbtn" type="button" data-yt="E8snaMql2_0">달밤에 체조</button></div></div>
+</article>
+<article class="card" id="a-poy" data-tags="festival univ kids water corp youth silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/poy.webp" alt="POY 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ</p>
+      <h2 class="cname">POY</h2>
+      <p class="cen">포이</p>
+      <ul class="cdesc"><li>따뜻한 음색과 편안한 리듬으로 청중을 사로잡는 DJ · 프로듀서</li><li>정확한 믹싱 · 부드러운 흐름 · 조화로운 선곡이 강점</li><li>WORLD DJ FESTIVAL, S2O KOREA, STRIKE MUSIC FESTIVAL 등 대형 페스티벌 출연</li></ul>
+      
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 4편</p><div class="vthumbs"><button class="vt" type="button" data-yt="EOC2nwazNfg"><img src="img/vt/EOC2nwazNfg.jpg" alt=""><span class="pl"></span><b>영등포맥주축제</b></button><button class="vt" type="button" data-yt="5JzFAxMfvaE"><img src="img/vt/5JzFAxMfvaE.jpg" alt=""><span class="pl"></span><b>워터퐝페스티벌</b></button><button class="vt" type="button" data-yt="qjZwnVzXcmQ"><img src="img/vt/qjZwnVzXcmQ.jpg" alt=""><span class="pl"></span><b>한강 무소음파티</b></button><button class="vt" type="button" data-yt="_hTZHCLuzaw"><img src="img/vt/_hTZHCLuzaw.jpg" alt=""><span class="pl"></span><b>공연하랬더니 휴가 즐김</b></button></div></div>
+</article>
+<article class="card" id="a-loki" data-tags="festival univ kids water corp youth silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/loki.webp" alt="LOKI 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ · MC</p>
+      <h2 class="cname">LOKI</h2>
+      <p class="cen">로키</p>
+      <ul class="cdesc"><li>넘치는 에너지와 재치있는 호스팅으로 무대를 사로잡는 아티스트</li><li>루프스테이션으로 비트박스 · 육성 리듬 · 화음을 즉석에서 쌓아 올리는 라이브 퍼포먼스</li><li>WORLD DJ FESTIVAL, S2O KOREA, 자라섬 재즈 페스티벌, 보령머드축제 등 출연</li></ul>
+      
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 4편</p><div class="vthumbs"><button class="vt" type="button" data-yt="EOC2nwazNfg"><img src="img/vt/EOC2nwazNfg.jpg" alt=""><span class="pl"></span><b>영등포맥주축제</b></button><button class="vt" type="button" data-yt="5JzFAxMfvaE"><img src="img/vt/5JzFAxMfvaE.jpg" alt=""><span class="pl"></span><b>워터퐝페스티벌</b></button><button class="vt" type="button" data-yt="qjZwnVzXcmQ"><img src="img/vt/qjZwnVzXcmQ.jpg" alt=""><span class="pl"></span><b>한강 무소음파티</b></button><button class="vt" type="button" data-yt="_hTZHCLuzaw"><img src="img/vt/_hTZHCLuzaw.jpg" alt=""><span class="pl"></span><b>공연하랬더니 휴가 즐김</b></button></div></div>
+</article>
+<article class="card" id="a-annaconda" data-tags="festival univ kids water corp youth silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/annaconda.webp" alt="ANNACONDA 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ</p>
+      <h2 class="cname">ANNACONDA</h2>
+      <p class="cen">애나콘다</p>
+      <ul class="cdesc"><li>이국적 분위기와 강렬한 보이스로 청중을 사로잡는 아티스트</li></ul>
+      
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 4편</p><div class="vthumbs"><button class="vt" type="button" data-yt="nFZXPZDmEmY"><img src="img/vt/nFZXPZDmEmY.jpg" alt=""><span class="pl"></span><b>경상국립대 렛츠고</b></button><button class="vt" type="button" data-yt="OkDDXNgZ12Y"><img src="img/vt/OkDDXNgZ12Y.jpg" alt=""><span class="pl"></span><b>힙한 디제이의 대학교축제</b></button><button class="vt" type="button" data-yt="gTqI48wMx-8"><img src="img/vt/gTqI48wMx-8.jpg" alt=""><span class="pl"></span><b>사일런트디스코 뛰어</b></button><button class="vt" type="button" data-yt="lqs8iuu7BXI"><img src="img/vt/lqs8iuu7BXI.jpg" alt=""><span class="pl"></span><b>대학교 축제? 워터밤?</b></button></div></div>
+</article>
+<article class="card" id="a-haena" data-tags="festival univ kids water corp youth">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/haena.webp" alt="HAENA 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ</p>
+      <h2 class="cname">HAENA</h2>
+      <p class="cen">해나</p>
+      <ul class="cdesc"><li>해처럼 빛나는 이름을 품고, 경계를 무너뜨리며 무대를 뒤흔드는 아티스트</li></ul>
+      
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 4편</p><div class="vthumbs"><button class="vt" type="button" data-yt="TFG9mTf5-SY"><img src="img/vt/TFG9mTf5-SY.jpg" alt=""><span class="pl"></span><b>루나빛축제</b></button><button class="vt" type="button" data-yt="RLTtv-zXKaQ"><img src="img/vt/RLTtv-zXKaQ.jpg" alt=""><span class="pl"></span><b>대학교축제</b></button><button class="vt" type="button" data-yt="uIRyOiXLeXE"><img src="img/vt/uIRyOiXLeXE.jpg" alt=""><span class="pl"></span><b>대학교 워터페스티벌</b></button><button class="vt" type="button" data-yt="0PZ4PIbfvsM"><img src="img/vt/0PZ4PIbfvsM.jpg" alt=""><span class="pl"></span><b>휘닉스파크</b></button></div></div>
+</article>
+<article class="card" id="a-borngi" data-tags="festival water corp silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/borngi.webp" alt="BORNGI 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ · 사일런트디스코 메인</p>
+      <h2 class="cname">BORNGI</h2>
+      <p class="cen">봉기</p>
+      <ul class="cdesc"><li>한강 사일런트디스코 메인 디제이</li><li>지치지 않는 체력으로 관객이 지칠 때까지! 유산소에는 하드코어!</li></ul>
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 4편</p><div class="vthumbs"><button class="vt" type="button" data-yt="D3vm3NouOms"><img src="img/vt/D3vm3NouOms.jpg" alt=""><span class="pl"></span><b>한강 지휘자</b></button><button class="vt" type="button" data-yt="HDVoB_Cq9ls"><img src="img/vt/HDVoB_Cq9ls.jpg" alt=""><span class="pl"></span><b>한강에서 달밤의 체조</b></button><button class="vt" type="button" data-yt="VO3Ztb2Qu1E"><img src="img/vt/VO3Ztb2Qu1E.jpg" alt=""><span class="pl"></span><b>한강공원에 강시 1000명?!</b></button><button class="vt" type="button" data-yt="twR9lA4enyA"><img src="img/vt/twR9lA4enyA.jpg" alt=""><span class="pl"></span><b>초면인데 어깨동무 하실래요?</b></button></div></div>
+</article>
+<article class="card" id="a-rogun" data-tags="festival univ kids water corp silent">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/rogun.webp" alt="ROGUN 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ</p>
+      <h2 class="cname">ROGUN</h2>
+      <p class="cen">로건</p>
+      
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">대학축제</span><span class="ctag">가족·어린이</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 2편</p><div class="vthumbs"><button class="vt" type="button" data-yt="sJo1jVUsJXs"><img src="img/vt/sJo1jVUsJXs.jpg" alt=""><span class="pl"></span><b>관객들 싸움 붙이는 디제이</b></button><button class="vt" type="button" data-yt="U4VP9x9-m-w"><img src="img/vt/U4VP9x9-m-w.jpg" alt=""><span class="pl"></span><b>사일런트디스코</b></button><div class="vt blank" aria-hidden="true"></div><div class="vt blank" aria-hidden="true"></div></div></div>
+</article>
+<article class="card" id="a-woad" data-tags="festival univ water corp youth">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/woad.webp" alt="WOAD 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Solo DJ</p>
+      <h2 class="cname">WOAD</h2>
+      <p class="cen">오드</p>
+      
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">대학축제</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span><span class="ctag">청소년</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 1편</p><div class="vthumbs"><button class="vt" type="button" data-yt="FhQM0HrZeKg"><img src="img/vt/FhQM0HrZeKg.jpg" alt=""><span class="pl"></span><b>여기가 진짜 워터파크</b></button><div class="vt blank" aria-hidden="true"></div><div class="vt blank" aria-hidden="true"></div><div class="vt blank" aria-hidden="true"></div></div></div>
+</article>
+<article class="card" id="a-sseni_berri" data-tags="festival kids water corp youth">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/sseni_berri.webp" alt="SSENI &amp; BERRI 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Kids DJ Duo · 대한민국 최초 어린이 DJ 듀오</p>
+      <h2 class="cname">SSENI &amp; BERRI</h2>
+      <p class="cen">쎄니 &amp; 베리</p>
+      <ul class="cdesc"><li>귀여움과 상큼함이 만났다! 반전 매력 힙함의 SSENI, 밝은 에너지 비타민 BERRI!</li><li>무대를 종횡무진 누비는 대한민국 최초 어린이 DJ 듀오</li></ul>
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">가족·어린이</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span><span class="ctag">청소년</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 4편</p><div class="vthumbs"><button class="vt" type="button" data-yt="VOfNs4YOb34"><img src="img/vt/VOfNs4YOb34.jpg" alt=""><span class="pl"></span><b>한강에 나타난 어린이 디제이 듀오</b></button><button class="vt" type="button" data-yt="ej7yOrKGHdM"><img src="img/vt/ej7yOrKGHdM.jpg" alt=""><span class="pl"></span><b>어린이 DJ가 워터파크를 뒤집었다</b></button><button class="vt" type="button" data-yt="U8_83gXWkyg"><img src="img/vt/U8_83gXWkyg.jpg" alt=""><span class="pl"></span><b>쎄니 &amp; 베리 듀오 무대</b></button><button class="vt" type="button" data-yt="IP_IYTrkMYM"><img src="img/vt/IP_IYTrkMYM.jpg" alt=""><span class="pl"></span><b>어린이 DJ 듀오 직캠</b></button></div></div>
+</article>
+<article class="card" id="a-sseni" data-tags="festival kids water corp youth">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/sseni.webp" alt="SSENI 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Kids DJ · 어린이 디제이</p>
+      <h2 class="cname">SSENI</h2>
+      <p class="cen">쎄니 · 어린이 DJ</p>
+      <ul class="cdesc"><li>귀엽지만 무대 위에선 힙합 어린이 DJ, 반전 매력으로 관객을 사로잡는 차세대 스타</li></ul>
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">가족·어린이</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span><span class="ctag">청소년</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 4편</p><div class="vthumbs"><button class="vt" type="button" data-yt="NsNKEOQ8Mqc"><img src="img/vt/NsNKEOQ8Mqc.jpg" alt=""><span class="pl"></span><b>아이유키즈 댄서의 변신</b></button><button class="vt" type="button" data-yt="CdFTuyKIqo8"><img src="img/vt/CdFTuyKIqo8.jpg" alt=""><span class="pl"></span><b>어린이들이 더 신났던 이유</b></button><button class="vt" type="button" data-yt="_ujFxrlwd-o"><img src="img/vt/_ujFxrlwd-o.jpg" alt=""><span class="pl"></span><b>어린이 DJ 키즈워터밤</b></button><button class="vt" type="button" data-yt="ZpVQyq9qtSA"><img src="img/vt/ZpVQyq9qtSA.jpg" alt=""><span class="pl"></span><b>11살 디제이가 춤까지?</b></button></div></div>
+</article>
+<article class="card" id="a-berri" data-tags="festival kids water corp youth">
+  <div class="ctop">
+    <div class="cph"><img src="img/artist/berri.webp" alt="BERRI 프로필"></div>
+    <div class="cbd">
+      <p class="crole">Kids DJ · 어린이 디제이</p>
+      <h2 class="cname">BERRI</h2>
+      <p class="cen">베리 · 어린이 DJ</p>
+      <ul class="cdesc"><li>밝고 상큼한 어린이 DJ, 에너지로 무대를 환하게 밝히는 차세대 스타!</li></ul>
+      <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">가족·어린이</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span><span class="ctag">청소년</span></div>
+    </div>
+  </div>
+  <div class="vwrap"><p class="vlab">공연 영상 2편</p><div class="vthumbs"><button class="vt" type="button" data-yt="1YgaM78fwGI"><img src="img/vt/1YgaM78fwGI.jpg" alt=""><span class="pl"></span><b>귀여움 폭발 어린이 디제이</b></button><button class="vt" type="button" data-yt="qyewztExNxM"><img src="img/vt/qyewztExNxM.jpg" alt=""><span class="pl"></span><b>이 음악을 튼 건! 어린이였습니다</b></button><div class="vt blank" aria-hidden="true"></div><div class="vt blank" aria-hidden="true"></div></div></div>
+</article>
+
   </div>
 </div></section>
 
@@ -537,7 +751,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
       <tr><td class="nm">BERRI<small>어린이 디제이 / 30분 공연</small></td><td class="amt">₩500,000</td></tr>
       <tr><td class="nm">세포키즈 2인<small>SEFO 키즈댄서</small></td><td class="amt">₩100,000</td></tr>
       <tr><td class="nm">보조조교 2인<small>허조교 보조조교</small></td><td class="amt">₩200,000</td></tr>
-      <tr><td class="nm">CHANHO<small>Photo Director</small></td><td class="amt ask">별도 문의</td></tr>
+      <tr><td class="nm">CHANHO<small>Photo Director</small></td><td class="amt">별도 문의</td></tr>
     </tbody>
   </table></div>
   <ul class="feenotes">
@@ -547,10 +761,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     <li>공연 날짜 및 장소(거리)에 따라 추가 비용이 발생할 수 있습니다.</li>
     <li>출연료는 부가가치세(VAT) 별도 금액입니다.</li>
   </ul>
-  <p class="feecall"><b>지자체·관공서 담당자님께.</b> 면세사업자도 보유하고 있으므로 부가가치세 없이 거래 가능합니다. 계약 형태(일반과세 / 면세)에 맞춰 견적서를 발행해 드립니다.</p>
-  <div class="cta" style="margin-top:28px">
-    <a class="btn" href="https://lineup.sefoent.com" target="_blank" rel="noopener">유치원 · 가족 행사 — 세포의 어린이클럽 출연료 →</a>
-  </div>
+  
+
 </div></section>
 
 <section class="band tr-wrap tr-dark" id="tech"><div class="wrap">
@@ -583,14 +795,14 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
   <text x="320" y="394" class="tr-dimt" text-anchor="middle">가로 1500mm 이상</text>
   <line x1="488" y1="204" x2="488" y2="348" class="tr-dim" marker-start="url(#trA)" marker-end="url(#trA)"/>
   <text x="496" y="228" class="tr-dimt">높이</text>
-  <text x="496" y="246" class="tr-dimt">800~900mm</text>
+  <text x="496" y="246" class="tr-dimt">750~900mm</text>
   <text x="320" y="408" class="tr-cap" text-anchor="middle">FRONT · 관객 방향</text>
 </svg></figure>
       <ul class="tr-list">
         <li class="r"><b>모니터 스피커 L · R</b><span>DJ 테이블 양옆에 마주 보게(side to side) 배치</span></li>
         <li class="r"><b>전원 · 출력</b><span>멀티탭 전원 공급 · 출력은 XLR 스테레오</span></li>
-        <li class="r"><b>마이크</b><span>핸드마이크 1개 · 헤드마이크 1개</span><small>MOSHEE 섭외 시 헤드마이크 1개 필수 — 없으면 지참하고, 하울링 테스트와 얼굴 고정용 테이프를 준비해 주세요.</small></li>
-        <li class="g"><b>DJ 테이블</b><span>가로 1500mm 이상 · 깊이 600mm 이상 · 높이 800~900mm</span><small>높이가 900mm를 넘지 않도록 해 주세요. 양옆과 앞뒤가 가려져 있어야 합니다.</small></li>
+        <li class="r"><b>마이크</b><span>핸드마이크 1개 (듀오 공연은 2개) · 헤드마이크 1개</span><small>MOSHEE 섭외 시 헤드마이크 1개 필수 — 없으면 지참하고, 하울링 테스트와 얼굴 고정용 테이프를 준비해 주세요.</small></li>
+        <li class="g"><b>DJ 테이블</b><span>가로 1500mm 이상 · 깊이 600mm 이상 · 높이 750~900mm</span><small>높이가 900mm를 넘지 않도록 해 주세요. 양옆과 앞뒤가 가려져 있어야 합니다.</small></li>
         <li class="g"><b>DJ 장비</b><span>보유 장비가 없으면 아래 렌탈로 준비해 드립니다.</span></li>
         <li class="b"><b>물 관련 공연</b><span>DJ 장비 방수 케이스 설치 필수</span><small>방수 케이스 대여 가능 · 사전 문의</small></li>
         <li class="n"><b>LED 패널이 있는 경우</b><span>아티스트 로고를 띄워 주세요.</span><small>로고 파일 <a href="http://naver.me/5UrHsp21" target="_blank" rel="noopener">naver.me/5UrHsp21</a> (예: GRUNT ZERO › 2 SEFO › 1 SEFO LOGO)</small></li>
@@ -598,128 +810,16 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     </div>
     <div class="rt-head">
       <h3 class="rt-title">렌탈 서비스</h3>
-      <p class="rt-note">디제잉 장비 · DJ 테이블 · 음향을 함께 준비해 드립니다. <b>음향 및 DJ 테이블 렌탈 시 스태프비 100,000~200,000원이 추가</b>됩니다.</p>
+      <p class="rt-note">디제잉 장비 · DJ 테이블 · 음향을 함께 준비해 드립니다.<br><b>음향 및 DJ 테이블 렌탈 시 스태프비 100,000~200,000원이 추가</b>됩니다.</p>
     </div>
       <div class="rt-group"><p class="rt-label">DJ SET</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/cdj3000.webp" alt="CDJ-3000 2DECK / DJM A-9" loading="lazy"></div><figcaption><span class="rt-nm">CDJ-3000 2DECK / DJM A-9</span><span class="rt-pr">₩550,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/cdj2000.webp" alt="CDJ-2000 NXS2 / DJM 900 NXS2" loading="lazy"></div><figcaption><span class="rt-nm">CDJ-2000 NXS2 / DJM 900 NXS2</span><span class="rt-pr">₩400,000</span></figcaption></figure></div></div>
       <div class="rt-group"><p class="rt-label">ALL IN ONE</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/xdjxz.webp" alt="XDJ-XZ" loading="lazy"></div><figcaption><span class="rt-nm">XDJ-XZ</span><span class="rt-pr">₩250,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/xdjrx3.webp" alt="XDJ-RX3" loading="lazy"></div><figcaption><span class="rt-nm">XDJ-RX3</span><span class="rt-pr">₩200,000</span></figcaption></figure></div></div>
       <div class="rt-group"><p class="rt-label">DJ TABLE / CASE</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/table_pro.webp" alt="디제이 전용 고급형 테이블" loading="lazy"></div><figcaption><span class="rt-nm">디제이 전용 고급형 테이블</span><span class="rt-pr">₩200,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/table_basic.webp" alt="디제이 전용 기본형 테이블" loading="lazy"></div><figcaption><span class="rt-nm">디제이 전용 기본형 테이블</span><span class="rt-pr">₩100,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/case.webp" alt="방수 아크릴 케이스" loading="lazy"></div><figcaption><span class="rt-nm">방수 아크릴 케이스</span><span class="rt-pr">₩150,000</span><small>물 관련 공연 시 필수</small></figcaption></figure></div></div>
-      <div class="rt-group"><p class="rt-label">SOUND SYSTEM</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/spk_pioneer.webp" alt="PIONEER 15" 스피커" loading="lazy"></div><figcaption><span class="rt-nm">PIONEER 15" 스피커</span><span class="rt-pr">₩400,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/spk_hk.webp" alt="HK 10" 스피커" loading="lazy"></div><figcaption><span class="rt-nm">HK 10" 스피커</span><span class="rt-pr">₩200,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/linearray.webp" alt="중대형 시스템 음향 · 조명" loading="lazy"></div><figcaption><span class="rt-nm">중대형 시스템 음향 · 조명</span><span class="rt-pr ask">별도 문의</span></figcaption></figure></div></div>
+      <div class="rt-group"><p class="rt-label">SOUND SYSTEM</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/spk_pioneer.webp" alt="PIONEER 15" 스피커" loading="lazy"></div><figcaption><span class="rt-nm">PIONEER 15" 스피커</span><span class="rt-pr">₩400,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/spk_hk.webp" alt="HK 10" 스피커" loading="lazy"></div><figcaption><span class="rt-nm">HK 10" 스피커</span><span class="rt-pr">₩200,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img photo"><img src="https://grntzero.com/img/rental/stage_system.webp" alt="야외 메인 무대의 음향 · 조명 시스템" loading="lazy"></div><figcaption><span class="rt-nm">중대형 시스템 음향 · 조명</span><span class="rt-pr">별도 문의</span></figcaption></figure></div></div>
     <div class="tr-foot">
-      <a class="tr-dl" href="https://naver.me/xhP6Geon" target="_blank" rel="noopener"><span><b>전체 자료 다운로드</b><small>사업소개서 · 아티스트 소개서 · 테크니컬 라이더 · 렌탈 안내 (PDF)</small></span><i aria-hidden="true">↓</i></a>
-      <p class="tr-orig">원본 안내 이미지 보기 · <a href="https://grntzero.com/kids/img/rider.webp" target="_blank" rel="noopener">테크니컬 라이더</a> · <a href="https://grntzero.com/kids/img/rental.webp" target="_blank" rel="noopener">렌탈 서비스</a> · 그 외 서류는 <a href="mailto:grnt@grntzero.com">grnt@grntzero.com</a> / 1800-8790</p>
+      
+      <p class="tr-orig" style="margin-top:0">원본 안내 이미지 보기 · <a href="https://grntzero.com/kids/img/rider.webp" target="_blank" rel="noopener">테크니컬 라이더</a> · <a href="https://grntzero.com/kids/img/rental.webp" target="_blank" rel="noopener">렌탈 서비스</a> · 그 외 서류는 <a href="mailto:grnt@grntzero.com">grnt@grntzero.com</a> / 1800-8790</p>
     </div>
-</div></section>
-
-<section class="band alt" id="clients"><div class="wrap">
-  <div class="shd"><h2>CLIENTS</h2><span class="kr">함께한 곳</span></div>
-  <p class="lede">정부 부처와 공공기관, 광역·기초 지자체, 문화재단, 대학, 기업까지
-    <strong>226개 이상의 기관·기업</strong>과 일했습니다.</p>
-
-  <div class="cgrp"><h4>정부 · 공공기관</h4><div class="chips">
-    <span class="chip k">문화체육관광부</span><span class="chip k">교육부</span><span class="chip k">중소기업부</span>
-    <span class="chip">문화재청</span><span class="chip">여성가족부</span>
-    <span class="chip">한국콘텐츠진흥원</span><span class="chip">한국국제문화교류진흥원</span>
-    <span class="chip">한국토지주택공사</span><span class="chip">대한장애인체육회</span>
-    <span class="chip">인천경제자유구역청</span><span class="chip">국립부산과학관</span>
-    <span class="chip">서울시 한강사업본부</span><span class="chip">주한미군</span>
-    <span class="chip">충청남도체육회</span><span class="chip">울산 남구도시관리공단</span>
-    <span class="chip">김천농업기술센터</span>
-  </div></div>
-
-  <div class="cgrp"><h4>기업 · 브랜드</h4><div class="chips">
-    <span class="chip k">메르세데스-벤츠 사회공헌위원회</span><span class="chip k">한화시스템</span>
-    <span class="chip k">신세계아카데미</span><span class="chip k">AK PLAZA 문화아카데미</span>
-    <span class="chip">반얀트리 클럽 앤 스파 서울</span><span class="chip">파라다이스 스파 도고</span>
-    <span class="chip">캐리비안베이</span><span class="chip">아마존 아쿠아파크 당진</span>
-    <span class="chip">스노우피크</span><span class="chip">두나무</span><span class="chip">CHAGEE</span>
-    <span class="chip">Zuellig Pharma</span><span class="chip">KEB하나은행 노동조합</span>
-    <span class="chip">세원물산</span><span class="chip">인바코리아</span>
-    <span class="chip">굿러너컴퍼니</span><span class="chip">코린토</span><span class="chip">김해축협</span>
-  </div></div>
-
-  <div class="cgrp"><h4>지자체</h4><div class="chips">
-    <span class="chip k">서울특별시</span><span class="chip k">부산광역시</span><span class="chip k">대구광역시</span>
-    <span class="chip">인천광역시</span><span class="chip">광주광역시</span><span class="chip">대전광역시</span>
-    <span class="chip k">경기도</span><span class="chip">수원시</span><span class="chip">용인시</span>
-    <span class="chip">평택시</span><span class="chip">안양시</span><span class="chip">화성시</span>
-    <span class="chip">시흥시</span><span class="chip">오산시</span><span class="chip">포천시</span>
-    <span class="chip">양평군</span><span class="chip">평창군</span><span class="chip">정선군</span>
-    <span class="chip">거제시</span><span class="chip">남해군</span><span class="chip">성주군</span>
-    <span class="chip">구미시</span><span class="chip">창원시</span><span class="chip">진주시</span>
-    <span class="chip">천안시</span><span class="chip">강진군</span><span class="chip">산청군</span>
-    <span class="chip">고창군</span><span class="chip">강남구</span><span class="chip">구로구</span>
-    <span class="chip">서대문구</span><span class="chip">도봉구</span><span class="chip">영등포구</span>
-    <span class="chip">종로구</span><span class="chip">서울 중구</span><span class="chip">대구 중구</span>
-    <span class="chip">대구 서구</span><span class="chip">부산 수영구</span>
-  </div></div>
-
-  <div class="cgrp"><h4>문화재단 · 센터</h4><div class="chips">
-    <span class="chip k">서울문화재단</span><span class="chip">안양문화예술재단</span>
-    <span class="chip">용인문화재단</span><span class="chip">화성시문화관광재단</span>
-    <span class="chip">화성특례시 환경재단</span><span class="chip">백제문화재단</span>
-    <span class="chip">칠곡문화재단</span><span class="chip">오산문화재단</span>
-    <span class="chip">원주문화재단</span><span class="chip">달성문화재단</span>
-    <span class="chip">여주세종문화관광재단</span><span class="chip">홍주문화관광재단</span>
-    <span class="chip">생거진천문화재단</span><span class="chip">태백문화재단</span>
-    <span class="chip">인제문화재단</span><span class="chip">평택시문화재단</span>
-    <span class="chip">거제문화예술재단</span><span class="chip">평택시국제교류재단</span>
-    <span class="chip">김포시청소년문화재단</span><span class="chip">종로청소년문화의집</span>
-    <span class="chip">포천시가족센터</span><span class="chip">홍천군가족센터</span>
-    <span class="chip">고창군가족센터</span><span class="chip">전라북도 가족문화센터</span>
-    <span class="chip">양천구육아종합지원센터</span><span class="chip">홍성군자원봉사센터</span>
-    <span class="chip">아이프칠드런</span>
-  </div></div>
-
-  <div class="cgrp"><h4>방송 · 언론</h4><div class="chips">
-    <span class="chip k">경인방송</span><span class="chip k">EBS</span><span class="chip">부산MBC</span>
-    <span class="chip">경북도민일보</span><span class="chip">경주 프라임 방송</span>
-  </div></div>
-
-  <div class="cgrp"><h4>대학 · 학교</h4><div class="chips">
-    <span class="chip k">경상국립대학교</span><span class="chip k">동국대학교</span>
-    <span class="chip">강원대학교</span><span class="chip">성결대학교</span>
-    <span class="chip">한서대학교</span><span class="chip">명지전문대학</span>
-    <span class="chip">농협대학교</span><span class="chip">안산대학교</span>
-    <span class="chip">여주대학교</span><span class="chip">선린대학교</span>
-    <span class="chip">춘해보건대학교</span><span class="chip">송호대학교</span>
-    <span class="chip">구미대학교</span><span class="chip">거제대학교</span>
-    <span class="chip">오산대학교</span>
-  </div></div>
-
-  <div class="cgrp"><h4>협회 · 단체</h4><div class="chips">
-    <span class="chip k">한국프로탁구연맹</span>
-    <span class="chip">2026 강릉세계마스터즈탁구선수권대회</span>
-    <span class="chip">세계예술치료협회 WATA</span><span class="chip">서울YMCA</span>
-    <span class="chip">서울시립일시청소년쉼터</span><span class="chip">인천연극협회</span>
-    <span class="chip">김해시아동위원협의회</span><span class="chip">미담문화콘텐츠연구소</span>
-  </div></div>
-
-  <p class="cnote">위 외에도 <b>226개 이상의 기관·기업</b>과 함께했습니다.
-    특정 지역이나 행사 성격의 레퍼런스가 필요하시면 담당자에게 요청해 주세요.</p>
-</div></section>
-
-<section class="band" id="academy"><div class="wrap">
-  <div class="shd"><h2>GCS ACADEMY</h2><span class="kr">디제잉 아카데미</span></div>
-  <p class="lede">수원 영통 본사에서 <strong>DJ·MIDI 아카데미</strong>를 직접 운영합니다.
-    공연에 쓰는 음원이 여기서 만들어지고, 무대에 서는 아티스트도 여기서 나옵니다.
-    기획사가 교육과 제작을 같이 쥐고 있다는 뜻입니다. 전 과정 <strong>1:1 맞춤 레슨</strong>이고,
-    장비와 개인 연습실을 함께 제공합니다.</p>
-  <div class="cta" style="margin-top:28px">
-    <a class="btn pri" href="academy.html">아카데미 자세히 보기</a>
-  </div>
-</div></section>
-
-<section class="band alt" id="about"><div class="wrap">
-  <div class="shd"><h2>ABOUT</h2><span class="kr">회사 소개</span></div>
-  <p class="lede">그런트제로는 특색 있는 아티스트 발굴과 육성으로 어린이, 시민, 실버, 예술 사각지대 등
-    기존에 디제잉 공연과 거리가 있었던 영역으로 진출하며 공연을 확장하고 있는 기업입니다.<br>
-    <strong>BOOST YOUR ENERGY</strong>라는 슬로건 아래 Everywhere, Everybody, Everytime —
-    누구에게나, 언제나, 어디서나 에너지를 전달하는 공연을 기획하고 운영합니다.</p>
-  <div class="trust">
-    <div><h4>공연 기획 · 제공</h4><p>축제·지자체·기업 행사의 DJ 공연을 기획하고 운영합니다. 장비와 음향 렌탈도 함께 제공합니다.</p></div>
-    <div><h4>아카데미 운영</h4><p>DJ·MIDI 교육을 운영합니다. 공연용 음원과 퍼포먼스를 자체 제작하는 기반이자 아티스트를 길러내는 곳입니다.</p></div>
-    <div><h4>음원 기획 · 발매</h4><p>어린이클럽 음원을 비롯해 공연에 쓰는 곡을 직접 만들고 발매합니다.</p></div>
-  </div>
 </div></section>
 
 <section class="band" id="contact"><div class="wrap">
@@ -854,5 +954,32 @@ document.querySelectorAll('.nav a, a[href^="#"]').forEach(function(a){
 });
 </script>
 
+<script>
+(function(){
+function playIn(el,id,title){el.classList.add('playing');el.innerHTML='';var f=document.createElement('iframe');
+  f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1';f.title=title||'';
+  f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';f.allowFullscreen=true;el.appendChild(f);}
+document.querySelectorAll('#artist .vt').forEach(function(t){t.addEventListener('click',function(){
+  if(t.classList.contains('playing'))return;playIn(t,t.dataset.yt,t.querySelector('b')?t.querySelector('b').textContent:'');});});
+document.querySelectorAll('#artist .vbtn').forEach(function(b){b.addEventListener('click',function(){
+  var card=b.closest('.card'),slot=card.querySelector('.vt');playIn(slot,b.dataset.yt,b.textContent);
+  slot.scrollIntoView({behavior:'smooth',block:'nearest'});});});
+document.querySelectorAll('#artist .vmore').forEach(function(m){m.addEventListener('click',function(){
+  m.parentElement.querySelectorAll('.vhide').forEach(function(v){v.classList.remove('vhide')});m.remove();evenCards();});});
+function go(id){var el=document.getElementById(id);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'start'});
+  el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');}
+document.querySelectorAll('#artist .hot, #artist .jlist a').forEach(function(a){a.addEventListener('click',function(e){
+  e.preventDefault();go(a.getAttribute('href').slice(1));});});
+function evenCards(){var cards=[].slice.call(document.querySelectorAll('#artist .card'));
+  cards.forEach(function(c){var t=c.querySelector('.ctop');if(t)t.style.minHeight='';});
+  if(window.innerWidth<=980)return;var rows={};
+  cards.forEach(function(c){var k=Math.round(c.offsetTop);(rows[k]=rows[k]||[]).push(c);});
+  Object.keys(rows).forEach(function(k){var g=rows[k];if(g.length<2)return;var h=0;
+    g.forEach(function(c){var t=c.querySelector('.ctop');if(t&&t.offsetHeight>h)h=t.offsetHeight;});
+    g.forEach(function(c){var t=c.querySelector('.ctop');if(t)t.style.minHeight=h+'px';});});}
+var tm;window.addEventListener('load',evenCards);window.addEventListener('resize',function(){clearTimeout(tm);tm=setTimeout(evenCards,60);});
+document.querySelectorAll('#artist .cph img').forEach(function(im){if(!im.complete)im.addEventListener('load',function(){clearTimeout(tm);tm=setTimeout(evenCards,60);});});
+})();
+</script>
 </body>
 </html>
