@@ -391,11 +391,12 @@ function renderList(all){
 
 function renderCal(all){
   var t=todayStr();
-  if(!state.month) state.month=t.slice(0,7);
+  if(!state.month||state.month<t.slice(0,7)) state.month=t.slice(0,7);
   var y=+state.month.slice(0,4), m=+state.month.slice(5,7);
   var first=new Date(Date.UTC(y,m-1,1)), start=new Date(first); start.setUTCDate(1-first.getUTCDay());
   var by={}; all.forEach(function(e){(by[e.date]=by[e.date]||[]).push(e)});
-  var h='<div class="mh"><button data-m="-1" aria-label="이전 달">‹</button><b>'+y+'. '+m+'</b><button data-m="1" aria-label="다음 달">›</button></div><div class="grid">';
+  var atMin=state.month<=t.slice(0,7);
+  var h='<div class="mh"><button data-m="-1" aria-label="이전 달"'+(atMin?' disabled style="opacity:.25;cursor:default"':'')+'>‹</button><b>'+y+'. '+m+'</b><button data-m="1" aria-label="다음 달">›</button></div><div class="grid">';
   WD.forEach(function(w,i){h+='<div class="wd'+(i===0?" sun":i===6?" sat":"")+'">'+w+'</div>'});
   for(var i=0;i<42;i++){
     var d=new Date(start); d.setUTCDate(start.getUTCDate()+i); var ds=fmtD(d);
@@ -417,9 +418,9 @@ function renderCal(all){
 $("calView").addEventListener("click",function(e){
   var mb=e.target.closest("[data-m]");
   if(mb){ var y=+state.month.slice(0,4), m=+state.month.slice(5,7)+(+mb.getAttribute("data-m"));
-    if(m<1){m=12;y--} if(m>12){m=1;y++} state.month=y+"-"+("0"+m).slice(-2); render(); return; }
+    if(m<1){m=12;y--} if(m>12){m=1;y++} var nm=y+"-"+("0"+m).slice(-2); if(nm<todayStr().slice(0,7)) return; state.month=nm; render(); return; }
   var c=e.target.closest(".c[data-d]");
-  if(c){ state.sel=c.getAttribute("data-d"); if(state.sel.slice(0,7)!==state.month) state.month=state.sel.slice(0,7); render(); }
+  if(c){ var dd=c.getAttribute("data-d"); if(dd.slice(0,7)<todayStr().slice(0,7)) return; state.sel=dd; if(state.sel.slice(0,7)!==state.month) state.month=state.sel.slice(0,7); render(); }
 });
 
 /* 펼치기 */
