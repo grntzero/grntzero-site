@@ -446,29 +446,20 @@
     });
   }
 
-  let downloads = null, asked = false;
-  async function ensure() {
-    if (!asked) {
-      asked = true;
-      try { downloads = await window.claude?.use?.('downloads'); } catch (e) { downloads = null; }
-      if (!downloads) fallback.classList.add('on');
-    }
-    return downloads;
-  }
-  ensure();
-
+  // 일반 웹사이트용 받기: 파일을 받아 원래 이름으로 저장
   for (const b of document.querySelectorAll('.dl')) {
     b.addEventListener('click', async () => {
-      const d = await ensure();
-      if (!d) { b.dataset.state = 'failed'; fallback.classList.add('on'); return; }
       b.dataset.state = 'saving';
       try {
         const res = await fetch(b.dataset.f);
+        if (!res.ok) throw new Error('http ' + res.status);
         const blob = await res.blob();
-        await d.save({ filename: b.dataset.name, data: blob });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = b.dataset.name; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
         b.dataset.state = 'saved';
       } catch (e) {
-        if (e && e.code === 'declined') { b.dataset.state = ''; return; }
         b.dataset.state = 'failed';
         fallback.classList.add('on');
       }
