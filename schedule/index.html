@@ -218,7 +218,7 @@ var DEMO = !API;
 var LS = {get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},
           set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}},
           del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
-var ARTISTS = ["SEFO","허조교","MOSHEE","POY","LOKI","KillaTon","D'ETA","ANNACONDA","HAENA","BORNGI","ROGUN","WOAD","SSENI","BERRI"];
+var ARTISTS = ["SEFO","허조교","MOSHEE","POY","LOKI","KillaTon","DETA","ANNACONDA","HAENA","BORNGI","ROGUN","WOAD","SSENI","BERRI"];
 var WD = ["일","월","화","수","목","금","토"];
 var FIELDS = [["when","공연시간"],["content","출연내용"],["host","주최"],["place","장소"],["contact","현장 담당자"],["gear","장비"],
               ["manager","담당 매니저"],["car","차량"],["from","출발지"],["returnTo","복귀"],["etc","기타"],["memo","메모"]];
@@ -245,7 +245,7 @@ function demoData(){
   var E = [
     {d:-6,time:"14:00",artists:["SEFO","SSENI","BERRI"],event:"예시) 가을 어린이 축제",place:"예시시 중앙공원 야외무대",host:"예시시청",content:"어린이 DJ 공연 30분",manager:"담당자A",car:"스타리아",from:"사무실",returnTo:"사무실"},
     {d:0,time:"19:00",artists:["MOSHEE","POY"],event:"예시) 대학 축제 메인무대",place:"예시대학교 대운동장",host:"예시대 총학생회",content:"DJ 공연 40분",when:"19:00~19:40 (리허설 17:30)",gear:"CDJ 3000 ×2, DJM-A9",manager:"담당자B",car:"개인차량",from:"사무실",returnTo:"각자 귀가",memo:"백스테이지 대기실 B동"},
-    {d:1,time:"11:30",artists:["LOKI","D'ETA"],event:"예시) 쇼핑몰 패밀리데이",place:"예시몰 1층 중앙광장",host:"예시몰 문화센터",content:"어린이클럽 공연 30분 ×2회",when:"11:30 / 15:00",manager:"담당자A",car:"스타리아",from:"사무실",returnTo:"사무실",etc:"긴팔 의상"},
+    {d:1,time:"11:30",artists:["LOKI","DETA"],event:"예시) 쇼핑몰 패밀리데이",place:"예시몰 1층 중앙광장",host:"예시몰 문화센터",content:"어린이클럽 공연 30분 ×2회",when:"11:30 / 15:00",manager:"담당자A",car:"스타리아",from:"사무실",returnTo:"사무실",etc:"긴팔 의상"},
     {d:1,time:"20:00",artists:["KillaTon"],event:"예시) 클럽 게스트",place:"예시클럽 (서울)",content:"DJ 90분",manager:"담당자B",pending:true},
     {d:3,kind:"release",title:"예시) 신규 싱글 발매"},
     {d:5,time:"13:00",artists:["ANNACONDA","HAENA"],event:"예시) 기업 가족행사",place:"예시컨벤션 그랜드홀",host:"예시기업",content:"나나걸스 공연 30분",gear:"무선마이크 2",manager:"담당자A",car:"스타리아",from:"사무실",returnTo:"사무실"},
