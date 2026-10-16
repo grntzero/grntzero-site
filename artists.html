@@ -175,6 +175,17 @@ img{max-width:100%;display:block}
   .card{scroll-margin-top:152px}
   .jlist a{font-size:12.5px;padding:6px 11px}
 }
+
+/* 휴대폰: 영상 누르면 크게 보기 */
+.vmod{position:fixed;inset:0;z-index:300;background:rgba(9,7,4,.92);display:none;align-items:center;justify-content:center;
+  padding:calc(58px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.vmod.open{display:flex}
+.vmod .vbox{position:relative;width:min(960px,100%);aspect-ratio:16/9;background:#000;border:1px solid var(--line);overflow:hidden}
+.vmod.vert .vbox{width:min(440px,100%,calc((100dvh - 100px)*9/16));aspect-ratio:9/16}
+.vmod iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vmod .vx{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));font:inherit;font-size:14px;font-weight:700;
+  color:var(--ink);background:var(--gold);border:1px solid var(--gold);padding:9px 16px;cursor:pointer}
+.vmod .vout{position:fixed;top:calc(20px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));font-size:12.5px;color:var(--mut)}
 </style>
 </head>
 <body>
@@ -547,6 +558,28 @@ document.querySelectorAll('.jlist a').forEach(function(a){
     el.scrollIntoView({behavior:'smooth',block:'start'});
   });
 });
+</script>
+<div class="vmod" id="vmod" role="dialog" aria-modal="true" aria-label="영상 보기">
+  <a class="vout" id="vmodOut" href="#" target="_blank" rel="noopener">유튜브에서 보기 ↗</a>
+  <button class="vx" type="button" id="vmodX">닫기 ✕</button>
+  <div class="vbox" id="vmodBox"></div>
+</div>
+<script>
+(function(){
+  var H=["4tbvb-K75XU", "AwjUAd_vvSg", "IMFo2j01Ztw", "N0y1ZKw9eYs", "S19J2kRVzn4", "XqngClwpwvM", "eW3rVi5dchs", "io3ARyPrdx8", "w1gzjJhuGPA", "xbTmJunWaEU"], mq=window.matchMedia('(max-width:860px)');
+  var m=document.getElementById('vmod'),box=document.getElementById('vmodBox'),out=document.getElementById('vmodOut');
+  function open(id,title){var vert=H.indexOf(id)<0;m.classList.toggle('vert',vert);
+    box.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1" title="'+(title||'영상').replace(/"/g,'')+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+    out.href=vert?'https://youtube.com/shorts/'+id:'https://youtu.be/'+id;m.classList.add('open');document.body.style.overflow='hidden';}
+  function close(){m.classList.remove('open');box.innerHTML='';document.body.style.overflow='';}
+  document.addEventListener('click',function(e){
+    if(!mq.matches)return;var t=e.target.closest('.vt[data-yt],.vbtn[data-yt]');if(!t||t.classList.contains('playing'))return;
+    e.preventDefault();e.stopPropagation();var b=t.querySelector('b');open(t.dataset.yt,b?b.textContent:t.textContent);
+  },true);
+  document.getElementById('vmodX').addEventListener('click',close);
+  m.addEventListener('click',function(e){if(e.target===m)close();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&m.classList.contains('open'))close();});
+})();
 </script>
 </body>
 </html>
