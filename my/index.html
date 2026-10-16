@@ -114,7 +114,8 @@ footer b{color:var(--mut);font-weight:500}
 .pin{min-height:calc(100vh - 58px);display:flex;align-items:center;justify-content:center;padding:40px 16px}
 .pin .box{width:100%;max-width:340px;text-align:center}
 .pin h1{font-size:44px;letter-spacing:.04em;line-height:1;color:#fff}
-.pin p{color:var(--mut);font-size:13.5px;margin:12px 0 22px;line-height:1.7}
+.pin .pg{margin:16px 0 0;font-size:22px;font-weight:600;color:var(--gold);letter-spacing:.06em}
+.pin p{color:var(--bone);font-size:14.5px;margin:10px 0 22px;line-height:1.7}
 .pin input{width:100%;background:var(--ink3);border:1px solid var(--line-hi);color:var(--bone);font:inherit;
   font-size:20px;letter-spacing:.3em;text-align:center;padding:14px;border-radius:2px;outline:none;text-transform:uppercase}
 .pin input:focus{border-color:var(--gold)}
@@ -134,7 +135,8 @@ footer b{color:var(--mut);font-weight:500}
 
 <section class="pin hide" id="pinView"><div class="box">
   <h1>GRUNT ZERO</h1>
-  <p>아티스트 정산서<br>담당자에게 받은 접속 코드를 입력하세요.</p>
+  <div class="pg">아티스트 정산서</div>
+  <p>담당자에게 받은 접속 코드를 입력하세요.</p>
   <form id="pinForm" autocomplete="off">
     <input id="pinIn" inputmode="text" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="CODE">
     <button class="go" id="pinGo" type="submit">들어가기</button>

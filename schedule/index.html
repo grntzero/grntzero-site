@@ -67,7 +67,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .pin .box{width:100%;max-width:340px;text-align:center}
 .pin h1{font-family:var(--f-disp);font-weight:800;font-size:44px;letter-spacing:.04em;margin:0;line-height:1;color:#fff}
 .pin h1 em{font-style:normal;color:var(--gold)}
-.pin p{color:var(--mut);font-size:13.5px;margin:12px 0 22px;line-height:1.7}
+.pin .pg{margin:16px 0 0;font-size:22px;font-weight:600;color:var(--gold);letter-spacing:.06em}
+.pin p{color:var(--bone);font-size:14.5px;margin:10px 0 22px;line-height:1.7}
 .pin input{width:100%;background:var(--ink3);border:1px solid var(--line-hi);color:var(--bone);
   font-family:var(--f-mono);font-size:22px;letter-spacing:.3em;text-align:center;text-transform:uppercase;
   padding:14px 10px;border-radius:2px;outline:none}
@@ -176,7 +177,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 
 <section class="pin hide" id="pinView"><div class="box">
   <h1>GRUNT ZERO</h1>
-  <p>아티스트 스케줄<br>담당자에게 받은 접속 코드를 입력하세요.</p>
+  <div class="pg">아티스트 스케줄</div>
+  <p>담당자에게 받은 접속 코드를 입력하세요.</p>
   <form id="pinForm" autocomplete="off">
     <input id="pinIn" inputmode="text" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="CODE">
     <button class="go" type="submit">들어가기</button>
@@ -195,7 +197,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
       <span id="upd"></span>
       <button id="reload">새로고침</button>
       <span class="sp"></span>
-      <label><input type="checkbox" id="showPast"> 지난 일정</label>
     </div>
   </div>
   <div class="sum" id="sum"></div>
@@ -219,7 +220,7 @@ var LS = {get:function(k){try{return localStorage.getItem(k)}catch(e){return nul
           del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
 var ARTISTS = ["SEFO","허조교","MOSHEE","POY","LOKI","KillaTon","D'ETA","ANNACONDA","HAENA","BORNGI","ROGUN","WOAD","SSENI","BERRI"];
 var WD = ["일","월","화","수","목","금","토"];
-var FIELDS = [["when","공연시간"],["content","출연내용"],["host","주최"],["place","장소"],["gear","장비"],
+var FIELDS = [["when","공연시간"],["content","출연내용"],["host","주최"],["place","장소"],["contact","현장 담당자"],["gear","장비"],
               ["manager","담당 매니저"],["car","차량"],["from","출발지"],["returnTo","복귀"],["etc","기타"],["memo","메모"]];
 
 var state = {events:[], updated:null, filter:LS.get("gz_me")||"ALL", me:LS.get("gz_me")||"",
@@ -296,6 +297,7 @@ $("lockBtn").addEventListener("click",function(){ LS.del("gz_pin"); LS.del("gz_c
 function visible(){
   var t=todayStr();
   return state.events.filter(function(e){
+    if(e.date<t) return false; /* 지난 일정은 보이지 않음 */
     if(state.filter!=="ALL" && e.kind!=="release" && (e.artists||[]).indexOf(state.filter)<0) return false;
     return true;
   }).map(function(e){e._past = e.date<t; return e});
@@ -341,6 +343,8 @@ function evHTML(e){
   FIELDS.forEach(function(f){ if(e[f[0]]) dl+='<dt>'+f[1]+'</dt><dd>'+esc(e[f[0]])+'</dd>'; });
   if(!dl) dl='<dt>안내</dt><dd>세부 내용은 담당 매니저에게 확인하세요.</dd>';
   var acts="";
+  var tel=String(e.contact||"").match(/0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}/);
+  if(tel) acts+='<a href="tel:'+tel[0].replace(/\D/g,"")+'">현장 담당자 전화</a>';
   if(e.place) acts+='<a href="https://map.naver.com/p/search/'+encodeURIComponent(e.place)+'" target="_blank" rel="noopener">네이버 지도 ↗</a>';
   if(e.place) acts+='<a href="https://map.kakao.com/link/search/'+encodeURIComponent(e.place)+'" target="_blank" rel="noopener">카카오맵 ↗</a>';
   return '<div class="'+cls+'" data-id="'+esc(e.id)+'">'+
@@ -429,7 +433,6 @@ document.addEventListener("click",function(e){
 document.querySelector(".seg").addEventListener("click",function(e){
   var b=e.target.closest("[data-view]"); if(!b) return; state.view=b.getAttribute("data-view"); LS.set("gz_view",state.view); render();
 });
-$("showPast").addEventListener("change",function(){state.past=this.checked; render()});
 $("reload").addEventListener("click",function(){load(true)});
 
 function ago(iso){
