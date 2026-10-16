@@ -305,7 +305,7 @@ function visible(){
 
 function renderChips(){
   var used={}; state.events.forEach(function(e){(e.artists||[]).forEach(function(a){used[a]=1})});
-  var list=ARTISTS.filter(function(a){return used[a]||a===state.me||a===state.filter});
+  var list=ARTISTS.slice(); /* 일정이 없어도 전 아티스트 이름을 보여준다 */
   var h='<button class="chip'+(state.filter==="ALL"?" on":"")+'" data-a="ALL">전체</button>';
   if(state.me && list.indexOf(state.me)>=0){ list.splice(list.indexOf(state.me),1); list.unshift(state.me); }
   list.forEach(function(a){
