@@ -281,6 +281,67 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 .feecall{margin-top:22px;border-left:2px solid var(--gold);padding:14px 0 14px 20px;font-size:14.5px;color:#D4CCBC;line-height:1.8}
 .feecall b{color:var(--gold2)}
 @media(max-width:620px){.feebox th,.feebox td{padding:12px 14px;font-size:14px}}
+
+/* 무대 준비 · 렌탈 */
+.tr-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 18px;font-size:13.5px;color:var(--tr-mute)}
+.tr-legend span{display:inline-flex;align-items:center;gap:8px}
+.tr-legend span::before{content:"";width:14px;height:14px;border-radius:4px;border:3px solid var(--tr-c)}
+.tr-legend .r,.tr-list .r{--tr-c:var(--tr-red)} .tr-legend .g,.tr-list .g{--tr-c:var(--tr-green)} .tr-legend .b,.tr-list .b{--tr-c:var(--tr-blue)} .tr-list .n{--tr-c:var(--tr-line)}
+.tr-grid{display:grid;gap:18px;align-items:start}
+@media(min-width:940px){.tr-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}}
+.tr-stage{margin:0;border:1px solid var(--tr-line);border-radius:var(--tr-rad);background:var(--tr-card);padding:14px}
+.tr-svg{width:100%;height:auto;display:block}
+.tr-svg text{font-family:inherit}
+.tr-cap{font-size:11px;letter-spacing:.2em;fill:var(--tr-mute)}
+.tr-led{fill:var(--tr-ledfill);stroke:var(--tr-line);stroke-width:2;stroke-dasharray:7 6}
+.tr-ledt{font-size:22px;font-weight:800;fill:var(--tr-ink)}
+.tr-small{font-size:12.5px;fill:var(--tr-mute)}
+.tr-on{fill:var(--tr-ink);font-weight:700}
+.tr-light{fill:#E9E3D3}
+.tr-r{fill:var(--tr-card);stroke:var(--tr-red);stroke-width:3}
+.tr-mon{fill:#24201A;stroke:var(--tr-red);stroke-width:4;stroke-linejoin:round}
+.tr-mon+.tr-mon{}
+.tr-gear{fill:#2E2A24;stroke:var(--tr-green);stroke-width:4}
+.tr-disc{fill:#55504A;stroke:#8C877F;stroke-width:2}
+.tr-mixer{fill:#45403A}
+.tr-table{fill:#1F1B16;stroke:var(--tr-green);stroke-width:4}
+.tr-tt{font-size:20px;font-weight:800;fill:#F4EFE3}
+.tr-dim{stroke:var(--tr-mute);stroke-width:1.5;stroke-dasharray:4 4}
+.tr-arrowhead{fill:var(--tr-mute)}
+.tr-dimt{font-size:13px;font-weight:700;fill:var(--tr-ink)}
+.tr-svg text.tr-on{}
+.tr-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.tr-list li{border:1px solid var(--tr-line);border-left:5px solid var(--tr-c);border-radius:var(--tr-rad-s);background:var(--tr-card);padding:12px 16px;display:grid;gap:2px}
+.tr-list b{font-size:15px;color:var(--tr-ink)}
+.tr-list span{font-size:14px;color:var(--tr-ink2)}
+.tr-list small{font-size:12.5px;color:var(--tr-mute);line-height:1.6}
+.tr-list a{color:var(--tr-accent)}
+.rt-head{margin:clamp(34px,5vw,52px) 0 16px}
+.rt-title{font-size:21px;font-weight:800;margin:0;color:var(--tr-ink)}
+.rt-note{margin:8px 0 0;font-size:14.5px;color:var(--tr-mute)}
+.rt-note b{color:var(--tr-ink);font-weight:700}
+.rt-group{margin-top:18px}
+.rt-label{margin:0 0 10px;font-size:12px;letter-spacing:.18em;font-weight:700;color:var(--tr-accent)}
+.rt-grid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:760px){.rt-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.rt-card{margin:0;border:1px solid var(--tr-line);border-radius:var(--tr-rad-s);background:var(--tr-card);overflow:hidden;display:flex;flex-direction:column}
+.rt-img{background:#fff;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;padding:10px}
+.rt-img img{max-width:100%;max-height:100%;object-fit:contain}
+.rt-card figcaption{padding:10px 12px 12px;display:grid;gap:2px}
+.rt-nm{font-size:13.5px;font-weight:700;color:var(--tr-ink);line-height:1.4}
+.rt-pr{font-size:15px;font-weight:800;color:var(--tr-accent);font-variant-numeric:tabular-nums}
+.rt-pr.ask{color:var(--tr-mute);font-weight:600}
+.rt-card small{font-size:12px;color:var(--tr-blue);font-weight:600}
+.tr-foot{margin-top:clamp(28px,4vw,40px)}
+.tr-dl{display:flex;align-items:center;justify-content:space-between;gap:16px;text-decoration:none;border:2px solid var(--tr-accent);border-radius:var(--tr-rad);padding:20px 24px;background:var(--tr-dlbg)}
+.tr-dl b{display:block;font-size:18px;color:var(--tr-accent)}
+.tr-dl small{display:block;font-size:13.5px;color:var(--tr-mute);margin-top:4px}
+.tr-dl i{font-style:normal;font-size:22px;color:var(--tr-accent)}
+.tr-orig{margin:14px 0 0;font-size:13px;color:var(--tr-mute)}
+.tr-orig a{color:var(--tr-accent)}
+.tr-dark{--tr-ink:var(--cream);--tr-ink2:#CFC7B7;--tr-mute:var(--mut);--tr-card:var(--panel);--tr-line:#3A3122;--tr-ledfill:#120E07;--tr-accent:var(--gold2);--tr-dlbg:rgba(198,163,92,.08);--tr-red:#EF5D63;--tr-green:#58BE6B;--tr-blue:#4DA3F0;--tr-rad:0px;--tr-rad-s:0px}
+.tr-dark .rt-label{font-family:var(--disp);font-size:15px;letter-spacing:.2em}
+.tr-dark .rt-title{font-size:20px}
 </style>
 </head>
 <body>
@@ -293,6 +354,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     <a href="#live">LIVE</a>
     <a href="#artist">ARTIST</a>
     <a href="#fee">FEE</a>
+    <a href="#tech">RIDER</a>
     <a href="#clients">CLIENTS</a>
     <a href="academy.html">ACADEMY</a>
     <a href="#contact">CONTACT</a>
@@ -489,6 +551,63 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
   <div class="cta" style="margin-top:28px">
     <a class="btn" href="https://lineup.sefoent.com" target="_blank" rel="noopener">유치원 · 가족 행사 — 세포의 어린이클럽 출연료 →</a>
   </div>
+</div></section>
+
+<section class="band tr-wrap tr-dark" id="tech"><div class="wrap">
+  <div class="shd"><h2>TECHNICAL RIDER</h2><span class="kr">무대 준비 · 렌탈</span></div>
+  <p class="lede">주최측에서 준비해 주실 것과 GRUNT ZERO에서 렌탈해 드릴 수 있는 장비입니다.</p>
+    <div class="tr-legend"><span class="r">주최측 준비</span><span class="g">주최측 준비 또는 GRUNT ZERO 렌탈</span><span class="b">물 관련 공연 필수</span></div>
+    <div class="tr-grid">
+      <figure class="tr-stage"><svg class="tr-svg" viewBox="0 0 640 410" role="img" aria-label="무대 배치도: 뒤쪽 LED 패널, 가운데 DJ 테이블과 DJ 장비, 양옆 모니터 스피커">
+  <defs><marker id="trA" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="tr-arrowhead"/></marker></defs>
+  <text x="320" y="14" class="tr-cap" text-anchor="middle">BACK</text>
+  <rect x="120" y="24" width="400" height="104" rx="8" class="tr-led"/>
+  <text x="320" y="72" class="tr-ledt" text-anchor="middle">LED 패널</text>
+  <text x="320" y="96" class="tr-small" text-anchor="middle">있는 경우 아티스트 로고 표시</text>
+  <rect x="40" y="168" width="84" height="26" rx="5" class="tr-r"/>
+  <text x="82" y="186" class="tr-small tr-on" text-anchor="middle">전원 멀티탭</text>
+  <rect x="516" y="168" width="84" height="26" rx="5" class="tr-r"/>
+  <text x="558" y="186" class="tr-small tr-on" text-anchor="middle">XLR 스테레오</text>
+  <rect x="198" y="166" width="244" height="36" rx="6" class="tr-gear"/>
+  <circle cx="236" cy="184" r="11" class="tr-disc"/><circle cx="404" cy="184" r="11" class="tr-disc"/>
+  <rect x="290" y="174" width="60" height="20" rx="3" class="tr-mixer"/>
+  <rect x="170" y="202" width="300" height="148" rx="4" class="tr-table"/>
+  <text x="320" y="266" class="tr-tt" text-anchor="middle">DJ 테이블</text>
+  <text x="320" y="290" class="tr-small tr-light" text-anchor="middle">깊이 600mm 이상</text>
+  <text x="320" y="310" class="tr-small tr-light" text-anchor="middle">양옆 · 앞뒤 가림</text>
+  <path d="M40 350 L130 350 L130 300 L95 268 L40 268 Z" class="tr-mon"/>
+  <path d="M600 350 L510 350 L510 300 L545 268 L600 268 Z" class="tr-mon"/>
+  <text x="85" y="320" class="tr-small tr-on" text-anchor="middle">MONITOR L</text>
+  <text x="555" y="320" class="tr-small tr-on" text-anchor="middle">MONITOR R</text>
+  <line x1="172" y1="372" x2="468" y2="372" class="tr-dim" marker-start="url(#trA)" marker-end="url(#trA)"/>
+  <text x="320" y="394" class="tr-dimt" text-anchor="middle">가로 1500mm 이상</text>
+  <line x1="488" y1="204" x2="488" y2="348" class="tr-dim" marker-start="url(#trA)" marker-end="url(#trA)"/>
+  <text x="496" y="270" class="tr-dimt">높이</text>
+  <text x="496" y="290" class="tr-dimt">800~900mm</text>
+  <text x="320" y="408" class="tr-cap" text-anchor="middle">FRONT · 관객 방향</text>
+</svg></figure>
+      <ul class="tr-list">
+        <li class="r"><b>모니터 스피커 L · R</b><span>DJ 테이블 양옆에 마주 보게(side to side) 배치</span></li>
+        <li class="r"><b>전원 · 출력</b><span>멀티탭 전원 공급 · 출력은 XLR 스테레오</span></li>
+        <li class="r"><b>마이크</b><span>핸드마이크 1개 · 헤드마이크 1개</span><small>MOSHEE 섭외 시 헤드마이크 1개 필수 — 없으면 지참하고, 하울링 테스트와 얼굴 고정용 테이프를 준비해 주세요.</small></li>
+        <li class="g"><b>DJ 테이블</b><span>가로 1500mm 이상 · 깊이 600mm 이상 · 높이 800~900mm</span><small>높이가 900mm를 넘지 않도록 해 주세요. 양옆과 앞뒤가 가려져 있어야 합니다.</small></li>
+        <li class="g"><b>DJ 장비</b><span>보유 장비가 없으면 아래 렌탈로 준비해 드립니다.</span></li>
+        <li class="b"><b>물 관련 공연</b><span>DJ 장비 방수 케이스 설치 필수</span><small>방수 케이스 대여 가능 · 사전 문의</small></li>
+        <li class="n"><b>LED 패널이 있는 경우</b><span>아티스트 로고를 띄워 주세요.</span><small>로고 파일 <a href="http://naver.me/5UrHsp21" target="_blank" rel="noopener">naver.me/5UrHsp21</a> (예: GRUNT ZERO › 2 SEFO › 1 SEFO LOGO)</small></li>
+      </ul>
+    </div>
+    <div class="rt-head">
+      <h3 class="rt-title">렌탈 서비스</h3>
+      <p class="rt-note">디제잉 장비 · DJ 테이블 · 음향을 함께 준비해 드립니다. <b>음향 및 DJ 테이블 렌탈 시 스태프비 100,000~200,000원이 추가</b>됩니다.</p>
+    </div>
+      <div class="rt-group"><p class="rt-label">DJ SET</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/cdj3000.webp" alt="CDJ-3000 2DECK / DJM A-9" loading="lazy"></div><figcaption><span class="rt-nm">CDJ-3000 2DECK / DJM A-9</span><span class="rt-pr">₩550,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/cdj2000.webp" alt="CDJ-2000 NXS2 / DJM 900 NXS2" loading="lazy"></div><figcaption><span class="rt-nm">CDJ-2000 NXS2 / DJM 900 NXS2</span><span class="rt-pr">₩400,000</span></figcaption></figure></div></div>
+      <div class="rt-group"><p class="rt-label">ALL IN ONE</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/xdjxz.webp" alt="XDJ-XZ" loading="lazy"></div><figcaption><span class="rt-nm">XDJ-XZ</span><span class="rt-pr">₩250,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/xdjrx3.webp" alt="XDJ-RX3" loading="lazy"></div><figcaption><span class="rt-nm">XDJ-RX3</span><span class="rt-pr">₩200,000</span></figcaption></figure></div></div>
+      <div class="rt-group"><p class="rt-label">DJ TABLE / CASE</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/table_pro.webp" alt="디제이 전용 고급형 테이블" loading="lazy"></div><figcaption><span class="rt-nm">디제이 전용 고급형 테이블</span><span class="rt-pr">₩200,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/table_basic.webp" alt="디제이 전용 기본형 테이블" loading="lazy"></div><figcaption><span class="rt-nm">디제이 전용 기본형 테이블</span><span class="rt-pr">₩100,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/case.webp" alt="방수 아크릴 케이스" loading="lazy"></div><figcaption><span class="rt-nm">방수 아크릴 케이스</span><span class="rt-pr">₩150,000</span><small>물 관련 공연 시 필수</small></figcaption></figure></div></div>
+      <div class="rt-group"><p class="rt-label">SOUND SYSTEM</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/spk_pioneer.webp" alt="PIONEER 15" 스피커" loading="lazy"></div><figcaption><span class="rt-nm">PIONEER 15" 스피커</span><span class="rt-pr">₩400,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/spk_hk.webp" alt="HK 10" 스피커" loading="lazy"></div><figcaption><span class="rt-nm">HK 10" 스피커</span><span class="rt-pr">₩200,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="https://grntzero.com/img/rental/linearray.webp" alt="중대형 시스템 음향 · 조명" loading="lazy"></div><figcaption><span class="rt-nm">중대형 시스템 음향 · 조명</span><span class="rt-pr ask">별도 문의</span></figcaption></figure></div></div>
+    <div class="tr-foot">
+      <a class="tr-dl" href="https://naver.me/xhP6Geon" target="_blank" rel="noopener"><span><b>전체 자료 다운로드</b><small>사업소개서 · 아티스트 소개서 · 테크니컬 라이더 · 렌탈 안내 (PDF)</small></span><i aria-hidden="true">↓</i></a>
+      <p class="tr-orig">원본 안내 이미지 보기 · <a href="https://grntzero.com/kids/img/rider.webp" target="_blank" rel="noopener">테크니컬 라이더</a> · <a href="https://grntzero.com/kids/img/rental.webp" target="_blank" rel="noopener">렌탈 서비스</a> · 그 외 서류는 <a href="mailto:grnt@grntzero.com">grnt@grntzero.com</a> / 1800-8790</p>
+    </div>
 </div></section>
 
 <section class="band alt" id="clients"><div class="wrap">
