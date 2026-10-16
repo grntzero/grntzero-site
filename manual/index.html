@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>GRUNT ZERO — 매뉴얼</title>
+<meta name="description" content="그런트제로 아티스트·현장지원·직원 매뉴얼">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GRUNT ZERO">
+<meta property="og:title" content="GRUNT ZERO 매뉴얼">
+<meta property="og:description" content="아티스트 · 현장지원 · 직원이 같이 보는 그런트제로 매뉴얼">
+<meta property="og:image" content="https://grntzero.com/img/og_manual.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="icon" href="https://grntzero.com/img/favicon.png" type="image/png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --ink:#0D0A06;--ink2:#141009;--ink3:#1B1610;--line:#2C2418;--line-hi:#453A26;
+  --gold:#C6A35C;--gold2:#E8D2A0;--gold-dim:#8A7440;--bone:#EFE9DC;--mut:#A39A88;--dim:#6E6759;
+  --red:#E0614F;--blue:#7FA7D9;--green:#8CC08A;
+  --f-disp:"Big Shoulders Display","IBM Plex Sans KR","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --pad:clamp(16px,4.5vw,48px);color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0;padding:0}
+body{background:var(--ink);color:var(--bone);font-family:var(--f-body);font-weight:400;line-height:1.75;
+  -webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;word-break:keep-all}
+a{color:var(--gold2);text-decoration:none;border-bottom:1px solid var(--line-hi)}
+a:hover{color:var(--gold)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+.hide{display:none!important}
+
+.top{position:sticky;top:0;z-index:30;background:rgba(13,10,6,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:58px}
+.top img{height:26px;width:auto;display:block}
+.top .sp{flex:1}
+.top .hm{font-size:12.5px;color:var(--mut);border:1px solid var(--line);padding:6px 12px}
+
+/* 접속 코드 */
+.pin{min-height:calc(100vh - 58px);display:flex;align-items:center;justify-content:center;padding:40px 16px}
+.pin .box{width:100%;max-width:340px;text-align:center}
+.pin h1{font-family:var(--f-disp);font-weight:800;font-size:44px;letter-spacing:.04em;line-height:1;margin:0;color:#fff}
+.pin .pg{margin:16px 0 0;font-size:22px;font-weight:600;color:var(--gold);letter-spacing:.06em}
+.pin p{color:var(--bone);font-size:14.5px;margin:10px 0 22px}
+.pin input{width:100%;background:var(--ink3);border:1px solid var(--line-hi);color:var(--bone);font:inherit;
+  font-size:20px;letter-spacing:.3em;text-align:center;padding:14px;border-radius:2px;outline:none;text-transform:uppercase}
+.pin input:focus{border-color:var(--gold)}
+.pin .go{margin-top:12px;width:100%;background:var(--gold);color:var(--ink);font:inherit;font-weight:600;font-size:15px;padding:14px;border:0;border-radius:2px;cursor:pointer}
+.pin .go:disabled{opacity:.6}
+.pin .err{color:var(--red);font-size:13px;min-height:20px;margin-top:10px}
+.ck{min-height:calc(100vh - 58px);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:13px}
+
+/* 머리말 */
+.head{padding:clamp(36px,6vw,64px) 0 clamp(22px,3.5vw,30px);border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,var(--ink2) 0%,var(--ink) 100%)}
+.kick{font-family:var(--f-disp);font-weight:600;font-size:12.5px;letter-spacing:.34em;color:var(--gold-dim);margin:0 0 10px}
+.head h1{font-family:var(--f-disp);font-weight:800;font-size:clamp(44px,9vw,80px);line-height:.94;letter-spacing:.015em;margin:0}
+.head h1 em{font-style:normal;color:var(--gold)}
+.head .sub{margin:14px 0 0;font-size:clamp(14px,2.3vw,16px);color:var(--mut);max-width:680px}
+.ver{display:inline-block;margin-top:14px;font-size:12px;color:var(--dim);border:1px solid var(--line);padding:3px 9px}
+
+/* 대상 선택 */
+.who{position:sticky;top:58px;z-index:20;background:rgba(13,10,6,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.who .wrap{display:flex;gap:7px;padding-top:11px;padding-bottom:11px;overflow-x:auto;scrollbar-width:none}
+.who .wrap::-webkit-scrollbar{display:none}
+.who button{flex:none;font:inherit;font-size:13.5px;padding:7px 15px;border:1px solid var(--line);background:var(--ink2);color:var(--mut);cursor:pointer}
+.who button.on{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:600}
+
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:clamp(24px,4vw,56px);padding-top:clamp(24px,4vw,40px);padding-bottom:60px}
+@media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+main{min-width:0}
+.toc{position:sticky;top:124px;align-self:start;max-height:calc(100vh - 140px);overflow:auto;border-left:1px solid var(--line)}
+.toc a{display:flex;gap:10px;border:0;padding:6px 0 6px 14px;font-size:13.5px;color:var(--mut);line-height:1.5}
+.toc a i{font-style:normal;font-family:var(--f-disp);font-weight:800;color:var(--gold-dim);width:20px;flex:none}
+.toc a:hover,.toc a.cur{color:var(--gold2)}
+.toc a.cur{box-shadow:inset 2px 0 0 var(--gold);margin-left:-1px}
+@media(max-width:900px){
+  .toc{position:static;max-height:none;border:1px solid var(--line);background:var(--ink2);padding:10px 4px;
+    display:grid;grid-template-columns:1fr 1fr}
+  .toc a{padding:6px 10px;font-size:13px}
+}
+@media(max-width:480px){.toc{grid-template-columns:1fr}}
+
+/* 장 */
+.ch{padding:0 0 clamp(34px,5vw,50px);margin:0 0 clamp(34px,5vw,50px);border-bottom:1px solid var(--line);scroll-margin-top:130px}
+.ch:last-child{border-bottom:0}
+.chh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.chh .no{font-family:var(--f-disp);font-weight:800;font-size:clamp(30px,4.6vw,42px);color:var(--gold);line-height:1}
+.chh h2{margin:0;font-size:clamp(20px,3vw,25px);font-weight:700;letter-spacing:-.01em}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px}
+.tag{font-size:11.5px;padding:2px 8px;border:1px solid var(--line-hi);color:var(--mut)}
+.tag.a{border-color:#5C4A24;color:var(--gold2)}
+.tag.s{border-color:#2F4A63;color:var(--blue)}
+.tag.o{border-color:#33502F;color:var(--green)}
+.ch h3{font-size:15.5px;font-weight:700;color:var(--gold2);margin:24px 0 8px}
+.ch p{margin:0 0 10px;color:#D6CEBD;font-size:15px}
+.ch ul,.ch ol{margin:0 0 12px;padding-left:20px}
+.ch li{font-size:15px;color:#D6CEBD;margin:4px 0}
+.ch li b,.ch p b{color:var(--bone);font-weight:600}
+.new{display:inline-block;font-size:11px;font-weight:600;color:var(--ink);background:var(--gold-dim);padding:1px 6px;margin-right:4px;vertical-align:2px}
+.box{border:1px solid var(--line);background:var(--ink2);padding:16px 18px;margin:14px 0}
+.box.key{border-color:var(--gold-dim);background:linear-gradient(180deg,#1E180D 0%,var(--ink2) 100%)}
+.box.key .t{font-family:var(--f-disp);font-weight:800;letter-spacing:.1em;color:var(--gold);font-size:14px;margin-bottom:6px}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+.steps{counter-reset:s;list-style:none;padding:0!important}
+.steps li{counter-increment:s;position:relative;padding:10px 0 10px 42px;border-bottom:1px solid var(--line);margin:0!important}
+.steps li::before{content:counter(s);position:absolute;left:0;top:10px;width:28px;height:28px;border:1px solid var(--gold-dim);
+  color:var(--gold);font-family:var(--f-disp);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px}
+.tbl{width:100%;overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;color:#D6CEBD}
+th{background:var(--ink3);color:var(--gold2);font-weight:600;white-space:nowrap}
+td b{color:var(--bone)}
+.chk{list-style:none;padding:0!important;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 14px}
+.chk li{padding-left:26px;position:relative}
+.chk li::before{content:"";position:absolute;left:0;top:5px;width:15px;height:15px;border:1px solid var(--gold-dim)}
+.sites{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:12px 0}
+.sites a{display:block;border:1px solid var(--line);background:var(--ink2);padding:13px 15px}
+.sites a:hover{border-color:var(--gold-dim)}
+.sites b{display:block;font-family:var(--f-disp);font-weight:800;letter-spacing:.04em;font-size:17px;color:var(--bone)}
+.sites span{display:block;font-size:12.5px;color:var(--mut);margin-top:3px;line-height:1.5}
+.calc{font-variant-numeric:tabular-nums}
+.foot{border-top:1px solid var(--line);background:var(--ink2);padding:28px 0 44px}
+.foot p{margin:0;font-size:12.5px;line-height:1.85;color:var(--dim)}
+.empty{color:var(--dim);font-size:14px;padding:30px 0}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <img src="/img/gz_logo.png" alt="GRUNT ZERO">
+  <span class="sp"></span>
+  <a class="hm" href="https://grntzero.com/">홈페이지</a>
+</div></header>
+
+<div class="ck" id="ck">확인 중…</div>
+
+<section class="pin hide" id="pinView"><div class="box">
+  <h1>GRUNT ZERO</h1>
+  <div class="pg">매뉴얼</div>
+  <p>담당자에게 받은 접속 코드를 입력하세요.</p>
+  <form id="pinForm" autocomplete="off">
+    <input id="pinIn" inputmode="text" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="CODE">
+    <button class="go" id="pinGo" type="submit">들어가기</button>
+  </form>
+  <div class="err" id="pinErr"></div>
+</div></section>
+
+<div class="hide" id="app">
+<div class="head"><div class="wrap">
+  <p class="kick">GRUNT ZERO INTERNAL</p>
+  <h1>MAN<em>UAL</em></h1>
+  <p class="sub">아티스트 · 현장지원 · 직원이 같이 보는 그런트제로 매뉴얼입니다. 처음 들어오셨다면 1장부터 순서대로 읽어 주세요.</p>
+  <span class="ver">v1 · 2026-10-16</span>
+</div></div>
+
+<nav class="who"><div class="wrap" id="who">
+  <button data-w="all" class="on">전체</button>
+  <button data-w="a">아티스트</button>
+  <button data-w="s">현장지원</button>
+  <button data-w="o">직원</button>
+</div></nav>
+
+<div class="wrap layout">
+<aside class="toc" id="toc"></aside>
+<main id="chs">
+
+<!-- 1 -->
+<section class="ch" id="c1" data-for="a s o" data-t="시작하기">
+  <div class="chh"><span class="no">01</span><h2>시작하기 — 그런트제로는 어떤 회사인가</h2></div>
+  <div class="tags"><span class="tag">공통</span></div>
+  <p>그런트제로는 <b>공연 중심 매니지먼트</b>를 하는 DJ 공연 기획사입니다. 회사가 맡는 일은 섭외, 계약, 일정 관리, 현장 운영(장비 제공 포함), 정산과 정산 근거 제공입니다.</p>
+  <p>음원·영상 제작 투자, 개인 홍보·마케팅 대행, 방송·광고 출연 알선은 기본 업무에 들어가지 않습니다. 필요하면 따로 합의해서 진행합니다.</p>
+  <div class="box key"><div class="t">가장 중요한 원칙</div>
+    <p>서운한 점, 이상한 점, 숫자가 안 맞아 보이는 곳은 <b>바로 말해 주세요.</b> 회사와 아티스트 사이 문제는 대부분 말하지 않아서 커집니다.</p></div>
+  <h3>자주 쓰는 페이지</h3>
+  <div class="sites">
+    <a href="https://schedule.grntzero.com" target="_blank" rel="noopener"><b>SCHEDULE</b><span>공연 스케줄 (접속 코드 동일)</span></a>
+    <a href="https://my.grntzero.com" target="_blank" rel="noopener"><b>MY</b><span>내 정산서 (접속 코드 동일)</span></a>
+    <a href="https://dl.grntzero.com" target="_blank" rel="noopener"><b>DL</b><span>로고 · 프로필 자료실</span></a>
+    <a href="https://artist.grntzero.com" target="_blank" rel="noopener"><b>ARTIST</b><span>소속 아티스트 소개 페이지</span></a>
+  </div>
+  <h3>용어</h3>
+  <ul>
+    <li><b>현장지원</b> — 공연 현장에서 장비 운반·설치·조작·철수, 행사장까지 운전, 공연 진행 보조를 하는 일. 예전 이름은 "매니저"입니다. 경비시트에는 아직 "매니져" 열 이름이 남아 있습니다.</li>
+    <li><b>내 몫</b> — 공연 출연료 중 배분율에 따라 아티스트에게 돌아가는 금액.</li>
+    <li><b>잔액</b> — 쌓인 내 몫에서 경비 분담액과 이미 받은 금액을 뺀 것. 정산서 요약 맨 위 숫자입니다.</li>
+  </ul>
+  <h3>아티스트 표기</h3>
+  <p>새로 만드는 자료·글에는 이 표기를 씁니다: SEFO · 허조교 · MOSHEE · POY &amp; LOKI · ANNACONDA &amp; HAENA · KillaTon · BORNGI · DETA · SSENI &amp; BERRI · ROGUN · WOAD.
+    (DETA는 아포스트로피 없이, ANNACONDA는 줄여 쓰지 않습니다.)</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="c2" data-for="a s o" data-t="공연 한 건의 흐름">
+  <div class="chh"><span class="no">02</span><h2>공연 한 건의 흐름</h2></div>
+  <div class="tags"><span class="tag">공통</span></div>
+  <ol class="steps">
+    <li><b>접수</b> — 대표가 주최측과 확정하면 "공연 개요"로 접수합니다. 접수된 공연은 확정된 공연입니다.</li>
+    <li><b>캘린더 등록</b> — [공식]그런트제로 캘린더와 스케줄 페이지에 올라갑니다.</li>
+    <li><b>정산서 등록</b> — 출연 아티스트 정산서의 매출내역에 한 줄이 자동으로 생깁니다.</li>
+    <li><b>계약</b> — 필요한 건은 출연계약서를 전자계약(sign.grntzero.com)으로 체결합니다.</li>
+    <li><b>현장</b> — 공연 당일 진행. 이동·식비 등 경비는 경비시트에 기록됩니다.</li>
+    <li><b>입금</b> — 거래처가 대금을 보내면 입금일이 기록되고, 그 달 정산서에 내 몫이 올라갑니다.</li>
+    <li><b>정산·지급</b> — 경비가 반영된 잔액에서 지급합니다. (12장)</li>
+  </ol>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="c3" data-for="a s" data-t="스케줄 확인">
+  <div class="chh"><span class="no">03</span><h2>스케줄 확인</h2></div>
+  <div class="tags"><span class="tag a">아티스트</span><span class="tag s">현장지원</span></div>
+  <ul>
+    <li><a href="https://schedule.grntzero.com" target="_blank" rel="noopener">schedule.grntzero.com</a>에서 오늘부터 앞으로의 공연을 봅니다. 목록·달력 보기, 내 이름 필터, D-day, 지도 링크, 행사측 현장담당 전화 버튼이 있습니다.</li>
+    <li>접속 코드는 이 매뉴얼과 같은 코드입니다. 코드는 단톡방·문서에 적지 말고 필요한 사람에게 개별로 전달해 주세요.</li>
+    <li>스케줄에는 금액과 연락처가 나오지 않습니다. 행사측 현장담당 한 명만 예외입니다.</li>
+    <li>일정 내용은 그대로 복사해서 전달해도 되도록 날짜·시간이 함께 적혀 있습니다.</li>
+    <li>일정이 틀렸으면 캘린더를 직접 고치지 말고 <b>대표(공연 접수 담당)에게 알려 주세요.</b></li>
+    <li>계약·모임 같은 내부 일정은 "GRUNT ZERO" 캘린더에 각자 적습니다.</li>
+  </ul>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="c4" data-for="a o" data-t="출연 제안·수락·취소">
+  <div class="chh"><span class="no">04</span><h2>출연 제안 · 수락 · 취소</h2></div>
+  <div class="tags"><span class="tag a">아티스트</span><span class="tag o">직원</span></div>
+  <ul>
+    <li><span class="new">11월~ 새 계약</span>회사는 출연을 제안할 때 현장지원 배정 여부를 함께 알립니다. 아티스트는 <b>24시간 안에 수락 여부를 회신</b>해 주세요. 수락한 뒤에는 정당한 사유 없이 철회할 수 없습니다.</li>
+    <li>매니지먼트에 대한 의견은 언제든 말할 수 있고, 내 공연·정산 관련 자료는 언제든 보여 달라고 요청할 수 있습니다.</li>
+    <li>주최측 사정으로 공연이 취소되면 캘린더 제목 앞에 <b>[취소]</b>가 붙거나 일정이 삭제됩니다.</li>
+    <li>우천 등으로 시간이 바뀌면 공지방으로 안내합니다.</li>
+  </ul>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="c5" data-for="a s" data-t="현장 매뉴얼">
+  <div class="chh"><span class="no">05</span><h2>현장 매뉴얼</h2></div>
+  <div class="tags"><span class="tag s">현장지원</span><span class="tag a">아티스트</span></div>
+  <p>지켜야 할 규칙이라기보다, 현장에서 덜 헤매기 위한 안내입니다.</p>
+  <h3>출발 전</h3>
+  <ul>
+    <li>스케줄 페이지에서 시간·장소·장비를 확인합니다.</li>
+    <li>픽업 위치와 시간은 가능하면 1~2주 전에 아티스트·촬영자와 공유합니다.</li>
+    <li>행사장 도착은 <b>공연 2시간 전</b>이 기준입니다. 리허설·음향 확인·장비 설치 시간입니다. 현장 사정에 따라 조정합니다.</li>
+    <li>사무실에서 장비를 받습니다. 차가 없어도 운전면허증은 챙겨 주세요. 현장에서 차를 옮길 일이 생깁니다.</li>
+  </ul>
+  <h3>장비</h3>
+  <ul>
+    <li>DJ 장비(행사 구성에 맞게), <b>전원선</b>(장비 가방 안에 있는지 꼭 확인), 담당 아티스트 소스가 든 USB, SEFO 공연은 테이블 보까지.</li>
+    <li>전원·스피커 연결, 선 종류, DJ 테이블 설치는 처음이면 미리 만져 보세요.</li>
+    <li>장비 운반·설치·정리는 현장지원 담당이 맡아서 아티스트가 공연에 집중하게 합니다.</li>
+  </ul>
+  <h3>현장에서</h3>
+  <ul>
+    <li>도착하면 아티스트용 물을 요청하고, 음향팀에 핸드마이크 세팅을 요청합니다. MOSHEE 공연은 핀마이크 송수신기를 음향팀에 전달합니다.</li>
+    <li>공연 중에는 장비와 현장 소통을 맡습니다.</li>
+    <li>릴스·쇼츠용 영상을 찍습니다. (7장 촬영 가이드)</li>
+    <li>행사 관계자·스태프에게 인사하고 소통해 주세요. 현장 인상이 다음 섭외로 이어집니다.</li>
+  </ul>
+  <h3>이동과 안전</h3>
+  <ul>
+    <li><b>졸음운전 절대 금지.</b> 졸리면 반드시 쉬었다 가세요. 늦어지는 건 문제가 되지 않습니다.</li>
+    <li>왕복 200km 이상이거나 밤 10시 이후 복귀하는 일정은 혼자 운전하지 않는 것이 원칙입니다. 인력 상황을 보고 회사와 조정합니다.</li>
+    <li>다른 사람 차량(회사차 포함)을 운전하면 <b>1일 운전자 보험 가입이 필수</b>입니다. 보험 없이 운전한 건은 지원 대상이 아닙니다.</li>
+    <li>사고가 나면 사고 처리가 먼저입니다. 처리 후 <b>대표에게 바로 연락</b>하고, 연결이 안 되면 동료에게 연락해 전달해 주세요.</li>
+  </ul>
+  <h3>마무리</h3>
+  <ul>
+    <li>촬영한 사진·영상은 회사가 정한 곳에 저장합니다.</li>
+    <li>아티스트를 데려다주고 장비를 사무실에 반납하면 끝입니다.</li>
+  </ul>
+  <h3>출발 전 체크리스트</h3>
+  <ul class="chk">
+    <li>시간 · 장소 · 장비 확인</li><li>픽업 시간 · 장소 공유</li><li>DJ 장비 · 전원선</li><li>USB (담당 아티스트 소스)</li>
+    <li>구급상자</li><li>여분 옷 (여름 물 축제는 필수)</li><li>물티슈 · 보조배터리</li><li>남의 차면 1일 보험 가입</li>
+  </ul>
+  <p style="font-size:13.5px;color:var(--mut)">구급상자: 방수·일반 반창고, 연고, 거즈, 가위, 소독약, 진통제, 어린이 사탕</p>
+  <h3>복장</h3>
+  <p>무대 영상·사진에 드러나지 않도록 <b>검은색 계열</b>의 옷·모자·마스크를 권장합니다. 회사가 특정 제품을 지정하거나 지급하지는 않습니다.</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="c6" data-for="a s" data-t="공연 영상 촬영 가이드">
+  <div class="chh"><span class="no">06</span><h2>공연 영상 촬영 가이드</h2></div>
+  <div class="tags"><span class="tag s">현장지원</span><span class="tag a">아티스트</span></div>
+  <div class="box key"><div class="t">핵심 — 넓게, 안정적으로, 충분히</div>
+    <p>내가 멋있게 찍으려 하지 말고, <b>편집자가 멋있게 만들 수 있는 원본</b>을 남기는 것이 목적입니다.</p></div>
+  <h3>기본 설정</h3>
+  <ul>
+    <li>세로 촬영, 배율 0.5~0.7배. 줌은 쓰지 않습니다 (편집에서 만듭니다).</li>
+    <li>한 장면은 <b>최소 10초</b>, 좋은 장면은 앞뒤까지 넉넉히.</li>
+    <li>버튼 누르기 전에 구도부터 잡습니다.</li>
+  </ul>
+  <h3>구도</h3>
+  <ul>
+    <li>하늘이 아니라 공연장을 찍습니다. 화면 아래 = DJ 발·무대 바닥, 가운데 = DJ와 관객, 위 = 관객 뒤쪽·배경.</li>
+    <li>가까우면 확대하지 말고 한두 걸음 뒤로 가세요. DJ 머리와 발이 잘리지 않게.</li>
+    <li>듀오는 실제 퍼포먼스하는 사람 중심으로. 둘이 같이 움직일 때(동시 점프·호응 유도)만 둘을 함께 잡습니다.</li>
+    <li>관객 반응은 꼭: 손 든 관객, 점프, 춤, <b>DJ와 관객이 한 화면에</b> 나오는 장면.</li>
+  </ul>
+  <h3>하지 말 것</h3>
+  <p>마구 흔들기, 갑자기 화면 돌리기, 빠른 줌, DJ 따라 급하게 이동하기.</p>
+  <h3>한 공연에서 꼭 남길 7가지</h3>
+  <ul class="chk">
+    <li>전체샷</li><li>DJ 전신</li><li>DJ 상반신</li><li>DJ 클로즈업</li><li>듀오샷</li><li>관객샷</li><li>DJ + 관객</li>
+  </ul>
+  <p>아티스트는 공연 전에 촬영자와 <b>어떤 느낌으로 찍을지 짧게 이야기</b>해 주세요.</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="c7" data-for="a" data-t="수익 배분">
+  <div class="chh"><span class="no">07</span><h2>수익 배분 — 배분율과 소액 우대</h2></div>
+  <div class="tags"><span class="tag a">아티스트</span></div>
+  <ul>
+    <li>공연 출연료는 정해진 비율(회사 : 아티스트)로 나눕니다. <b>내 배분율은 정산서 요약 맨 위</b>에 적혀 있습니다.</li>
+    <li>내 몫 = (계약금액 ÷ 출연 인원) × 내 배분율.</li>
+    <li>세금(소득세)은 각자 부담합니다.</li>
+  </ul>
+  <h3>소액 우대 — 아티스트 8</h3>
+  <div class="box">
+    <p>행사 <b>계약 총액</b>(팀이면 팀 전체 금액)이 기준금액 이하이고, <b>현장지원이 동행하지 않은</b> 공연은 회사 2 : 아티스트 8로 나눕니다.</p>
+    <ul>
+      <li>기준금액은 기본 30만원 이하입니다. 아티스트·팀마다 다른 기준이 있으면 정산서 요약에 적혀 있습니다.</li>
+      <li>판정은 1인 출연료가 아니라 <b>총액</b>으로 합니다.</li>
+      <li>현장지원이 동행하면 금액이 낮아도 기본 비율입니다.</li>
+      <li>소액 우대 공연은 <b>그 행사 경비를 아티스트가 전부 부담</b>합니다. 80% 안에 경비 몫이 이미 들어 있기 때문입니다.</li>
+      <li>회사 차를 빌려 간 소액 우대 공연도 2:8은 그대로이고, 주유·통행료만 아티스트가 냅니다.</li>
+    </ul>
+  </div>
+  <ul>
+    <li>장비대여료(거래처가 따로 내는 장비 비용)는 회사 장비에 대한 대가라 배분 대상이 아닙니다. 정산서에는 "장비비 별도"로만 표시됩니다.</li>
+  </ul>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="c8" data-for="a s" data-t="경비">
+  <div class="chh"><span class="no">08</span><h2>경비 — 누가 무엇을 내는가</h2></div>
+  <div class="tags"><span class="tag a">아티스트</span><span class="tag s">현장지원</span></div>
+  <div class="box key"><div class="t">분담 공식</div>
+    <p class="calc">내가 내는 경비 = 총 비용 ÷ 관련 인원 × 내 배분율 &nbsp;·&nbsp; 나머지는 회사가 냅니다.</p></div>
+  <div class="tbl"><table>
+    <tr><th>상황</th><th>주유·통행료</th><th>식비</th><th>현장지원비</th><th>숙소·주차·촬영·1일보험</th></tr>
+    <tr><td><b>혼자 이동</b> (기본 비율, 현장지원 없음)</td><td>회사</td><td>회사</td><td>없음</td><td>분담</td></tr>
+    <tr><td><b>현장지원 동행</b> (기본 비율)</td><td>분담</td><td>분담</td><td>분담</td><td>분담</td></tr>
+    <tr><td><b>대표가 현장지원으로 동행</b></td><td>회사 (대표 차량)</td><td>실비 분담</td><td>회사</td><td>분담</td></tr>
+    <tr><td><b>소액 우대 (2:8)</b></td><td>아티스트</td><td>아티스트</td><td>— (미동행이 조건)</td><td>아티스트</td></tr>
+  </table></div>
+  <ul>
+    <li>캘린더에 현장지원이 "없음/미정"이면 아티스트가 자차로 혼자 간 것으로 처리합니다.</li>
+    <li><b>항상 회사가 내는 것</b>: 단체복·단체 장신구, 프레스킷, 회사 장비 사용료·감가, 차량 감가·보험·정비, 대표가 직접 한 현장지원비, 대표 동행 때 대표 차량 주유·통행료.</li>
+    <li>숙소는 회사가 먼저 결제하고, 정산 때 일반 경비처럼 나눕니다.</li>
+    <li>1일 운전자 보험은 회사 차를 대표 외 사람이 운전한 날만, 하루 1번(1박 2일이면 이틀) 들어갑니다.</li>
+    <li>아티스트가 이미 직접 낸 비용은 정산에 다시 넣지 않습니다. 이중으로 빠진 게 보이면 알려 주세요. 바로 돌려드립니다.</li>
+  </ul>
+  <h3>계산 기준</h3>
+  <ul>
+    <li>주유비 거리: <b>카카오맵 최단 경로, 사무실(수원 영통로 105) ↔ 행사장 왕복.</b> 실제 출발지와 관계없이 같습니다.</li>
+    <li>통행료·주차비·숙소비: 실비.</li>
+    <li>총 소요시간 = 카카오맵 왕복 이동시간 + 현장 체류 2시간. 카카오맵은 주말 오전 10시 기준으로 한 번 조회해 고정합니다.</li>
+    <li>하루에 공연 2건을 이어서 하면 이동 비용은 구간마다, 식비·보험은 하루 1번입니다.</li>
+  </ul>
+  <h3>식비 — 1인 정액, 영수증 필요 없음</h3>
+  <div class="tbl"><table style="min-width:360px">
+    <tr><th>총 소요시간</th><th>1인 식비</th></tr>
+    <tr><td>4시간 미만</td><td>0원</td></tr>
+    <tr><td>4 ~ 8시간</td><td>15,000원</td></tr>
+    <tr><td>8 ~ 12시간</td><td>30,000원</td></tr>
+    <tr><td>12시간 이상</td><td>45,000원</td></tr>
+  </table></div>
+  <p>인원은 실제로 간 사람 전원입니다. 대표가 출연·현장지원으로 함께 가거나 청소년 아티스트가 포함된 공연은 대표가 현장에서 결제한 <b>실비</b>를 나눕니다.</p>
+  <p><span class="new">11월~ 새 계약</span>분담액은 원 단위까지 그대로 계산합니다(올리거나 버리지 않음). 아티스트가 요청한 레슨은 1시간 30,000원이 정산에서 빠지고, 레슨한 사람에게 전액 지급됩니다.</p>
+</section>
+
+<!-- 9 -->
+<section class="ch" id="c9" data-for="s a" data-t="현장지원 제도와 보수">
+  <div class="chh"><span class="no">09</span><h2>현장지원 제도와 보수</h2></div>
+  <div class="tags"><span class="tag s">현장지원</span><span class="tag a">아티스트</span></div>
+  <h3>참여 방식</h3>
+  <ul>
+    <li>현장지원은 <b>자율 지원제</b>입니다. 지원하지 않거나 중간에 그만둬도 출연 배정·정산·계약에 어떤 불이익도 없습니다.</li>
+    <li>모집은 현장지원 대화방에서 공연일·장소·예상 소요시간을 공지하고, 지원한 사람 중에 정합니다. 대화방은 언제든 나가고 다시 들어올 수 있습니다.</li>
+    <li>공연 1건에 1명이 원칙입니다. 장비가 커서 회사가 추가로 배정한 인원의 비용은 회사가 냅니다.</li>
+    <li>지원자가 없으면 회사가 외부 인력을 섭외합니다. 비용 기준은 같습니다.</li>
+    <li>부모·지인처럼 아티스트가 개인적으로 데려간 사람은 현장지원이 아닙니다.</li>
+    <li>현장지원은 만 19세 이상, 운전면허가 있고 회사 장비를 혼자 설치·철수할 수 있는 사람을 권장합니다. 처음이면 한 번 동행하며 배웁니다.</li>
+  </ul>
+  <h3>현장지원비는 누가 내나</h3>
+  <ul>
+    <li>그 공연에 출연한 아티스트가 <b>본인 배분율만큼</b> 나누고, 나머지는 회사가 냅니다.</li>
+    <li>회사가 전액 내는 경우: 대표가 직접 현장지원을 할 때, 아티스트가 요청하지 않았는데 회사가 추가로 배정했을 때.</li>
+  </ul>
+  <h3>보수 — 현재 기준</h3>
+  <div class="box">
+    <p class="calc"><b>(카카오맵 왕복 이동시간 + 120분) × 분당 200원</b></p>
+    <ul>
+      <li>같은 이동에서 여러 아티스트를 맡아도 1번만 계산하고, 그 공연 아티스트들이 나눕니다.</li>
+      <li>장비 셋팅비는 장비 단가표로 따로 계산합니다.</li>
+    </ul>
+  </div>
+  <h3><span class="new">11월~ 새 계약</span>보수 구간표 (시행일은 따로 공지)</h3>
+  <div class="tbl"><table>
+    <tr><th>총 소요시간</th><th>기본료</th><th>총 소요시간</th><th>기본료</th></tr>
+    <tr><td>3시간 이하</td><td>50,000원</td><td>9 ~ 11시간</td><td>140,000원</td></tr>
+    <tr><td>3 ~ 5시간</td><td>70,000원</td><td>11 ~ 13시간</td><td>170,000원</td></tr>
+    <tr><td>5 ~ 7시간</td><td>90,000원</td><td>13 ~ 15시간</td><td>200,000원</td></tr>
+    <tr><td>7 ~ 9시간</td><td>110,000원</td><td>15시간 초과</td><td>200,000원 + 1시간마다 15,000원</td></tr>
+  </table></div>
+  <p>장비 가산 (회사 장비 점수 합): 3점 이하 0원 · 4~10점 40,000원 · 11점 이상 70,000원.<br>
+    점수: 올인원(XDJ-XZ·RX3·RR) 1 · 기본형 테이블 1 · 프로형 테이블 4 · CDJ2000 넥서스2 셋트 3 · CDJ3000 셋트 3 · 10인치 스피커 개당 2 · 15인치 스피커 개당 4</p>
+  <p>아티스트가 현장지원 없이 회사 장비를 직접 운반·설치하면 장비 가산만큼 회사가 지급합니다(정산에서 빼지 않음).</p>
+</section>
+
+<!-- 10 -->
+<section class="ch" id="c10" data-for="a" data-t="정산서 보는 법">
+  <div class="chh"><span class="no">10</span><h2>정산서 보는 법</h2></div>
+  <div class="tags"><span class="tag a">아티스트</span></div>
+  <ul>
+    <li><a href="https://my.grntzero.com" target="_blank" rel="noopener">my.grntzero.com</a> → 접속 코드 → 내 이름을 누르면 정산서(구글 시트)가 열립니다.</li>
+    <li>정산서는 <b>내 구글 계정에만</b> 열립니다. 안 열리면 로그인된 구글 계정이 회사에 알려준 주소와 같은지 먼저 확인해 주세요.</li>
+    <li>같은 주소가 항상 최신입니다. 매달 파일을 따로 받지 않습니다. 링크는 다른 사람에게 보내지 마세요.</li>
+  </ul>
+  <h3>화면 구성</h3>
+  <div class="tbl"><table>
+    <tr><th>탭</th><th>내용</th></tr>
+    <tr><td><b>요약</b></td><td>배분율, <b>현재 잔액</b>(쌓인 내 몫 − 경비 − 이미 받은 금액), 지급 누계, 미수금(거래처가 아직 안 보낸 돈), 월별 표</td></tr>
+    <tr><td><b>매출내역</b></td><td>공연별 계약금액·인원·내 몫·입금일. 분홍 = 미입금, 노랑 = 부분입금, 색 없음 = 입금 완료</td></tr>
+    <tr><td><b>지급내역</b></td><td>회사가 실제로 보낸 날짜와 금액</td></tr>
+    <tr><td><b>월별 탭</b></td><td>최신 달이 왼쪽. 매출(입금 완료분) / 경비·기타 / 지급</td></tr>
+  </table></div>
+  <ul>
+    <li>매출은 공연한 달이 아니라 <b>거래처가 돈을 보낸 달</b>에 올라갑니다.</li>
+    <li>경비 줄에는 총액·인원·항목이 적혀 있습니다. "(정산이 되지 않는 회사 지원금액)"은 회사가 전부 낸 것이라 내 잔액에서 빠지지 않습니다.</li>
+  </ul>
+</section>
+
+<!-- 11 -->
+<section class="ch" id="c11" data-for="a o" data-t="정산금 지급 — 50만원 킵">
+  <div class="chh"><span class="no">11</span><h2>정산금 지급 — 50만원 킵</h2></div>
+  <div class="tags"><span class="tag a">아티스트</span><span class="tag o">직원</span></div>
+  <div class="box key"><div class="t">50만원 킵</div>
+    <p>정산서 잔액 중 <b>50만원은 항상 회사에 남겨 둡니다.</b> 잔액이 50만원을 넘을 때, <b>넘는 금액만</b> 지급합니다.</p>
+    <p class="calc" style="color:var(--mut);font-size:14px;margin-top:8px">지급 가능 금액 = 현재 잔액 − 500,000원 (0원보다 작으면 이번 지급 없음)</p>
+  </div>
+  <div class="tbl"><table style="min-width:360px">
+    <tr><th>현재 잔액</th><th>지급 가능 금액</th><th>남는 잔액</th></tr>
+    <tr><td>1,230,000원</td><td><b>730,000원</b></td><td>500,000원</td></tr>
+    <tr><td>800,000원</td><td><b>300,000원</b></td><td>500,000원</td></tr>
+    <tr><td>420,000원</td><td><b>0원</b> (지급 없음)</td><td>420,000원</td></tr>
+  </table></div>
+  <ul>
+    <li>남겨 둔 50만원도 <b>내 돈</b>입니다. 정산서 잔액에 그대로 보입니다.</li>
+    <li>지급하면 지급내역에 날짜·금액이 기록되고 잔액이 그만큼 줄어듭니다.</li>
+    <li>정산 내역이 이상하면 받은 날부터 30일 안에 알려 주세요. 회사가 근거를 보여드립니다. 그 전이라도 언제든 물어봐도 됩니다.</li>
+  </ul>
+</section>
+
+<!-- 12 -->
+<section class="ch" id="c12" data-for="a s o" data-t="장비 사용">
+  <div class="chh"><span class="no">12</span><h2>장비 사용 · 대여료 · 파손</h2></div>
+  <div class="tags"><span class="tag">공통</span></div>
+  <ul>
+    <li>회사가 잡은 공연에서 회사 장비를 쓰는 데 사용료는 없습니다. 정산에서 빼지 않습니다.</li>
+    <li>회사 장비를 개인 활동이나 다른 행사에 쓰려면 <b>미리 대표 허락</b>을 받아 주세요. 사용료·파손 책임은 그때 정합니다.</li>
+    <li>거래처가 내는 장비대여료는 장비 주인에게 갑니다. 회사 장비면 회사, 개인 장비면 아티스트, 섞여 있으면 미리 협의합니다.</li>
+    <li>평소처럼 쓰다 생긴 고장·마모는 회사가 책임집니다. 고의나 큰 실수로 생긴 파손은 원인을 만든 사람이 책임지며, 범위는 사안별로 협의합니다.</li>
+    <li>장비가 고장 나거나 보관 위치가 바뀌면 공지방에 바로 공유해 주세요.</li>
+  </ul>
+</section>
+
+<!-- 13 -->
+<section class="ch" id="c13" data-for="a s" data-t="청소년 아티스트·보호자">
+  <div class="chh"><span class="no">13</span><h2>청소년 아티스트 · 보호자</h2></div>
+  <div class="tags"><span class="tag a">아티스트</span><span class="tag s">현장지원</span></div>
+  <ul>
+    <li>만 19세 미만 아티스트는 건강·학업·수면·휴식을 먼저 챙기고, 법에서 정한 공연 시간 제한을 지킵니다.</li>
+    <li>이동은 회사가 직접 맡는 것이 원칙입니다. 보호자가 따로 이동하면 주유·통행료를 지원할 수 있습니다.</li>
+    <li>식비는 대표가 현장에서 결제한 실비를 나눕니다.</li>
+    <li><span class="new">11월~ 새 계약</span>현장지원 대신 보호자가 동행할 수 있습니다. 이때 보호자에게 현장지원비를 주지 않고, 동행 비용을 아이 정산에서 빼지도 않습니다.</li>
+    <li>현장지원 인력은 성인만 합니다.</li>
+  </ul>
+</section>
+
+<!-- 14 -->
+<section class="ch" id="c14" data-for="o" data-t="공연 접수·캘린더">
+  <div class="chh"><span class="no">14</span><h2>사무 — 공연 접수 · 캘린더</h2></div>
+  <div class="tags"><span class="tag o">직원</span></div>
+  <h3>공연 개요 양식 (21번)</h3>
+  <p style="font-size:14px;color:var(--mut)">1 행사명 · 2 행사일 · 3 장소 · 4 주최 · 5 출연자 · 6 출연내용 · 7 장비렌탈 · 8 출연료(부가세 별도·포함·면세) · 9 장비대여료 · 10 장비스텝 · 11 담당 매니져 · 12 사용 차량 · 13 출발지 · 14 복귀일정 · 15 복귀장소 · 16 촬영 · 17 촬영비 · 18 스탭 · 19 스탭비 · 20 기타 · 21 현장담당(행사측 이름·직함·번호)</p>
+  <ul>
+    <li>1~7은 주최측 개요 그대로, 8·9는 대표가 채웁니다. 10~20은 모르면 기본값(없음/미정/사무실/변동없음).</li>
+    <li><b>"없음"과 "미정"은 다릅니다.</b> 없음 = 확정적으로 없음, 미정 = 아직 안 정함(확인 필요).</li>
+    <li>7번 장비가 비었거나 애매하면 XDJ-RX3로 적습니다.</li>
+    <li>면세 건은 공연창작연구소 명의, 부가세 별도·포함 건은 그런트제로 명의입니다.</li>
+  </ul>
+  <h3>캘린더</h3>
+  <ul>
+    <li>항상 <b>종일 일정</b>, 제목은 <code>[공연] HHMM 아티스트 행사명</code>. 장비대여가 있으면 제목 뒤에 &lt;장비대여 장비명&gt;.</li>
+    <li>장소 칸에 도로명 주소를 적습니다.</li>
+    <li><b>[공식]그런트제로 캘린더는 공연 접수 담당만 씁니다.</b> 다른 사람은 읽기만 하고, 틀린 곳은 대표에게 알립니다.</li>
+    <li>접수 후 사람·차·시간은 캘린더에서 고쳐도 되지만, <b>돈·아티스트·행사일이 바뀌면 반드시 접수 담당에게</b> 알립니다. 현장지원이 나중에 정해져도 알려야 합니다(배분율에 영향).</li>
+  </ul>
+</section>
+
+<!-- 15 -->
+<section class="ch" id="c15" data-for="o" data-t="계약서·전자계약">
+  <div class="chh"><span class="no">15</span><h2>사무 — 출연계약서 · 전자계약</h2></div>
+  <div class="tags"><span class="tag o">직원</span></div>
+  <ul>
+    <li>필요한 것 3가지: 공연 개요, 상대측 사업자등록증, 담당자 이메일.</li>
+    <li>양식은 그런트제로 / 공연창작연구소(면세) 두 가지. 합계 = 출연료 + 장비대여료.</li>
+    <li>계산서: 그런트제로 → 전자세금계산서, 공연창작연구소 → 전자계산서.</li>
+    <li>지급기일 기본값은 <b>공연일 + 30일</b>입니다.</li>
+    <li>출연료가 정해지지 않은 건(금액대기)은 계약서를 만들지 않습니다.</li>
+    <li>전자계약은 <b>sign.grntzero.com</b>으로 보냅니다. 서명이 끝난 건만 내려받아 체결본 폴더에 보관합니다.</li>
+    <li>관공서·재단은 자체 양식이나 종이 계약을 요구하는 경우가 많습니다.</li>
+    <li>이미 체결된 문서는 표기가 바뀌어도 고치지 않습니다.</li>
+  </ul>
+</section>
+
+<!-- 16 -->
+<section class="ch" id="c16" data-for="o" data-t="경비시트·정산 반영">
+  <div class="chh"><span class="no">16</span><h2>사무 — 경비시트 · 정산 반영</h2></div>
+  <div class="tags"><span class="tag o">직원</span></div>
+  <ul>
+    <li>경비시트는 월별 탭(최신 달 왼쪽)입니다. 이동 1건 = 출발 행 + 복귀 행. 현장지원·소요시간 정보는 출발 행에만 적습니다.</li>
+    <li>누구에게 주나: 주유·통행료·1일보험 → 차량 주인 / 현장지원비 → 현장지원 / 촬영비 → 촬영 담당 / 대중교통 → 아티스트 본인 / 식비 → 각자.</li>
+    <li>거리·주유·통행료·소요시간·식비는 모든 건에 빠짐없이 기록하고, 지급하지 않는 경우에만 0과 사유를 남깁니다.</li>
+    <li>부담구분: 아티스트전액(회사결제) / 아티스트전액(본인결제) / 분담.</li>
+    <li>정산서 파일은 직접 고치지 않습니다. 마스터 데이터에 넣고 재생성으로만 바뀝니다. 넣기 전 중복 확인, 넣은 뒤 대표에게 보고합니다.</li>
+    <li>촬영·현장지원 인력은 아티스트가 아니므로 정산서를 만들지 않습니다.</li>
+    <li>애매한 건은 추정하지 말고 대표에게 묻습니다. 숫자는 계산기·스크립트로 두 번 확인합니다.</li>
+    <li>지급할 때는 <b>50만원 킵</b>(11장)을 지킵니다: 지급 가능 금액 = 잔액 − 500,000원.</li>
+  </ul>
+</section>
+
+<!-- 17 -->
+<section class="ch" id="c17" data-for="a s o" data-t="보안 수칙">
+  <div class="chh"><span class="no">17</span><h2>보안 수칙</h2></div>
+  <div class="tags"><span class="tag">공통</span></div>
+  <ul>
+    <li><b>캘린더·스케줄·정산서에 쓰지 않는 것</b>: 출연료·계약금액·장비대여료·부가세·배분율·촬영비·스탭비·입금 예정일, 주최측 담당자 이름·전화(현장담당 한 줄만 예외).</li>
+    <li>접속 코드와 비밀번호는 단톡방·문서에 적지 않습니다. 필요한 사람에게 개별로 전달합니다.</li>
+    <li>정산서 링크는 본인만 봅니다. 다른 사람에게 보내지 마세요.</li>
+    <li>회사 메일은 grntzero@gmail.com 기준입니다. @grntzero.com 메일도 여기로 들어옵니다.</li>
+    <li>계약 내용과 회사 업무상 정보는 계약이 끝난 뒤에도 밖에 말하지 않습니다.</li>
+  </ul>
+</section>
+
+<p class="empty hide" id="empty">이 대상에 해당하는 장이 없습니다.</p>
+</main>
+</div>
+
+<footer class="foot"><div class="wrap">
+  <p><b style="color:var(--mut)">GRUNT ZERO</b> · 내부 매뉴얼 v1 (2026-10-16)<br>
+    "11월~ 새 계약" 표시는 2026년 11월 이후 새 전속계약서에 서명한 분부터 적용됩니다. 바뀌는 내용은 공지방으로 먼저 안내합니다.<br>
+    이 페이지는 검색에 노출되지 않습니다.</p>
+</div></footer>
+</div>
+
+<script>
+var API="https://script.google.com/macros/s/AKfycbzUEBENpPasrvIEqnTXorSKmLlAdInXx_SPm30iokNuLqLngVHYZU0iJ2BVtKold8kQAA/exec";
+(function(){
+  function $(i){return document.getElementById(i)}
+  function get(){try{return localStorage.getItem("gz_pin")}catch(e){return null}}
+  function set(v){try{localStorage.setItem("gz_pin",v)}catch(e){}}
+  function del(){try{localStorage.removeItem("gz_pin")}catch(e){}}
+  function open_(){$("ck").classList.add("hide");$("pinView").classList.add("hide");$("app").classList.remove("hide");initApp()}
+  function ask(msg){$("ck").classList.add("hide");$("app").classList.add("hide");$("pinView").classList.remove("hide");
+    $("pinErr").textContent=msg||"";$("pinGo").disabled=false;setTimeout(function(){$("pinIn").focus()},50)}
+  function check(v,fromForm){
+    fetch(API+"?pin="+encodeURIComponent(v)+"&t="+Date.now(),{cache:"no-store"})
+      .then(function(r){return r.json()})
+      .then(function(j){
+        if(j&&j.ok){set(v);open_();}
+        else{del();ask(fromForm?"코드가 맞지 않습니다.":(j&&j.error==="pin"?"코드가 변경되었습니다. 새 코드를 입력하세요.":""));}
+      })
+      .catch(function(){ask("연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.")});
+  }
+  $("pinForm").addEventListener("submit",function(e){
+    e.preventDefault();var v=$("pinIn").value.trim().toUpperCase();if(!v)return;
+    $("pinGo").disabled=true;$("pinErr").textContent="확인 중…";check(v,true);
+  });
+  var v=get(); if(v) check(v,false); else ask();
+
+  var inited=false;
+  function initApp(){
+    if(inited) return; inited=true;
+    var chs=[].slice.call(document.querySelectorAll('.ch')), toc=$('toc');
+    chs.forEach(function(c,i){
+      var a=document.createElement('a'); a.href='#'+c.id;
+      a.innerHTML='<i>'+String(i+1).padStart(2,'0')+'</i><span>'+c.getAttribute('data-t')+'</span>';
+      a.setAttribute('data-for',c.getAttribute('data-for')); toc.appendChild(a);
+    });
+    var btns=[].slice.call(document.querySelectorAll('#who button'));
+    function apply(w){
+      btns.forEach(function(b){b.classList.toggle('on',b.getAttribute('data-w')===w)});
+      var n=0;
+      [].slice.call(document.querySelectorAll('.ch,#toc a')).forEach(function(el){
+        var ok=w==='all'||el.getAttribute('data-for').split(' ').indexOf(w)>=0;
+        el.classList.toggle('hide',!ok); if(ok&&el.classList.contains('ch')) n++;
+      });
+      $('empty').classList.toggle('hide',n>0);
+      try{localStorage.setItem('gz_manual_who',w)}catch(e){}
+    }
+    btns.forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-w'));window.scrollTo({top:document.querySelector('.layout').offsetTop-120,behavior:'smooth'})})});
+    var saved='all'; try{saved=localStorage.getItem('gz_manual_who')||'all'}catch(e){}
+    apply(saved);
+    if('IntersectionObserver' in window){
+      var links={}; [].slice.call(toc.querySelectorAll('a')).forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+      var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){
+        Object.keys(links).forEach(function(k){links[k].classList.remove('cur')}); links[e.target.id]&&links[e.target.id].classList.add('cur');}})},
+        {rootMargin:'-130px 0px -65% 0px'});
+      chs.forEach(function(c){io.observe(c)});
+    }
+  }
+})();
+</script>
+</body>
+</html>
