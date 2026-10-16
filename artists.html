@@ -159,6 +159,12 @@ img{max-width:100%;display:block}
 .crew .ph img{width:100%;height:100%;object-fit:contain;object-position:50% 50%;display:block}
 .crew .ph::after{content:"";position:absolute;inset:0;
   background:linear-gradient(0deg,rgba(13,10,6,.94) 0%,rgba(13,10,6,.10) 52%,rgba(13,10,6,.40) 100%)}
+.crew .ph .hot{position:absolute;z-index:3;display:block;border:2px solid transparent;transition:border-color .15s,background .15s}
+.crew .ph .hot span{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:.12em;line-height:1;white-space:nowrap;padding:5px 8px;background:rgba(13,10,6,.82);color:var(--gold2);opacity:0;transition:opacity .15s}
+.crew .ph .hot:hover,.crew .ph .hot:focus-visible{border-color:var(--gold);background:rgba(198,163,92,.10);outline:none}
+.crew .ph .hot:hover span,.crew .ph .hot:focus-visible span{opacity:1}
+@keyframes cardflash{0%{box-shadow:0 0 0 3px var(--gold)}100%{box-shadow:0 0 0 0 rgba(198,163,92,0)}}
+.card.flash{animation:cardflash 1.6s ease}
 .crew .cap{position:absolute;left:0;right:0;bottom:clamp(13px,2.2vw,24px);z-index:2;text-align:center;padding:0 16px}
 .crew .cap b{display:block;font-family:var(--disp);font-weight:800;letter-spacing:.15em;
   font-size:clamp(21px,3.6vw,40px);color:var(--cream);line-height:1.05}
@@ -213,7 +219,8 @@ img{max-width:100%;display:block}
 <section class="crew">
   <div class="ph">
     <img src="img/crew.jpg" alt="GRUNT ZERO 아티스트 단체사진">
-    <div class="cap"><b>GRUNT ZERO CREW</b><span>그런트제로 소속 아티스트</span></div>
+    <a class="hot" href="#a-woad" style="left:8.9%;top:4%;width:8.3%;height:26%" aria-label="WOAD 소개 보기"><span>WOAD</span></a><a class="hot" href="#a-borngi" style="left:20.5%;top:4%;width:7.8%;height:26%" aria-label="BORNGI 소개 보기"><span>BORNGI</span></a><a class="hot" href="#a-killaton" style="left:32.8%;top:4%;width:7.8%;height:26%" aria-label="KillaTon 소개 보기"><span>KillaTon</span></a><a class="hot" href="#a-loki" style="left:44.4%;top:4%;width:8.3%;height:26%" aria-label="LOKI 소개 보기"><span>LOKI</span></a><a class="hot" href="#a-poy" style="left:56.1%;top:4%;width:8.3%;height:26%" aria-label="POY 소개 보기"><span>POY</span></a><a class="hot" href="#a-deta" style="left:68.3%;top:4%;width:8.3%;height:26%" aria-label="DETA 소개 보기"><span>DETA</span></a><a class="hot" href="#a-rogun" style="left:80.6%;top:4%;width:8.3%;height:26%" aria-label="ROGUN 소개 보기"><span>ROGUN</span></a><a class="hot" href="#a-berri" style="left:3.3%;top:32%;width:12.2%;height:55%" aria-label="BERRI 소개 보기"><span>BERRI</span></a><a class="hot" href="#a-haena" style="left:16.1%;top:32%;width:11.7%;height:55%" aria-label="HAENA 소개 보기"><span>HAENA</span></a><a class="hot" href="#a-gunner" style="left:28.1%;top:32%;width:13.1%;height:55%" aria-label="허조교 소개 보기"><span>허조교</span></a><a class="hot" href="#a-sefo" style="left:41.4%;top:32%;width:16.1%;height:55%" aria-label="SEFO 소개 보기"><span>SEFO</span></a><a class="hot" href="#a-moshee" style="left:57.8%;top:32%;width:13.6%;height:55%" aria-label="MOSHEE 소개 보기"><span>MOSHEE</span></a><a class="hot" href="#a-annaconda" style="left:71.7%;top:32%;width:11.9%;height:55%" aria-label="ANNACONDA 소개 보기"><span>ANNACONDA</span></a><a class="hot" href="#a-sseni" style="left:83.9%;top:32%;width:12.8%;height:55%" aria-label="SSENI 소개 보기"><span>SSENI</span></a>
+    <div class="cap"><b>GRUNT ZERO CREW</b><span>그런트제로 소속 아티스트 · 사진 속 아티스트를 누르면 소개로 이동합니다</span></div>
   </div>
   <div class="wrap jump">
     <h3>ARTIST 바로가기</h3>
@@ -546,7 +553,7 @@ document.querySelectorAll('.cph img').forEach(function(im){
 });
 
 /* ARTIST 바로가기 */
-document.querySelectorAll('.jlist a').forEach(function(a){
+document.querySelectorAll('.jlist a, .crew .hot').forEach(function(a){
   a.addEventListener('click',function(e){
     e.preventDefault();
     var id=a.getAttribute('href').slice(1), el=document.getElementById(id);
@@ -556,6 +563,7 @@ document.querySelectorAll('.jlist a').forEach(function(a){
       if(all) all.click();
     }
     el.scrollIntoView({behavior:'smooth',block:'start'});
+    el.classList.remove('flash');void el.offsetWidth;setTimeout(function(){el.classList.add('flash');},450);
   });
 });
 </script>
