@@ -450,7 +450,6 @@ function render(){
   renderSummary(all);
   $("listView").classList.toggle("hide",state.view!=="list");
   $("calView").classList.toggle("hide",state.view!=="cal");
-  $("showPast").parentNode.style.visibility = state.view==="list"?"visible":"hidden";
   if(state.view==="list") renderList(all); else renderCal(all);
   $("upd").textContent=ago(state.updated);
 }
