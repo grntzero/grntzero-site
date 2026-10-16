@@ -108,6 +108,20 @@ footer b{color:var(--mut);font-weight:500}
   .wide{padding:16px;gap:13px}
   .wide .go{display:none}
 }
+
+/* ── 접속 코드 ── */
+.hide{display:none!important}
+.pin{min-height:calc(100vh - 58px);display:flex;align-items:center;justify-content:center;padding:40px 16px}
+.pin .box{width:100%;max-width:340px;text-align:center}
+.pin h1{font-size:44px;letter-spacing:.04em;line-height:1;color:#fff}
+.pin p{color:var(--mut);font-size:13.5px;margin:12px 0 22px;line-height:1.7}
+.pin input{width:100%;background:var(--ink3);border:1px solid var(--line-hi);color:var(--bone);font:inherit;
+  font-size:20px;letter-spacing:.3em;text-align:center;padding:14px;border-radius:2px;outline:none;text-transform:uppercase}
+.pin input:focus{border-color:var(--gold)}
+.pin .go{margin-top:12px;width:100%;background:var(--gold);color:var(--ink);font:inherit;font-weight:600;font-size:15px;padding:14px;border:0;border-radius:2px;cursor:pointer}
+.pin .go:disabled{opacity:.6;cursor:default}
+.pin .err{color:#E0614F;font-size:13px;min-height:20px;margin-top:10px}
+.ck{min-height:calc(100vh - 58px);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:13px}
 </style>
 
 <header class="top"><div class="wrap">
@@ -116,6 +130,19 @@ footer b{color:var(--mut);font-weight:500}
   <a class="hm" href="https://grntzero.com/">홈페이지</a>
 </div></header>
 
+<div class="ck" id="ck">확인 중…</div>
+
+<section class="pin hide" id="pinView"><div class="box">
+  <h1>GRUNT ZERO</h1>
+  <p>아티스트 정산서<br>담당자에게 받은 접속 코드를 입력하세요.</p>
+  <form id="pinForm" autocomplete="off">
+    <input id="pinIn" inputmode="text" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="CODE">
+    <button class="go" id="pinGo" type="submit">들어가기</button>
+  </form>
+  <div class="err" id="pinErr"></div>
+</div></section>
+
+<div class="hide" id="app">
 <div class="head"><div class="wrap">
   <p class="kick">GRUNT ZERO ARTIST</p>
   <h1>SETTLE<em>MENT</em></h1>
@@ -152,7 +179,34 @@ footer b{color:var(--mut);font-weight:500}
     이 페이지는 검색에 노출되지 않습니다.
   </p>
 </div></footer>
+</div>
 
+<script>
+var API="https://script.google.com/macros/s/AKfycbzUEBENpPasrvIEqnTXorSKmLlAdInXx_SPm30iokNuLqLngVHYZU0iJ2BVtKold8kQAA/exec";
+(function(){
+  function $(i){return document.getElementById(i)}
+  function get(){try{return localStorage.getItem("gz_pin")}catch(e){return null}}
+  function set(v){try{localStorage.setItem("gz_pin",v)}catch(e){}}
+  function del(){try{localStorage.removeItem("gz_pin")}catch(e){}}
+  function open_(){$("ck").classList.add("hide");$("pinView").classList.add("hide");$("app").classList.remove("hide")}
+  function ask(msg){$("ck").classList.add("hide");$("app").classList.add("hide");$("pinView").classList.remove("hide");
+    $("pinErr").textContent=msg||"";$("pinGo").disabled=false;setTimeout(function(){$("pinIn").focus()},50)}
+  function check(v,fromForm){
+    fetch(API+"?pin="+encodeURIComponent(v)+"&t="+Date.now(),{cache:"no-store"})
+      .then(function(r){return r.json()})
+      .then(function(j){
+        if(j&&j.ok){set(v);open_();}
+        else{del();ask(fromForm?"코드가 맞지 않습니다.":(j&&j.error==="pin"?"코드가 변경되었습니다. 새 코드를 입력하세요.":""));}
+      })
+      .catch(function(){ask("연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.")});
+  }
+  $("pinForm").addEventListener("submit",function(e){
+    e.preventDefault();var v=$("pinIn").value.trim().toUpperCase();if(!v)return;
+    $("pinGo").disabled=true;$("pinErr").textContent="확인 중…";check(v,true);
+  });
+  var v=get(); if(v) check(v,false); else ask();
+})();
+</script>
 <script>
 var A=[
  ["SEFO","sefo","1fTFbSoX1eln3r8hjfv21IeO-MWn96EjaZIAllYk_z2s"],
