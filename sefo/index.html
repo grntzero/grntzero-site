@@ -107,9 +107,14 @@ b{font-weight:700}
 .ytin{text-align:center;font-size:12px;color:var(--mut);padding:10px}
 .ytin b{display:block;font-family:var(--f-en);font-weight:800;letter-spacing:.12em;font-size:20px;color:var(--gold);line-height:1.1;margin-bottom:8px}
 .ytin i{display:block;font-style:normal;margin-top:10px;color:var(--ink);font-weight:600}
-.mvg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.mvg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vtabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.vtabs button{border:1px solid var(--line);background:var(--card);color:var(--mut);padding:9px 16px;border-radius:3px;font-weight:700;font-size:14.5px;cursor:pointer}
+.vtabs button.on{background:var(--gold);border-color:var(--gold);color:#1A140A}
+.vg.k4{grid-template-columns:repeat(4,1fr)}
+.vp[hidden]{display:none}
 .v.w img{aspect-ratio:16/9}
-.air{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:26px}
+.air{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .air .v img{aspect-ratio:16/9}
 .airl{margin-top:10px;padding:14px 16px;border:1px solid var(--gold);border-radius:4px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .airl b{font-family:var(--f-en);letter-spacing:.2em;color:var(--gold)}
@@ -142,7 +147,11 @@ b{font-weight:700}
 .recfoot{margin-top:6px;color:var(--mut);font-size:13.5px}
 
 /* STAGE */
-.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.galh{display:flex;gap:10px;align-items:baseline;margin:4px 0 10px}
+.galh b{font-family:var(--f-en);letter-spacing:.2em;color:var(--gold)}
+.galh span{font-size:13px;color:var(--mut)}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
+.gal figure{cursor:zoom-in}
 .gal figure{margin:0;position:relative;overflow:hidden;border-radius:4px;border:1px solid var(--line)}
 .gal figure.a{grid-column:span 2;grid-row:span 2}
 .gal img{width:100%;height:100%;object-fit:cover;aspect-ratio:3/2}
@@ -201,6 +210,9 @@ b{font-weight:700}
 .foot img{height:18px;width:auto;opacity:.8}
 
 /* MODAL */
+.lb{position:fixed;inset:0;z-index:110;background:rgba(8,6,4,.96);display:none;align-items:center;justify-content:center;padding:56px 12px 20px}
+.lb.open{display:flex}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px}
 .vmod{position:fixed;inset:0;z-index:100;background:rgba(8,6,4,.95);display:none;align-items:center;justify-content:center;padding:calc(56px + env(safe-area-inset-top,0px)) 12px calc(20px + env(safe-area-inset-bottom,0px))}
 .vmod.open{display:flex}
 .vbox{position:relative;width:min(960px,100%);aspect-ratio:16/9;background:#000;border-radius:6px;overflow:hidden}
@@ -220,7 +232,9 @@ b{font-weight:700}
   .pts,.hpe{grid-template-columns:1fr}
   .vals div{grid-template-columns:110px 54px 1fr}
   .facts,.nums{grid-template-columns:repeat(2,1fr);row-gap:14px}
-  .mvg,.air{grid-template-columns:1fr}
+  .mvg{grid-template-columns:1fr 1fr}
+  .air{grid-template-columns:1fr}
+  .vg.k4{grid-template-columns:repeat(2,1fr)}
   .opt ul,.aw ul,.ask div{grid-template-columns:1fr}
   .gal{grid-template-columns:1fr 1fr}
   .gal figure.a{grid-column:span 2;grid-row:auto}
@@ -270,7 +284,7 @@ b{font-weight:700}
     <div class="ph"><img src="img/sefo_cut.webp" alt="SEFO 프로필 사진"></div>
   </div>
   <div class="pts">
-    <div><i>01 · ALL AGES</i><p>7세도 70세도 같은 무대에서 움직입니다. 어린이 전용 자체 음원 6곡을 보유해 가족 단위 행사에서 “아이가 아는 노래”로 바로 들어갑니다.</p></div>
+    <div><i>01 · ALL AGES</i><p>4세부터 80세까지 같은 무대에서 움직입니다. 어린이 전용 자체 음원 6곡을 보유해 가족 단위 행사에서 “아이가 아는 노래”로 바로 들어갑니다.</p></div>
     <div><i>02 · PARTICIPATION</i><p>체조 · 구호 · 파도타기 등 관객이 따라 하는 구간을 설계해 둡니다. 무대가 멀어도, 객석이 앉아 있어도 작동하도록 만든 장치입니다.</p></div>
     <div><i>03 · DJ + MC</i><p>진행과 공연을 한 사람이 끌고 갑니다. 별도 MC 없이도 큐시트가 밀리거나 순서가 바뀔 때 공백이 생기지 않습니다.</p></div>
   </div>
@@ -290,13 +304,19 @@ b{font-weight:700}
 <section class="sec" id="video">
   <div class="hd"><span class="n">02</span><h2>Live Video</h2><span>공연 영상</span></div>
   <p class="lead">섭외 전 영상 하나면 충분합니다. 썸네일을 누르면 바로 재생됩니다.</p>
-  <div class="vg"><button class="v" data-yt="WDE9QDS8Ql4" data-v="1"><img src="https://i.ytimg.com/vi/WDE9QDS8Ql4/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>동탄 루나빛축제</b>동탄호수공원 · 지역축제</span></button><button class="v" data-yt="q_sH-mkC8KY" data-v="1"><img src="https://i.ytimg.com/vi/q_sH-mkC8KY/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>안양춤축제</b>거리예술 · 물 연출</span></button><button class="v" data-yt="mFehUgyHUfo" data-v="1"><img src="https://i.ytimg.com/vi/mFehUgyHUfo/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>한강 사일런트디스코</b>헤드폰 공연 · 야간</span></button><button class="v" data-yt="jLQNxNHsyc4" data-v="1"><img src="https://i.ytimg.com/vi/jLQNxNHsyc4/oar1.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워터퐝페스티벌</b>포항 영일대해수욕장</span></button><button class="v" data-yt="bCpEjWh51kY" data-v="1"><img src="https://i.ytimg.com/vi/bCpEjWh51kY/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워터파크 분위기 못 식힘</b>아마존 당진 · 시즌 상주</span></button><button class="v" data-yt="1TlFbSJljyE" data-v="1"><img src="https://i.ytimg.com/vi/1TlFbSJljyE/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>야시장 전체가 일어섰다</b>용인중앙시장 야시장</span></button><button class="v" data-yt="eZ48-PnoBEw" data-v="1"><img src="https://i.ytimg.com/vi/eZ48-PnoBEw/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>광주맥주축제</b>어깨동무 떼창 구간</span></button><button class="v" data-yt="fXi67Z2bQ8E" data-v="1"><img src="https://i.ytimg.com/vi/fXi67Z2bQ8E/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>회사에서 이게 가능하다고?</b>기업 사내 행사 · 착석 객석</span></button><button class="v" data-yt="Kqb-ZNl-Hpw" data-v="1"><img src="https://i.ytimg.com/vi/Kqb-ZNl-Hpw/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>거제 옥포대첩축제</b>키즈 워터밤 · 어린이클럽</span></button><button class="v" data-yt="DCt0ECjvPas" data-v="1"><img src="https://i.ytimg.com/vi/DCt0ECjvPas/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>춘천마임축제</b>왕복 4차선 차 없는 거리</span></button><button class="v" data-yt="7dj3Di4Q88Y" data-v="1"><img src="https://i.ytimg.com/vi/7dj3Di4Q88Y/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>서울시립대 OT</b>대학 신입생 오리엔테이션</span></button><a class="v yt" href="https://www.youtube.com/@SEFOentertainment" target="_blank" rel="noopener"><span class="ytin"><b>MORE ON<br>YOUTUBE</b>@SEFOentertainment<i>채널 바로가기 ↗</i></span></a></div>
-  <div class="mvg"><button class="v w" data-yt="N0y1ZKw9eYs"><img src="https://i.ytimg.com/vi/N0y1ZKw9eYs/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>세포체조 MV</b>어린이클럽 자체 음원</span></button><button class="v w" data-yt="S19J2kRVzn4"><img src="https://i.ytimg.com/vi/S19J2kRVzn4/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>그대로 멈춰라 MV</b>2026 신곡 · 국민동요 리메이크</span></button><button class="v w" data-yt="4tbvb-K75XU"><img src="https://i.ytimg.com/vi/4tbvb-K75XU/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>Baby Shark (Festival Mix) MV</b>페스티벌용 리믹스</span></button></div>
-  <div class="air">
-    <button class="v" data-yt="iVu2Yzi469o"><img src="https://i.ytimg.com/vi/iVu2Yzi469o/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워크맨 〈워크돌〉</b>엔믹스 해원 · 어린이클럽 편</span></button>
-    <button class="v" data-yt="iKiR_ZjMOCA"><img src="https://i.ytimg.com/vi/iKiR_ZjMOCA/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>SBS 스브스뉴스</b>어린이클럽 편</span></button>
+  <div class="vtabs" role="tablist">
+    <button class="on" data-tab="t-festa">시민축제</button><button data-tab="t-kids">어린이</button><button data-tab="t-mv">뮤직비디오</button><button data-tab="t-tv">방송</button>
   </div>
-  <div class="airl"><b>ON AIR</b><span>워크맨 〈워크돌〉 · SBS 스브스뉴스 · KBS VJ특공대 외 다수</span></div>
+  <div class="vp" id="t-festa"><div class="vg"><button class="v" data-yt="WDE9QDS8Ql4" data-v="1"><img src="https://i.ytimg.com/vi/WDE9QDS8Ql4/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>동탄 루나빛축제</b>동탄호수공원 · 지역축제</span></button><button class="v" data-yt="q_sH-mkC8KY" data-v="1"><img src="https://i.ytimg.com/vi/q_sH-mkC8KY/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>안양춤축제</b>거리예술 · 물 연출</span></button><button class="v" data-yt="mFehUgyHUfo" data-v="1"><img src="https://i.ytimg.com/vi/mFehUgyHUfo/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>한강 사일런트디스코</b>헤드폰 공연 · 야간</span></button><button class="v" data-yt="jLQNxNHsyc4" data-v="1"><img src="https://i.ytimg.com/vi/jLQNxNHsyc4/oar1.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워터퐝페스티벌</b>포항 영일대해수욕장</span></button><button class="v" data-yt="bCpEjWh51kY" data-v="1"><img src="https://i.ytimg.com/vi/bCpEjWh51kY/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워터파크 분위기 못 식힘</b>아마존 당진 · 시즌 상주</span></button><button class="v" data-yt="1TlFbSJljyE" data-v="1"><img src="https://i.ytimg.com/vi/1TlFbSJljyE/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>야시장 전체가 일어섰다</b>용인중앙시장 야시장</span></button><button class="v" data-yt="eZ48-PnoBEw" data-v="1"><img src="https://i.ytimg.com/vi/eZ48-PnoBEw/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>광주맥주축제</b>어깨동무 떼창 구간</span></button><button class="v" data-yt="fXi67Z2bQ8E" data-v="1"><img src="https://i.ytimg.com/vi/fXi67Z2bQ8E/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>회사에서 이게 가능하다고?</b>기업 사내 행사 · 착석 객석</span></button><button class="v" data-yt="Kqb-ZNl-Hpw" data-v="1"><img src="https://i.ytimg.com/vi/Kqb-ZNl-Hpw/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>거제 옥포대첩축제</b>키즈 워터밤 · 어린이클럽</span></button><button class="v" data-yt="DCt0ECjvPas" data-v="1"><img src="https://i.ytimg.com/vi/DCt0ECjvPas/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>춘천마임축제</b>왕복 4차선 차 없는 거리</span></button><button class="v" data-yt="7dj3Di4Q88Y" data-v="1"><img src="https://i.ytimg.com/vi/7dj3Di4Q88Y/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>서울시립대 OT</b>대학 신입생 오리엔테이션</span></button><a class="v yt" href="https://www.youtube.com/@SEFOentertainment" target="_blank" rel="noopener"><span class="ytin"><b>MORE ON<br>YOUTUBE</b>@SEFOentertainment<i>채널 바로가기 ↗</i></span></a></div></div>
+  <div class="vp" id="t-kids" hidden><div class="vg k4"><button class="v" data-yt="eE3d0jwpC58" data-v="1"><img src="https://i.ytimg.com/vi/eE3d0jwpC58/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 유치원 다 이거함</b></span></button><button class="v" data-yt="UhDyIHH9kA4" data-v="1"><img src="https://i.ytimg.com/vi/UhDyIHH9kA4/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 운동회 다 이거함</b></span></button><button class="v" data-yt="fn9ssvtqDrc" data-v="1"><img src="https://i.ytimg.com/vi/fn9ssvtqDrc/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 유치원 섭외 1순위</b></span></button><button class="v" data-yt="l95NJnEeJr8" data-v="1"><img src="https://i.ytimg.com/vi/l95NJnEeJr8/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>어린이 행사 섭외 1순위</b></span></button><button class="v" data-yt="btYyzQyq4r8" data-v="1"><img src="https://i.ytimg.com/vi/btYyzQyq4r8/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>리조트 키즈 풀파티</b></span></button><button class="v" data-yt="pGjq0Fpz1vs" data-v="1"><img src="https://i.ytimg.com/vi/pGjq0Fpz1vs/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>민증 없이 즐기는 어린이클럽</b></span></button><button class="v" data-yt="SWGDVSJIqP0" data-v="1"><img src="https://i.ytimg.com/vi/SWGDVSJIqP0/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>어린이공연 미슐랭 맛집</b></span></button><button class="v" data-yt="fcBRpqqS_tA" data-v="1"><img src="https://i.ytimg.com/vi/fcBRpqqS_tA/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 아이들에게 부족한 것</b></span></button></div></div>
+  <div class="vp" id="t-mv" hidden><div class="mvg"><button class="v w" data-yt="N0y1ZKw9eYs"><img src="https://i.ytimg.com/vi/N0y1ZKw9eYs/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>세포체조</b>어린이클럽 · 2024</span></button><button class="v w" data-yt="S19J2kRVzn4"><img src="https://i.ytimg.com/vi/S19J2kRVzn4/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>그대로 멈춰라</b>국민동요 리메이크 · 2026</span></button><button class="v w" data-yt="Ohy3k36YJIE"><img src="https://i.ytimg.com/vi/Ohy3k36YJIE/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>세포구조대</b>어린이클럽 · 2024</span></button><button class="v w" data-yt="fSTRXj0JbEQ"><img src="https://i.ytimg.com/vi/fSTRXj0JbEQ/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>Baby Shark (Kids Remix)</b>어린이클럽 · 2025</span></button><button class="v w" data-yt="4tbvb-K75XU"><img src="https://i.ytimg.com/vi/4tbvb-K75XU/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>Baby Shark (Festival Mix)</b>페스티벌 리믹스 · 2025</span></button><button class="v w" data-yt="mlt2FbRmLfg"><img src="https://i.ytimg.com/vi/mlt2FbRmLfg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>Let's Vaunce</b>2025</span></button><button class="v w" data-yt="4H6W3b4REFg"><img src="https://i.ytimg.com/vi/4H6W3b4REFg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>폭주기관차</b>어린이클럽 · 2025</span></button><button class="v w" data-yt="-pOuLun9bYc"><img src="https://i.ytimg.com/vi/-pOuLun9bYc/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>아들아 사랑해!</b>2024</span></button><button class="v w" data-yt="MiTrFcYuvHg"><img src="https://i.ytimg.com/vi/MiTrFcYuvHg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>김치파워</b>2024</span></button></div></div>
+  <div class="vp" id="t-tv" hidden>
+    <div class="air">
+      <button class="v" data-yt="iVu2Yzi469o"><img src="https://i.ytimg.com/vi/iVu2Yzi469o/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워크맨 〈워크돌〉</b>엔믹스 해원 · 어린이클럽 편</span></button>
+      <button class="v" data-yt="iKiR_ZjMOCA"><img src="https://i.ytimg.com/vi/iKiR_ZjMOCA/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>SBS 스브스뉴스</b>어린이클럽 편</span></button>
+    </div>
+    <div class="airl"><b>ON AIR</b><span>워크맨 〈워크돌〉 · SBS 스브스뉴스 · KBS VJ특공대 외 다수</span></div>
+  </div>
 </section>
 
 <section class="sec" id="show">
@@ -304,9 +324,9 @@ b{font-weight:700}
   <p class="lead">행사 성격에 따라 네 가지 세트 중 하나를 기본으로 잡고, 주최측 큐시트에 맞춰 길이와 참여 구간을 조정합니다. <b>어느 세트든 별도 MC 없이 진행이 가능합니다.</b></p>
   <div class="sets">
     <div class="set"><span class="no">01</span><div><h3>FESTIVAL<small>페스티벌 · 지역축제</small></h3><p>야외 메인 스테이지용 표준 세트. 대중적인 EDM·K-POP 리믹스를 축으로, 중반에 떼창 구간과 파도타기를 배치해 넓은 객석을 하나로 묶습니다. 개막식·폐막식처럼 식전 식후가 붙는 구성에도 대응합니다.</p></div><dl><dt>RUNNING</dt><dd>30 · 45 · 60분</dd><dt>AUDIENCE</dt><dd>전 연령 · 300~10,000명</dd><dt>SETUP</dt><dd>DJ 부스 + 무선 마이크 1</dd></dl></div>
-    <div class="set"><span class="no">02</span><div><h3>WATER<small>워터파크 · 물축제</small></h3><p>물놀이 현장 전용 세트. 물총·호스 큐를 음악에 맞춰 설계하고, 수영장 안에서 관객이 직접 파도를 만드는 구간을 넣습니다. 장비 방수 대응과 젖은 환경 셋업 경험이 축적되어 있습니다.</p></div><dl><dt>RUNNING</dt><dd>30~60분 · 1일 2~3회</dd><dt>AUDIENCE</dt><dd>가족 · 10~30대</dd><dt>SETUP</dt><dd>방수 커버 · 차광 텐트 권장</dd></dl></div>
-    <div class="set"><span class="no">03</span><div><h3>FAMILY / KIDS<small>어린이 · 가족</small></h3><p>어린이클럽 자체 음원 6곡을 중심으로 한 참여형 세트. 세포체조·폭주기관차처럼 동작이 정해진 곡을 써서 처음 보는 아이도 10초 안에 따라 할 수 있습니다. 유치원 강당부터 어린이날 큰잔치 규모까지 같은 포맷으로 운영됩니다.</p></div><dl><dt>RUNNING</dt><dd>20 · 30 · 40분</dd><dt>AUDIENCE</dt><dd>5세~초등 + 보호자</dd><dt>SETUP</dt><dd>마이크 2 · 넓은 평지 권장</dd></dl></div>
-    <div class="set"><span class="no">04</span><div><h3>CORPORATE / MC<small>기업 · 기관 · 대학</small></h3><p>착석 객석을 전제로 설계한 세트. 시상·경품·내빈 인사 같은 진행 요소를 공연 사이에 끼워 넣고, SEFO가 MC를 겸해 전체 흐름을 끌고 갑니다. 타운홀·체육대회·OT·워크숍에서 가장 많이 선택되는 구성입니다.</p></div><dl><dt>RUNNING</dt><dd>40~120분 (진행 포함)</dd><dt>AUDIENCE</dt><dd>임직원 · 재학생 · 주민</dd><dt>SETUP</dt><dd>핸드마이크 + 큐시트 사전 공유</dd></dl></div>
+    <div class="set"><span class="no">02</span><div><h3>WATER<small>워터파크 · 물축제</small></h3><p>물놀이 현장 전용 세트. 물총·호스 큐를 음악에 맞춰 설계하고, 수영장 안에서 관객이 직접 파도를 만드는 구간을 넣습니다. 장비 방수 대응과 젖은 환경 셋업 경험이 축적되어 있습니다.</p></div><dl><dt>RUNNING</dt><dd>30 · 45 · 60분</dd><dt>AUDIENCE</dt><dd>가족 · 10~30대</dd><dt>SETUP</dt><dd>방수 커버 · 차광 텐트 권장</dd></dl></div>
+    <div class="set"><span class="no">03</span><div><h3>FAMILY / KIDS<small>어린이 · 가족</small></h3><p>어린이클럽 자체 음원 6곡을 중심으로 한 참여형 세트. 세포체조·폭주기관차처럼 동작이 정해진 곡을 써서 처음 보는 아이도 10초 안에 따라 할 수 있습니다. 유치원 강당부터 어린이날 큰잔치 규모까지 같은 포맷으로 운영됩니다.</p></div><dl><dt>RUNNING</dt><dd>20 · 30 · 40분</dd><dt>AUDIENCE</dt><dd>4세~초등 + 보호자</dd><dt>SETUP</dt><dd>마이크 1 · 넓은 평지 권장</dd></dl></div>
+    <div class="set"><span class="no">04</span><div><h3>CORPORATE / MC<small>기업 · 기관 · 대학</small></h3><p>착석 객석을 전제로 설계한 세트. 시상·경품·내빈 인사 같은 진행 요소를 공연 사이에 끼워 넣고, SEFO가 MC를 겸해 전체 흐름을 끌고 갑니다. 타운홀·체육대회·OT·워크숍에서 가장 많이 선택되는 구성입니다.</p></div><dl><dt>RUNNING</dt><dd>30 · 45 · 60분</dd><dt>AUDIENCE</dt><dd>임직원 · 재학생 · 주민</dd><dt>SETUP</dt><dd>핸드마이크 + 큐시트 사전 공유</dd></dl></div>
   </div>
   <div class="opt"><h4>OPTION · 함께 붙일 수 있는 구성</h4><ul>
     <li><b>+ 댄서</b> 그런트제로 소속 댄서 1~4인 동반 — 참여 구간 유도 효과가 커집니다.</li>
@@ -429,7 +449,10 @@ b{font-weight:700}
 
 <section class="sec" id="stage">
   <div class="hd"><span class="n">05</span><h2>On Stage</h2><span>공연 현장</span></div>
-  <div class="gal"><figure class="a"><img src="img/p31.webp" alt="LED &amp; LASER STAGE 공연 사진" loading="lazy"><figcaption>LED &amp; LASER STAGE</figcaption></figure><figure class=""><img src="img/p13.webp" alt="WATER FESTIVAL 공연 사진" loading="lazy"><figcaption>WATER FESTIVAL</figcaption></figure><figure class=""><img src="img/p02.webp" alt="DAY STAGE 공연 사진" loading="lazy"><figcaption>DAY STAGE</figcaption></figure><figure class=""><img src="img/p21.webp" alt="INDOOR HALL 공연 사진" loading="lazy"><figcaption>INDOOR HALL</figcaption></figure><figure class=""><img src="img/p09.webp" alt="WATER STAGE 공연 사진" loading="lazy"><figcaption>WATER STAGE</figcaption></figure><figure class=""><img src="img/p39.webp" alt="CLUB &amp; CORPORATE 공연 사진" loading="lazy"><figcaption>CLUB &amp; CORPORATE</figcaption></figure><figure class=""><img src="img/p34.webp" alt="CLOSE TO CROWD 공연 사진" loading="lazy"><figcaption>CLOSE TO CROWD</figcaption></figure></div>
+  <div class="galh"><b>FESTIVAL · STAGE</b><span>축제 · 무대</span></div>
+  <div class="gal"><figure><img src="img/st/s30.webp" alt="SEFO 공연 현장 — LED & LASER STAGE" loading="lazy"><figcaption>LED &amp; LASER STAGE</figcaption></figure><figure><img src="img/st/s12.webp" alt="SEFO 공연 현장 — NIGHT FESTIVAL" loading="lazy"><figcaption>NIGHT FESTIVAL</figcaption></figure><figure><img src="img/st/s09.webp" alt="SEFO 공연 현장 — MAIN STAGE" loading="lazy"><figcaption>MAIN STAGE</figcaption></figure><figure><img src="img/st/s10.webp" alt="SEFO 공연 현장 — FIREWORKS" loading="lazy"><figcaption>FIREWORKS</figcaption></figure><figure><img src="img/st/s03.webp" alt="SEFO 공연 현장 — FESTIVAL STAGE" loading="lazy"><figcaption>FESTIVAL STAGE</figcaption></figure><figure><img src="img/st/s05.webp" alt="SEFO 공연 현장 — DAY STAGE" loading="lazy"><figcaption>DAY STAGE</figcaption></figure><figure><img src="img/st/s22.webp" alt="SEFO 공연 현장 — CLOSE TO CROWD" loading="lazy"><figcaption>CLOSE TO CROWD</figcaption></figure><figure><img src="img/st/s32.webp" alt="SEFO 공연 현장 — CO2 · SPARK" loading="lazy"><figcaption>CO2 · SPARK</figcaption></figure><figure><img src="img/st/s26.webp" alt="SEFO 공연 현장 — WATER FESTIVAL" loading="lazy"><figcaption>WATER FESTIVAL</figcaption></figure><figure><img src="img/st/s27.webp" alt="SEFO 공연 현장 — WATER SHOW" loading="lazy"><figcaption>WATER SHOW</figcaption></figure><figure><img src="img/st/s20.webp" alt="SEFO 공연 현장 — HANDS UP" loading="lazy"><figcaption>HANDS UP</figcaption></figure><figure><img src="img/st/s21.webp" alt="SEFO 공연 현장 — LED STAGE" loading="lazy"><figcaption>LED STAGE</figcaption></figure><figure><img src="img/st/s34.webp" alt="SEFO 공연 현장 — DOME STAGE" loading="lazy"><figcaption>DOME STAGE</figcaption></figure><figure><img src="img/st/s24.webp" alt="SEFO 공연 현장 — STREET FESTIVAL" loading="lazy"><figcaption>STREET FESTIVAL</figcaption></figure></div>
+  <div class="galh"><b>KIDS · FAMILY</b><span>어린이 · 가족</span></div>
+  <div class="gal"><figure><img src="img/st/s39.webp" alt="SEFO 공연 현장 — KIDS CLUB" loading="lazy"><figcaption>KIDS CLUB</figcaption></figure><figure><img src="img/st/s43.webp" alt="SEFO 공연 현장 — FAMILY FESTIVAL" loading="lazy"><figcaption>FAMILY FESTIVAL</figcaption></figure><figure><img src="img/st/s40.webp" alt="SEFO 공연 현장 — KIDS CROWD" loading="lazy"><figcaption>KIDS CROWD</figcaption></figure><figure><img src="img/st/s44.webp" alt="SEFO 공연 현장 — OUTDOOR" loading="lazy"><figcaption>OUTDOOR</figcaption></figure><figure><img src="img/st/s42.webp" alt="SEFO 공연 현장 — KIDS STAGE" loading="lazy"><figcaption>KIDS STAGE</figcaption></figure><figure><img src="img/st/s49.webp" alt="SEFO 공연 현장 — NIGHT KIDS" loading="lazy"><figcaption>NIGHT KIDS</figcaption></figure><figure><img src="img/st/s41.webp" alt="SEFO 공연 현장 — GRAND STAGE" loading="lazy"><figcaption>GRAND STAGE</figcaption></figure><figure><img src="img/st/s46.webp" alt="SEFO 공연 현장 — PARK STAGE" loading="lazy"><figcaption>PARK STAGE</figcaption></figure><figure><img src="img/st/s48.webp" alt="SEFO 공연 현장 — STREET" loading="lazy"><figcaption>STREET</figcaption></figure><figure><img src="img/st/s50.webp" alt="SEFO 공연 현장 — BUBBLE PARTY" loading="lazy"><figcaption>BUBBLE PARTY</figcaption></figure><figure><img src="img/st/s51.webp" alt="SEFO 공연 현장 — GLOW PARTY" loading="lazy"><figcaption>GLOW PARTY</figcaption></figure><figure><img src="img/st/s45.webp" alt="SEFO 공연 현장 — PARADE" loading="lazy"><figcaption>PARADE</figcaption></figure></div>
   <div class="hpe">
     <div><b>HAPPY</b><span>즐거움</span><p>관객이 웃는 장면이 먼저 나오고, 음악은 그 뒤를 따라갑니다.</p></div>
     <div><b>PASSION</b><span>열정</span><p>10명이든 1만 명이든 같은 밀도로. 마지막 곡까지 세기를 떨어뜨리지 않습니다.</p></div>
@@ -492,6 +515,7 @@ b{font-weight:700}
 
 <footer class="foot"><div class="wrap"><span>SEFO · GRUNT ZERO ARTIST PRESS KIT 2027</span><img src="img/gz_logo.png" alt="GRUNT ZERO"></div></footer>
 
+<div class="lb" id="lb"><img id="lbi" alt=""><button class="vx" type="button" id="lbx">닫기 ✕</button></div>
 <div class="vmod" id="vmod" role="dialog" aria-modal="true" aria-label="영상 보기">
   <a class="vout" id="vout" href="#" target="_blank" rel="noopener">유튜브에서 보기 ↗</a>
   <button class="vx" type="button" id="vx">닫기 ✕</button>
@@ -508,6 +532,12 @@ b{font-weight:700}
     out.href=v?'https://youtube.com/shorts/'+id:'https://youtu.be/'+id;
     m.classList.add('open'); if(v) m.classList.add('vert'); document.body.style.overflow='hidden';
   });
+  document.querySelectorAll('.vtabs button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.vtabs button').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelectorAll('.vp').forEach(function(p){p.hidden=p.id!==b.dataset.tab});});});
+  var lb=document.getElementById('lb'),lbi=document.getElementById('lbi');
+  document.querySelectorAll('.gal figure img').forEach(function(im){im.parentNode.addEventListener('click',function(){lbi.src=im.src;lb.classList.add('open');document.body.style.overflow='hidden';});});
+  function lclose(){lb.classList.remove('open');lbi.src='';document.body.style.overflow='';}
+  document.getElementById('lbx').addEventListener('click',lclose); lb.addEventListener('click',function(e){if(e.target===lb)lclose();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')lclose();});
   document.getElementById('vx').addEventListener('click',close);
   m.addEventListener('click',function(e){if(e.target===m)close();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});

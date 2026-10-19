@@ -37,11 +37,12 @@ img{display:block;max-width:100%}
 
 /* HERO */
 .hero{position:relative;min-height:min(78vh,640px);display:flex;align-items:flex-end;overflow:hidden}
-.hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%}
+.hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 4%,rgba(14,12,10,.55) 45%,rgba(14,12,10,.15) 100%)}
 .hero .wrap{position:relative;z-index:2;width:100%;padding-bottom:26px}
 .no{font-family:var(--f-disp);font-weight:900;font-size:15px;letter-spacing:.3em;color:var(--red2)}
-.hero h1{font-family:var(--f-disp);font-weight:900;font-size:clamp(72px,22vw,128px);line-height:.82;margin:8px 0 0;letter-spacing:.01em}
+.hero h1{margin:8px 0 0;line-height:1}
+.hero h1 .logo{width:min(340px,72vw);height:auto;margin:6px 0 0 -6px}
 .hero h1 small{display:block;font-family:var(--f-head);font-size:clamp(22px,6vw,30px);font-weight:900;letter-spacing:-.02em;margin-top:10px;color:var(--bone)}
 .hero h1 small em{font-style:normal;color:var(--red2)}
 .hero p{margin:12px 0 0;font-size:15px;color:#E4DED2;max-width:36ch}
@@ -116,10 +117,10 @@ img{display:block;max-width:100%}
 <body>
 
 <header class="hero">
-  <img src="/img/sefo_stage.webp" alt="무대 위의 SEFO">
+  <img src="/img/sefo_cover.webp" alt="무대 위 SEFO와 관객">
   <div class="wrap">
     <div class="no">DJ · PERFORMER · 세포체조</div>
-    <h1>SEFO<small>어린이 공연 · <em>가족형 시민축제</em></small></h1>
+    <h1><img class="logo" src="/img/sefo_logo.webp" alt="SEFO"><small>어린이 공연 · <em>가족형 시민축제</em></small></h1>
     <p>아이부터 어른까지, 온 가족이 함께 뛰게 만드는 DJ.<br>더 나은 세상을 위해 음악으로 사람을 잇습니다.</p>
     <div class="stats">
       <div><b>1,200+</b><span>누적 공연</span></div>
