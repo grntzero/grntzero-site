@@ -313,6 +313,15 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
   .vrow{grid-row:2;grid-column:2;grid-template-columns:repeat(4,minmax(0,128px));padding:12px 26px 22px;align-content:end}
   .vtt{font-size:12px}
 }
+/* v4: 데스크탑 카드 정렬(사진 꽉 채움) + 프레스킷 버튼 여백 */
+@media(min-width:760px){
+  .art{grid-template-columns:280px minmax(0,1fr);grid-template-rows:auto auto 1fr;min-height:380px}
+  .art .ph{grid-row:1/-1;grid-column:1;height:auto;min-height:0}
+  .art .ph img{position:absolute;inset:0;width:100%;height:100%!important;aspect-ratio:auto!important;object-fit:cover;object-position:50% 22%}
+  .art .body{grid-column:2;grid-row:1;padding:28px 32px 4px!important}
+  .vrow{grid-column:2;grid-row:2;padding:16px 32px 0;grid-template-columns:repeat(4,minmax(0,132px));align-content:start}
+  .art .pkbtn{grid-column:2;grid-row:3;align-self:end;justify-self:start;min-width:340px;gap:32px;margin:24px 32px 30px;padding:15px 26px;box-shadow:0 6px 16px rgba(91,59,191,.18)}
+}
 .short .sv img{transform:none!important}
 .short:hover .sv img{transform:scale(1.05)!important}
 .clients{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -496,6 +505,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
           <ul><li>홈플러스·롯데마트·AK플라자 문화센터 전국투어</li><li>현장감을 살리는 활기찬 퍼포먼스</li></ul>
         </div>
         <div class="vrow"><a class="vt" href="https://youtube.com/shorts/ZOkOysGcSjE" data-yt="ZOkOysGcSjE" data-v="1" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/ZOkOysGcSjE/sd2.jpg" alt="" loading="lazy" onload="if(this.naturalWidth&lt;=120)this.src=this.src.replace('/sd','/hq')"><span class="play" aria-hidden="true"></span><span class="vtt">‘어린이날’ 난리 난 공연</span></a><a class="vt" href="https://youtube.com/shorts/wIRkTu-_Fjc" data-yt="wIRkTu-_Fjc" data-v="1" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/wIRkTu-_Fjc/sd2.jpg" alt="" loading="lazy" onload="if(this.naturalWidth&lt;=120)this.src=this.src.replace('/sd','/hq')"><span class="play" aria-hidden="true"></span><span class="vtt">부천중앙초 6학년 텐션 ‘어텐션’</span></a></div>
+        <a class="pkbtn" href="https://loki.grntzero.com/" target="_blank" rel="noopener">포키 프레스킷 자세히 보기 <span>→</span></a>
       </article>
       <article class="art" id="k-nana">
         <div class="ph" style="--tint:#FFDCC7"><img src="img/nana.webp" width="900" height="1200" alt="나나걸스" loading="lazy"></div>
@@ -505,6 +515,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
           <ul><li>아이들과 눈높이를 맞추는 따뜻한 언니(누나) 듀오</li><li>웃음과 즐거움으로 무장한 다정한 여자 디제이 듀오</li></ul>
         </div>
         <div class="vrow"><a class="vt" href="https://youtube.com/shorts/ZnMG53zPGSM" data-yt="ZnMG53zPGSM" data-v="1" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/ZnMG53zPGSM/sd2.jpg" alt="" loading="lazy" onload="if(this.naturalWidth&lt;=120)this.src=this.src.replace('/sd','/hq')"><span class="play" aria-hidden="true"></span><span class="vtt">휘닉스파크</span></a><a class="vt" href="https://youtube.com/shorts/NBoCr6mYkdg" data-yt="NBoCr6mYkdg" data-v="1" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/NBoCr6mYkdg/sd2.jpg" alt="" loading="lazy" onload="if(this.naturalWidth&lt;=120)this.src=this.src.replace('/sd','/hq')"><span class="play" aria-hidden="true"></span><span class="vtt">마산로봇랜드</span></a></div>
+        <a class="pkbtn" href="https://annacondahaena.grntzero.com/" target="_blank" rel="noopener">나나걸스 프레스킷 자세히 보기 <span>→</span></a>
       </article>
       <article class="art" id="k-tarzan">
         <div class="ph" style="--tint:#DCF0C6"><img src="img/tarzan.webp" width="900" height="1200" alt="타잔" loading="lazy"></div>
@@ -514,6 +525,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
           <ul><li>아이들의 흥을 끌어올리는 강력한 무대 장악력</li><li>현장 분위기를 한순간에 바꾸는 마법사</li></ul>
         </div>
         <div class="vrow"><a class="vt" href="https://youtube.com/shorts/GwxNO5MuLaE" data-yt="GwxNO5MuLaE" data-v="1" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/GwxNO5MuLaE/sd2.jpg" alt="" loading="lazy" onload="if(this.naturalWidth&lt;=120)this.src=this.src.replace('/sd','/hq')"><span class="play" aria-hidden="true"></span><span class="vtt">타잔의 어린이클럽</span></a></div>
+        <a class="pkbtn" href="https://killaton.grntzero.com/" target="_blank" rel="noopener">타잔 프레스킷 자세히 보기 <span>→</span></a>
       </article>
       <article class="art" id="k-ganggu">
         <div class="ph" style="--tint:#FFD7D0"><img src="img/ganggu.webp?v=2" width="900" height="1200" alt="깡구" loading="lazy"></div>
@@ -523,6 +535,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
           <ul><li>악동 같은 아이들과 신나게 어울리는 에너지 만렙</li><li>개구쟁이들과 함께 만드는 자유로운 놀이 현장</li></ul>
         </div>
         <div class="vrow"><a class="vt" href="https://youtube.com/shorts/ikSheZGiLYk" data-yt="ikSheZGiLYk" data-v="1" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/ikSheZGiLYk/sd2.jpg" alt="" loading="lazy" onload="if(this.naturalWidth&lt;=120)this.src=this.src.replace('/sd','/hq')"><span class="play" aria-hidden="true"></span><span class="vtt">아마존 당진</span></a></div>
+        <a class="pkbtn" href="https://deta.grntzero.com/" target="_blank" rel="noopener">깡구 프레스킷 자세히 보기 <span>→</span></a>
       </article>
       <article class="art" id="k-rogun">
         <div class="ph" style="--tint:#D9EEF7"><img src="img/rogun.webp" width="900" height="1200" alt="로건" loading="lazy"></div>
