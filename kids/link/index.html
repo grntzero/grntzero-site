@@ -44,7 +44,7 @@ img{display:block;max-width:100%}
 .hero h1 small{display:block;font-family:var(--f-head);font-size:clamp(22px,6vw,30px);font-weight:900;letter-spacing:-.02em;margin-top:10px;color:var(--bone)}
 .hero h1 small em{font-style:normal;color:var(--red2)}
 .hero p{margin:12px 0 0;font-size:15px;color:#E4DED2;max-width:36ch}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:18px}
 .stats div{background:rgba(30,25,20,.82);border:1px solid var(--line);padding:10px 8px;text-align:center;backdrop-filter:blur(6px)}
 .stats b{display:block;font-family:var(--f-disp);font-weight:900;font-size:26px;line-height:1;color:var(--bone)}
 .stats span{display:block;font-size:11.5px;color:var(--mut);margin-top:4px}
@@ -74,6 +74,10 @@ img{display:block;max-width:100%}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .mt{margin-top:8px}
+.more{margin-top:8px}
+.more[hidden]{display:none}
+.morebtn{display:block;width:100%;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--bone);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.morebtn b{color:var(--red2)}
 
 .cred{display:grid;gap:8px}
 .cred div{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);padding:12px 14px;border-radius:12px}
@@ -115,10 +119,9 @@ img{display:block;max-width:100%}
   <div class="wrap">
     <div class="no">DJ · PERFORMER · 세포체조</div>
     <h1>SEFO<small>어린이 공연 · <em>가족형 시민축제</em></small></h1>
-    <p>아이부터 어른까지, 온 가족이 함께 뛰게 만드는 DJ. 더 나은 세상을 위해 음악으로 사람을 잇습니다.</p>
+    <p>아이부터 어른까지, 온 가족이 함께 뛰게 만드는 DJ.<br>더 나은 세상을 위해 음악으로 사람을 잇습니다.</p>
     <div class="stats">
       <div><b>1,000+</b><span>누적 공연</span></div>
-      <div><b>2</b><span>방송 출연</span></div>
       <div><b>9</b><span>뮤직비디오</span></div>
     </div>
   </div>
@@ -134,35 +137,52 @@ img{display:block;max-width:100%}
   <div class="sh"><span class="k">FESTIVAL</span></div>
   <h2>가족형 시민축제</h2>
   <p class="lead">지역축제의 메인 무대부터 거리·야시장·물놀이까지. 객석 전체를 일으키는 무대입니다.</p>
-  <div class="tags"><span>동탄 루나빛축제</span><span>안양춤축제</span><span>춘천마임축제</span><span>한강 사일런트디스코</span><span>옥포대첩축제</span><span>용인중앙시장 야시장</span></div>
+  <div class="tags"><span>동탄 루나빛축제</span><span>안양춤축제</span><span>한강 사일런트디스코</span><span>워터퐝페스티벌</span><span>송도맥주축제</span><span>춘천마임축제</span><span>광주맥주축제</span><span>옥포대첩축제</span></div>
   <div class="g3">
     <button class="v sh9 sm" data-yt="WDE9QDS8Ql4" data-v="1"><img src="https://i.ytimg.com/vi/WDE9QDS8Ql4/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">동탄 루나빛축제</span></button>
     <button class="v sh9 sm" data-yt="q_sH-mkC8KY" data-v="1"><img src="https://i.ytimg.com/vi/q_sH-mkC8KY/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">안양춤축제</span></button>
-    <button class="v sh9 sm" data-yt="DCt0ECjvPas" data-v="1"><img src="https://i.ytimg.com/vi/DCt0ECjvPas/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">춘천마임축제</span></button>
     <button class="v sh9 sm" data-yt="mFehUgyHUfo" data-v="1"><img src="https://i.ytimg.com/vi/mFehUgyHUfo/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">한강 사일런트디스코</span></button>
-    <button class="v sh9 sm" data-yt="Kqb-ZNl-Hpw" data-v="1"><img src="https://i.ytimg.com/vi/Kqb-ZNl-Hpw/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">옥포대첩축제 키즈워터밤</span></button>
-    <button class="v sh9 sm" data-yt="1TlFbSJljyE" data-v="1"><img src="https://i.ytimg.com/vi/1TlFbSJljyE/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">용인중앙시장 야시장</span></button>
+    <button class="v sh9 sm" data-yt="jLQNxNHsyc4" data-v="1"><img src="https://i.ytimg.com/vi/jLQNxNHsyc4/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">워터퐝페스티벌</span></button>
+    <button class="v sh9 sm" data-yt="IMFo2j01Ztw"><img src="https://i.ytimg.com/vi/IMFo2j01Ztw/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">송도맥주축제</span></button>
+    <button class="v sh9 sm" data-yt="Vsi7Tc7yONE" data-v="1"><img src="https://i.ytimg.com/vi/Vsi7Tc7yONE/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">공연으로 인공파도 만들기</span></button>
   </div>
+  <div class="g3 more" hidden>
+    <button class="v sh9 sm" data-yt="DCt0ECjvPas" data-v="1"><img src="https://i.ytimg.com/vi/DCt0ECjvPas/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">춘천마임축제</span></button>
+    <button class="v sh9 sm" data-yt="7dj3Di4Q88Y" data-v="1"><img src="https://i.ytimg.com/vi/7dj3Di4Q88Y/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">서울시립대 오티 현장</span></button>
+    <button class="v sh9 sm" data-yt="1TlFbSJljyE" data-v="1"><img src="https://i.ytimg.com/vi/1TlFbSJljyE/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">야시장 전체가 일어섰다</span></button>
+    <button class="v sh9 sm" data-yt="eZ48-PnoBEw" data-v="1"><img src="https://i.ytimg.com/vi/eZ48-PnoBEw/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">광주맥주축제</span></button>
+    <button class="v sh9 sm" data-yt="Kqb-ZNl-Hpw" data-v="1"><img src="https://i.ytimg.com/vi/Kqb-ZNl-Hpw/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">거제 옥포대첩축제</span></button>
+    <button class="v sh9 sm" data-yt="fXi67Z2bQ8E" data-v="1"><img src="https://i.ytimg.com/vi/fXi67Z2bQ8E/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">회사에서 이게 가능하다고?</span></button>
+    <button class="v sh9 sm" data-yt="bCpEjWh51kY" data-v="1"><img src="https://i.ytimg.com/vi/bCpEjWh51kY/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">워터파크 분위기 못 식힘</span></button>
+  </div>
+  <button class="morebtn" type="button" data-more>시민축제 영상 더보기 <b>+7</b></button>
 </section>
 
 <section class="sec" id="kids">
   <div class="sh"><span class="k">KIDS</span></div>
   <h2>어린이 공연 · 세포의 어린이클럽</h2>
   <p class="lead">아이들이 직접 뛰고 노래하는 참여형 디제잉 공연. 유치원 · 어린이집 · 운동회 · 어린이날 행사.</p>
-  <button class="v" data-yt="N0y1ZKw9eYs"><img src="https://i.ytimg.com/vi/N0y1ZKw9eYs/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">세포체조 뮤직비디오</span></button>
-  <div class="g2 mt">
+  <div class="g3">
     <button class="v sh9 sm" data-yt="eE3d0jwpC58" data-v="1"><img src="https://i.ytimg.com/vi/eE3d0jwpC58/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">요즘 유치원 다 이거함</span></button>
     <button class="v sh9 sm" data-yt="UhDyIHH9kA4" data-v="1"><img src="https://i.ytimg.com/vi/UhDyIHH9kA4/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">요즘 운동회 다 이거함</span></button>
-    <button class="v sh9 sm" data-yt="fn9ssvtqDrc" data-v="1"><img src="https://i.ytimg.com/vi/fn9ssvtqDrc/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">유치원 섭외 1순위</span></button>
+    <button class="v sh9 sm" data-yt="fn9ssvtqDrc" data-v="1"><img src="https://i.ytimg.com/vi/fn9ssvtqDrc/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">요즘 유치원 섭외 1순위</span></button>
     <button class="v sh9 sm" data-yt="l95NJnEeJr8" data-v="1"><img src="https://i.ytimg.com/vi/l95NJnEeJr8/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">어린이 행사 섭외 1순위</span></button>
+    <button class="v sh9 sm" data-yt="btYyzQyq4r8" data-v="1"><img src="https://i.ytimg.com/vi/btYyzQyq4r8/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">리조트 키즈 풀파티</span></button>
+    <button class="v sh9 sm" data-yt="pGjq0Fpz1vs" data-v="1"><img src="https://i.ytimg.com/vi/pGjq0Fpz1vs/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">민증 없이 즐기는 어린이클럽</span></button>
   </div>
+  <div class="g3 more" hidden>
+    <button class="v sh9 sm" data-yt="SWGDVSJIqP0" data-v="1"><img src="https://i.ytimg.com/vi/SWGDVSJIqP0/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">어린이공연 미슐랭 맛집</span></button>
+    <button class="v sh9 sm" data-yt="fcBRpqqS_tA" data-v="1"><img src="https://i.ytimg.com/vi/fcBRpqqS_tA/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">요즘 아이들에게 부족한 것</span></button>
+  </div>
+  <button class="morebtn" type="button" data-more>어린이 공연 영상 더보기 <b>+2</b></button>
 </section>
 
 <section class="sec" id="mv">
   <div class="sh"><span class="k">MUSIC</span></div>
   <h2>뮤직비디오</h2>
   <p class="lead">공연에서 바로 따라 부르는 SEFO의 노래들.</p>
-  <div class="g2">
+  <button class="v" data-yt="N0y1ZKw9eYs"><img src="https://i.ytimg.com/vi/N0y1ZKw9eYs/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">세포체조 뮤직비디오</span></button>
+  <div class="g2 mt">
     <button class="v sm" data-yt="S19J2kRVzn4"><img src="https://i.ytimg.com/vi/S19J2kRVzn4/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">그대로 멈춰라</span></button>
     <button class="v sm" data-yt="Ohy3k36YJIE"><img src="https://i.ytimg.com/vi/Ohy3k36YJIE/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">세포구조대</span></button>
     <button class="v sm" data-yt="fSTRXj0JbEQ"><img src="https://i.ytimg.com/vi/fSTRXj0JbEQ/hqdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">Baby Shark (Kids Remix)</span></button>
@@ -183,7 +203,7 @@ img{display:block;max-width:100%}
   </div>
   <div class="cred mt">
     <div><i>1K+</i><span><b>누적 공연 1,000회 이상</b><small>지역축제 · 시민축제 · 어린이 행사 · 대학축제</small></span></div>
-    <div><i>TV</i><span><b>워크맨 〈워크돌〉 · SBS 스브스뉴스 출연</b><small>세포의 어린이클럽 편</small></span></div>
+    <div><i>TV</i><span><b>대표 방송</b><small>워크맨 〈워크돌〉 · SBS 스브스뉴스 · KBS VJ특공대 외 다수</small></span></div>
     <div><i>♥</i><span><b>예술나눔재단 아이프칠드런 홍보대사</b><small>예술로 아이들을 연결하고 성장시키는 활동</small></span></div>
   </div>
 </section>
@@ -222,6 +242,7 @@ img{display:block;max-width:100%}
     out.href=v?'https://youtube.com/shorts/'+id:'https://youtu.be/'+id;
     m.classList.add('open'); if(v) m.classList.add('vert'); document.body.style.overflow='hidden';
   });
+  document.querySelectorAll('[data-more]').forEach(function(b){b.addEventListener('click',function(){var g=b.previousElementSibling;g.hidden=!g.hidden;if(!b.dataset.t)b.dataset.t=b.innerHTML;b.innerHTML=g.hidden?b.dataset.t:'접기 ▲';});});
   document.getElementById('vx').addEventListener('click',close);
   m.addEventListener('click',function(e){if(e.target===m)close();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
