@@ -212,6 +212,7 @@ b{font-weight:700}
 .foot{border-top:1px solid var(--line);padding:22px 0 calc(28px + env(safe-area-inset-bottom,0px));color:var(--dim);font-size:12.5px}
 .foot .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .foot img{height:18px;width:auto;opacity:.8}
+.foot .back{color:var(--gold2);font-weight:700;font-size:13.5px;border:1px solid var(--line);padding:8px 13px;border-radius:3px}
 
 /* MODAL */
 .lb{position:fixed;inset:0;z-index:110;background:rgba(8,6,4,.96);display:none;align-items:center;justify-content:center;padding:56px 12px 20px}
@@ -224,6 +225,49 @@ b{font-weight:700}
 .vbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vx{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;background:#fff;color:#111;border:0;border-radius:999px;padding:8px 14px;font:600 14px/1 var(--f-ko);cursor:pointer}
 .vout{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:12px;color:#fff;font-size:13.5px;padding:8px 2px;text-decoration:underline}
+
+/* PRINT / PDF */
+.ponly{display:none}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:var(--bg)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:13px}
+  .jump,.cta,.morebtn,.vmod,.lb,.cover .top{display:none!important}
+  .ponly{display:block}
+  .more[hidden]{display:grid!important}
+  .wrap{max-width:none;padding-left:13mm!important;padding-right:13mm!important}
+  .cover{min-height:297mm;height:297mm;break-after:page}
+  .cover .wrap.in{padding-top:0;padding-bottom:22mm}
+  .sec{break-before:page;padding-top:13mm}
+  .sec,.book{scroll-margin:0}
+  .v,.set,.gal figure,.alb,.pts div,.hpe div,.aw li,.chip,.vals div,.facts,.opt,.kidbox,.strip,.airl,.ask{break-inside:avoid}
+  .tier h3,.vsub,.galh,.albh,.hd{break-after:avoid}
+  .about{grid-template-columns:1.3fr .7fr}
+  .pts,.hpe{grid-template-columns:repeat(3,1fr)}
+  .vg,.vg.g4{grid-template-columns:repeat(6,1fr);gap:6px}
+  .v img{aspect-ratio:4/5}
+  .v .cap{font-size:9.5px;padding:18px 6px 6px}
+  .v .cap b{font-size:10.5px}
+  .v .pl{width:20px;height:20px;font-size:8px;top:5px;right:5px}
+  .mvg{grid-template-columns:repeat(5,1fr);gap:6px}
+  .v.w img{aspect-ratio:1/1}
+  .air{grid-template-columns:1fr 1fr}
+  .air .v img{aspect-ratio:16/7}
+  .vsub{margin:14px 0 7px}
+  .gal{grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+  .gal img{aspect-ratio:3/2}
+  .gal figcaption{font-size:9px}
+  .albs{grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:14px}
+  .alb b{font-size:11px}.alb small{font-size:9.5px}
+  .aw ul{grid-template-columns:1fr 1fr}
+  .aw li{font-size:11.5px;padding:4px 0 4px 16px}
+  .strip{display:none}
+  .book{break-before:page;margin-top:0;min-height:297mm}
+  .book .wrap{padding-top:30mm}
+  .foot{display:none}
+  .chip{font-size:11.5px;padding:4px 8px}
+  .set{padding:14px}
+}
 
 @media (max-width:900px){
   .vg{grid-template-columns:repeat(3,1fr)}
@@ -253,7 +297,7 @@ b{font-weight:700}
 
 <header class="cover">
   <img class="bg" src="img/cover.webp" alt="무대 위 SEFO와 관객">
-  <div class="top"><div class="wrap"><img src="img/gz_logo.png" alt="GRUNT ZERO"><span>ARTIST PRESS KIT<br>2027</span></div></div>
+  <div class="top"><div class="wrap"><a href="https://artist.grntzero.com/" aria-label="그런트제로 아티스트 전체 보기"><img src="img/gz_logo.png" alt="GRUNT ZERO"></a><span>ARTIST PRESS KIT<br>2027</span></div></div>
   <div class="wrap in">
     <div class="kick">GRUNT ZERO · DJ</div>
     <img class="logo" src="img/sefo_logo.webp" alt="SEFO">
@@ -310,18 +354,18 @@ b{font-weight:700}
   <div class="hd"><span class="n">02</span><h2>Live Video</h2><span>공연 영상</span></div>
   <p class="lead">섭외 전 영상 하나면 충분합니다. 썸네일을 누르면 바로 재생됩니다.</p>
   <div class="vsub"><b>FESTIVAL</b><span>가족형 시민축제</span></div>
-  <div class="vg g4"><button class="v" data-yt="WDE9QDS8Ql4" data-v="1"><img src="https://i.ytimg.com/vi/WDE9QDS8Ql4/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>동탄 루나빛축제</b>동탄호수공원 · 지역축제</span></button><button class="v" data-yt="q_sH-mkC8KY" data-v="1"><img src="https://i.ytimg.com/vi/q_sH-mkC8KY/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>안양춤축제</b>거리예술 · 물 연출</span></button><button class="v" data-yt="mFehUgyHUfo" data-v="1"><img src="https://i.ytimg.com/vi/mFehUgyHUfo/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>한강 사일런트디스코</b>헤드폰 공연 · 야간</span></button><button class="v" data-yt="jLQNxNHsyc4" data-v="1"><img src="https://i.ytimg.com/vi/jLQNxNHsyc4/oar1.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워터퐝페스티벌</b>포항 영일대해수욕장</span></button></div>
-  <div class="vg g4 more" hidden><button class="v" data-yt="bCpEjWh51kY" data-v="1"><img src="https://i.ytimg.com/vi/bCpEjWh51kY/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워터파크 분위기 못 식힘</b>아마존 당진 · 시즌 상주</span></button><button class="v" data-yt="1TlFbSJljyE" data-v="1"><img src="https://i.ytimg.com/vi/1TlFbSJljyE/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>야시장 전체가 일어섰다</b>용인중앙시장 야시장</span></button><button class="v" data-yt="eZ48-PnoBEw" data-v="1"><img src="https://i.ytimg.com/vi/eZ48-PnoBEw/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>광주맥주축제</b>어깨동무 떼창 구간</span></button><button class="v" data-yt="fXi67Z2bQ8E" data-v="1"><img src="https://i.ytimg.com/vi/fXi67Z2bQ8E/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>회사에서 이게 가능하다고?</b>기업 사내 행사 · 착석 객석</span></button><button class="v" data-yt="Kqb-ZNl-Hpw" data-v="1"><img src="https://i.ytimg.com/vi/Kqb-ZNl-Hpw/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>거제 옥포대첩축제</b>키즈 워터밤 · 어린이클럽</span></button><button class="v" data-yt="DCt0ECjvPas" data-v="1"><img src="https://i.ytimg.com/vi/DCt0ECjvPas/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>춘천마임축제</b>왕복 4차선 차 없는 거리</span></button><button class="v" data-yt="7dj3Di4Q88Y" data-v="1"><img src="https://i.ytimg.com/vi/7dj3Di4Q88Y/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>서울시립대 OT</b>대학 신입생 오리엔테이션</span></button></div>
+  <div class="vg g4"><button class="v" data-yt="WDE9QDS8Ql4" data-v="1" data-p="img/vid/WDE9QDS8Ql4.webp"><img src="https://i.ytimg.com/vi/WDE9QDS8Ql4/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>동탄 루나빛축제</b>동탄호수공원 · 지역축제</span></button><button class="v" data-yt="q_sH-mkC8KY" data-v="1" data-p="img/vid/q_sH-mkC8KY.webp"><img src="https://i.ytimg.com/vi/q_sH-mkC8KY/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>안양춤축제</b>거리예술 · 물 연출</span></button><button class="v" data-yt="mFehUgyHUfo" data-v="1" data-p="img/vid/mFehUgyHUfo.webp"><img src="https://i.ytimg.com/vi/mFehUgyHUfo/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>한강 사일런트디스코</b>헤드폰 공연 · 야간</span></button><button class="v" data-yt="jLQNxNHsyc4" data-v="1" data-p="img/vid/jLQNxNHsyc4.webp"><img src="https://i.ytimg.com/vi/jLQNxNHsyc4/oar1.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워터퐝페스티벌</b>포항 영일대해수욕장</span></button></div>
+  <div class="vg g4 more" hidden><button class="v" data-yt="bCpEjWh51kY" data-v="1" data-p="img/vid/bCpEjWh51kY.webp"><img src="https://i.ytimg.com/vi/bCpEjWh51kY/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워터파크 분위기 못 식힘</b>아마존 당진 · 시즌 상주</span></button><button class="v" data-yt="1TlFbSJljyE" data-v="1" data-p="img/vid/1TlFbSJljyE.webp"><img src="https://i.ytimg.com/vi/1TlFbSJljyE/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>야시장 전체가 일어섰다</b>용인중앙시장 야시장</span></button><button class="v" data-yt="eZ48-PnoBEw" data-v="1" data-p="img/vid/eZ48-PnoBEw.webp"><img src="https://i.ytimg.com/vi/eZ48-PnoBEw/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>광주맥주축제</b>어깨동무 떼창 구간</span></button><button class="v" data-yt="fXi67Z2bQ8E" data-v="1" data-p="img/vid/fXi67Z2bQ8E.webp"><img src="https://i.ytimg.com/vi/fXi67Z2bQ8E/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>회사에서 이게 가능하다고?</b>기업 사내 행사 · 착석 객석</span></button><button class="v" data-yt="Kqb-ZNl-Hpw" data-v="1" data-p="img/vid/Kqb-ZNl-Hpw.webp"><img src="https://i.ytimg.com/vi/Kqb-ZNl-Hpw/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>거제 옥포대첩축제</b>키즈 워터밤 · 어린이클럽</span></button><button class="v" data-yt="DCt0ECjvPas" data-v="1" data-p="img/vid/DCt0ECjvPas.webp"><img src="https://i.ytimg.com/vi/DCt0ECjvPas/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>춘천마임축제</b>왕복 4차선 차 없는 거리</span></button><button class="v" data-yt="7dj3Di4Q88Y" data-v="1" data-p="img/vid/7dj3Di4Q88Y.webp"><img src="https://i.ytimg.com/vi/7dj3Di4Q88Y/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>서울시립대 OT</b>대학 신입생 오리엔테이션</span></button></div>
   <button class="morebtn" type="button" data-more>시민축제 영상 더보기 <b>+7</b></button>
 
   <div class="vsub"><b>KIDS</b><span>어린이 공연 · 세포의 어린이클럽</span></div>
-  <div class="vg g4"><button class="v" data-yt="eE3d0jwpC58" data-v="1"><img src="https://i.ytimg.com/vi/eE3d0jwpC58/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 유치원 다 이거함</b></span></button><button class="v" data-yt="UhDyIHH9kA4" data-v="1"><img src="https://i.ytimg.com/vi/UhDyIHH9kA4/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 운동회 다 이거함</b></span></button><button class="v" data-yt="fn9ssvtqDrc" data-v="1"><img src="https://i.ytimg.com/vi/fn9ssvtqDrc/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 유치원 섭외 1순위</b></span></button><button class="v" data-yt="l95NJnEeJr8" data-v="1"><img src="https://i.ytimg.com/vi/l95NJnEeJr8/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>어린이 행사 섭외 1순위</b></span></button></div>
-  <div class="vg g4 more" hidden><button class="v" data-yt="btYyzQyq4r8" data-v="1"><img src="https://i.ytimg.com/vi/btYyzQyq4r8/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>리조트 키즈 풀파티</b></span></button><button class="v" data-yt="pGjq0Fpz1vs" data-v="1"><img src="https://i.ytimg.com/vi/pGjq0Fpz1vs/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>민증 없이 즐기는 어린이클럽</b></span></button><button class="v" data-yt="SWGDVSJIqP0" data-v="1"><img src="https://i.ytimg.com/vi/SWGDVSJIqP0/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>어린이공연 미슐랭 맛집</b></span></button><button class="v" data-yt="fcBRpqqS_tA" data-v="1"><img src="https://i.ytimg.com/vi/fcBRpqqS_tA/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 아이들에게 부족한 것</b></span></button></div>
+  <div class="vg g4"><button class="v" data-yt="eE3d0jwpC58" data-v="1" data-p="img/st/s39.webp"><img src="https://i.ytimg.com/vi/eE3d0jwpC58/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 유치원 다 이거함</b></span></button><button class="v" data-yt="UhDyIHH9kA4" data-v="1" data-p="img/st/s40.webp"><img src="https://i.ytimg.com/vi/UhDyIHH9kA4/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 운동회 다 이거함</b></span></button><button class="v" data-yt="fn9ssvtqDrc" data-v="1" data-p="img/st/s43.webp"><img src="https://i.ytimg.com/vi/fn9ssvtqDrc/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 유치원 섭외 1순위</b></span></button><button class="v" data-yt="l95NJnEeJr8" data-v="1" data-p="img/st/s49.webp"><img src="https://i.ytimg.com/vi/l95NJnEeJr8/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>어린이 행사 섭외 1순위</b></span></button></div>
+  <div class="vg g4 more" hidden><button class="v" data-yt="btYyzQyq4r8" data-v="1" data-p="img/st/s50.webp"><img src="https://i.ytimg.com/vi/btYyzQyq4r8/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>리조트 키즈 풀파티</b></span></button><button class="v" data-yt="pGjq0Fpz1vs" data-v="1" data-p="img/st/s42.webp"><img src="https://i.ytimg.com/vi/pGjq0Fpz1vs/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>민증 없이 즐기는 어린이클럽</b></span></button><button class="v" data-yt="SWGDVSJIqP0" data-v="1" data-p="img/st/s44.webp"><img src="https://i.ytimg.com/vi/SWGDVSJIqP0/oar2.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>어린이공연 미슐랭 맛집</b></span></button><button class="v" data-yt="fcBRpqqS_tA" data-v="1" data-p="img/st/s46.webp"><img src="https://i.ytimg.com/vi/fcBRpqqS_tA/oar3.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>요즘 아이들에게 부족한 것</b></span></button></div>
   <button class="morebtn" type="button" data-more>어린이 공연 영상 더보기 <b>+4</b></button>
 
   <div class="vsub"><b>MUSIC VIDEO</b><span>뮤직비디오</span></div>
-  <div class="mvg"><button class="v w" data-yt="N0y1ZKw9eYs"><img src="https://i.ytimg.com/vi/N0y1ZKw9eYs/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>세포체조</b>어린이클럽 · 2024</span></button><button class="v w" data-yt="S19J2kRVzn4"><img src="https://i.ytimg.com/vi/S19J2kRVzn4/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>그대로 멈춰라</b>국민동요 리메이크 · 2026</span></button><button class="v w" data-yt="fSTRXj0JbEQ"><img src="https://i.ytimg.com/vi/fSTRXj0JbEQ/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>아기상어 (Kids Remix)</b>어린이클럽 · 2025</span></button><button class="v w" data-yt="mlt2FbRmLfg"><img src="https://i.ytimg.com/vi/mlt2FbRmLfg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>Let's Vaunce</b>2025</span></button></div>
-  <div class="mvg more" hidden><button class="v w" data-yt="Ohy3k36YJIE"><img src="https://i.ytimg.com/vi/Ohy3k36YJIE/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>세포구조대</b>어린이클럽 · 2024</span></button><button class="v w" data-yt="4tbvb-K75XU"><img src="https://i.ytimg.com/vi/4tbvb-K75XU/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>Baby Shark (Festival Mix)</b>페스티벌 리믹스 · 2025</span></button><button class="v w" data-yt="4H6W3b4REFg"><img src="https://i.ytimg.com/vi/4H6W3b4REFg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>폭주기관차</b>어린이클럽 · 2025</span></button><button class="v w" data-yt="-pOuLun9bYc"><img src="https://i.ytimg.com/vi/-pOuLun9bYc/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>아들아 사랑해!</b>2024</span></button><button class="v w" data-yt="MiTrFcYuvHg"><img src="https://i.ytimg.com/vi/MiTrFcYuvHg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>김치파워</b>2024</span></button></div>
+  <div class="mvg"><button class="v w" data-yt="N0y1ZKw9eYs" data-p="img/art/sefoche.webp"><img src="https://i.ytimg.com/vi/N0y1ZKw9eYs/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>세포체조</b>어린이클럽 · 2024</span></button><button class="v w" data-yt="S19J2kRVzn4" data-p="img/art/freeze.webp"><img src="https://i.ytimg.com/vi/S19J2kRVzn4/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>그대로 멈춰라</b>국민동요 리메이크 · 2026</span></button><button class="v w" data-yt="fSTRXj0JbEQ" data-p="img/art/agisang.webp"><img src="https://i.ytimg.com/vi/fSTRXj0JbEQ/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>아기상어 (Kids Remix)</b>어린이클럽 · 2025</span></button><button class="v w" data-yt="mlt2FbRmLfg" data-p="img/art/vaunce.webp"><img src="https://i.ytimg.com/vi/mlt2FbRmLfg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>Let's Vaunce</b>2025</span></button></div>
+  <div class="mvg more" hidden><button class="v w" data-yt="Ohy3k36YJIE" data-p="img/art/rescue.webp"><img src="https://i.ytimg.com/vi/Ohy3k36YJIE/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>세포구조대</b>어린이클럽 · 2024</span></button><button class="v w" data-yt="4tbvb-K75XU" data-p="img/art/babyshark.webp"><img src="https://i.ytimg.com/vi/4tbvb-K75XU/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>Baby Shark (Festival Mix)</b>페스티벌 리믹스 · 2025</span></button><button class="v w" data-yt="4H6W3b4REFg" data-p="img/art/train.webp"><img src="https://i.ytimg.com/vi/4H6W3b4REFg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>폭주기관차</b>어린이클럽 · 2025</span></button><button class="v w" data-yt="-pOuLun9bYc" data-p="img/art/adeura.webp"><img src="https://i.ytimg.com/vi/-pOuLun9bYc/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>아들아 사랑해!</b>2024</span></button><button class="v w" data-yt="MiTrFcYuvHg" data-p="img/art/kimchi.webp"><img src="https://i.ytimg.com/vi/MiTrFcYuvHg/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>김치파워</b>2024</span></button></div>
   <button class="morebtn" type="button" data-more>뮤직비디오 더보기 <b>+5</b></button>
 
   <div class="vsub"><b>ON AIR</b><span>방송</span></div>
@@ -522,11 +566,12 @@ b{font-weight:700}
       <a href="https://tiktok.com/@sefoent" target="_blank" rel="noopener"><i>TIKTOK</i>@sefoent</a>
       <a href="https://open.spotify.com/artist/2pc0F5IUb8onS3o1MUmOMp" target="_blank" rel="noopener"><i>SPOTIFY</i>SEFO</a>
       <a href="SEFO_PressKit_2027.pdf" download><i>PDF</i>프레스킷 내려받기</a>
+      <a class="ponly" href="https://sefo.grntzero.com"><i>WEB</i>sefo.grntzero.com</a>
     </div>
   </div>
 </section>
 
-<footer class="foot"><div class="wrap"><span>SEFO · GRUNT ZERO ARTIST PRESS KIT 2027</span><img src="img/gz_logo.png" alt="GRUNT ZERO"></div></footer>
+<footer class="foot"><div class="wrap"><span>SEFO · GRUNT ZERO ARTIST PRESS KIT 2027</span><a class="back" href="https://artist.grntzero.com/">← 그런트제로 다른 아티스트 보기</a></div></footer>
 
 <div class="lb" id="lb"><img id="lbi" alt=""><button class="vx" type="button" id="lbx">닫기 ✕</button></div>
 <div class="vmod" id="vmod" role="dialog" aria-modal="true" aria-label="영상 보기">
