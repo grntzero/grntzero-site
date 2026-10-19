@@ -436,9 +436,15 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
 .tr-dl b{display:block;font-size:18px;color:var(--tr-accent)}
 .tr-dl small{display:block;font-size:13.5px;color:var(--tr-mute);margin-top:4px}
 .tr-dl i{font-style:normal;font-size:22px;color:var(--tr-accent)}
+.tr-kids .tr-legend .g::before{border-style:dashed}
+.tr-kids .tr-list .g{border-left-style:dashed}
+.tr-dl{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
+.tr-dl a{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border-radius:999px;background:var(--violet);color:#fff;font-weight:700;font-size:15px;text-decoration:none}
+.tr-dl a:hover{background:var(--violet-2)}
+.tr-dl small{font-weight:500;opacity:.8;font-size:12.5px}
 .tr-orig{margin:14px 0 0;font-size:13px;color:var(--tr-mute)}
 .tr-orig a{color:var(--tr-accent)}
-.tr-kids{--tr-ink:var(--ink);--tr-ink2:var(--ink-2);--tr-mute:var(--mute);--tr-card:var(--card);--tr-line:var(--line-2);--tr-ledfill:#F3EEDF;--tr-accent:var(--violet);--tr-dlbg:var(--violet-soft);--tr-red:#D9363E;--tr-green:#2F9E44;--tr-blue:#1C7ED6;--tr-rad:16px;--tr-rad-s:12px}
+.tr-kids{--tr-ink:var(--ink);--tr-ink2:var(--ink-2);--tr-mute:var(--mute);--tr-card:var(--card);--tr-line:var(--line-2);--tr-ledfill:#F3EEDF;--tr-accent:var(--violet);--tr-dlbg:var(--violet-soft);--tr-red:#6244BE;--tr-green:#16140E;--tr-blue:#1C7ED6;--tr-rad:16px;--tr-rad-s:12px}
 </style>
 </head>
 <body>
@@ -692,34 +698,50 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
     </div>
     <div class="tr-legend"><span class="r">주최측 준비</span><span class="g">주최측 준비 또는 GRUNT ZERO 렌탈</span><span class="b">물 관련 공연 필수</span></div>
     <div class="tr-grid">
-      <figure class="tr-stage"><svg class="tr-svg" viewBox="0 0 640 410" role="img" aria-label="무대 배치도: 뒤쪽 LED 패널, 가운데 DJ 테이블과 DJ 장비, 양옆 모니터 스피커">
-  <defs><marker id="trA" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="tr-arrowhead"/></marker></defs>
-  <text x="320" y="14" class="tr-cap" text-anchor="middle">BACK</text>
-  <rect x="120" y="24" width="400" height="104" rx="8" class="tr-led"/>
-  <text x="320" y="72" class="tr-ledt" text-anchor="middle">LED 패널</text>
-  <text x="320" y="96" class="tr-small" text-anchor="middle">있는 경우 아티스트 로고 표시</text>
-  <rect x="40" y="168" width="84" height="26" rx="5" class="tr-r"/>
-  <text x="82" y="186" class="tr-small tr-on" text-anchor="middle">전원 멀티탭</text>
-  <rect x="516" y="168" width="84" height="26" rx="5" class="tr-r"/>
-  <text x="558" y="186" class="tr-small tr-on" text-anchor="middle">XLR 스테레오</text>
-  <rect x="198" y="166" width="244" height="36" rx="6" class="tr-gear"/>
-  <circle cx="236" cy="184" r="11" class="tr-disc"/><circle cx="404" cy="184" r="11" class="tr-disc"/>
-  <rect x="290" y="174" width="60" height="20" rx="3" class="tr-mixer"/>
-  <rect x="170" y="202" width="300" height="148" rx="4" class="tr-table"/>
-  <text x="320" y="266" class="tr-tt" text-anchor="middle">DJ 테이블</text>
-  <text x="320" y="290" class="tr-small tr-light" text-anchor="middle">깊이 600mm 이상</text>
-  <text x="320" y="310" class="tr-small tr-light" text-anchor="middle">양옆 · 앞뒤 가림</text>
-  <path d="M20 350 L112 350 L112 300 L77 268 L20 268 Z" class="tr-mon"/>
-  <path d="M620 350 L528 350 L528 300 L563 268 L620 268 Z" class="tr-mon"/>
-  <text x="66" y="322" class="tr-small tr-monl" text-anchor="middle">MONITOR L</text>
-  <text x="574" y="322" class="tr-small tr-monl" text-anchor="middle">MONITOR R</text>
-  <line x1="172" y1="372" x2="468" y2="372" class="tr-dim" marker-start="url(#trA)" marker-end="url(#trA)"/>
-  <text x="320" y="394" class="tr-dimt" text-anchor="middle">가로 1500mm 이상</text>
-  <line x1="488" y1="204" x2="488" y2="348" class="tr-dim" marker-start="url(#trA)" marker-end="url(#trA)"/>
-  <text x="496" y="228" class="tr-dimt">높이</text>
-  <text x="496" y="246" class="tr-dimt">750~900mm</text>
-  <text x="320" y="408" class="tr-cap" text-anchor="middle">FRONT · 관객 방향</text>
-</svg></figure>
+      <figure class="tr-stage"><svg class="tr-svg" viewBox="0 0 560 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="무대 배치도: 앞쪽 관객, 가운데 DJ 테이블과 장비, 양옆 모니터 스피커, 뒤쪽 LED 패널"  xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpiZDBmNDNjNi0wNDY3LTQxOWItYTEyNS1iZGYyMmRjY2QzODYAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaBAAy8j1x8t85T4UnDwRpUwAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDoxMGQ0N2I2ZC01ZTdlLTQ4NWUtYTRmZC1hOTllZTA2NmJjMDJscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNohXpNshtYjoeuYjfDBznlcQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggyVZ0PMqnYEsF2yNQd3wua3vEULglbkvPtEI3jdpTp9KkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaKxPiQwIpNWQgBiIZZJaPVsAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIKKfnG4CHvfniqBrzXz+gIyWxwUMzdhmLg9aZMuMfB5AZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQEWZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmJkMGY0M2M2LTA0NjctNDE5Yi1hMTI1LWJkZjIyZGNjZDM4Ni9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjdjZTY4NmQ1LWNhMWQtNGNlMi1iZmU2LWY3YTNhMDZiNDVmMXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDJVnQ8yqdgSwXbI1B3fC5re8RQuCVuS8+0QjeN2lOn0qJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggZDsviP2Sh3PNd7ps/6+G0D3ljXT3YZzFF2zvamVts3qiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggYKyqstHSaYKZRys0/n5y9n0L2cKHsyIrpzEA/oy9gQN0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQJHZDsDYMuzUMas4ImGYhWEpQBF2B/mdXZGc0qt5JZcFsZVO2W9Ad+aGoNJGwAI5P3NSXWIXg5Ew5wrjKgka+xo=</c2pa:manifest></metadata>
+  <defs><marker id="trK2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#6E6857"/></marker></defs>
+  <!-- FRONT -->
+  <text x="280" y="26" text-anchor="middle" style="font-family:var(--f-disp)" font-weight="700" font-size="17" letter-spacing="5" fill="#6244BE">FRONT</text>
+  <text x="280" y="44" text-anchor="middle" font-size="11" fill="#6E6857">관객 방향</text>
+  <g fill="#E8A400"><circle cx="160" cy="62" r="5"/><circle cx="200" cy="66" r="5"/><circle cx="240" cy="62" r="5"/><circle cx="280" cy="66" r="5"/><circle cx="320" cy="62" r="5"/><circle cx="360" cy="66" r="5"/><circle cx="400" cy="62" r="5"/></g>
+  <!-- width dim -->
+  <line x1="130" y1="104" x2="430" y2="104" stroke="#8C8674" stroke-width="1.2" marker-start="url(#trK2)" marker-end="url(#trK2)"/>
+  <text x="280" y="98" text-anchor="middle" font-size="12.5" font-weight="700" fill="#16140E">가로 1500mm 이상</text>
+  <!-- table -->
+  <rect x="130" y="114" width="300" height="120" rx="6" fill="#F7F4EA" stroke="#16140E" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="280" y="226" text-anchor="middle" style="font-family:var(--f-disp)" font-weight="700" font-size="13" letter-spacing="3" fill="#6E6857">DJ TABLE · 양옆·앞뒤 가림막</text>
+  <!-- device -->
+  <rect x="168" y="140" width="224" height="62" rx="5" fill="#FFFFFF" stroke="#16140E" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <circle cx="205" cy="171" r="20" fill="none" stroke="#8C8674" stroke-width="2"/><circle cx="355" cy="171" r="20" fill="none" stroke="#8C8674" stroke-width="2"/>
+  <rect x="255" y="150" width="50" height="44" rx="3" fill="none" stroke="#8C8674" stroke-width="2"/>
+  <text x="280" y="133" text-anchor="middle" style="font-family:var(--f-disp)" font-weight="700" font-size="11.5" letter-spacing="2" fill="#16140E">DJ DEVICE</text>
+  <!-- depth dim -->
+  <line x1="448" y1="114" x2="448" y2="234" stroke="#8C8674" stroke-width="1.2" marker-start="url(#trK2)" marker-end="url(#trK2)"/>
+  <text x="458" y="170" font-size="12.5" font-weight="700" fill="#16140E">깊이</text>
+  <text x="458" y="186" font-size="12.5" font-weight="700" fill="#16140E">600mm 이상</text>
+  <!-- height note -->
+  <rect x="8" y="118" width="114" height="54" rx="5" fill="#FFF2CC" stroke="#E8A400" stroke-width="1.2"/>
+  <text x="65" y="140" text-anchor="middle" font-size="12" font-weight="800" fill="#16140E">높이 750~900mm</text>
+  <text x="65" y="158" text-anchor="middle" font-size="10.5" font-weight="700" fill="#C2410C">900 초과 금지</text>
+  <!-- power + xlr (host) -->
+  <rect x="176" y="246" width="88" height="30" rx="5" fill="#6244BE"/>
+  <text x="220" y="266" text-anchor="middle" font-size="12" font-weight="800" fill="#FFFFFF">전원 멀티탭</text>
+  <rect x="296" y="246" width="88" height="30" rx="5" fill="#6244BE"/>
+  <text x="340" y="266" text-anchor="middle" font-size="12" font-weight="800" fill="#FFFFFF">XLR 스테레오</text>
+  <!-- DJ -->
+  <circle cx="280" cy="312" r="17" fill="#E8A400"/><text x="280" y="317" text-anchor="middle" style="font-family:var(--f-disp)" font-weight="800" font-size="13" fill="#16140E">DJ</text>
+  <!-- monitors -->
+  <g><path d="M56 270 L112 258 L112 330 L56 318 Z" fill="#6244BE"/><text x="84" y="350" text-anchor="middle" style="font-family:var(--f-disp)" font-weight="700" font-size="12.5" letter-spacing="1.5" fill="#16140E">MONITOR L</text></g>
+  <g><path d="M504 270 L448 258 L448 330 L504 318 Z" fill="#6244BE"/><text x="476" y="350" text-anchor="middle" style="font-family:var(--f-disp)" font-weight="700" font-size="12.5" letter-spacing="1.5" fill="#16140E">MONITOR R</text></g>
+  <text x="84" y="366" text-anchor="middle" font-size="10" fill="#6E6857">DJ 쪽을 향해 배치</text>
+  <text x="476" y="366" text-anchor="middle" font-size="10" fill="#6E6857">DJ 쪽을 향해 배치</text>
+  <line x1="118" y1="294" x2="258" y2="306" stroke="#8C8674" stroke-dasharray="3 4"/><line x1="442" y1="294" x2="302" y2="306" stroke="#8C8674" stroke-dasharray="3 4"/>
+  <!-- LED panel -->
+  <rect x="130" y="382" width="300" height="46" rx="4" fill="#16140E" stroke="#6244BE" stroke-width="2"/>
+  <text x="280" y="402" text-anchor="middle" style="font-family:var(--f-disp)" font-weight="800" font-size="17" letter-spacing="4" fill="#FFFDF6">DJ LOGO</text>
+  <text x="280" y="419" text-anchor="middle" font-size="10.5" fill="#D8D2C2">LED 패널이 있는 경우 · 아티스트 로고</text>
+  <text x="280" y="456" text-anchor="middle" style="font-family:var(--f-disp)" font-weight="700" font-size="17" letter-spacing="5" fill="#6244BE">BACK</text>
+ </svg></figure>
       <ul class="tr-list">
         <li class="r"><b>모니터 스피커 L · R</b><span>DJ 테이블 양옆에 DJ를 향해 배치 (side to side)</span></li>
         <li class="r"><b>전원 · 출력</b><span>멀티탭 전원 공급 · 출력은 XLR 스테레오</span></li>
@@ -740,7 +762,8 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <div class="rt-group"><p class="rt-label">SOUND SYSTEM</p><div class="rt-grid"><figure class="rt-card"><div class="rt-img"><img src="img/rental/spk_pioneer.webp" alt="PIONEER 15" 스피커" loading="lazy"></div><figcaption><span class="rt-nm">PIONEER 15" 스피커</span><span class="rt-pr">₩400,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img"><img src="img/rental/spk_hk.webp" alt="HK 10" 스피커" loading="lazy"></div><figcaption><span class="rt-nm">HK 10" 스피커</span><span class="rt-pr">₩200,000</span></figcaption></figure><figure class="rt-card"><div class="rt-img photo"><img src="img/rental/sound_light.webp" alt="무빙라이트 · LED · 모니터 스피커가 설치된 야간 무대" loading="lazy"></div><figcaption><span class="rt-nm">중대형 시스템 음향 · 조명</span><span class="rt-pr">별도 문의</span></figcaption></figure></div></div>
     <div class="tr-foot">
       
-      <p class="tr-orig" style="margin-top:0">이미지 받기 · <a href="/doc/SEFOKIDS_TECHNICAL_RIDER.jpg" target="_blank" rel="noopener"><b>테크니컬 라이더</b></a> · <a href="/doc/SEFOKIDS_RENTAL_SERVICE.jpg" target="_blank" rel="noopener"><b>렌탈 서비스</b></a> · 그 외 서류는 <a href="mailto:grnt@grntzero.com">grnt@grntzero.com</a> / 1800-8790</p>
+      <div class="tr-dl"><a href="/doc/SEFOKIDS_TECHNICAL_RIDER.jpg" download>테크니컬 라이더 이미지 받기 <small>JPG</small></a><a href="/doc/SEFOKIDS_RENTAL_SERVICE.jpg" download>렌탈 서비스 이미지 받기 <small>JPG</small></a></div>
+      <p class="tr-orig" style="margin-top:0">그 외 서류는 <a href="mailto:grnt@grntzero.com">grnt@grntzero.com</a> / 1800-8790</p>
     </div>
   </div>
 </section>
