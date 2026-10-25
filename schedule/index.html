@@ -351,7 +351,7 @@ function evHTML(e){
   return '<div class="'+cls+'" data-id="'+esc(e.id)+'">'+
     '<button class="hd" aria-expanded="'+(state.open[e.id]?"true":"false")+'">'+
       '<div class="tm">'+esc(e.time||"—")+'</div>'+
-      '<div class="bd"><div class="ti">'+esc(e.event||"공연")+(e.pending?'<span class="badge">세부 확인중</span>':'')+'</div>'+
+      '<div class="bd"><div class="ti">'+esc(e.event||"공연")+(e.pending?'<span class="badge">세부 확인 중</span>':'')+'</div>'+
         (e.place?'<div class="pl">'+esc(e.place)+'</div>':'')+
         (ar?'<div class="ar">'+ar+'</div>':'')+
       '</div><span class="car">›</span></button>'+
