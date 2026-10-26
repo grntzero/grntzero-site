@@ -207,7 +207,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 
 <footer class="foot hide" id="foot"><div class="wrap">
   일정은 [공식]그런트제로 캘린더에서 자동으로 불러옵니다 · 2분마다 갱신<br>
-  금액·연락처는 표시하지 않습니다. 내용이 다르면 담당 매니저에게 알려주세요.<br>
+  금액은 표시하지 않습니다. 내용이 다르면 현장지원 담당이나 대표에게 알려주세요.<br>
   <a href="https://grntzero.com/">grntzero.com</a>
 </div></footer>
 
@@ -221,8 +221,8 @@ var LS = {get:function(k){try{return localStorage.getItem(k)}catch(e){return nul
           del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
 var ARTISTS = ["SEFO","허조교","MOSHEE","POY","LOKI","KillaTon","DETA","ANNACONDA","HAENA","BORNGI","ROGUN","WOAD","SSENI","BERRI"];
 var WD = ["일","월","화","수","목","금","토"];
-var FIELDS = [["when","공연시간"],["content","출연내용"],["host","주최"],["place","장소"],["contact","현장 담당자"],["gear","장비"],
-              ["manager","담당 매니저"],["car","차량"],["from","출발지"],["returnTo","복귀"],["etc","기타"],["memo","메모"]];
+var FIELDS = [["when","공연시간"],["call","콜타임"],["content","출연내용"],["host","주최"],["place","장소"],["contact","도착하면 연락"],["gear","챙길 장비"],
+              ["hostGear","주최 측 준비"],["manager","현장지원 담당"],["car","차량"],["from","출발지"],["returnTo","복귀"],["etc","기타"],["memo","메모"]];
 
 var state = {events:[], updated:null, filter:LS.get("gz_me")||"ALL", me:LS.get("gz_me")||"",
              view:LS.get("gz_view")||"list", past:false, month:null, sel:null, open:{}};
@@ -342,10 +342,10 @@ function evHTML(e){
   var ar=(e.artists||[]).map(function(a){return '<span'+(a===state.me?' class="me"':'')+'>'+esc(a)+'</span>'}).join("");
   var dl="";
   FIELDS.forEach(function(f){ if(e[f[0]]) dl+='<dt>'+f[1]+'</dt><dd>'+esc(e[f[0]])+'</dd>'; });
-  if(!dl) dl='<dt>안내</dt><dd>세부 내용은 담당 매니저에게 확인하세요.</dd>';
+  if(!dl) dl='<dt>안내</dt><dd>세부 내용은 현장지원 담당이나 대표에게 확인하세요.</dd>';
   var acts="";
   var tel=String(e.contact||"").match(/0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}/);
-  if(tel) acts+='<a href="tel:'+tel[0].replace(/\D/g,"")+'">현장 담당자 전화</a>';
+  if(tel) acts+='<a href="tel:'+tel[0].replace(/\D/g,"")+'">도착 연락처 전화</a>';
   if(e.place) acts+='<a href="https://map.naver.com/p/search/'+encodeURIComponent(e.place)+'" target="_blank" rel="noopener">네이버 지도 ↗</a>';
   if(e.place) acts+='<a href="https://map.kakao.com/link/search/'+encodeURIComponent(e.place)+'" target="_blank" rel="noopener">카카오맵 ↗</a>';
   return '<div class="'+cls+'" data-id="'+esc(e.id)+'">'+
