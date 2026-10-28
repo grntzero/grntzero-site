@@ -32,9 +32,9 @@
 #mo-ui button{border:1px solid #3a5a8a;background:#0a1426cc;color:#cfe3ff;border-radius:8px;padding:5px 10px;cursor:pointer;font:inherit}
 #mo-ui button.on{border-color:#4fd18b;color:#c9ffe0;box-shadow:0 0 10px rgba(79,209,139,.45)}
 #mo-st{color:#9fb4d0;background:#0a1426cc;border-radius:6px;padding:2px 6px;display:none}
-#mo-cur{position:fixed;left:0;top:0;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #7cc4ff;border-radius:50%;pointer-events:none;z-index:2147483001;display:none;box-shadow:0 0 12px rgba(124,196,255,.7);transition:border-color .1s,transform .1s}
-#mo-cur.pinch{border-color:#4fd18b;transform:scale(.7);background:rgba(79,209,139,.25)}
-#mo-cur.block{border-color:#ff6b6b;background:rgba(255,107,107,.25)}
+#mo-cur{position:fixed;left:0;top:0;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid rgba(124,196,255,.4);border-radius:50%;pointer-events:none;z-index:2147483001;display:none;box-shadow:0 0 8px rgba(124,196,255,.25);transition:border-color .1s,transform .1s}
+#mo-cur.pinch{border-color:rgba(79,209,139,.6);transform:scale(.7);background:rgba(79,209,139,.15)}
+#mo-cur.block{border-color:rgba(255,107,107,.7);background:rgba(255,107,107,.18)}
 #mo-toast{position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:2147483002;background:#0a1426ee;color:#e6f0ff;border:1px solid #3a5a8a;border-radius:10px;padding:8px 14px;font:14px 'Apple SD Gothic Neo',sans-serif;display:none;pointer-events:none;max-width:86vw;text-align:center}`;
   const st = document.createElement('style'); st.textContent = css; document.head.append(st);
   const ui = document.createElement('div'); ui.id = 'mo-ui';
