@@ -27,7 +27,7 @@
 
   // ---------- 화면 요소 ----------
   const css = `
-#mo-ui{position:fixed;left:10px;bottom:10px;z-index:2147483000;display:flex;flex-direction:column;align-items:flex-start;gap:6px;font:12px ui-monospace,'Apple SD Gothic Neo',sans-serif}
+#mo-ui{position:fixed;left:10px;bottom:44px;z-index:2147483000;display:flex;flex-direction:column;align-items:flex-start;gap:6px;font:12px ui-monospace,'Apple SD Gothic Neo',sans-serif}
 #mo-ui video{width:128px;border-radius:8px;transform:scaleX(-1);border:1px solid #3a5a8a;display:none;background:#000}
 #mo-ui button{border:1px solid #3a5a8a;background:#0a1426cc;color:#cfe3ff;border-radius:8px;padding:5px 10px;cursor:pointer;font:inherit}
 #mo-ui button.on{border-color:#4fd18b;color:#c9ffe0;box-shadow:0 0 10px rgba(79,209,139,.45)}
@@ -48,20 +48,30 @@
   let toastT = 0;
   function toast(s, ms = 1600) { toastEl.textContent = s; toastEl.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => { toastEl.style.display = 'none'; }, ms); }
   function status(s) { if (s !== S.msg) { S.msg = s; stEl.textContent = s; } }
-  btn.onclick = () => (S.on ? stop() : start());
+  btn.onclick = () => { S.auto = false; S.on ? stop() : start(); };
+  try { if (localStorage.getItem('mo-on') === '1') { S.auto = true; setTimeout(start, 600); } } catch (e) {}   // 켜 둔 채 다른 화면으로 왔으면 자동으로
 
   // ---------- 확대 ----------
   function applyZoom() {
     const t = target(); if (!t) return;
+    if (t.dataset.motionWheel) {   // 3D(three.js) — 화면을 늘리지 않고 휠 이벤트로 카메라를 당김(10-28 대표 「3D에서 안 됨」)
+      const r = S.scale / (S.wheelScale || 1);
+      if (Math.abs(r - 1) > 0.01) {
+        const b = t.getBoundingClientRect();
+        t.dispatchEvent(new WheelEvent('wheel', { deltaY: -Math.log(r) * 900, clientX: b.left + b.width / 2, clientY: b.top + b.height / 2, bubbles: true, cancelable: true }));
+        S.wheelScale = S.scale;
+      }
+      return;
+    }
     if (S.scale === 1 && !S.tx && !S.ty) { t.style.transform = ''; t.style.transformOrigin = ''; return; }
     const r = S.base || { left: 0, top: 0 };
     t.style.transformOrigin = `${S.ox - r.left}px ${S.oy - r.top}px`;
     t.style.transform = `translate(${S.tx}px,${S.ty}px) scale(${S.scale})`;
   }
-  function resetZoom() { S.scale = 1; S.tx = 0; S.ty = 0; S.zoom = null; applyZoom(); }
+  function resetZoom() { S.scale = 1; S.tx = 0; S.ty = 0; S.zoom = null; S.wheelScale = 1; const t = target(); if (!(t && t.dataset.motionWheel)) applyZoom(); }
   // 화면 좌표 → 확대 전 좌표 (캔버스는 clientX 로 점을 찾으므로 되돌려 줘야 맞는 점이 눌린다)
   function toLayout(x, y) { return { x: S.ox + (x - S.ox - S.tx) / S.scale, y: S.oy + (y - S.oy - S.ty) / S.scale }; }
-  const zoomed = () => S.scale !== 1 || S.tx || S.ty;
+  const zoomed = () => (S.scale !== 1 || S.tx || S.ty) && !((target() || {}).dataset || {}).motionWheel;
 
   function fire(t, type, p, pt = 'mouse') {
     S.synth = true;
@@ -83,6 +93,7 @@
   // ---------- 동작 ----------
   function home() {
     S.lastHome = now(); resetZoom();
+    const dl = document.querySelector('dialog[open]'); if (dl) { dl.close(); toast('✊ 창 닫음'); return; }   // 창이 떠 있으면 주먹 = 창 닫기
     if (typeof window.goHome === 'function') window.goHome();
     else { const h = document.querySelector('#home,[data-motion-home]'); if (h) h.click(); else scrollTo({ top: 0, behavior: 'smooth' }); }
     toast('✊ 본화면');
@@ -104,6 +115,14 @@
       fire(t, 'pointerdown', p); fire(t, 'pointerup', p); fire(t, 'click', p);
       return;
     }
+    const media = el.closest('video,audio');   // 영상·음악: 브라우저 기본 재생 버튼은 가짜 클릭을 안 받음 → 직접 재생/멈춤, 아래쪽 막대는 그 자리로 이동(10-28 대표)
+    if (media) {
+      const b = media.getBoundingClientRect();
+      if (media.duration && y > b.bottom - 40 && x > b.left + 60) { media.currentTime = media.duration * Math.min(1, Math.max(0, (x - b.left - 60) / Math.max(1, b.width - 120))); toast('⏩ 이동'); }
+      else if (media.paused) { media.play().catch(() => {}); toast('▶ 재생'); }
+      else { media.pause(); toast('⏸ 멈춤'); }
+      return;
+    }
     const c = el.closest(CTL) || el;
     if (c.matches('input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),textarea,select')) c.focus();
     else c.click();
@@ -115,14 +134,20 @@
   // hands: [{lm:[21개 {x,y}], g:'Closed_Fist'|'Open_Palm'|…, s:점수}]
   function handle(hands) {
     const t = now();
-    if (!hands.length) { curEl.style.display = 'none'; S.cur = null; S.pinch = false; S.fistSince = 0; endZoom(t); status('손 없음'); return; }
+    if (!hands.length) { S.sw = null; if (!S.lostAt) S.lostAt = t; if (t - S.lostAt < 600) { status('손 찾는 중'); return; }   // 손이 잠깐 안 잡혀도 0.6초는 커서 유지(10-28 「원점이 사라져」)
+      curEl.style.display = 'none'; S.cur = null; S.pinch = false; S.fistSince = 0; endZoom(t); status('손 없음'); return; }
 
+    S.lostAt = 0;
     // 두 손바닥 → 확대·이동
     const palms = hands.filter(h => h.g === 'Open_Palm' && h.s > 0.5);
     if (hands.length >= 2 && palms.length >= 2) {
       curEl.style.display = 'none'; S.pinch = false; S.fistSince = 0; S.zoomLost = 0;
       const a = scr(palms[0].lm[9]), b = scr(palms[1].lm[9]);
       const dist = Math.hypot(a.x - b.x, a.y - b.y), mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      if (window.motion3d) {   // 3D: 두 손을 같이 움직이면 화면이 같이 돌고, 벌리면 당겨짐(10-28 대표)
+        if (S.m3) { window.motion3d.pan(mid.x - S.m3.x, mid.y - S.m3.y); const r = dist / Math.max(S.m3.d, 40); if (Math.abs(r - 1) > 0.004) window.motion3d.zoom(r); }
+        S.m3 = { x: mid.x, y: mid.y, d: dist }; status('✋✋ 돌리기·확대'); return;
+      }
       if (!S.zoom) {
         if (!zoomed()) { const tg = target(); S.base = tg ? tg.getBoundingClientRect() : { left: 0, top: 0 }; S.ox = mid.x; S.oy = mid.y; }
         S.zoom = { d0: Math.max(dist, 40), s0: S.scale, m0: mid, tx0: S.tx, ty0: S.ty };
@@ -148,6 +173,27 @@
     }
     S.fistSince = 0;
 
+    // 한 손바닥 쓸어내리기·올리기 → 창·페이지 스크롤(10-28 대표 「창 아래로 내리는 건 한 손바닥으로」)
+    // 손바닥을 펴고 위아래로 「빠르게」 움직일 때만 쓸기 — 천천히 가리키며 움직일 땐 커서(10-28 「원점이 사라져」)
+    const pp = scr(lm[9]);
+    const fast = S.swPrev && Math.abs(pp.y - S.swPrev.y) > 9 && Math.abs(pp.y - S.swPrev.y) > 2 * Math.abs(pp.x - S.swPrev.x);
+    S.swPrev = pp;
+    if (hands.length === 1 && h.g === 'Open_Palm' && h.s > 0.75 && (fast || S.sw != null && t - (S.swAt || 0) < 300)) {
+      const py = pp.y, px = pp.x;
+      if (fast) S.swAt = t;
+      if (S.sw != null) {
+        const dy = py - S.sw;
+        if (Math.abs(dy) > 1) {
+          let el = document.elementFromPoint(px, py);
+          while (el && el !== document.body && !(el.scrollHeight > el.clientHeight + 4 && /(auto|scroll)/.test(getComputedStyle(el).overflowY))) el = el.parentElement;
+          if (!el || el === document.body) el = document.querySelector('dialog[open]') || document.scrollingElement;
+          el.scrollBy(0, dy * 2.4);
+        }
+      }
+      S.sw = py; S.pinch = false; curEl.style.display = 'block'; curEl.style.left = px + 'px'; curEl.style.top = py + 'px'; status('🖐 쓸기'); return;
+    }
+    S.sw = null;
+
     // 커서 = 엄지·검지 사이 (집어도 위치가 덜 흔들림)
     const p = scr({ x: (lm[4].x + lm[8].x) / 2, y: (lm[4].y + lm[8].y) / 2 });
     S.cur = S.cur ? { x: S.cur.x + (p.x - S.cur.x) * 0.45, y: S.cur.y + (p.y - S.cur.y) * 0.45 } : p;
@@ -163,7 +209,7 @@
     if (!S.pinch) { const tg = target(); if (tg && document.elementFromPoint(show.x, show.y) === tg) fire(tg, 'pointermove', zoomed() ? toLayout(show.x, show.y) : show); }
     status(S.pinch ? '👌 집음' : '☝️ 커서');
   }
-  function endZoom(t) { if (!S.zoom) return; if (!S.zoomLost) S.zoomLost = t; else if (t - S.zoomLost > 250) { S.zoom = null; S.zoomLost = 0; } }
+  function endZoom(t) { S.m3 = null; if (!S.zoom) return; if (!S.zoomLost) S.zoomLost = t; else if (t - S.zoomLost > 250) { S.zoom = null; S.zoomLost = 0; } }
 
   // ---------- 카메라 ----------
   async function start() {
@@ -179,7 +225,8 @@
       video.srcObject = S.stream; await video.play();
       S.aspect = (video.videoWidth / video.videoHeight) || 4 / 3;
       S.on = true; btn.textContent = '✋ 모션 끄기'; btn.classList.add('on'); video.style.display = 'block'; stEl.style.display = 'inline-block';
-      toast('✋ 모션 켜짐 — ✊본화면 · ✋✋확대 · 👌클릭'); loop();
+      toast('✋ 모션 켜짐 — ✊본화면·창닫기 · 🖐쓸어 스크롤 · ✋✋확대 · 👌클릭'); loop();
+      try { localStorage.setItem('mo-on', '1'); } catch (e) {}   // 2D↔3D 로 옮겨도 다시 켜지게(10-28 대표 「3D 가면 다시 눌러야 해」)
     } catch (e) {
       const why = e && e.name === 'NotAllowedError' ? '카메라 허용이 필요해요'
         : e && e.name === 'NotFoundError' ? '카메라가 없어요 (맥미니는 웹캠이나 아이폰 연속성 카메라 필요)'
@@ -191,11 +238,14 @@
     S.on = false; if (S.stream) S.stream.getTracks().forEach(tr => tr.stop()); S.stream = null; video.srcObject = null;
     video.style.display = 'none'; stEl.style.display = 'none'; curEl.style.display = 'none';
     btn.textContent = '✋ 모션 켜기'; btn.classList.remove('on'); resetZoom();
+    if (!S.auto) { try { localStorage.removeItem('mo-on'); } catch (e) {} }
   }
   function loop() {
     if (!S.on) return; requestAnimationFrame(loop);
     if (document.hidden || video.readyState < 2 || video.currentTime === S.lastT) return;
     S.lastT = video.currentTime;
+    const host = document.querySelector('dialog[open]') || document.body;   // 영상·블로그 창(dialog)은 맨 위층이라 커서가 가려짐 → 열린 창 안으로 옮김(10-28 대표 「연한 동그라미가 안 보여」)
+    for (const el of [curEl, toastEl]) if (el.parentNode !== host) host.append(el);
     let r; try { r = S.rec.recognizeForVideo(video, now()); } catch (e) { return; }
     handle((r.landmarks || []).map((lm, i) => { const g = (r.gestures && r.gestures[i] && r.gestures[i][0]) || {}; return { lm, g: g.categoryName || 'None', s: g.score || 0 }; }));
   }
