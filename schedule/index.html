@@ -219,7 +219,7 @@ var DEMO = !API;
 var LS = {get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},
           set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}},
           del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
-var ARTISTS = ["SEFO","허조교","MOSHEE","POY","LOKI","KillaTon","DETA","ANNACONDA","HAENA","BORNGI","ROGUN","WOAD","SSENI","BERRI"];
+var ARTISTS = ["SEFO","허조교","MOSHEE","POY","LOKI","KillaTon","DETA","ANNACONDA","HAENA","ROGUN","WOAD","SSENI","BERRI"];
 var WD = ["일","월","화","수","목","금","토"];
 var FIELDS = [["when","공연시간"],["call","콜타임"],["content","출연내용"],["host","주최"],["place","장소"],["contact","도착하면 연락"],["gear","챙길 장비"],
               ["hostGear","주최 측 준비"],["manager","현장지원 담당"],["car","차량"],["from","출발지"],["returnTo","복귀"],["etc","기타"],["memo","메모"]];
@@ -250,7 +250,7 @@ function demoData(){
     {d:1,time:"20:00",artists:["KillaTon"],event:"예시) 클럽 게스트",place:"예시클럽 (서울)",content:"DJ 90분",manager:"담당자B",pending:true},
     {d:3,kind:"release",title:"예시) 신규 싱글 발매"},
     {d:5,time:"13:00",artists:["ANNACONDA","HAENA"],event:"예시) 기업 가족행사",place:"예시컨벤션 그랜드홀",host:"예시기업",content:"나나걸스 공연 30분",gear:"무선마이크 2",manager:"담당자A",car:"스타리아",from:"사무실",returnTo:"사무실"},
-    {d:9,time:"18:00",artists:["허조교","BORNGI"],event:"예시) 군부대 위문공연",place:"예시부대 연병장",content:"DJ 공연 60분",manager:"담당자B",pending:true},
+    {d:9,time:"18:00",artists:["허조교","ROGUN"],event:"예시) 군부대 위문공연",place:"예시부대 연병장",content:"DJ 공연 60분",manager:"담당자B",pending:true},
     {d:12,time:"15:00",artists:["ROGUN"],event:"예시) 문화아카데미 어린이클럽",place:"예시플라자 문화홀",content:"어린이 DJ 공연 30분",manager:"담당자A"},
     {d:16,time:"21:00",artists:["WOAD","SEFO"],event:"예시) 페스티벌 서브스테이지",place:"예시 페스티벌 B스테이지",content:"B2B 60분",gear:"CDJ 3000 ×4",manager:"담당자B"}
   ];
