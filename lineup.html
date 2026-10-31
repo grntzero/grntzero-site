@@ -71,6 +71,14 @@ ul{margin:0;padding:0;list-style:none}
   .nav::-webkit-scrollbar{display:none}
   .nav a{font-size:14px;letter-spacing:.1em;white-space:nowrap;padding:3px 13px 3px 0}
 }
+/* 2026-10-31 폰 상단 메뉴 높이 줄이기 */
+@media(max-width:860px){
+  .hdr .wrap{padding-block:7px;gap:4px 10px}
+  .hdr img{width:90px}
+  .callbtn{padding:6px 11px;font-size:13px}
+  .nav{padding-top:5px;margin-top:0}
+  .nav a{font-size:13px;padding:2px 12px 2px 0}
+}
 
 /* 히어로 */
 .hero{position:relative;overflow:hidden;background:var(--ink);border-bottom:1px solid var(--line)}
@@ -111,6 +119,8 @@ ul{margin:0;padding:0;list-style:none}
 .stats b{display:block;font-family:var(--disp);font-weight:800;font-size:clamp(32px,4.6vw,52px);
   line-height:.95;color:var(--gold2);font-variant-numeric:tabular-nums}
 .stats span{display:block;font-size:13px;color:var(--mut);margin-top:10px;letter-spacing:.04em}
+.stats b{white-space:nowrap}
+.stats b span{display:inline;margin:0;color:inherit;letter-spacing:0}
 @media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}
   .stats div:nth-child(2){border-right:0}
   .stats div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
@@ -389,7 +399,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 .vt{position:relative;aspect-ratio:9/16;border:1px solid var(--line);background:var(--ink2);
   overflow:hidden;cursor:pointer;padding:0;width:100%;font:inherit;color:inherit;text-align:left;
   display:block}
-.vt.blank{cursor:default;background:repeating-linear-gradient(135deg,#141009,#141009 7px,#171208 7px,#171208 14px)}
+.vt.blank{display:none!important;cursor:default;background:repeating-linear-gradient(135deg,#141009,#141009 7px,#171208 7px,#171208 14px)}
 .vt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   transition:transform .45s ease,opacity .3s}
 .vt:hover img{transform:scale(1.05);opacity:.84}
@@ -489,7 +499,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
     <div><b>226<span style="font-size:.6em">+</span></b><span>지자체 · 기업 고객사</span></div>
     <div><b>393</b><span>2025년 공연 횟수</span></div>
     <div><b>40<span style="font-size:.55em">만+</span></b><span>누적 관객</span></div>
-    <div><b>17</b><span>소속 아티스트 팀</span></div>
+    <div><b>16</b><span>소속 아티스트 팀</span></div>
   </div>
 </div></section>
 
@@ -728,7 +738,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
       <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">가족·어린이</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span><span class="ctag">청소년</span></div>
     </div>
   </div>
-  <div class="vwrap"><p class="vlab">대표 영상</p><div class="vthumbs"><button class="vt" type="button" data-yt="NsNKEOQ8Mqc"><img src="img/vt/NsNKEOQ8Mqc.jpg?v=2" alt=""><span class="pl"></span><b>아이유키즈 댄서의 변신</b></button><button class="vt" type="button" data-yt="CdFTuyKIqo8"><img src="img/vt/CdFTuyKIqo8.jpg?v=2" alt=""><span class="pl"></span><b>어린이들이 더 신났던 이유</b></button><button class="vt" type="button" data-yt="_ujFxrlwd-o"><img src="img/vt/_ujFxrlwd-o.jpg?v=2" alt=""><span class="pl"></span><b>어린이 DJ 키즈워터밤</b></button><button class="vt" type="button" data-yt="ZpVQyq9qtSA"><img src="img/vt/ZpVQyq9qtSA.jpg?v=2" alt=""><span class="pl"></span><b>11살 디제이가 춤까지?</b></button></div></div>
+  <div class="vwrap"><p class="vlab">대표 영상</p><div class="vthumbs"><button class="vt" type="button" data-yt="NsNKEOQ8Mqc"><img src="img/vt/NsNKEOQ8Mqc.jpg?v=2" alt=""><span class="pl"></span><b>아이유키즈 댄서의 변신</b></button><button class="vt" type="button" data-yt="CdFTuyKIqo8"><img src="img/vt/CdFTuyKIqo8.jpg?v=2" alt=""><span class="pl"></span><b>어린이들이 더 신났던 이유</b></button><button class="vt" type="button" data-yt="_ujFxrlwd-o"><img src="img/vt/_ujFxrlwd-o.jpg?v=2" alt=""><span class="pl"></span><b>어린이 DJ 키즈워터밤</b></button><button class="vt" type="button" data-yt="ZpVQyq9qtSA"><img src="img/vt/ZpVQyq9qtSA.jpg?v=2" alt=""><span class="pl"></span><b>어린이 디제이가 춤까지?</b></button></div></div>
   <a class="pkbtn" href="https://sseni.grntzero.com/" target="_blank" rel="noopener">SSENI 프레스킷 자세히 보기 <span>→</span></a>
 </article>
 <article class="card" id="a-berri" data-tags="festival kids water corp youth">
@@ -761,7 +771,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
       <tr><td class="nm">MOSHEE</td><td class="amt">₩1,200,000</td></tr>
       <tr><td class="nm">POY &amp; LOKI</td><td class="amt">₩1,200,000</td></tr>
       <tr><td class="nm">ANNACONDA &amp; HAENA</td><td class="amt">₩1,000,000</td></tr>
-      <tr><td class="nm">KILLATON</td><td class="amt">₩800,000</td></tr>
+      <tr><td class="nm">KillaTon</td><td class="amt">₩800,000</td></tr>
       <tr><td class="nm">DETA</td><td class="amt">₩800,000</td></tr>
       <tr><td class="nm">POY</td><td class="amt">₩800,000</td></tr>
       <tr><td class="nm">LOKI</td><td class="amt">₩800,000</td></tr>

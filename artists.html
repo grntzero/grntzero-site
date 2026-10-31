@@ -53,6 +53,14 @@ img{max-width:100%;display:block}
   .nav::-webkit-scrollbar{display:none}
   .nav a{font-size:14px;letter-spacing:.1em;white-space:nowrap;padding:3px 13px 3px 0}
 }
+/* 2026-10-31 폰 상단 메뉴 높이 줄이기 */
+@media(max-width:860px){
+  .hdr .wrap{padding-block:7px;gap:4px 10px}
+  .hdr img{width:90px}
+  .callbtn{padding:6px 11px;font-size:13px}
+  .nav{padding-top:5px;margin-top:0}
+  .nav a{font-size:13px;padding:2px 12px 2px 0}
+}
 
 .intro{padding-block:clamp(40px,6vw,74px) clamp(22px,3vw,34px);border-bottom:1px solid var(--line)}
 .shd{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:14px}
@@ -72,7 +80,8 @@ img{max-width:100%;display:block}
   color:#C9C1B1;cursor:pointer;font-family:inherit;transition:.18s}
 .fbtn:hover{border-color:rgba(198,163,92,.5);color:var(--gold2)}
 .fbtn.on{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:700}
-@media(max-width:860px){.filters{top:112px}}
+@media(max-width:860px){.filters{top:var(--hh,84px);padding-block:8px}
+  .filters .wrap{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.filters .wrap::-webkit-scrollbar{display:none}.fbtn{flex:none}}
 @media(max-width:640px){.fbtn{font-size:12px;padding:7px 11px}}
 
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,2vw,24px);
@@ -112,7 +121,7 @@ img{max-width:100%;display:block}
 .vt{position:relative;aspect-ratio:9/16;border:1px solid var(--line);background:var(--ink2);
   overflow:hidden;cursor:pointer;padding:0;width:100%;font:inherit;color:inherit;text-align:left;
   display:block}
-.vt.blank{cursor:default;background:repeating-linear-gradient(135deg,#141009,#141009 7px,#171208 7px,#171208 14px)}
+.vt.blank{display:none!important;cursor:default;background:repeating-linear-gradient(135deg,#141009,#141009 7px,#171208 7px,#171208 14px)}
 .vt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   transition:transform .45s ease,opacity .3s}
 .vt:hover img{transform:scale(1.05);opacity:.84}
@@ -217,6 +226,7 @@ img{max-width:100%;display:block}
   <p class="lede">DJ·MC·댄서 <strong>16팀</strong>이 소속돼 있습니다. 행사 유형을 고르면 그에 맞는 팀만 추려서 보실 수 있고,
     공연 영상은 바로 재생됩니다. 한 행사에 여러 팀을 조합하는 구성도 가능합니다.</p>
   <a class="back" href="https://grntzero.com/">← 메인으로 돌아가기</a>
+  <a class="back" href="https://dl.grntzero.com/" target="_blank" rel="noopener" style="margin-left:18px">로고 · 프로필 자료실 →</a>
 </div></section>
 
 <section class="crew">
@@ -452,7 +462,7 @@ img{max-width:100%;display:block}
       <div class="ctags"><span class="ctag">지역축제</span><span class="ctag">가족·어린이</span><span class="ctag">워터·물놀이</span><span class="ctag">군·기관·기업</span><span class="ctag">청소년</span></div>
     </div>
   </div>
-  <div class="vwrap"><p class="vlab">대표 영상</p><div class="vthumbs"><button class="vt" type="button" data-yt="NsNKEOQ8Mqc"><img src="img/vt/NsNKEOQ8Mqc.jpg?v=2" alt=""><span class="pl"></span><b>아이유키즈 댄서의 변신</b></button><button class="vt" type="button" data-yt="CdFTuyKIqo8"><img src="img/vt/CdFTuyKIqo8.jpg?v=2" alt=""><span class="pl"></span><b>어린이들이 더 신났던 이유</b></button><button class="vt" type="button" data-yt="_ujFxrlwd-o"><img src="img/vt/_ujFxrlwd-o.jpg?v=2" alt=""><span class="pl"></span><b>어린이 DJ 키즈워터밤</b></button><button class="vt" type="button" data-yt="ZpVQyq9qtSA"><img src="img/vt/ZpVQyq9qtSA.jpg?v=2" alt=""><span class="pl"></span><b>11살 디제이가 춤까지?</b></button></div></div>
+  <div class="vwrap"><p class="vlab">대표 영상</p><div class="vthumbs"><button class="vt" type="button" data-yt="NsNKEOQ8Mqc"><img src="img/vt/NsNKEOQ8Mqc.jpg?v=2" alt=""><span class="pl"></span><b>아이유키즈 댄서의 변신</b></button><button class="vt" type="button" data-yt="CdFTuyKIqo8"><img src="img/vt/CdFTuyKIqo8.jpg?v=2" alt=""><span class="pl"></span><b>어린이들이 더 신났던 이유</b></button><button class="vt" type="button" data-yt="_ujFxrlwd-o"><img src="img/vt/_ujFxrlwd-o.jpg?v=2" alt=""><span class="pl"></span><b>어린이 DJ 키즈워터밤</b></button><button class="vt" type="button" data-yt="ZpVQyq9qtSA"><img src="img/vt/ZpVQyq9qtSA.jpg?v=2" alt=""><span class="pl"></span><b>어린이 디제이가 춤까지?</b></button></div></div>
   <a class="pkbtn" href="https://sseni.grntzero.com/" target="_blank" rel="noopener">SSENI 프레스킷 자세히 보기 <span>→</span></a>
 </article>
 <article class="card" id="a-berri" data-tags="festival kids water corp youth">
@@ -595,5 +605,6 @@ document.querySelectorAll('.jlist a, .crew .hot').forEach(function(a){
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&m.classList.contains('open'))close();});
 })();
 </script>
+<script>(function(){var h=document.querySelector(".hdr");function f(){if(h)document.documentElement.style.setProperty("--hh",h.offsetHeight+"px")}f();addEventListener("resize",f);addEventListener("load",f)})();</script>
 </body>
 </html>

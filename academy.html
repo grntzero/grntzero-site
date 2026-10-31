@@ -54,6 +54,14 @@ img{max-width:100%;display:block}
   .nav::-webkit-scrollbar{display:none}
   .nav a{font-size:14px;letter-spacing:.1em;white-space:nowrap;padding:3px 13px 3px 0}
 }
+/* 2026-10-31 폰 상단 메뉴 높이 줄이기 */
+@media(max-width:860px){
+  .hdr .wrap{padding-block:7px;gap:4px 10px}
+  .hdr img{width:90px}
+  .callbtn{padding:6px 11px;font-size:13px}
+  .nav{padding-top:5px;margin-top:0}
+  .nav a{font-size:13px;padding:2px 12px 2px 0}
+}
 
 .intro{padding-block:clamp(40px,6vw,74px) clamp(22px,3vw,34px);border-bottom:1px solid var(--line)}
 .shd{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:14px}
@@ -327,7 +335,7 @@ img{max-width:100%;display:block}
     <div>
       <div class="roombox">
         <h3>상담 시 알려주시면 좋은 것</h3>
-        <ul class="course" style="padding:0;border:0;background:none;gap:7px">
+        <ul class="course" style="padding:0;border:0;background:none;gap:7px;list-style:none">
           <li>배우고 싶은 과정 (DJ / MIDI / 화성학 / 연습실)</li>
           <li>경험 여부 — 완전 입문인지, 다뤄본 적 있는지</li>
           <li>희망 요일과 시간대</li>

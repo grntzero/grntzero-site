@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://www.grntzero.com/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+<url><loc>https://www.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
+<url><loc>https://artist.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+<url><loc>https://academy.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://sefo.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://sefolink.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+<url><loc>https://rokagunner.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://moshee.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://poyloki.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://annacondahaena.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://killaton.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://deta.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://poy.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://loki.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://annaconda.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://haena.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://rogun.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://woad.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://sseniberri.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://sseni.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://berri.grntzero.com/</loc><lastmod>2026-10-31</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>
