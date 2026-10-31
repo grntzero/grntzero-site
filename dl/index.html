@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="https://grntzero.com/img/favicon.png" type="image/png">
-<meta name="description" content="그런트제로 아티스트 로고·프로필 사진 다운로드.">
+<meta name="description" content="그런트제로 소개서(PDF)와 아티스트 로고·프로필 사진 다운로드.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GRUNT ZERO">
 <meta property="og:title" content="GRUNT ZERO 로고·프로필 자료실">
@@ -99,6 +99,19 @@
   .dl[data-state="failed"] .t::before{content:"! ";color:var(--warn)}
   .empty{padding:56px 0;text-align:center;color:var(--mute-2);font-family:var(--f-mono);font-size:13px;letter-spacing:.06em}
 
+  /* 소개서 칸(2026-11-01) — PDF 고정 주소 dl.grntzero.com/intro/…, 링크로 바로 열림(받기 스크립트 안 씀) */
+  .intro{margin-bottom:clamp(22px,3.4vw,32px);border:1px solid var(--line);background:var(--ink-2);padding:clamp(18px,2.6vw,24px)}
+  .intro h2{font-family:var(--f-body);font-weight:700;font-size:18px;letter-spacing:-.02em;margin:10px 0 0}
+  .intro .lead2{font-size:14px;color:var(--mute);margin:8px 0 0;line-height:1.65}
+  .docs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:14px}
+  .doc{display:flex;align-items:baseline;justify-content:space-between;gap:10px;background:var(--ink);padding:12px 14px;
+    color:var(--bone);text-decoration:none;font-family:var(--f-body);transition:background .16s ease,color .16s ease;min-width:0}
+  .doc:hover{background:var(--ink-3);color:var(--gold-hi)}
+  .doc:focus-visible{outline:2px solid var(--gold-hi);outline-offset:-2px}
+  .doc .t{font-size:14px;font-weight:600;letter-spacing:-.01em;min-width:0}
+  .doc .t::before{content:"↗ ";color:var(--gold-dim)}
+  .doc .s{font-family:var(--f-mono);font-size:10px;letter-spacing:.04em;color:var(--mute-2);flex:none;font-variant-numeric:tabular-nums}
+
   .note{margin-top:clamp(26px,4vw,38px);border:1px solid var(--line);background:var(--ink-2);padding:clamp(20px,3vw,28px)}
   .note h2{font-family:var(--f-body);font-weight:700;font-size:18px;letter-spacing:-.02em;margin:10px 0 0}
   .note ul{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:8px}
@@ -139,6 +152,17 @@
 </div>
 
 <main class="wrap">
+  <section class="intro" id="intro">
+    <p class="eyebrow">Company Deck · PDF</p>
+    <h2>소개서</h2>
+    <p class="lead2">그런트제로 회사·아티스트·어린이클럽 소개서입니다. 누르면 바로 열리고, 저장하실 수 있습니다.</p>
+    <div class="docs">
+      <a class="doc" href="intro/GRUNTZERO_01_company_intro.pdf" target="_blank" rel="noopener"><span class="t">사업소개서</span><span class="s">PDF · 15쪽 · 5.5MB</span></a>
+      <a class="doc" href="intro/GRUNTZERO_02_artist_intro.pdf" target="_blank" rel="noopener"><span class="t">아티스트 간략소개서</span><span class="s">PDF · 24쪽 · 2.0MB</span></a>
+      <a class="doc" href="intro/GRUNTZERO_11_kids_club_intro.pdf" target="_blank" rel="noopener"><span class="t">어린이클럽 소개서</span><span class="s">PDF · 11쪽 · 4.9MB</span></a>
+      <a class="doc" href="intro/GRUNTZERO_12_kids_club_artist_intro.pdf" target="_blank" rel="noopener"><span class="t">어린이클럽 아티스트 간략소개서</span><span class="s">PDF · 10쪽 · 1.4MB</span></a>
+    </div>
+  </section>
   <div class="grid" id="grid">
       <article class="card" data-group="company" data-q="grunt zero 그런트제로">
         <div class="tiles">
