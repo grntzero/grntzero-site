@@ -244,7 +244,8 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
 .feature .cap{position:absolute;left:18px;right:18px;bottom:14px;z-index:2;color:#fff;text-align:left;pointer-events:none}
 .feature .cap b{display:block;font-family:var(--f-head);font-size:clamp(16px,2vw,19px);font-weight:800;letter-spacing:-.03em}
 .feature .cap span{font-size:12.5px;opacity:.8}
-.feature iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.feature iframe,.feature video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.feature-src{font-size:11.5px;color:var(--mute);margin-top:6px}
 .feature-tabs{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .feature-tabs button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--line-2);background:var(--card);color:var(--ink-2);padding:6px 12px;border-radius:999px;cursor:pointer}
 .feature-tabs button[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
@@ -497,16 +498,18 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       </div>
       <div>
         <div class="feature" id="feature">
-          <button class="yt" type="button" data-id="iVu2Yzi469o" style="background-image:url(https://i.ytimg.com/vi/iVu2Yzi469o/maxresdefault.jpg)" aria-label="영상 재생: 워크돌 어린이클럽 편">
+          <button class="yt" type="button" data-id="sbs" data-mp4="https://grntzero.com/media/sbs_20261105.mp4?v=1105" style="background-image:url(https://grntzero.com/media/sbs_20261105_p2.jpg?v=1105)" aria-label="영상 재생: SBS 생방송 투데이 관심집중">
             <span class="play" aria-hidden="true"></span>
-            <span class="cap"><b>워크맨 〈워크돌〉 — 어린이클럽 편</b><span>누르면 바로 재생됩니다</span></span>
+            <span class="cap"><b>SBS 생방송 투데이 〈관심집중〉 — 동요로 클럽을 만드는 DJ세포</b><span>2026.11.05 방송 · 누르면 바로 재생됩니다</span></span>
           </button>
         </div>
         <div class="feature-tabs" role="group" aria-label="대표 영상 고르기">
-          <button type="button" aria-pressed="true" data-id="iVu2Yzi469o" data-t="워크맨 〈워크돌〉 — 어린이클럽 편">워크맨 워크돌</button>
+          <button type="button" aria-pressed="true" data-id="sbs" data-mp4="https://grntzero.com/media/sbs_20261105.mp4?v=1105" data-t="SBS 생방송 투데이 〈관심집중〉">SBS 생방송 투데이</button>
+          <button type="button" aria-pressed="false" data-id="iVu2Yzi469o" data-t="워크맨 〈워크돌〉 — 어린이클럽 편">워크맨 워크돌</button>
           <button type="button" aria-pressed="false" data-id="iKiR_ZjMOCA" data-t="SBS 스브스뉴스 — 어린이클럽 편">SBS 스브스뉴스</button>
           <button type="button" aria-pressed="false" data-id="N0y1ZKw9eYs" data-t="세포체조 — 어린이클럽 대표곡">세포체조</button>
         </div>
+        <p class="feature-src">영상 출처: SBS 〈생방송 투데이〉 2026.11.05 방송분</p>
       </div>
     </div>
 
@@ -514,7 +517,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <div class="stat"><b>1,200회+</b><span>누적 공연으로 검증된<br>어린이 참여형 공연</span></div>
       <div class="stat"><b>78개 매장</b><span>홈플러스·롯데마트·AK플라자·신세계<br>문화센터 정규 편성</span></div>
       <div class="stat"><b>6곡</b><span>직접 만든 어린이클럽<br>음원 · 율동 콘텐츠</span></div>
-      <div class="stat"><b>방송 출연</b><span>유튜브 워크맨 ·<br>SBS 스브스뉴스</span></div>
+      <div class="stat"><b>방송 출연</b><span>SBS 생방송 투데이 ·<br>유튜브 워크맨 · SBS 스브스뉴스</span></div>
     </div>
   </div>
 </section>
@@ -573,7 +576,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
         <div class="body">
           <h3>세포</h3><div class="en">SEFO</div>
           <p class="quote">“어린이클럽의 아이콘”</p>
-          <ul><li>유튜브 워크맨 〈워크돌 — 어린이클럽 편〉, SBS 스브스뉴스 출연</li><li>예술로 아이들을 연결하고 성장시키는 감성 리더</li><li>예술나눔재단 ‘아이프칠드런’ 홍보대사</li></ul>
+          <ul><li>SBS 생방송 투데이 〈관심집중〉 출연(2026.11.05)</li><li>유튜브 워크맨 〈워크돌 — 어린이클럽 편〉, SBS 스브스뉴스 출연</li><li>예술로 아이들을 연결하고 성장시키는 감성 리더</li><li>예술나눔재단 ‘아이프칠드런’ 홍보대사</li></ul>
         </div>
         <div class="vrow"><a class="vt" href="https://youtube.com/shorts/eE3d0jwpC58" data-yt="eE3d0jwpC58" data-v="1" target="_blank" rel="noopener"><img src="img/vt/eE3d0jwpC58.jpg?v=2" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="vtt">요즘 유치원 다 이거함</span></a><a class="vt" href="https://youtube.com/shorts/UhDyIHH9kA4" data-yt="UhDyIHH9kA4" data-v="1" target="_blank" rel="noopener"><img src="img/vt/UhDyIHH9kA4.jpg?v=2" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="vtt">요즘 운동회 다 이거함</span></a><a class="vt" href="https://youtube.com/shorts/fn9ssvtqDrc" data-yt="fn9ssvtqDrc" data-v="1" target="_blank" rel="noopener"><img src="img/vt/fn9ssvtqDrc.jpg?v=2" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="vtt">요즘 유치원 섭외 1순위</span></a><a class="vt" href="https://youtube.com/shorts/l95NJnEeJr8" data-yt="l95NJnEeJr8" data-v="1" target="_blank" rel="noopener"><img src="img/vt/l95NJnEeJr8.jpg?v=2" alt="" loading="lazy"><span class="play" aria-hidden="true"></span><span class="vtt">어린이 행사 섭외 1순위</span></a></div>
         <a class="pkbtn" href="https://sefo.grntzero.com/" target="_blank" rel="noopener">SEFO 프레스킷 자세히 보기 <span>→</span></a>
@@ -912,15 +915,15 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
   // 영상: 메인 플레이어
   var fe=document.getElementById('feature');
   function embed(id){return 'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1&modestbranding=1'}
-  function loadFeature(id){
-    fe.innerHTML='<iframe src="'+embed(id)+'" title="어린이클럽 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+  function loadFeature(id,mp4){
+    fe.innerHTML=mp4?'<video src="'+mp4+'" poster="https://grntzero.com/media/sbs_20261105_p2.jpg?v=1105" controls autoplay playsinline preload="metadata" title="SBS 생방송 투데이"></video>':'<iframe src="'+embed(id)+'" title="어린이클럽 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
     fe.style.aspectRatio='16/9';
   }
-  fe.addEventListener('click',function(e){var b=e.target.closest('.yt'); if(b) loadFeature(b.getAttribute('data-id'));});
+  fe.addEventListener('click',function(e){var b=e.target.closest('.yt'); if(b) loadFeature(b.getAttribute('data-id'),b.getAttribute('data-mp4'));});
   document.querySelectorAll('.feature-tabs button').forEach(function(b){
     b.addEventListener('click',function(){
       document.querySelectorAll('.feature-tabs button').forEach(function(x){x.setAttribute('aria-pressed','false')});
-      b.setAttribute('aria-pressed','true'); loadFeature(b.getAttribute('data-id'));
+      b.setAttribute('aria-pressed','true'); loadFeature(b.getAttribute('data-id'),b.getAttribute('data-mp4'));
     });
   });
   // 영상: 팝업
