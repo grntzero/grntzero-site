@@ -392,7 +392,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       </div>
       <div>
         <div class="feature" id="feature">
-          <button class="yt" type="button" data-id="sbs" data-mp4="https://grntzero.com/media/sbs_20261105.mp4?v=1105" style="background-image:url(https://grntzero.com/media/sbs_20261105.jpg?v=1105)" aria-label="영상 재생: SBS 생방송 투데이 관심집중">
+          <button class="yt" type="button" data-id="sbs" data-mp4="https://grntzero.com/media/sbs_20261105.mp4?v=1105" style="background-image:url(https://grntzero.com/media/sbs_20261105_p2.jpg?v=1105)" aria-label="영상 재생: SBS 생방송 투데이 관심집중">
             <span class="play" aria-hidden="true"></span>
             <span class="cap"><b>SBS 생방송 투데이 〈관심집중〉 — 동요로 클럽을 만드는 DJ세포</b><span>2026.11.05 방송 · 누르면 바로 재생됩니다</span></span>
           </button>
@@ -699,7 +699,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
   var fe=document.getElementById('feature');
   function embed(id){return 'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1&modestbranding=1'}
   function loadFeature(id,mp4){
-    fe.innerHTML=mp4?'<video src="'+mp4+'" poster="https://grntzero.com/media/sbs_20261105.jpg?v=1105" controls autoplay playsinline preload="metadata" title="SBS 생방송 투데이"></video>':'<iframe src="'+embed(id)+'" title="어린이클럽 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+    fe.innerHTML=mp4?'<video src="'+mp4+'" poster="https://grntzero.com/media/sbs_20261105_p2.jpg?v=1105" controls autoplay playsinline preload="metadata" title="SBS 생방송 투데이"></video>':'<iframe src="'+embed(id)+'" title="어린이클럽 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
     fe.style.aspectRatio='16/9';
   }
   fe.addEventListener('click',function(e){var b=e.target.closest('.yt'); if(b) loadFeature(b.getAttribute('data-id'),b.getAttribute('data-mp4'));});
