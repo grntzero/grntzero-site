@@ -121,6 +121,9 @@ b{font-weight:700}
 .v.w img{aspect-ratio:16/9}
 .air{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .air .v img{aspect-ratio:16/9}
+.air .v.wide{grid-column:1/-1}
+.air .v.wide img{aspect-ratio:16/8}
+.vbox video{position:absolute;inset:0;width:100%;height:100%;background:#000}
 .airl{margin-top:8px;padding:14px 16px;border:1px solid var(--gold);border-radius:4px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .airl b{font-family:var(--f-en);letter-spacing:.2em;color:var(--gold)}
 .airl span{font-size:14.5px}
@@ -374,10 +377,11 @@ b{font-weight:700}
 
   <div class="vsub"><b>ON AIR</b><span>방송</span></div>
   <div class="air">
+    <button class="v wide" data-mp4="https://grntzero.com/media/sbs_20261105.mp4?v=1105" data-poster="https://grntzero.com/media/sbs_20261105.jpg?v=1105"><img src="https://grntzero.com/media/sbs_20261105.jpg?v=1105" alt="SBS 생방송 투데이 관심집중 DJ세포" loading="lazy"><span class="pl">▶</span><span class="cap"><b>SBS 생방송 투데이 〈관심집중〉</b>동요로 클럽을 만드는 DJ세포 · 2026.11.05 · 출처 · SBS 생방송 투데이</span></button>
     <button class="v" data-yt="iVu2Yzi469o"><img src="https://i.ytimg.com/vi/iVu2Yzi469o/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>워크맨 〈워크돌〉</b>엔믹스 해원 · 어린이클럽 편</span></button>
     <button class="v" data-yt="iKiR_ZjMOCA"><img src="https://i.ytimg.com/vi/iKiR_ZjMOCA/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>SBS 스브스뉴스</b>어린이클럽 편</span></button>
   </div>
-  <div class="airl"><b>대표 방송</b><span>워크맨 〈워크돌〉 · SBS 스브스뉴스 · KBS VJ특공대 외 다수</span></div>
+  <div class="airl"><b>대표 방송</b><span>SBS 생방송 투데이 〈관심집중〉(2026.11) · 워크맨 〈워크돌〉 · SBS 스브스뉴스 · KBS VJ특공대 외 다수</span></div>
 </section>
 
 <section class="sec" id="show">
@@ -591,7 +595,11 @@ b{font-weight:700}
   var m=document.getElementById('vmod'),box=document.getElementById('vbox'),out=document.getElementById('vout');
   function close(){m.classList.remove('open','vert');box.innerHTML='';document.body.style.overflow='';}
   document.addEventListener('click',function(e){
+    var mp=e.target.closest('[data-mp4]');
+    if(mp){e.preventDefault(); box.innerHTML='<video src="'+mp.getAttribute('data-mp4')+'" poster="'+(mp.getAttribute('data-poster')||'')+'" controls autoplay playsinline preload="metadata" title="영상"></video>';
+      out.href=mp.getAttribute('data-mp4'); out.textContent='영상 새 창으로 보기 ↗'; m.classList.add('open'); document.body.style.overflow='hidden'; return;}
     var t=e.target.closest('[data-yt]'); if(!t) return;
+    out.textContent='유튜브에서 보기 ↗';
     e.preventDefault(); var id=t.getAttribute('data-yt'), v=t.hasAttribute('data-v');
     box.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="영상"></iframe>';
     out.href=v?'https://youtube.com/shorts/'+id:'https://youtu.be/'+id;
