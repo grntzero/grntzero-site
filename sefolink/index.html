@@ -201,7 +201,7 @@ img{display:block;max-width:100%}
   <div class="sh"><span class="k">ON AIR</span></div>
   <h2>방송 · 활동</h2>
   <div class="g2" style="margin-top:12px">
-    <button class="v sm wide" data-mp4="https://grntzero.com/media/sbs_20261105.mp4?v=1105" data-poster="https://grntzero.com/media/sbs_20261105_p2.jpg?v=1105"><img src="https://grntzero.com/media/sbs_20261105_p2.jpg?v=1105" alt="SBS 생방송 투데이 관심집중 DJ세포" loading="lazy"><span class="pl">▶</span><span class="cap">SBS 생방송 투데이 〈관심집중〉 · 2026.11.05<br>동요로 클럽을 만드는 DJ세포 · 출처 · SBS 생방송 투데이</span></button>
+    <button class="v sm wide" data-mp4="https://cdn.jsdelivr.net/gh/grntzero/grntzero-site@6bdb760083fe3a493699ff5d3ad0ebf9026b1fbd/media/sbs_20261105_540.mp4" data-poster="https://cdn.jsdelivr.net/gh/grntzero/grntzero-site@6bdb760083fe3a493699ff5d3ad0ebf9026b1fbd/media/sbs_20261105_p2.jpg"><img src="https://cdn.jsdelivr.net/gh/grntzero/grntzero-site@6bdb760083fe3a493699ff5d3ad0ebf9026b1fbd/media/sbs_20261105_p2.jpg" alt="SBS 생방송 투데이 관심집중 DJ세포" loading="lazy"><span class="pl">▶</span><span class="cap">SBS 생방송 투데이 〈관심집중〉 · 2026.11.05<br>동요로 클럽을 만드는 DJ세포 · 출처 · SBS 생방송 투데이</span></button>
     <button class="v sm" data-yt="iVu2Yzi469o"><img src="https://i.ytimg.com/vi/iVu2Yzi469o/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">워크맨 〈워크돌〉<br>엔믹스 해원 · 어린이클럽 편</span></button>
     <button class="v sm" data-yt="iKiR_ZjMOCA"><img src="https://i.ytimg.com/vi/iKiR_ZjMOCA/maxresdefault.jpg" alt="" loading="lazy"><span class="pl">▶</span><span class="cap">SBS 스브스뉴스<br>어린이클럽 편</span></button>
   </div>
@@ -241,7 +241,7 @@ img{display:block;max-width:100%}
   function close(){m.classList.remove('open','vert');box.innerHTML='';document.body.style.overflow='';}
   document.addEventListener('click',function(e){
     var mp=e.target.closest('[data-mp4]');
-    if(mp){e.preventDefault(); box.innerHTML='<video src="'+mp.getAttribute('data-mp4')+'" poster="'+(mp.getAttribute('data-poster')||'')+'" controls autoplay playsinline preload="metadata" title="영상"></video>';
+    if(mp){e.preventDefault(); box.innerHTML='<video src="'+mp.getAttribute('data-mp4')+'" poster="'+(mp.getAttribute('data-poster')||'')+'" controls autoplay playsinline preload="none" title="영상"></video>';
       out.href=mp.getAttribute('data-mp4'); out.textContent='영상 새 창으로 보기 ↗'; m.classList.add('open'); document.body.style.overflow='hidden'; return;}
     var t=e.target.closest('[data-yt]'); if(!t) return;
     out.textContent='유튜브에서 보기 ↗';
