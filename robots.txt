@@ -14,5 +14,6 @@ Disallow: /my/
 Disallow: /kids/
 Disallow: /schedule/
 Disallow: /manual/
+Disallow: /img/card-
 
 Sitemap: https://www.grntzero.com/sitemap.xml
