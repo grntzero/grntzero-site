@@ -359,6 +359,13 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
 .cgrp .chips span{font-size:13px;padding:6px 11px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
 @media(max-width:600px){.cgrp .chips span{font-size:12px;padding:5px 9px}}
 </style>
+<style>
+/* 11-12 대표 OK C안: 보라 유지(파비콘·카톡 썸네일·재킷과 같은 #6244BE) + 「문의」 버튼만 노랑(파비콘 노란 점·재킷 노란 줄) */
+:root{--sun-2:#F5B800}
+.cta-row .btn:not(.ghost),.nav .cta,a.btn[href="#contact"]:not(.ghost){background:var(--sun);border-color:var(--sun);color:var(--ink)}
+.cta-row .btn:not(.ghost):hover,.nav .cta:hover,a.btn[href="#contact"]:not(.ghost):hover{background:var(--sun-2);border-color:var(--sun-2);color:var(--ink)}
+.btn:hover{background:var(--violet-2)}
+</style>
 </head>
 <body>
 
