@@ -135,6 +135,7 @@ footer b{color:var(--mut);font-weight:500}
 <div class="ck" id="ck">확인 중…</div>
 
 <section class="pin hide" id="pinView"><div class="box">
+  <div class="gzbot sm"><img src="/img/assistant/grunt_hi.webp" alt="" width="64" height="64" loading="lazy"><div class="bub"><span class="nm">비서 그런트</span>어서 오세요! 그런트제로 <b>비서 그런트</b>예요.</div></div>
   <h1>GRUNT ZERO</h1>
   <div class="pg">아티스트 정산서</div>
   <p>담당자에게 받은 접속 코드를 입력하세요.</p>
@@ -155,6 +156,7 @@ footer b{color:var(--mut);font-weight:500}
     열리지 않거나 권한 요청 화면이 뜨면, 구글에 로그인된 계정이 회사에 알려주신 주소와 같은지 먼저 확인해 주세요.
     그래도 안 되면 <b>담당자</b>에게 알려주시면 바로 열어드립니다.
   </div>
+  <div class="gzbot"><img src="/img/assistant/grunt_bow.webp" alt="" width="88" height="88" loading="lazy"><div class="bub"><span class="nm">비서 그런트</span>정산서가 안 열리면 카톡으로 편하게 말씀 주세요. 제가 담당자에게 바로 전해 드릴게요.</div></div>
 </div></div>
 
 <section><div class="wrap">
@@ -241,3 +243,15 @@ document.addEventListener('click',function(e){
   window.open('https://docs.google.com/spreadsheets/d/'+t.getAttribute('data-s')+'/edit','_blank','noopener');
 });
 </script>
+<style>/* 비서 그런트 말풍선 (11-14) */
+.gzbot{display:flex;gap:16px;align-items:flex-end;margin:22px 0}
+.gzbot img{width:104px;height:104px;flex:none}
+.gzbot .bub{background:#191308;border:1px solid rgba(198,163,92,.45);border-radius:16px 16px 16px 4px;padding:12px 16px;color:#E6DFD0;font-size:14.5px;line-height:1.7;max-width:52ch;text-align:left}
+.gzbot .bub b{color:#E8D2A0;font-weight:600;white-space:nowrap}
+.gzbot .bub a{color:inherit;text-decoration:none}
+.gzbot .nm{display:block;font-size:12px;color:#C6A35C;letter-spacing:.06em;margin-bottom:3px;font-weight:600}
+.gzbot.sm{gap:10px;align-items:center;justify-content:center;margin:0 0 18px}
+.gzbot.sm img{width:64px;height:64px}
+.gzbot.sm .bub{font-size:13.5px;padding:9px 13px}
+@media(max-width:620px){.gzbot{gap:10px}.gzbot img{width:76px;height:76px}.gzbot .bub{font-size:13.5px;padding:10px 13px}.gzbot.sm img{width:56px;height:56px}}
+</style>

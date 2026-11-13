@@ -216,6 +216,7 @@ img{display:block;max-width:100%}
   <div class="k">BOOKING</div>
   <h2>섭외 문의</h2>
   <p>어린이 행사 · 시민축제 · 지역축제 · 기업 행사 모두 문의해 주세요.</p>
+  <div class="sselbot"><img src="/img/assistant/ssel_basic.webp" alt="" width="92" height="92" loading="lazy"><div class="bub"><span class="nm">세포님 비서 쎌</span>섭외 문의 남겨 주시면 세포님께 바로 보고 올릴게요! 🫡</div></div>
   <a class="cbtn" href="tel:1800-8790"><span>☎ 1800-8790</span><small>전화 문의</small></a>
   <a class="cbtn alt" href="mailto:grnt@grntzero.com"><span>grnt@grntzero.com</span><small>메일 문의</small></a>
 </section>
@@ -256,5 +257,12 @@ img{display:block;max-width:100%}
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
 })();
 </script>
+<style>/* 세포 비서 쎌 말풍선 (11-14) */
+.sselbot{display:flex;gap:12px;align-items:center;justify-content:center;margin:18px auto 22px;max-width:440px;text-align:left}
+.sselbot img{width:92px;height:92px;flex:none}
+.sselbot .bub{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.35);border-radius:16px 16px 16px 4px;padding:10px 14px;color:#fff;font-size:14px;line-height:1.65}
+.sselbot .nm{display:block;font-size:12px;font-weight:700;letter-spacing:.04em;margin-bottom:2px}
+@media(max-width:620px){.sselbot img{width:72px;height:72px}.sselbot .bub{font-size:13.5px}}
+</style>
 </body>
 </html>

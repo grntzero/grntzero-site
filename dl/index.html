@@ -133,6 +133,7 @@
   <p class="h1sub">로고 · 프로필 자료실</p>
   <p class="sub">포스터 · LED 백월 · 현수막에 쓰실 로고와 프로필 사진입니다.</p>
   <p class="lead">아티스트 16팀의 로고(투명 PNG)와 프로필 사진(JPG)을 바로 받으실 수 있습니다. 로고는 화이트가 기본이고, 밝은 배경에 쓰실 때만 블랙을 쓰시면 됩니다. 인쇄용 벡터(AI)·고해상도 원본이 필요하시면 1800-8790으로 요청해 주세요.</p>
+  <div class="gzbot"><img src="/img/assistant/grunt_ok.webp" alt="" width="96" height="96" loading="lazy"><div class="bub"><span class="nm">비서 그런트</span>필요한 자료를 못 찾으시면 <a href="tel:18008790"><b>1800-8790</b></a>이나 <b>grnt@grntzero.com</b>으로 요청해 주세요. 담당자가 바로 챙겨 드려요.</div></div>
 </header>
 
 <div class="toolbar">
@@ -476,3 +477,15 @@
     });
   }
 </script>
+<style>/* 비서 그런트 말풍선 (11-14) */
+.gzbot{display:flex;gap:16px;align-items:flex-end;margin:22px 0}
+.gzbot img{width:104px;height:104px;flex:none}
+.gzbot .bub{background:#191308;border:1px solid rgba(198,163,92,.45);border-radius:16px 16px 16px 4px;padding:12px 16px;color:#E6DFD0;font-size:14.5px;line-height:1.7;max-width:52ch;text-align:left}
+.gzbot .bub b{color:#E8D2A0;font-weight:600;white-space:nowrap}
+.gzbot .bub a{color:inherit;text-decoration:none}
+.gzbot .nm{display:block;font-size:12px;color:#C6A35C;letter-spacing:.06em;margin-bottom:3px;font-weight:600}
+.gzbot.sm{gap:10px;align-items:center;justify-content:center;margin:0 0 18px}
+.gzbot.sm img{width:64px;height:64px}
+.gzbot.sm .bub{font-size:13.5px;padding:9px 13px}
+@media(max-width:620px){.gzbot{gap:10px}.gzbot img{width:76px;height:76px}.gzbot .bub{font-size:13.5px;padding:10px 13px}.gzbot.sm img{width:56px;height:56px}}
+</style>

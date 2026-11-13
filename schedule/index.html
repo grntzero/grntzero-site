@@ -177,6 +177,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 </div></div>
 
 <section class="pin hide" id="pinView"><div class="box">
+  <div class="gzbot sm"><img src="/img/assistant/grunt_hi.webp" alt="" width="64" height="64" loading="lazy"><div class="bub"><span class="nm">비서 그런트</span>어서 오세요! 그런트제로 <b>비서 그런트</b>예요.</div></div>
   <h1>GRUNT ZERO</h1>
   <div class="pg">아티스트 스케줄</div>
   <p>담당자에게 받은 접속 코드를 입력하세요.</p>
@@ -206,6 +207,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 </main>
 
 <footer class="foot hide" id="foot"><div class="wrap">
+  <div class="gzbot"><img src="/img/assistant/grunt_bow.webp" alt="" width="80" height="80" loading="lazy"><div class="bub"><span class="nm">비서 그런트</span>공연 안내는 제가 <b>카톡</b>으로 챙겨 드려요.</div></div>
   일정은 [공식]그런트제로 캘린더에서 자동으로 불러옵니다 · 2분마다 갱신<br>
   금액은 표시하지 않습니다. 내용이 다르면 현장지원 담당이나 대표에게 알려주세요.<br>
   <a href="https://grntzero.com/">grntzero.com</a>
@@ -468,5 +470,18 @@ if(!DEMO){
 load(true);
 })();
 </script>
+<style>/* 비서 그런트 말풍선 (11-14) */
+.gzbot{display:flex;gap:16px;align-items:flex-end;margin:22px 0}
+.gzbot img{width:104px;height:104px;flex:none}
+.gzbot .bub{background:#191308;border:1px solid rgba(198,163,92,.45);border-radius:16px 16px 16px 4px;padding:12px 16px;color:#E6DFD0;font-size:14.5px;line-height:1.7;max-width:52ch;text-align:left}
+.gzbot .bub b{color:#E8D2A0;font-weight:600;white-space:nowrap}
+.gzbot .bub a{color:inherit;text-decoration:none}
+.gzbot .nm{display:block;font-size:12px;color:#C6A35C;letter-spacing:.06em;margin-bottom:3px;font-weight:600}
+.gzbot.sm{gap:10px;align-items:center;justify-content:center;margin:0 0 18px}
+.gzbot.sm img{width:64px;height:64px}
+.gzbot.sm .bub{font-size:13.5px;padding:9px 13px}
+@media(max-width:620px){.gzbot{gap:10px}.gzbot img{width:76px;height:76px}.gzbot .bub{font-size:13.5px;padding:10px 13px}.gzbot.sm img{width:56px;height:56px}}
+.foot .gzbot{margin:0 0 16px;justify-content:center;align-items:center}
+</style>
 </body>
 </html>
