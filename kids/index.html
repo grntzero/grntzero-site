@@ -611,6 +611,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
     <div class="sect-head">
       <p class="eyebrow">FAQ</p>
       <h2>담당자님들이 자주 물어보세요</h2>
+      <div class="kkoma"><span class="duo"><img class="s" src="img/assistant/ssel_basic.webp" alt="" width="96" height="96" loading="lazy"><img class="k" src="img/assistant/kkoma_think.webp" alt="" width="76" height="76" loading="lazy"></span><div class="bub"><b>쎌</b>이랑 동생 <b>꼬마 쎌</b>이에요! 궁금한 건 여기 먼저 봐 주세요 🌱</div></div>
     </div>
     <div class="faq">
       <details><summary>공연 시간은 얼마나 되나요?</summary><p>기본 30분 단위로 진행합니다. 행사 일정에 맞춰 회차를 나누거나 시간을 늘리는 구성도 가능하니 원하시는 진행 순서를 알려주세요.</p></details>
@@ -628,6 +629,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <p class="eyebrow">Booking</p>
       <h2>아이들에게 잊지 못할<br>30분을 선물해 주세요.</h2>
       <p style="color:var(--mute);margin:14px 0 0">행사 정보를 남겨주시면 가능한 아티스트와 견적을 빠르게 안내해 드립니다. 급하시면 전화가 가장 빠릅니다.</p>
+      <div class="kkoma"><span class="duo"><img class="s" src="img/assistant/ssel_bow.webp" alt="" width="96" height="96" loading="lazy"><img class="k" src="img/assistant/kkoma_bow.webp" alt="" width="76" height="76" loading="lazy"></span><div class="bub">남겨 주신 문의는 <b>쎌</b>·<b>꼬마 쎌</b> 형제가 담당자에게 바로 전해 드려요. 고맙습니다!</div></div>
       <div class="ch">
         <a href="tel:18008790"><div class="k">Tel</div><div class="v">1800-8790</div></a>
         <a href="mailto:grnt@grntzero.com"><div class="k">Email</div><div class="v">grnt@grntzero.com</div></a>
@@ -762,5 +764,14 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
   });
 })();
 </script>
+<style>/* 꼬마 쎌 초안(11-13) */
+.kkoma{display:flex;gap:12px;align-items:center;margin-top:16px}
+.kkoma .duo{display:flex;align-items:flex-end;flex:none}
+.kkoma .duo .s{width:96px;height:96px}
+.kkoma .duo .k{width:76px;height:76px;margin-left:-14px}
+.kkoma .bub{background:var(--card);border:1.5px solid var(--violet-soft);border-radius:18px 18px 18px 4px;padding:11px 16px;font-size:14.5px;color:var(--ink-2);box-shadow:0 3px 0 var(--violet-soft)}
+.kkoma .bub b{color:var(--violet)}
+@media(max-width:620px){.kkoma{gap:8px}.kkoma .duo .s{width:70px;height:70px}.kkoma .duo .k{width:56px;height:56px;margin-left:-10px}.kkoma .bub{font-size:13.5px;padding:10px 13px}}
+</style>
 </body>
 </html>
