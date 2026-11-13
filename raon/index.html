@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<script>/* 카카오톡 인앱 브라우저 → 외부 브라우저로 열기 */(function(){var u=navigator.userAgent||"";if(!/KAKAOTALK/.test(u)||/scrap|bot/i.test(u))return;var go=function(){location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(location.href)};try{if(!sessionStorage.getItem("gz_ext")){sessionStorage.setItem("gz_ext","1");go();}}catch(e){go()}document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("div");b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#C6A35C;color:#0D0A06;font:600 14px/1.4 -apple-system,sans-serif;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;justify-content:space-between";b.innerHTML='<span>카카오톡 안에서는 일부 기능이 안 될 수 있어요</span><a style="flex:none;background:#0D0A06;color:#fff;padding:8px 12px;border-radius:4px;text-decoration:none" href="#">브라우저로 열기</a>';b.querySelector("a").addEventListener("click",function(e){e.preventDefault();go()});document.body.appendChild(b)})})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>그런트 수학 과외</title>
+<meta property="og:title" content="그런트 수학 과외">
+<meta property="og:description" content="태블릿을 가로로 들고 「들어가기」를 눌러 주세요">
+<meta property="og:image" content="https://grntzero.com/img/raon-logo.png">
+<meta name="theme-color" content="#ffd84d">
+<style>
+:root{--ink:#3a2e12;--ok:#3cb46e;--okd:#2a8f53}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:16px;font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:var(--ink);background:linear-gradient(160deg,#fff6d2,#ffe8a0)}
+.card{width:100%;max-width:640px;background:#fff;border:3px solid #f0d78a;border-radius:24px;padding:24px;display:flex;gap:22px;align-items:center;box-shadow:0 4px 0 #f0d78a}
+.card img{width:120px;height:120px;border-radius:24px;flex:none}
+h1{margin:0 0 10px;font-size:26px}
+ol{margin:0 0 16px;padding-left:22px;font-size:17px;line-height:1.6}
+a.go{display:block;text-align:center;background:var(--ok);color:#fff;font-size:22px;font-weight:800;text-decoration:none;padding:14px;border-radius:18px;box-shadow:0 4px 0 var(--okd)}
+.rot{display:none;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#fff3c4;font-weight:700}
+@media (orientation:portrait){.rot{display:block}.card{flex-direction:column;text-align:left}}
+</style>
+</head>
+<body>
+<div class="card">
+  <img src="/img/raon-logo.png" alt="그런트 선생님">
+  <div>
+    <h1>그런트 수학 과외</h1>
+    <p class="rot">📱↻ 태블릿을 <b>가로</b>로 돌려 주세요. 과외는 가로 화면에서만 돼요.</p>
+    <ol>
+      <li>카카오톡에서 열었다면 <b>크롬·삼성 인터넷</b>으로 자동으로 넘어가요.<br>안 넘어가면 아래 「브라우저로 열기」를 눌러요.</li>
+      <li>태블릿을 <b>가로</b>로 들어요.</li>
+      <li>「들어가기」 → 등록한 메일 주소 → 메일로 온 <b>숫자 6자리</b>를 넣어요.</li>
+    </ol>
+    <a class="go" href="https://raon.grntzero.com/">들어가기 →</a>
+  </div>
+</div>
+</body>
+</html>
