@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><script>/* 카카오톡 인앱 브라우저 → 외부 브라우저로 열기 */(function(){var u=navigator.userAgent||"";if(!/KAKAOTALK/.test(u)||/scrap|bot/i.test(u))return;var go=function(){location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(location.href)};try{if(!sessionStorage.getItem("gz_ext")){sessionStorage.setItem("gz_ext","1");go();}}catch(e){go()}document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("div");b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#C6A35C;color:#0D0A06;font:600 14px/1.4 -apple-system,sans-serif;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;justify-content:space-between";b.innerHTML='<span>카카오톡 안에서는 일부 기능이 안 될 수 있어요</span><a style="flex:none;background:#0D0A06;color:#fff;padding:8px 12px;border-radius:4px;text-decoration:none" href="#">브라우저로 열기</a>';b.querySelector("a").addEventListener("click",function(e){e.preventDefault();go()});document.body.appendChild(b)})})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#07090e">
+<meta name="screen-orientation" content="landscape">
+<meta name="x5-orientation" content="landscape">
+<title>그런트 스쿼드 GRUNT SQUAD — 기계도시</title>
+<meta name="description" content="박자에 맞춰 싸우는 그런트제로 3D 리듬 액션 게임. 기계도시의 적과 보스를 물리쳐요. 설치 없이 폰·태블릿·PC 브라우저에서 바로 플레이.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://squad.grntzero.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GRUNT ZERO">
+<meta property="og:title" content="그런트 스쿼드 GRUNT SQUAD — 기계도시">
+<meta property="og:description" content="박자에 맞춰 싸우는 그런트제로 3D 리듬 액션 게임. 기계도시의 적과 보스를 물리쳐요. 설치 없이 폰·태블릿·PC 브라우저에서 바로 플레이.">
+<meta property="og:url" content="https://squad.grntzero.com/">
+<meta property="og:image" content="https://squad.grntzero.com/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/logo/icon32.png"><link rel="apple-touch-icon" href="assets/img/logo/icon180.png">
+<link rel="stylesheet" href="css/game.css">
+<!-- 폰 브라우저 확대 막기: 두 번 누름·두 손가락 벌리기 (iOS 사파리는 viewport 설정만으로는 안 막힘) -->
+<style>*, *::before, *::after { touch-action: none; -webkit-tap-highlight-color: transparent; }</style>
+<script>
+(function () {
+  var stop = function (e) { e.preventDefault(); };
+  ['gesturestart', 'gesturechange', 'gestureend', 'dblclick', 'contextmenu'].forEach(function (t) {
+    document.addEventListener(t, stop, { passive: false });
+  });
+  document.addEventListener('touchmove', function (e) { if (!e.target || e.target.tagName !== 'INPUT') e.preventDefault(); }, { passive: false });
+})();
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="ui">
+  <div id="fxText"></div>
+  <div id="vig"></div>
+
+  <div id="hud" class="hide">
+    <div id="shadeT"></div><div id="shadeB"></div>
+    <div id="hpBox">
+      <div id="face">
+        <svg viewBox="0 0 64 64"><path d="M10 34 a22 20 0 0 1 44 0 l4 3 v4 h-52 v-4 z" fill="#2b3024" stroke="#f0c14a" stroke-width="2"/><rect x="14" y="43" width="36" height="9" rx="3" fill="#0a0a0c" stroke="#f0c14a" stroke-width="1.5"/><path d="M22 54 q10 7 20 0" fill="none" stroke="#f0c14a" stroke-width="2" stroke-linecap="round"/><text x="32" y="33" text-anchor="middle" font-size="13" font-weight="900" fill="#f4f1e6" font-family="sans-serif">조교</text></svg>
+      </div>
+      <div id="hpCol">
+        <div id="nameTag">허조교 <span>SGT.GUNNER</span></div>
+        <div id="hpBar"><div id="hpGhost"></div><div id="hpFill"></div><div id="hpNum">100</div></div>
+        <div id="streak"><i></i><i></i><i></i><i></i><i></i><span>정박</span></div>
+      </div>
+    </div>
+    <div id="waveBox"><div id="waveName">WAVE 1</div><div id="waveSub">남은 기계 0</div></div>
+    <button id="pauseBtn" data-act="pause" aria-label="멈춤"><i></i><i></i></button>
+
+    <div id="bossBar" class="hide">
+      <div class="bname">침묵 기관 <span id="bossPh">1단계</span></div>
+      <div id="bossTrack"><div id="bossGhost"></div><div id="bossFill"></div><i style="left:25%"></i><i style="left:50%"></i><i style="left:75%"></i></div>
+    </div>
+
+    <div id="combo" class="hide"><b id="comboN">0</b><span>COMBO</span></div>
+    <div id="cutin"><b>SGT.GUNNER</b></div>
+    <div id="offs"><i class="oT"><b></b></i><i class="oB"><b></b></i><i class="oL"><b></b></i><i class="oR"><b></b></i></div>
+    <div id="edges"><i class="eT"></i><i class="eB"></i><i class="eL"></i><i class="eR"></i></div>
+    <div id="arrows"></div>
+    <div id="hint" class="hide"></div>
+    <div id="keyHint" class="hide"><b>WASD</b> 이동 · <b>마우스 왼쪽</b> 꾹 호각 · <b>Space</b> 구르기 · <b>E</b> 차렷 · <b>Q</b> 전체 기상</div>
+
+    <div id="stickHome"><span>이동</span></div>
+    <div id="stick" class="hide"><div id="stickBase"></div><div id="stickKnob"></div></div>
+
+    <div id="pad">
+      <div id="bFire" class="btn" data-act="fire"><div id="beatRing"></div><div class="core"><svg viewBox="0 0 60 60"><rect x="8" y="24" width="30" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="4"/><path d="M38 28 h12 v8 h-12" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><circle cx="20" cy="20" r="6" fill="none" stroke="currentColor" stroke-width="4"/></svg><span>호각</span></div><div id="aimKnob"></div></div>
+      <div id="bRoll" class="btn sm" data-act="roll"><div class="cd"></div><div class="core"><svg viewBox="0 0 60 60"><path d="M12 34 a18 18 0 1 1 10 14" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M8 24 l5 12 l11 -6" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>구르기</span></div></div>
+      <div id="bSkill" class="btn sm" data-act="skill"><div class="cd"></div><div class="core"><b>차렷!</b></div></div>
+      <div id="bUlt" class="btn md" data-act="ult"><svg id="ultRing" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="7"/><circle id="ultArc" cx="50" cy="50" r="45" fill="none" stroke="#f0c14a" stroke-width="7" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7" transform="rotate(-90 50 50)"/></svg><div class="core"><b>전체<br>기상!</b></div></div>
+    </div>
+  </div>
+
+  <div id="banner" class="hide"><div class="line"></div><div class="main"></div><div class="sub"></div><div class="line"></div></div>
+  <div id="shout" class="hide"></div>
+
+  <!-- 타이틀 -->
+  <div id="title" class="screen hide">
+    <div class="logo">
+      <div class="pre">GAME LAB · PROJECT B</div>
+      <img class="logoImg" src="assets/img/logo/logo.webp" alt="그런트 스쿼드 GRUNT SQUAD" draggable="false"><span class="srName">그런트 스쿼드 GRUNT SQUAD</span>
+    </div>
+    <div class="bottom">
+      <div id="diffRow"><button id="diffEasy" class="dbtn" data-act="diffEasy">훈련병<small>쉬움 · 두 번 더 기회</small></button><button id="diffNormal" class="dbtn on" data-act="diffNormal">정규<small>보통</small></button></div>
+      <div id="atkRow"><span class="atkLb">공격</span><button id="atkManual" class="dbtn sm on" data-act="atkManual">수동<small>직접 호각 · 점수 크게</small></button><button id="atkAuto" class="dbtn sm" data-act="atkAuto">자동<small>호각은 알아서 · 점수 작게</small></button></div>
+      <button id="startBtn" class="gbtn big" data-act="start">점호 시작</button>
+      <div id="howto">
+        <div class="touchOnly"><b>왼쪽</b> 이동 · <b>호각</b>을 누른 채 <b>적 쪽으로 끌기</b></div>
+        <div class="pcOnly"><b>WASD</b> 이동 · <b>마우스 왼쪽</b> 누르고 있기</div>
+        <div class="manOnly"><b>발밑 고리가 번쩍일 때</b> 다시 누르면 「정박」</div>
+        <div class="autoOnly">호각은 <b>자동</b> — <b>이동</b> · <b>구르기</b> · <b>차렷!</b> · <b>전체 기상!</b>만</div>
+        <div><b>빨간 화살표</b> = 화면 밖의 적 · <b>구르기</b>로 피한다</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 보급(강화) 3택 1 -->
+  <div id="cards" class="screen dim hide">
+    <div class="ctitle">보급 선택</div>
+    <div class="csub">하나를 고른다</div>
+    <div id="cardRow"></div>
+  </div>
+
+  <!-- 멈춤 -->
+  <div id="pause" class="screen dim hide">
+    <div class="panel">
+      <button class="gbtn ghost fsb" id="optFs" data-act="fs" data-gz-fsrow aria-label="전체화면 켜기/끄기" aria-pressed="false">⛶ 전체화면</button>
+      <div class="ptitle">일시 정지</div>
+      <label class="row"><span>배경 음악</span><input id="optBgm" type="range" min="0" max="100" value="80"></label>
+      <label class="row"><span>효과음</span><input id="optSfx" type="range" min="0" max="100" value="90"></label>
+      <div class="prows">
+      <div class="row"><span>자동 공격 <small>(호각을 알아서 · 점수 ×0.85)</small></span><button id="optAtk" class="tog" data-act="atkTog" aria-label="자동 공격 켜기/끄기"><i></i></button></div>
+      <div class="row"><span>허조교 목소리</span><button id="optVoice" class="tog on" data-act="voice" aria-label="목소리 켜기/끄기"><i></i></button></div>
+      <div class="row"><span>화면 흔들림</span><button id="optShake" class="tog on" data-act="shake"><i></i></button></div>
+      <div class="row"><span>진동 <small>(타격감 · 소리와 따로)</small></span><button id="optVib" class="tog on" data-act="vib" aria-label="진동 켜기/끄기"><i></i></button></div>
+      <div class="row"><span>왼손잡이 (좌우 바꾸기)</span><button id="optLefty" class="tog" data-act="lefty"><i></i></button></div>
+      <div class="row"><span>카메라 따라가기 <small>(가는 쪽 앞서 보기)</small></span><span id="optLead" class="seg3"><button data-act="lead_off">끔</button><button data-act="lead_mid">보통</button><button data-act="lead_strong" class="on">강하게</button></span></div>
+      <div class="row"><span>화질 <small>(자동: 오래 느리면 조금 낮춤)</small></span><span id="optGq" class="seg3"><button data-act="gq_auto" class="on">자동</button><button data-act="gq_high">높게</button></span></div>
+      <div class="row"><span>카메라 자동 회전 <small>(보스전에서 보스 쪽으로)</small></span><button id="optCam" class="tog on" data-act="cam"><i></i></button></div>
+      <label class="row"><span>박자 맞추기 <small>(늦게 들리면 +)</small></span><span class="offBox"><input id="optBeat" type="range" min="-100" max="150" step="10" value="0"><b id="optBeatV">0ms</b></span></label>
+      </div>
+      <div class="btns"><button class="gbtn" data-act="resume">계속</button><button class="gbtn ghost" data-act="home">처음으로</button></div>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="result" class="screen dim hide">
+    <div class="panel">
+      <div id="resTitle" class="ptitle">임무 완수</div>
+      <div id="resSub" class="rsub"></div>
+      <div id="grade">S</div><div id="resAuto" class="hide">자동</div>
+      <div id="resRows"></div>
+      <div id="resGoal"></div>
+      <div class="btns"><button class="gbtn" data-act="retry">다시 도전</button><button class="gbtn ghost" data-act="home">처음으로</button></div>
+    </div>
+  </div>
+
+  <!-- r7: 폰을 세로로 들었을 때 (게임 멈춤) -->
+  <div id="rotate">
+    <div class="ph"></div>
+    <div class="t1">가로로 돌려 주세요</div>
+    <div class="t2">그런트 스쿼드는 가로 화면 게임입니다<br>화면 회전 잠금이 켜져 있으면 꺼 주세요</div>
+    <button class="gbtn ghost" data-act="landscape">전체 화면으로</button>
+  </div>
+
+  <div id="loading" class="screen"><div class="l1">GRUNT <em>SQUAD</em></div><div id="loadBar"><i></i></div></div>
+</div>
+
+<script src="lib/three.bundle.js"></script>
+<script src="js/gzview.js"></script>
+<script src="js/util.js"></script>
+<script src="js/haptics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/pack_voice.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/render.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/arena.js"></script>
+<script src="js/hero.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/models.js"></script>
+<script src="js/assistant.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

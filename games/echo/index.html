@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><script>/* 카카오톡 인앱 브라우저 → 외부 브라우저로 열기 */(function(){var u=navigator.userAgent||"";if(!/KAKAOTALK/.test(u)||/scrap|bot/i.test(u))return;var go=function(){location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(location.href)};try{if(!sessionStorage.getItem("gz_ext")){sessionStorage.setItem("gz_ext","1");go();}}catch(e){go()}document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("div");b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#C6A35C;color:#0D0A06;font:600 14px/1.4 -apple-system,sans-serif;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;justify-content:space-between";b.innerHTML='<span>카카오톡 안에서는 일부 기능이 안 될 수 있어요</span><a style="flex:none;background:#0D0A06;color:#fff;padding:8px 12px;border-radius:4px;text-decoration:none" href="#">브라우저로 열기</a>';b.querySelector("a").addEventListener("click",function(e){e.preventDefault();go()});document.body.appendChild(b)})})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2a1f3d">
+<title>에코 제로: 톱니골의 메아리 — ECHO ZERO</title>
+<meta name="description" content="톱니골을 덮은 안개를 소리 방울로 걷어내는 3D 액션 게임. 설치 없이 폰·태블릿·PC 브라우저에서 바로 플레이해요.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://echo.sefoent.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GRUNT ZERO">
+<meta property="og:title" content="에코 제로: 톱니골의 메아리 — ECHO ZERO">
+<meta property="og:description" content="톱니골을 덮은 안개를 소리 방울로 걷어내는 3D 액션 게임. 설치 없이 폰·태블릿·PC 브라우저에서 바로 플레이해요.">
+<meta property="og:url" content="https://echo.sefoent.com/">
+<meta property="og:image" content="https://echo.sefoent.com/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/logo/icon32.png"><link rel="apple-touch-icon" href="assets/img/logo/icon180.png">
+<link rel="stylesheet" href="css/game.css">
+<!-- 폰 브라우저 확대 막기: 두 번 누름·두 손가락 벌리기 (iOS 사파리는 viewport 설정만으로는 안 막힘) -->
+<style>*, *::before, *::after { touch-action: none; -webkit-tap-highlight-color: transparent; }</style>
+<script>
+(function () {
+  var stop = function (e) { e.preventDefault(); };
+  ['gesturestart', 'gesturechange', 'gestureend', 'dblclick'].forEach(function (t) {
+    document.addEventListener(t, stop, { passive: false });
+  });
+  document.addEventListener('touchmove', function (e) {
+    if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault();
+  }, { passive: false });
+})();
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="ui">
+  <div id="fxText"></div>
+
+  <!-- 전투 HUD -->
+  <div id="hud" class="hide">
+    <div id="hpBox">
+      <div id="face"><canvas id="faceCv" width="320" height="320"></canvas></div>
+      <div id="hpCol">
+        <div id="nameTag" class="ol">SEFO <span id="lvTag">Lv.1</span></div>
+        <div id="lives" aria-label="소리 크기"></div>
+        <div id="xpRow"><span class="nIco ol">♪</span><div id="xpBar"><div id="xpFill"></div></div><span id="noteN" class="ol">0</span></div>
+      </div>
+    </div>
+
+    <div id="prog">
+      <div id="progBar">
+        <div class="seg"><i class="fog"></i><span class="ol">1층</span></div>
+        <div class="seg"><i class="fog"></i><span class="ol">2층</span></div>
+        <div class="seg"><i class="fog"></i><span class="ol">3층</span></div>
+        <div class="seg boss"><i class="fog"></i><span class="ol">보스</span></div>
+        <div id="progGear"><svg viewBox="-50 -50 100 100"><path d="M-8,-46 L8,-46 L10,-34 L22,-29 L32,-37 L43,-26 L35,-16 L40,-4 L46,-2 L46,8 L34,10 L29,22 L37,32 L26,43 L16,35 L4,40 L2,46 L-8,46 L-10,34 L-22,29 L-32,37 L-43,26 L-35,16 L-40,4 L-46,2 L-46,-8 L-34,-10 L-29,-22 L-37,-32 L-26,-43 L-16,-35 L-4,-40 Z" fill="#ffd23f" stroke="#1b1424" stroke-width="7" stroke-linejoin="round"/><circle r="13" fill="#e5352b" stroke="#1b1424" stroke-width="6"/></svg></div>
+      </div>
+    </div>
+
+    <div id="topRight">
+      <button id="pauseBtn" class="bub sky" aria-label="멈춤"><svg viewBox="0 0 40 40"><rect x="9" y="7" width="8" height="26" rx="3" fill="#fff" stroke="#1b1424" stroke-width="3"/><rect x="23" y="7" width="8" height="26" rx="3" fill="#fff" stroke="#1b1424" stroke-width="3"/></svg></button>
+      <div id="mapBox"><canvas id="map" width="440" height="308"></canvas></div>
+    </div>
+
+    <div id="bossBar" class="hide">
+      <div class="bname ol">큰 침묵 안개</div>
+      <div id="bossTrack"><div id="bossGhost"></div><div id="bossFill"></div><div class="btick" style="left:33.33%"></div><div class="btick" style="left:66.66%"></div></div>
+    </div>
+
+    <div id="combo" class="hide"><div id="comboN" class="ol">0</div><div class="cl ol">연속!</div></div>
+    <div id="overPips"><i></i><i></i><i></i></div>
+    <div id="speech" class="hide">다 같이 손 머리 위로!</div>
+    <div id="zoneVig"></div>
+
+    <div id="stick" class="hide"><div id="stickBase"></div><div id="stickKnob"></div></div>
+    <div id="keyHint" class="hide"><b>WASD</b> 움직이기 · <span class="manOnly"><b>마우스 왼쪽</b> 꾹 소리</span><span class="autoOnly">소리 방울 <b>자동</b></span> · <b>E</b> 큰 소리</div>
+
+    <div id="btnSnd" class="rbtn">
+      <div class="core"><svg viewBox="0 0 60 60" class="ico"><path d="M9 23 h10 l14 -12 v38 l-14 -12 h-10 z" fill="#fff" stroke="#1b1424" stroke-width="3.5" stroke-linejoin="round"/><path d="M40 20 q7 10 0 20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M40 20 q7 10 0 20" fill="none" stroke="#1b1424" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg></div>
+      <div class="lbl ol">소리</div>
+    </div>
+
+    <div id="btnBig" class="rbtn">
+      <svg id="bigRing" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(27,20,36,0.6)" stroke-width="9"/><circle id="bigArc" cx="50" cy="50" r="45" fill="none" stroke="#ffd23f" stroke-width="9" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7" transform="rotate(-90 50 50)"/></svg>
+      <div class="core"><svg viewBox="0 0 60 60" class="ico"><path d="M10 23 h9 l13 -11 v36 l-13 -11 h-9 z" fill="#fff" stroke="#1b1424" stroke-width="3.5" stroke-linejoin="round"/><path d="M38 21 q6 9 0 18 M44 15 q11 15 0 30" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/><path d="M38 21 q6 9 0 18 M44 15 q11 15 0 30" fill="none" stroke="#1b1424" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg></div>
+      <div class="lbl ol">큰 소리</div>
+    </div>
+
+    <div id="hint" class="hide ol"></div>
+    <!-- 비서 쎌 (진행자): 왼쪽 얼굴 아래 작은 말풍선. 그림은 상황별 표정으로 바꿔 끼움 -->
+    <div id="grunt" class="hide ssel">
+      <img class="sselImg" alt="" draggable="false" src="assets/img/assistant/ssel/basic.webp">
+      <div class="gtxt"><b>쎌</b><span id="gruntTxt"></span></div>
+    </div>
+    <div id="shelter" class="hide"></div>
+  </div>
+
+  <div id="banner" class="hide"><div class="inner ol"></div><div class="sub ol"></div></div>
+  <div id="count" class="hide ol"></div>
+
+  <!-- 타이틀 -->
+  <div id="title" class="screen hide">
+    <div class="logo">
+      <img class="logoImg" src="assets/img/logo/logo.webp" alt="에코 제로: 톱니골의 메아리 ECHO ZERO" draggable="false"><span class="srName">에코 제로: 톱니골의 메아리 ECHO ZERO</span>
+      <div class="tag ol">박동탑 광장 · 안개를 터뜨려 노래를 되찾아요!</div>
+    </div>
+    <div id="atkPick" class="atkSeg" role="group" aria-label="소리 방울 자동 또는 수동">
+      <span class="atkL ol">소리 방울</span>
+      <button class="atkB" data-atk="auto"><span class="ol">자동</span></button>
+      <button class="atkB" data-atk="manual"><span class="ol">수동</span></button>
+    </div>
+    <button id="startBtn" class="bub yel big"><span class="ol">시작</span></button>
+    <div id="sselTitle" class="ssel">
+      <div class="gtxt"><b>쎌</b><span id="sselTitleTxt">안녕! 난 쎌이야. 내가 안내할게!</span></div>
+      <img class="sselImg wave" alt="" draggable="false" src="assets/img/assistant/ssel/front.webp">
+    </div>
+    <div id="howto">
+      <div class="hrow touchOnly"><b>왼쪽 엄지</b> 움직이기</div>
+      <div class="hrow pcOnly"><b>WASD·방향키</b> 움직이기</div>
+      <div class="hrow touchOnly manOnly"><b>「소리」 버튼</b> 꾹 누르면 소리 방울</div>
+      <div class="hrow touchOnly manOnly"><b>누른 채 끌면</b> 그쪽으로</div>
+      <div class="hrow pcOnly manOnly"><b>마우스 왼쪽·Space</b> 꾹 누르면 소리 방울</div>
+      <div class="hrow autoOnly"><b>자동</b> 가까운 안개에 소리 방울이 저절로</div>
+      <div class="hrow autoOnly"><b>비키며 음표 줍기</b>에 집중!</div>
+      <div class="hrow"><b>「큰 소리」</b> 다 차면 꾹! <span class="pcOnly">(E)</span></div>
+    </div>
+  </div>
+
+  <!-- 멈춤·설정 -->
+  <div id="pause" class="screen dim hide">
+    <div class="panel">
+      <button id="optFs" class="fsTop" type="button" data-gz-fsrow aria-label="전체화면 켜기/끄기" aria-pressed="false">⛶ 전체화면</button>
+      <div class="ptitle ol">잠깐 멈춤</div>
+      <label class="row"><span>배경 음악</span><input id="optBgm" type="range" min="0" max="100" value="80"></label>
+      <label class="row"><span>효과음</span><input id="optSfx" type="range" min="0" max="100" value="90"></label>
+      <div class="row"><span>소리 방울</span><span class="atkSeg sm" role="group" aria-label="소리 방울 자동 또는 수동"><button class="atkB" data-atk="auto"><span>자동</span></button><button class="atkB" data-atk="manual"><span>수동</span></button></span></div>
+      <div class="row"><span>카메라 따라가기</span><span class="atkSeg sm" role="group" aria-label="카메라 따라가기"><button class="atkB" data-cam="off"><span>끔</span></button><button class="atkB" data-cam="mid"><span>보통</span></button><button class="atkB" data-cam="strong"><span>강하게</span></button></span></div>
+      <div class="row"><span>화질</span><span class="atkSeg sm" role="group" aria-label="화질"><button class="atkB" data-gq="auto"><span>자동</span></button><button class="atkB" data-gq="high"><span>높게</span></button></span></div>
+      <label class="row"><span>화면 흔들림</span><button id="optShake" class="tog on"><i></i></button></label>
+      <label class="row"><span>진동</span><button id="optVibe" class="tog on"><i></i></button></label>
+      <label class="row"><span>왼손잡이 (좌우 바꾸기)</span><button id="optLefty" class="tog"><i></i></button></label>
+      <div class="btns"><button id="resumeBtn" class="bub yel"><span class="ol">계속하기</span></button><button id="homeBtn" class="bub sky"><span class="ol">처음으로</span></button></div>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="result" class="screen dim hide">
+    <div class="panel res">
+      <div id="resTitle" class="ptitle ol">안개를 다 걷어냈어요!</div>
+      <div id="rMode" class="hide">자동</div>
+      <div id="stars"><i class="st"></i><i class="st"></i><i class="st"></i></div>
+      <div class="stats">
+        <div class="srow"><span>걸린 시간</span><b id="rTime">0:00</b></div>
+        <div class="srow"><span>터뜨린 안개</span><b id="rFog">0</b></div>
+        <div class="srow"><span>최고 연속</span><b id="rCombo">0</b></div>
+        <div class="srow"><span>모은 음표</span><b id="rNote">0</b></div>
+      </div>
+      <button id="againBtn" class="bub yel"><span class="ol">다시 하기</span></button>
+      <div id="sselRes" class="ssel">
+        <div class="gtxt"><b>쎌</b><span id="sselResTxt"></span></div>
+        <img class="sselImg" alt="" draggable="false" src="assets/img/assistant/ssel/cheer.webp">
+      </div>
+    </div>
+  </div>
+
+  <!-- 레벨업: 리믹스 카드 3택1 -->
+  <div id="cards" class="screen dim hide">
+    <div class="ctitle ol">리믹스 카드!</div>
+    <div id="cardRow"></div>
+    <div class="csub ol">하나 골라요</div>
+  </div>
+
+  <div id="rotate" class="screen hide"><div class="phone"></div><div class="ol">폰을 가로로 돌려 주세요</div></div>
+  <div id="loading" class="screen"><img id="sselLoad" class="sselImg" alt="" draggable="false" src="assets/img/assistant/ssel/front.webp" onerror="this.style.display='none'"><div class="ltitle ol">에코 제로</div><div class="lbar"><div id="lfill"></div></div><div class="ltxt ol">불러오는 중…</div></div>
+</div>
+
+<script src="lib/three.bundle.js"></script>
+<script src="js/pack_models.js"></script>
+<script src="js/pack_audio.js"></script>
+<script src="js/gzview.js"></script>
+<script src="js/util.js"></script>
+<script src="js/render.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/haptics.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/arena.js"></script>
+<script src="js/player.js"></script>
+<script src="js/fogs.js"></script>
+<script src="js/wave.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

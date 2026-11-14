@@ -1,0 +1,16 @@
+/* 꼬마 쎌 (비서 캐릭터) — js/kkoma.js 가 자리·크기를 정함. 누를 수 없음(밑의 버튼이 그대로 눌림) */
+#kk { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+#kk img { position: absolute; width: auto; display: block; filter: drop-shadow(0 4px 0 rgba(43,31,87,.18)); transform-origin: 50% 100%; }
+#kk.pop img { animation: kkIn .45s cubic-bezier(.2,1.6,.4,1) both, kkBob .9s ease-in-out .45s infinite alternate; }
+#kk.m-run.pop img { animation: kkIn .4s cubic-bezier(.2,1.6,.4,1) both, kkBob .6s ease-in-out .4s 3 alternate; }
+#kkSay { position: absolute; padding: .38em .75em .42em; border-radius: 1em; background: #fff; color: #6244BE; font-weight: 900; line-height: 1.25; white-space: pre-line; word-break: keep-all; box-shadow: 0 0 0 3px #FF9EB5, 0 4px 0 3px rgba(43,31,87,.18); letter-spacing: -0.3px; }
+#kk.pop #kkSay { animation: kkSay .35s cubic-bezier(.2,1.6,.4,1) .08s both; }
+#kkSay::after { content: ""; position: absolute; width: 12px; height: 12px; background: #fff; box-shadow: 3px 3px 0 0 #FF9EB5; }
+#kkSay.s-l::after { left: -6px; top: 50%; margin-top: -6px; transform: rotate(135deg); }
+#kkSay.s-r::after { right: -6px; top: 50%; margin-top: -6px; transform: rotate(-45deg); }
+#kkSay.s-b::after { right: 22%; bottom: -6px; transform: rotate(45deg); }
+#kk.m-run #kkSay { padding: .3em .65em .34em; box-shadow: 0 0 0 2.5px #FF9EB5, 0 3px 0 2.5px rgba(43,31,87,.18); }
+@keyframes kkIn { 0% { transform: scale(.3) translateY(20%); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes kkBob { 0% { transform: translateY(0) scaleY(1); } 100% { transform: translateY(-6%) scaleY(1.02); } }
+@keyframes kkSay { 0% { transform: scale(.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #kk.pop img, #kk.pop #kkSay { animation: none; } }

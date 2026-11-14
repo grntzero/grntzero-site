@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><script>/* 카카오톡 인앱 브라우저 → 외부 브라우저로 열기 */(function(){var u=navigator.userAgent||"";if(!/KAKAOTALK/.test(u)||/scrap|bot/i.test(u))return;var go=function(){location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(location.href)};try{if(!sessionStorage.getItem("gz_ext")){sessionStorage.setItem("gz_ext","1");go();}}catch(e){go()}document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("div");b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#C6A35C;color:#0D0A06;font:600 14px/1.4 -apple-system,sans-serif;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;justify-content:space-between";b.innerHTML='<span>카카오톡 안에서는 일부 기능이 안 될 수 있어요</span><a style="flex:none;background:#0D0A06;color:#fff;padding:8px 12px;border-radius:4px;text-decoration:none" href="#">브라우저로 열기</a>';b.querySelector("a").addEventListener("click",function(e){e.preventDefault();go()});document.body.appendChild(b)})})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#6244BE">
+<title>붐붐 세포런 BOOM BOOM RUN — 세포의 어린이클럽</title>
+<meta name="description" content="세포의 어린이클럽 신나는 리듬 달리기 게임. 노래에 맞춰 달리고, 체조하고, 「멈춰라」 놀이도 해요. 설치 없이 폰·태블릿 브라우저에서 바로.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://run.sefoent.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="세포의 어린이클럽">
+<meta property="og:title" content="붐붐 세포런 BOOM BOOM RUN — 세포의 어린이클럽">
+<meta property="og:description" content="세포의 어린이클럽 신나는 리듬 달리기 게임. 노래에 맞춰 달리고, 체조하고, 「멈춰라」 놀이도 해요. 설치 없이 폰·태블릿 브라우저에서 바로.">
+<meta property="og:url" content="https://run.sefoent.com/">
+<meta property="og:image" content="https://run.sefoent.com/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/logo/icon32.png"><link rel="apple-touch-icon" href="assets/img/logo/icon180.png">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/kkoma.css">
+<!-- 폰 브라우저 확대 막기: 두 번 누름·두 손가락 벌리기 -->
+<script>
+(function () {
+  var stop = function (e) { e.preventDefault(); };
+  ['gesturestart', 'gesturechange', 'gestureend', 'dblclick', 'contextmenu'].forEach(function (t) {
+    document.addEventListener(t, stop, { passive: false });
+  });
+  document.addEventListener('touchmove', function (e) { if (e.target.tagName === 'INPUT') return; if (!e.target.closest || !e.target.closest('.scroll')) e.preventDefault(); }, { passive: false });
+})();
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="ui">
+  <!-- 불러오는 중 -->
+  <div id="scrBoot" class="scr show"><div class="bootBox"><div class="logoS">붐붐 세포런</div><div class="bootTxt">에너지 모으는 중…</div></div></div>
+
+  <!-- 타이틀 -->
+  <div id="scrTitle" class="scr">
+    <div class="titleTop">
+      <div class="club">세포의 어린이클럽</div>
+      <div class="logo"><img class="logoImg" src="assets/img/logo/logo.webp" alt="붐붐 세포런 BOOM BOOM RUN" draggable="false"><span class="srName">붐붐 세포런 BOOM BOOM RUN</span></div>
+      <div class="slogan">뛰어! 멈춰! 춤춰!</div>
+    </div>
+    <div class="titleBottom">
+      <button class="big go" data-act="toSelect">시작하기</button>
+      <div class="row2">
+        <button class="mid" data-act="stickers">스티커 도감</button>
+        <button class="mid" data-act="settings">소리 · 안내</button>
+      </div>
+      <div class="fine"><span>광고·결제 없음 · 기록은 이 기기에만</span></div>
+    </div>
+  </div>
+
+  <!-- 고르기 -->
+  <div id="scrSelect" class="scr panelScr">
+    <div class="panel scroll">
+      <button class="back" data-act="toTitle" aria-label="뒤로">‹</button>
+      <h2>누구랑 달릴까요?</h2>
+      <div id="charRow" class="charRow"></div>
+      <h2>어디로 갈까요?</h2>
+      <div id="stageRow" class="stageRow"></div>
+      <div class="diffRow">
+        <button class="diff" data-diff="easy"><b>쉬움</b><span>천천히 · 처음이라면</span></button>
+        <button class="diff" data-diff="normal"><b>보통</b><span>조금 더 신나게</span></button>
+        <button class="diff" data-diff="hard"><b>도전</b><span>장애물이 더 많아요</span></button>
+      </div>
+      <button class="big go" data-act="play">출발!</button>
+    </div>
+  </div>
+
+  <!-- 게임 화면 -->
+  <div id="hud" class="hide">
+    <div id="prog"><i id="progFill"></i><b id="progDot"></b></div>
+    <div id="hudTop">
+      <div id="hudL">
+        <div id="hearts"><i></i><i></i><i></i></div>
+        <div id="gauge"><span class="bolt">⚡</span><div id="gaugeTrack"><div id="gaugeFill"></div></div></div>
+      </div>
+      <div id="hudR">
+        <div id="orbBox"><span class="orbIcon"></span><b id="orbN">0</b></div>
+        <button id="pauseBtn" data-act="pause" aria-label="잠깐 멈춤"><i></i><i></i></button>
+      </div>
+    </div>
+    <div id="card" class="hide"><img id="cardFace" alt=""><div><b id="cardT"></b><span id="cardS"></span></div><i id="cardPic"></i></div>
+    <!-- r7: 반쪽 톡 가르치기(가로 연습 때 왼쪽·오른쪽 반이 번갈아 깜빡) -->
+    <div id="halfTap" class="hide"><div class="htL"><b>◀ 톡</b></div><div class="htR"><b>톡 ▶</b></div></div>
+    <div id="hint" class="hide"><div id="hintPic"></div><span id="hintT"></span></div>
+    <div id="boostFx" class="hide"></div>
+    <div id="pop"></div>
+    <div id="boostTag" class="hide">에너지 부스트!</div>
+    <div id="stkBadge" class="hide"></div>
+    <button id="boostBtn" class="hide" aria-label="부스트"><span class="bbRay"></span><span class="bbCore"><em>⚡</em><b>부스트!</b></span><i id="bbHand"></i></button>
+    <div id="restMsg" class="hide"><i class="restCloud"></i><b>잠깐 쉬었다 가자!</b><span>숨 한 번 크게~ 금방 다시 달려요</span></div>
+    <div id="countIn" class="hide"></div>
+
+    <div id="gym" class="hide">
+      <div id="gymTitle">세포체조!</div>
+      <div id="gymIcon"><div id="gymRing"></div><div id="gymPic"></div><div id="gymBadge"></div></div>
+      <div id="gymWord"></div>
+      <div id="gymDots"></div>
+    </div>
+
+    <!-- r8 운동장 그대로 멈춰라: 신호등 점 + 작은 글자 + 빨간 손바닥 버튼(오른쪽 아래 엄지 자리) -->
+    <div id="stop" class="hide"><div id="stopBox">
+      <div id="stopMsg" class="hide"></div>
+      <div id="stopLight"><i></i><i></i><i></i></div>
+      <button id="stopBtn" class="off st-wait" aria-label="멈춰"><i id="stopPalm"></i><b id="stopLab">멈춰!</b></button>
+    </div></div>
+
+    <div id="keyHint"><b>← →</b> 옮기기 · <b>↑</b> 점프 · <b>↓</b> 숙이기 · <b>B</b> 부스트 · <b>스페이스</b> 멈춰! · <b>Esc</b> 멈춤</div>
+    <!-- r6 가로형: 왼손 = ◀ ▶ (왼쪽 아래), 오른손 = 숙이기·점프 (오른쪽 아래). 세로(예비)에서는 한 줄로 이어짐 -->
+    <div id="pad">
+      <div class="padG padL">
+        <button class="pbtn" data-in="left" aria-label="왼쪽"><svg viewBox="0 0 100 100"><path d="M62 18 L28 50 L62 82" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="pbtn" data-in="right" aria-label="오른쪽"><svg viewBox="0 0 100 100"><path d="M38 18 L72 50 L38 82" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div class="padG padR">
+        <button class="pbtn c2" data-in="slide" aria-label="숙이기"><svg viewBox="0 0 100 100"><path d="M50 84 L88 20 H12 Z" fill="#6EC8FF" stroke="#2B1F57" stroke-width="9" stroke-linejoin="round"/></svg><span>숙이기</span></button>
+        <button class="pbtn c1" data-in="jump" aria-label="점프"><svg viewBox="0 0 100 100"><path d="M50 16 L88 80 H12 Z" fill="#FFD23A" stroke="#2B1F57" stroke-width="9" stroke-linejoin="round"/></svg><span>점프</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="finaleMsg" class="hide"><span>오늘도 세포 에너지 <br>충전 완료!</span></div>
+  <div id="loseMsg" class="hide"><span>다시 힘내 보자!</span></div>
+
+  <!-- 잠깐 멈춤 / 소리 -->
+  <div id="scrPause" class="scr panelScr dim">
+    <div class="panel small">
+      <h2 id="pauseTitle">잠깐 쉬는 중</h2>
+      <label class="vol"><span>음악</span><input type="range" id="volMusic" min="0" max="100" step="5"></label>
+      <label class="vol"><span>효과음</span><input type="range" id="volSfx" min="0" max="100" step="5"></label>
+      <div class="vibRow"><button class="vib" data-act="haptic" id="btnHaptic" aria-pressed="true"><span>진동</span><b id="hapticState">켜짐</b></button><button class="vib" data-act="gq" id="btnGq" aria-pressed="false"><span>화질</span><b id="gqState">자동</b></button><button class="vib" data-act="fs" id="btnFs" data-gz-fsrow aria-pressed="false"><span>⛶</span><b id="fsState">전체화면</b></button></div>
+      <div id="guideBox" class="guide">
+        <p><b>조작</b> 폰을 가로로 들고 두 손으로! 화면 왼쪽을 톡 하면 왼쪽 줄, 오른쪽을 톡 하면 오른쪽 줄(좌우로 밀어도 돼요). 위로 밀면 점프, 아래로 밀면 숙이기. 왼쪽 아래 ◀ ▶, 오른쪽 아래 노란 ▲ 점프·하늘색 ▼ 숙이기 버튼도 있어요. 번개 게이지가 가득 차면 오른쪽 아래 반짝이는 「부스트!」를 톡! 운동장 「그대로 멈춰라」에서는 노래가 「멈춰라!」 할 때 오른쪽 아래 빨간 손바닥 버튼을 톡! 음악이 멈춘 동안은 그대로(보통·도전은 움직이면 하트 −1)! (PC는 화살표 키 · B 부스트 · 스페이스 멈춰!)</p>
+        <p><b>보호자께</b> 광고·결제·바깥 연결이 없고, 이름이나 사진을 모으지 않아요. 기록은 이 기기에만 저장돼요.</p>
+      </div>
+      <button class="big go" data-act="resume" id="btnResume">계속 달리기</button>
+      <div class="row2" id="pauseRow">
+        <button class="mid" data-act="restart">처음부터</button>
+        <button class="mid" data-act="quit">그만하기</button>
+      </div>
+      <button class="mid wide hide" data-act="closeSettings" id="btnCloseSet">닫기</button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="scrResult" class="scr panelScr dim">
+    <div class="panel small scroll">
+      <div id="resHead">참 잘했어요!</div>
+      <div id="resStars"><i></i><i></i><i></i></div>
+      <div id="resPraise"></div>
+      <div class="resGrid">
+        <div><span>에너지 구슬</span><b id="resOrbs">0</b></div>
+        <div><span>점수</span><b id="resScore">0</b></div>
+        <div><span>미션 성공</span><b id="resMission">0</b></div>
+        <div><span>달린 거리</span><b id="resDist">0</b></div>
+      </div>
+      <div id="resSticker" class="hide"></div>
+      <div id="resNext" class="hide"><span id="resNextT"></span><div class="nxTrack"><i id="resNextFill"></i></div></div>
+      <button class="big go" data-act="again">한 번 더!</button>
+      <div class="row2">
+        <button class="mid" data-act="toSelectFromResult">다른 곳으로</button>
+        <button class="mid" data-act="stickers">스티커 도감</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 스티커 도감 -->
+  <div id="scrStickers" class="scr panelScr dim">
+    <div class="panel scroll">
+      <button class="back" data-act="closeStickers" aria-label="뒤로">‹</button>
+      <h2>스티커 도감</h2>
+      <div class="stSub" id="stSub"></div>
+      <div id="stGrid" class="stGrid"></div>
+      <div class="famBox" id="famBox"></div>
+    </div>
+  </div>
+
+  <!-- r6 가로형: 폰을 세로로 들면 가로로 돌려 달라고 안내(판은 멈춤). PC 는 안 뜸 -->
+  <div id="rotate"><div class="rotBox">
+    <svg class="rotPic" viewBox="0 0 200 140" aria-hidden="true"><g class="rotPhone"><rect x="72" y="14" width="56" height="104" rx="12" fill="#fff" stroke="#2B1F57" stroke-width="6"/><rect x="80" y="26" width="40" height="76" rx="5" fill="#B9A4FF"/><circle cx="100" cy="110" r="3.5" fill="#2B1F57"/></g><path d="M150 40 a48 48 0 0 1 8 58" fill="none" stroke="#FFD873" stroke-width="9" stroke-linecap="round"/><path d="M146 92 l14 12 l6 -18 z" fill="#FFD873" stroke="#FFD873" stroke-width="4" stroke-linejoin="round"/><path d="M50 100 a48 48 0 0 1 -8 -58" fill="none" stroke="#FFD873" stroke-width="9" stroke-linecap="round"/><path d="M54 48 l-14 -12 l-6 18 z" fill="#FFD873" stroke="#FFD873" stroke-width="4" stroke-linejoin="round"/></svg>
+    <b>가로로 돌려 주세요</b><span>폰을 옆으로 눕혀서 두 손으로 달려요</span>
+  </div></div>
+
+  <!-- r8 하트 0: 다시 해 볼까? (모든 장소·난이도) -->
+  <div id="scrRetry" class="scr panelScr dim">
+    <div class="panel small">
+      <div class="retryHearts"><i></i><i></i><i></i></div>
+      <h2>하트가 다 떨어졌어요!<br>다시 해 볼까?</h2>
+      <button class="big go" data-act="retry">다시 하기</button>
+      <button class="mid wide" data-act="giveup">그만하기</button>
+    </div>
+  </div>
+
+  <!-- 쉬어 가기 -->
+  <div id="scrRest" class="scr panelScr dim">
+    <div class="panel small">
+      <div class="restIcon">🌙</div>
+      <h2>우리 잠깐 쉬어 갈까요?</h2>
+      <p class="restTxt">신나게 많이 달렸어요!<br>눈도 쉬고, 물도 한 잔 마시고 와요.</p>
+      <button class="big go" data-act="restOk">쉬고 올게요</button>
+    </div>
+  </div>
+</div>
+
+<script src="lib/three.bundle.js"></script>
+<script src="js/gzview.js"></script>
+<script src="js/haptics.js"></script>
+<script src="js/core.js"></script>
+<script src="js/songs.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/chars.js"></script>
+<script src="js/world.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/kkoma.js"></script>
+</body>
+</html>
