@@ -115,6 +115,17 @@ img{display:block;max-width:100%}
 .vbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vx{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;background:#fff;color:#111;border:0;border-radius:999px;padding:8px 14px;font:600 14px/1 var(--f-body);cursor:pointer}
 .vout{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:12px;color:#fff;font-size:13px;padding:8px 4px;text-decoration:underline}
+
+/* 게임 (2026-11-14) */
+.gl{display:flex;flex-direction:column;border-radius:12px;overflow:hidden;background:var(--card);border:1px solid var(--line);text-decoration:none;color:var(--bone);transition:border-color .18s}
+.gl:hover{border-color:var(--sun)}
+.gl img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block}
+.gl .gt{padding:11px 12px 13px;display:flex;flex-direction:column;gap:5px;flex:1}
+.gl b{font-family:var(--f-head);font-weight:900;font-size:15px;letter-spacing:-.02em;line-height:1.3}
+.gl small{color:var(--mut);font-size:13.5px;line-height:1.5}
+.gl .go{margin-top:auto;padding-top:4px;color:var(--sun);font-weight:800;font-size:14.5px}
+.gl:focus-visible{outline:2px solid var(--sun);outline-offset:3px}
+@media(max-width:420px){.g2.gms{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -219,6 +230,16 @@ img{display:block;max-width:100%}
   <div class="sselbot"><img src="/img/assistant/ssel_basic.webp" alt="" width="92" height="92" loading="lazy"><div class="bub"><span class="nm">세포님 비서 쎌</span>섭외 문의 남겨 주시면 세포님께 바로 보고 올릴게요! 🫡</div></div>
   <a class="cbtn" href="tel:1800-8790"><span>☎ 1800-8790</span><small>전화 문의</small></a>
   <a class="cbtn alt" href="mailto:grnt@grntzero.com"><span>grnt@grntzero.com</span><small>메일 문의</small></a>
+</section>
+
+<section class="sec" id="game">
+  <div class="sh"><span class="k">GAME</span></div>
+  <h2>SEFO · 어린이클럽 웹게임</h2>
+  <p class="lead">무료예요. 설치·로그인·광고·결제 없이 폰·PC에서 바로 해요.</p>
+  <div class="g2 gms">
+    <a class="gl" href="https://run.sefoent.com/" target="_blank" rel="noopener"><img width="560" height="315" src="/img/games/run_s.webp" alt="붐붐 세포런 게임 화면" loading="lazy" decoding="async"><span class="gt"><b>붐붐 세포런</b><small>꼬마 쎌·라온과 달리고 세포체조까지!</small><span class="go">같이 달려 볼까? ▶</span></span></a>
+    <a class="gl" href="https://echo.sefoent.com/" target="_blank" rel="noopener"><img width="560" height="315" src="/img/games/echo_s.webp" alt="에코 제로: 톱니골의 메아리 게임 화면" loading="lazy" decoding="async"><span class="gt"><b>에코 제로: 톱니골의 메아리</b><small>비서 쎌과 톱니골에서 사라진 노래 찾기</small><span class="go">톱니골로 출발 ▶</span></span></a>
+  </div>
 </section>
 
 <div class="sns">

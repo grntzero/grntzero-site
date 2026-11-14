@@ -292,6 +292,23 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
 .vmod .vx{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));font:inherit;font-size:14px;font-weight:700;
   color:var(--ink);background:var(--gold);border:1px solid var(--gold);padding:9px 16px;cursor:pointer}
 .vmod .vout{position:fixed;top:calc(20px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px));font-size:12.5px;color:var(--mut)}
+
+/* 게임 (2026-11-14) */
+.gm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.gm.one{grid-template-columns:minmax(0,600px)}
+.gcard{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);color:inherit;text-decoration:none;transition:border-color .18s,transform .18s}
+.gcard:hover{border-color:var(--gold);transform:translateY(-2px)}
+.gcard:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+.gcard:hover .btn{border-color:var(--gold);color:var(--gold2)}
+.gcard .gimg{aspect-ratio:16/9;overflow:hidden;background:#000}
+.gcard .gimg img{width:100%;height:100%;object-fit:cover;display:block}
+.gcard .gt{padding:20px 22px 24px;display:flex;flex-direction:column;gap:10px;flex:1}
+.gcard .gk{font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:.24em;color:var(--gold2)}
+.gcard h3{font-size:clamp(19px,2.2vw,23px);letter-spacing:-.02em;line-height:1.35;color:var(--cream)}
+.gcard p{font-size:14.5px;color:#CFC7B7;line-height:1.75}
+.gcard .btn{margin-top:auto;align-self:flex-start;pointer-events:none}
+.gnote{margin-top:18px;font-size:14px;color:#B4AB99;letter-spacing:.02em}
+@media(max-width:800px){.gm{grid-template-columns:1fr}.gcard .btn{align-self:stretch;justify-content:center}}
 </style>
 </head>
 <body>
@@ -620,6 +637,29 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--gold2);outline-offs
         </div>
       </form>
     </div>
+</div></section>
+
+<section class="band alt" id="game"><div class="wrap">
+  <div class="shd"><h2>GAME LAB</h2><span class="kr">그런트제로 웹게임</span></div>
+  <p class="lede">공연 무대의 캐릭터를 게임으로 먼저 만나 보세요. SEFO·허조교와 비서 캐릭터가 주인공인
+    <strong>무료 웹게임</strong>으로, 설치 없이 PC·폰 브라우저에서 바로 즐길 수 있습니다.</p>
+  <div class="gm">
+    <a class="gcard" href="https://squad.grntzero.com/" target="_blank" rel="noopener">
+      <div class="gimg"><img loading="lazy" decoding="async" width="960" height="541" src="/img/games/squad.webp" srcset="/img/games/squad_s.webp 560w, /img/games/squad.webp 960w" sizes="(max-width:800px) 100vw, 560px" alt="그런트 스쿼드 게임 타이틀 화면"></div>
+      <div class="gt"><span class="gk">RHYTHM ACTION</span>
+        <h3>그런트 스쿼드</h3>
+        <p>허조교와 비서 그런트가 이끄는 훈련장. 음악 박자에 맞춰 즐기는 리듬 액션 게임.</p>
+        <span class="btn">바로 플레이 →</span></div>
+    </a>
+    <a class="gcard" href="https://echo.sefoent.com/" target="_blank" rel="noopener">
+      <div class="gimg"><img loading="lazy" decoding="async" width="880" height="495" src="/img/games/echo_s.webp" srcset="/img/games/echo_s.webp 560w, /img/games/echo.webp 880w" sizes="(max-width:800px) 100vw, 560px" alt="에코 제로: 톱니골의 메아리 게임 타이틀 화면"></div>
+      <div class="gt"><span class="gk">ADVENTURE</span>
+        <h3>에코 제로: 톱니골의 메아리</h3>
+        <p>SEFO와 비서 쎌이 톱니골을 누비며 사라진 노래를 되찾는 모험 게임.</p>
+        <span class="btn">바로 플레이 →</span></div>
+    </a>
+  </div>
+  <p class="gnote">무료 · 광고·결제·로그인 없음 · 새 창에서 열립니다</p>
 </div></section>
 
 <footer class="ft"><div class="wrap">
