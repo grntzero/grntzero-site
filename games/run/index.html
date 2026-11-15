@@ -220,5 +220,7 @@
 <script src="js/game.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/kkoma.js"></script>
+<div id="gzBeta" style="position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:99999;max-width:min(92vw,520px);background:rgba(13,10,6,.72);color:#fff;border-radius:12px;padding:5px 12px;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;text-align:center;pointer-events:none;transition:opacity .3s;opacity:0">🧪 지금은 <b>베타 테스트 중</b>! 의견은 grnt@grntzero.com<br><span style="opacity:.85">🏆 앱이 나오면 랭킹 시작 · 매달 1위 친구에게 상품 (자세한 건 출시 때)</span></div>
+<script>/*베타 안내 11-15*/(function(){var e=document.getElementById("gzBeta");function ph(){try{return window.__ek&&__ek.state&&__ek.state().phase}catch(_){return null}}setInterval(function(){var p=ph();e.style.opacity=(p==="title")?"1":"0";e.style.visibility=(p==="title")?"visible":"hidden"},400)})();</script>
 </body>
 </html>
