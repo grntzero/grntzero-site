@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><script>/* 카카오톡 인앱 브라우저 → 외부 브라우저로 열기 */(function(){var u=navigator.userAgent||"";if(!/KAKAOTALK/.test(u)||/scrap|bot/i.test(u))return;var go=function(){location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(location.href)};try{if(!sessionStorage.getItem("gz_ext")){sessionStorage.setItem("gz_ext","1");go();}}catch(e){go()}document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("div");b.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#C6A35C;color:#0D0A06;font:600 14px/1.4 -apple-system,sans-serif;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;justify-content:space-between";b.innerHTML='<span>카카오톡 안에서는 일부 기능이 안 될 수 있어요</span><a style="flex:none;background:#0D0A06;color:#fff;padding:8px 12px;border-radius:4px;text-decoration:none" href="#">브라우저로 열기</a>';b.querySelector("a").addEventListener("click",function(e){e.preventDefault();go()});document.body.appendChild(b)})})();</script>
+<script>/*시험 시즌 11-16*/(function(){try{var S='beta',k="gzSeason",L=localStorage,o=L.getItem(k);if(o!==S){if(o!==null&&location.hostname==='squad.grntzero.com')L.clear();L.setItem(k,S)}}catch(_){}})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -171,7 +172,7 @@
 <script src="js/assistant.js"></script>
 <script src="js/hud.js"></script>
 <script src="js/game.js"></script>
-<div id="gzBeta" style="position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:99999;max-width:min(92vw,520px);background:rgba(13,10,6,.72);color:#fff;border-radius:12px;padding:5px 12px;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;text-align:center;pointer-events:none;transition:opacity .3s;opacity:0">🧪 <b>베타 테스트 중</b> · 의견은 언제든 grnt@grntzero.com<br><span style="opacity:.85">🏆 정식 버전: 앱 출시와 함께 랭킹 · 매달 1위 상품 (자세한 건 출시 때)</span></div>
-<script>/*베타 안내 11-15*/(function(){var e=document.getElementById("gzBeta");function ph(){try{return window.GZ&&GZ.G&&GZ.G.phase}catch(_){return null}}setInterval(function(){var p=ph();e.style.opacity=(p==="title")?"1":"0";e.style.visibility=(p==="title")?"visible":"hidden"},400)})();</script>
+<div id="gzBeta" style="position:fixed;top:max(10px,env(safe-area-inset-top));z-index:99999;left:50%;transform:translateX(-50%);max-width:min(92vw,560px);width:max-content;box-sizing:border-box;word-break:keep-all;background:rgba(13,10,6,.72);color:#fff;border-radius:12px;padding:5px 12px;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;text-align:center;pointer-events:none;transition:opacity .3s;opacity:0">🧪 <b>시험용(베타 테스트)</b> — 등급분류 전 시험 버전입니다<br><span style="opacity:.88">설치·로그인 없이 브라우저에서 바로 · 기록은 이 기기에만 저장 · 시험 참가 최대 20,000명<br>⚠ 시험 기간(최대 60일)의 점수·기록·카드는 정식 오픈 때 모두 초기화됩니다 · 오류 제보 grnt@grntzero.com</span></div>
+<script>/*시험용 표시 11-16*/(function(){var e=document.getElementById("gzBeta");function ph(){try{return window.GZ&&GZ.G&&GZ.G.phase}catch(_){return null}}setInterval(function(){var p=ph();e.style.opacity=(p==="title")?"1":"0";e.style.visibility=(p==="title")?"visible":"hidden"},400)})();</script>
 </body>
 </html>
