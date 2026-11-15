@@ -76,8 +76,8 @@
       .then(async () => {
         const sc = TG.R.scene;
         const rest = () => new Promise((r) => { let d = false; const f = () => { if (!d) { d = true; r(); } }; requestAnimationFrame(f); setTimeout(f, 80); });
-        const steps = [() => TG.AR.build(sc), () => TG.FX.init(sc), () => TG.PL.init(sc), () => TG.F.init(sc), () => { TG.WV.init(sc); TG.C.init(sc); },
-          () => { TG.PL.mixer.update(0.01); TG.H.makeFace(); }, warmup];
+        const steps = [() => TG.AR.build(sc), () => TG.FX.init(sc), () => TG.PL.init(sc), () => TG.F.init(sc), () => { TG.WV.init(sc); TG.C.init(sc); TG.FL.init(sc); TG.AS.init(sc); },
+          () => { TG.PL.mixer.update(0.01); TG.H.makeFace(); applyPickUI(); }, warmup];
         for (let i = 0; i < steps.length; i++) { steps[i](); TG.H.loadProg(0.78 + 0.22 * (i + 1) / steps.length); await rest(); }
         applySettings();
         bindInput();
@@ -137,7 +137,7 @@
     G.gaugeLock = 0; G.hintStage = 0; G.moved = 0; G.afters.length = 0; G.inBig = false; G.inPick = -1; G.inCard = -1; G.botW = 0; G.botStuck = 0; G.botSideT = 0; G.botSideS = 1; G.botLx = 0; G.botLz = 0; G.botCocT = 0; G.machSlow = false; G.camFocusK = 0.45;
     G.autoTicks = 0; G.playTicks = 0; G.autoShots = 0; G.autoOn = false;
     G.denyT = -9; G.shelterT = 0; G.shelterPick = -1; G.covT = 0; G.biT = 0; G.biStage = 0; G.lid = null; G.countAt = null; G.lastCount = -1;
-    TG.F.reset(); TG.WV.reset(); if (!keepFx) TG.FX.clear(); TG.PL.reset(); TG.PL.setRest(false); TG.C.reset();
+    TG.F.reset(); TG.WV.reset(); if (!keepFx) TG.FX.clear(); TG.PL.reset(); TG.PL.setRest(false); TG.C.reset(); TG.FL.reset(); TG.AS.reset();
     TG.H.hideCards(); TG.H.hideShelter(); TG.H.gruntHide(); TG.H.hintSet(null);
     TG.PL.stillLv = 0; TG.PL.idleT = 0; G.result = null;
     G.hemiT = 1.35; G.camZoom = 1;
@@ -170,6 +170,7 @@
   }
   // 놀이 시작: 여기서부터 규칙 계산이 기록·재생 대상 (처음 상태를 늘 똑같이 맞춤)
   function startPlay(skipIntro) {
+    { const rp0 = G.replay; if (rp0) { const rh = rp0.hero || 'sefo', ra = rp0.assist || 'none'; if (rh !== TG.heroId || ra !== TG.assistId) setHeroNow(rh, ra, true); } } // 기록에 적힌 주인공·보조로 (옛 기록 v2 = SEFO·없음)
     resetRun(!skipIntro);
     if (skipIntro) showHud();
     const p = P();
@@ -184,7 +185,7 @@
     G.firstBoss = first;
     if (rp) TG.Q.god = !!rp.god;
     TG.simSeed(G.seed);
-    G.rec = { v: 2, seed: G.seed, first: first ? 1 : 0, god: TG.Q.god ? 1 : 0, ticks: [], cards: [] };
+    G.rec = { v: 3, seed: G.seed, first: first ? 1 : 0, god: TG.Q.god ? 1 : 0, hero: TG.heroId, assist: TG.assistId, ticks: [], cards: [] }; // v3(11-16): hero·assist 칸 — 재생 때 같은 주인공·보조로
     G.rpI = 0; G.rpN = 0; G.replayDone = false;
     TG.A.bgm('bgm_battle', 0.8);
     startFloor(1);
@@ -227,7 +228,8 @@
     G.spawnT = 1.0; G.clumpT = 3; G.echoT = 2.5; G.tickT = 6;
     G.hemiT = 1.35; G.camZoom = 1;
     TG.H.hideShelter(); TG.H.gruntHide();
-    TG.H.showBanner(f.title, n === 1 && isAuto() ? '가까운 안개에 소리 방울이 저절로 나가요' : f.sub, '', 2.4);
+    const berryTxt = TG.hero.shot === 'berry' && n === 1; // 베리: 1층 안내만 「베리 방울」로
+    TG.H.showBanner(f.title, n === 1 && isAuto() ? (berryTxt ? '가까운 안개에 베리 방울이 저절로 굴러가요' : '가까운 안개에 소리 방울이 저절로 나가요') : berryTxt ? '「소리」 버튼을 꾹! 베리 방울이 데굴데굴 굴러가요' : f.sub, '', 2.4);
     if (n === 1) SSEL(isAuto() ? 'ok' : 'wink', isAuto() ? '소리 방울은 저절로! 넌 음표만 주워~' : TG.isTouch ? '안개 온다! 「소리」 꾹 눌러 봐!' : '안개 온다! 마우스 꾹 눌러 봐!', 3.2, 2.4);
     else if (n === 2) SSEL('think', '뭉치는 터지면 둘로 나뉘어! 조심~', 3.0, 2.4);
     else SSEL('wink', '메아리는 두 번 맞혀야 퐁! 할 수 있지?', 3.0, 2.4);
@@ -342,8 +344,9 @@
   // ── 보스 등장: 기계가 잠깐 느려짐 → 가운데 큰 안개가 뭉침 → 이름 띠 → 카메라 줌 → SEFO가 보스 쪽을 봄 ──
   function startBossIntro() {
     G.phase = 'bossIntro'; G.bossStarted = true; G.biT = 0; G.biStage = 0;
-    G.machSlow = true; G.hemiT = 1.1; G.camFocusK = 0.5;
+    G.machSlow = true; G.hemiT = 1.1; G.camFocusK = kidK(0.5);
     P().noHurt = 6;
+    try { TG.F.bossObj.mat.color.set(TG.hero.kid ? 0x8a85ac : 0x77729a); } catch (e) { /* 보스 재질 없음 */ } // 아이로 하면 보스 회색을 한 단계 밝게 (기획서 ④ 안전 5)
     TG.A.stopBgm(0.7); TG.A.syn('bossIn');
     TG.H.hintSet(null);
   }
@@ -354,7 +357,7 @@
       G.biStage = 1;
       const b = TG.F.startBoss(G.firstBoss);
       TG.A.bgm('bgm_boss', 1.6); TG.A.duck(0.5, 1.6);
-      G.camFocusK = 0.75;
+      G.camFocusK = kidK(0.75);
       TG.FX.ring(b.x, b.z, { r0: 11, r1: 1.5, dur: 1.5, color: 0xdcd8cc, width: 0.12, alpha: 0.4, hdr: 1.0 });
     }
     if (G.biStage >= 1 && TG.F.boss) { const b = TG.F.boss; p.tyaw = Math.atan2(b.x - p.x, b.z - p.z); p.faceLock = 0.3; }
@@ -366,10 +369,10 @@
     FX.ring(b.x, b.z, { r0: 1, r1: 10, dur: 0.6, color: 0xfff3d6, width: 0.1, hdr: 1.1, alpha: 0.7 });
     FX.ring(b.x, b.z, { r0: 1, r1: 7, dur: 0.5, color: 0xdcd8cc, width: 0.1, delay: 0.1, hdr: 1.0, alpha: 0.4 });
     FX.dust(b.x, b.z, 16, 2.4);
-    TG.A.play('sfx_big', { rate: 0.6, gain: 0.9 }); TG.A.boom();
+    TG.A.play('sfx_big', { rate: 0.6, gain: TG.hero.kid ? 0.55 : 0.9 }); if (!TG.hero.kid) TG.A.boom(); // 아이로 하면 큰 효과음 줄임 (놀람 방지)
     TG.H.showBanner('큰 침묵 안개', '노래를 꽁꽁 숨긴 안개예요', 'boss name', 2.2);
     SSEL('surprise', '헉, 엄청 큰 안개야! 같이 해 보자!', 3.0);
-    G.camZoom = 0.74; G.camFocusK = 0.85; // 잠깐 줌
+    G.camZoom = 0.74; G.camFocusK = kidK(0.85); // 잠깐 줌 (아이 주인공은 보스만 — 아이는 원경, 기획서 ④ 안전 3)
     G.after(84, () => { if (G.phase === 'bossIntro') { G.phase = 'boss'; G.camZoom = 1.12; G.camFocusK = 0.45; G.hemiT = 1.35; } });
   };
 
@@ -530,6 +533,7 @@
     if (ms) { TG.FX.text(ms[0], P().x, 4.3, P().z, 'cheer'); TG.A.cheer(ms[1]); TG.FX.shake(0.06); }
   }
   // 큰 소리 게이지: 음표 줍기·안개 터뜨리기로만 참. 쓴 직후(잠금 시간)에는 차지 않음
+  G.addGauge = (v) => addGauge(v);
   function addGauge(v) {
     if (G.gaugeLock > 0) return;
     const before = G.gauge;
@@ -544,7 +548,7 @@
     G.gauge = 0; G.gaugeLock = 3.0; // 쓰면 0으로, 3초 동안 다시 차지 않음
     const lv = p.stillLv || 0, pow = 1 + lv * 0.12; // 둘레 링 단계만큼 세짐
     G.stillT = 0;
-    TG.H.say('다 같이 손 머리 위로!', 1.8);
+    TG.H.say(TG.hero.bigSay || '다 같이 손 머리 위로!', 1.8);
     TG.A.duck(0.35, 1.4);
     TG.A.ui(1.2);
     p.noHurt = Math.max(p.noHurt, 1.6);
@@ -557,16 +561,29 @@
       FX.punch(0.02); TG.R.bloomPulse = Math.max(TG.R.bloomPulse, 0.12);
     }
     p.bigJump(() => {
-      const FX = TG.FX, x = p.x, z = p.z, R2 = 12.5 * pow;
-      FX.hitstop(80); FX.shake(0.75); FX.punch(0.1); TG.R.bloomPulse = 0.32; vib('big');
-      TG.A.play('sfx_big', { gain: 1 }); TG.A.boom();
-      FX.ring(x, z, { r0: 0.8, r1: R2, dur: 0.65, color: 0xe5352b, width: 0.12, hdr: 1.4 });
-      FX.ring(x, z, { r0: 0.8, r1: R2 * 0.88, dur: 0.7, color: 0xffc23a, width: 0.1, delay: 0.12, hdr: 1.3, alpha: 0.85 });
-      FX.ring(x, z, { r0: 0.8, r1: R2 * 0.76, dur: 0.75, color: 0xff8a5b, width: 0.08, delay: 0.24, hdr: 1.3, alpha: 0.8 });
-      FX.ring(x, z, { wall: true, r0: 2.2, r1: R2 * 0.96, dur: 0.6, color: 0xff6a4a, h: 1.6, alpha: 0.45, hdr: 1 });
-      FX.ring(x, z, { wall: true, r0: 2.2, r1: R2 * 0.8, dur: 0.7, color: 0xffd966, h: 1.2, delay: 0.15, alpha: 0.4, hdr: 1 });
-      FX.noteFlower(x, z, 9 * pow);
+      const FX = TG.FX, x = p.x, z = p.z, R2 = 12.5 * pow, flower = TG.hero.big === 'flower';
+      FX.hitstop(80); FX.shake(flower ? 0.4 : 0.75); FX.punch(flower ? 0.05 : 0.1); TG.R.bloomPulse = 0.32; vib('big');
+      TG.A.play('sfx_big', { gain: flower ? 0.6 : 1, rate: flower ? 1.15 : 1 }); if (!flower) TG.A.boom(); else TG.A.syn('rescue');
+      if (flower) { // 베리 「꽃 피었다!」: 꽃잎 원이 퍼지며 안개 퐁 + 나(와 보조) 회복 1칸 + 꽃잎 보호막 (아이 안전: 큰 폭발·흔들림 작게)
+        FX.ring(x, z, { r0: 0.8, r1: R2, dur: 0.65, color: 0xff7fb6, width: 0.12, hdr: 1.4 });
+        FX.ring(x, z, { r0: 0.8, r1: R2 * 0.88, dur: 0.7, color: 0xfff0a8, width: 0.1, delay: 0.12, hdr: 1.3, alpha: 0.85 });
+        FX.ring(x, z, { r0: 0.8, r1: R2 * 0.76, dur: 0.75, color: 0xff9ccb, width: 0.08, delay: 0.24, hdr: 1.3, alpha: 0.8 });
+        FX.ring(x, z, { wall: true, r0: 2.2, r1: R2 * 0.96, dur: 0.6, color: 0xff8fc4, h: 1.6, alpha: 0.4, hdr: 1 });
+        for (let pI = 0; pI < 8; pI++) for (let j = 0; j < 6; j++) { const a = (pI / 8) * 6.283 + Math.sin(j) * 0.3, rr = (j + 1) / 6; FX.emit(j % 2 ? FX.CELL.flower : FX.CELL.heart, x + Math.cos(a) * 9 * pow * rr, 0.4, z + Math.sin(a) * 9 * pow * rr, { vy: TG.fra(2.5, 5), life: TG.fra(0.8, 1.2), size: TG.fra(0.9, 1.3), size1: 0.3, color: [[2.3, 1.0, 1.5], [2.4, 2.0, 0.9], [2.0, 1.2, 2.2]][(pI + j) % 3], grav: 5, vrot: TG.fra(-3, 3), rot: TG.fra(-0.4, 0.4), pop: true }); }
+        if (p.hp < p.maxHp) { p.hp = Math.min(p.maxHp, p.hp + 1); FX.text('회복!', x + 1.6, 4.6, z, 'heal'); }
+        p.shield = Math.max(p.shield, 1); p.glow = 0.8;
+        FX.text('꽃잎 보호막!', x - 2.2, 2.6, z, 'word'); // 말풍선(머리 위)·연속 글(4.3)과 안 겹치게 왼쪽 아래
+        for (let k = 0; k < 6; k++) TG.FL.add(x + Math.cos(k * 1.047) * 2.6, z + Math.sin(k * 1.047) * 2.6, false); // 둘레에 꽃 자국 여섯
+      } else {
+        FX.ring(x, z, { r0: 0.8, r1: R2, dur: 0.65, color: 0xe5352b, width: 0.12, hdr: 1.4 });
+        FX.ring(x, z, { r0: 0.8, r1: R2 * 0.88, dur: 0.7, color: 0xffc23a, width: 0.1, delay: 0.12, hdr: 1.3, alpha: 0.85 });
+        FX.ring(x, z, { r0: 0.8, r1: R2 * 0.76, dur: 0.75, color: 0xff8a5b, width: 0.08, delay: 0.24, hdr: 1.3, alpha: 0.8 });
+        FX.ring(x, z, { wall: true, r0: 2.2, r1: R2 * 0.96, dur: 0.6, color: 0xff6a4a, h: 1.6, alpha: 0.45, hdr: 1 });
+        FX.ring(x, z, { wall: true, r0: 2.2, r1: R2 * 0.8, dur: 0.7, color: 0xffd966, h: 1.2, delay: 0.15, alpha: 0.4, hdr: 1 });
+        FX.noteFlower(x, z, 9 * pow);
+      }
       FX.dust(x, z, 14, 1.6);
+      TG.AS.onBig(x, z, G); // 보조 캐릭터도 함께 (60초에 한 번)
       // 반경 안 안개를 거리 순서로 차례차례 터뜨림 (고치·사람은 대상이 아님)
       for (const u of TG.F.list) {
         if (u.state !== 'live' || u.kind === 'cocoon') continue;
@@ -624,7 +641,7 @@
     if (autoT) {
       const L0 = TG.WV.stat(0), dir = Math.atan2(autoT.x - p.x, autoT.z - p.z);
       G.fireDir = dir; p.tyaw = dir; p.faceLock = Math.max(p.faceLock, 0.12);
-      if (G.autoCd <= 0) { TG.WV.fire(dir, 0, 1 + G.mod.more); G.autoCd = L0.cd * AUTO.cd; G.shots++; G.autoShots++; }
+      if (G.autoCd <= 0) { TG.WV.fire(dir, 0, 1 + G.mod.more); G.autoCd = L0.cd * AUTO.cd * TG.AS.cdMul(); G.shots++; G.autoShots++; }
       return;
     }
     if (inp.aim != null) G.faceDir = inp.aim;
@@ -633,7 +650,7 @@
     G.fireDir = dir;
     p.tyaw = dir; p.faceLock = Math.max(p.faceLock, 0.12);
     if (G.autoCd <= 0) {
-      TG.WV.fire(dir, slv, 1 + G.mod.more); G.autoCd = L.cd; G.stillT = 0;
+      TG.WV.fire(dir, slv, 1 + G.mod.more); G.autoCd = L.cd * TG.AS.cdMul(); G.stillT = 0; // AS.cdMul = 쎄니 응원 「빠르게」(간격 25% 짧게 / 스타팡팡 뒤 50%)
       G.shots++; if (inp.aim != null) G.aimShots++;
     }
   }
@@ -683,9 +700,15 @@
     G.prevPhase = G.phase; G.phase = 'covered'; G.covT = 0;
     G.fireOn = false; G.pendingCards = 0;
     p.setRest(true);
-    TG.H.showBanner('안개에 폭 덮임', '다음에 다시!', 'boss', 1.2);
-    TG.A.syn('covered'); TG.A.duck(0.3, 1.6);
-    for (let i = 0; i < 14; i++) { const a = (i / 14) * 6.283; FX.emit(FX.CELL.bubble, p.x + Math.cos(a) * 2.8, 0.5 + TG.fra(0, 0.8), p.z + Math.sin(a) * 2.8, { vx: -Math.cos(a) * 3.4, vz: -Math.sin(a) * 3.4, life: 0.6, size: 0.9, size1: 1.15, color: [0.6, 0.48, 0.95], alpha: 0.85, drag: 3.2, rot: 0 }); } // 연보라, 발치로 모여듦(몸을 덮지 않음)
+    if (TG.hero.kid) { // 아이 캐릭터: 「꽃잎에 싸여 쉬는 중」 (안개에 덮이는 연출 X, 기획서 ④ 안전 4)
+      TG.H.showBanner('꽃잎에 싸여 쉬는 중', '다음에 다시!', 'gold', 1.2);
+      TG.A.syn('shelter'); TG.A.duck(0.3, 1.6);
+      for (let i = 0; i < 14; i++) { const a = (i / 14) * 6.283; FX.emit(FX.CELL.flower, p.x + Math.cos(a) * 2.6, 0.4 + TG.fra(0, 0.8), p.z + Math.sin(a) * 2.6, { vx: -Math.cos(a) * 2.2, vz: -Math.sin(a) * 2.2, life: 0.8, size: 0.7, size1: 0.9, color: [2.3, 1.1, 1.6], alpha: 0.9, drag: 2.8, vrot: TG.fra(-2, 2), rot: 0 }); }
+    } else {
+      TG.H.showBanner('안개에 폭 덮임', '다음에 다시!', 'boss', 1.2);
+      TG.A.syn('covered'); TG.A.duck(0.3, 1.6);
+      for (let i = 0; i < 14; i++) { const a = (i / 14) * 6.283; FX.emit(FX.CELL.bubble, p.x + Math.cos(a) * 2.8, 0.5 + TG.fra(0, 0.8), p.z + Math.sin(a) * 2.8, { vx: -Math.cos(a) * 3.4, vz: -Math.sin(a) * 3.4, life: 0.6, size: 0.9, size1: 1.15, color: [0.6, 0.48, 0.95], alpha: 0.85, drag: 3.2, rot: 0 }); } // 연보라, 발치로 모여듦(몸을 덮지 않음)
+    }
   }
   function updateCovered(dt) {
     const p = P();
@@ -813,8 +836,26 @@
     document.querySelectorAll('[data-atk]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1); setAtk(b.dataset.atk); }));
     document.querySelectorAll('[data-cam]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1); G.settings.cam = b.dataset.cam; applySettings(); saveSet(); }));
     click('optLefty', () => { G.settings.lefty = !G.settings.lefty; applySettings(); saveSet(); });
+    // 주인공·보조 고르기 (타이틀, 11-16)
+    document.querySelectorAll('[data-hero]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); if (G.phase === 'title') setHeroNow(b.dataset.hero, TG.assistId); }));
+    document.querySelectorAll('[data-assist]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); if (G.phase === 'title') setHeroNow(TG.heroId, b.dataset.assist); }));
     document.getElementById('optBgm').addEventListener('input', (e) => { G.settings.bgm = e.target.value / 100; applySettings(); saveSet(); });
     document.getElementById('optSfx').addEventListener('input', (e) => { G.settings.sfx = e.target.value / 100; applySettings(); saveSet(); });
+  }
+  // 주인공·보조 바꾸기: 모델·얼굴·보조 겉모습을 다시 만듦 (타이틀에서만, 또는 재생 기록이 다른 주인공일 때)
+  const kidK = (v) => (TG.hero && TG.hero.kid ? 1 : v); // 보스 등장 카메라: 아이 주인공이면 보스만 잡음
+  function setHeroNow(h, a, noSave) {
+    const r = TG.pickHero(h, a, noSave); // noSave = 재생 때(남의 기록이 내 기본값을 바꾸지 않게)
+    TG.PL.setHero(TG.R.scene); TG.PL.mixer.update(0.01); TG.H.makeFace();
+    TG.AS.set(TG.assistId); TG.C.recalc();
+    if (G.phase === 'title') { TG.PL.x = TG.PL.px = 0; TG.PL.z = TG.PL.pz = 3.5; TG.PL.yaw = TG.PL.tyaw = 0; TG.AS.reset(); }
+    applyPickUI();
+    return r;
+  }
+  function applyPickUI() {
+    document.querySelectorAll('[data-hero]').forEach((b) => { const on = b.dataset.hero === TG.heroId; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    document.querySelectorAll('[data-assist]').forEach((b) => { const on = b.dataset.assist === TG.assistId, bad = b.dataset.assist === TG.heroId; b.classList.toggle('on', on); b.classList.toggle('hide', bad); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    document.body.classList.toggle('heroKid', !!(TG.hero && TG.hero.kid));
   }
   // 소리 방울 자동/수동: 저장하고 다음 걸음부터 적용(입력 깃발로 기록 → 재생도 같음)
   function setAtk(m) {
@@ -1134,6 +1175,8 @@
     }
     TG.F.update(dt, G.realT, p, G);
     TG.WV.update(dt, G);
+    TG.FL.sim(dt, p, G, play && (G.phase === 'floor' || G.phase === 'boss' || G.phase === 'shelter'));
+    TG.AS.sim(dt, p, G, G.phase === 'floor' || G.phase === 'boss');
     G.comboT -= dt; if (G.comboT <= 0) G.combo = 0;
     G.gaugeLock = Math.max(0, G.gaugeLock - dt); G.hsCd = Math.max(0, G.hsCd - dt);
 
@@ -1189,6 +1232,8 @@
     TG.F.draw(vis, G.drawT, p, al);
     TG.WV.draw(al);
     TG.C.draw(vis, G.drawT, p);
+    TG.FL.draw(G.drawT);
+    TG.AS.draw(vis, G.drawT, al);
     // 배경 기계: 보스가 나타날 때 잠깐 느려짐
     G.machK = TG.damp(G.machK, G.machSlow ? 0.08 : 1, G.machSlow ? 5 : 2.5, rdt);
     G.arT += vis * G.machK;
@@ -1253,6 +1298,7 @@
         fps: +TG.R.fps.toFixed(1), drawCalls: G.drawCalls, tris: G.tris, pixelRatio: TG.R.pr, gauge: Math.round(G.gauge), gaugeLock: +G.gaugeLock.toFixed(2), combo: G.combo, maxCombo: G.maxCombo,
         notes: G.notes, level: G.level, xp: G.xp, popped: G.popped, rescued: G.rescued, revived: G.revived, cards: Object.assign({}, G.cards), cardOpen: G.cardOpen ? G.cardOpen.opts.slice() : null,
         still: p.stillLv || 0, shots: G.shots, autoShots: G.autoShots, autoOn: !!G.autoOn, atk: G.settings.atk, hurts: G.hurts, fire: !!G.fireOn, fireDir: +TG.angDiff(0, G.fireDir || 0).toFixed(3), particles: TG.FX.count(), waves: TG.WV.activeCount(), paused: G.paused, x: +p.x.toFixed(3), z: +p.z.toFixed(3), hash: G.hash, seed: G.seed, replayDone: !!G.replayDone,
+        hero: TG.heroId, assist: TG.assistId, petal: TG.FL.petal || 0, flowers: TG.FL.count(), healed: TG.FL.healed || 0, berryPops: TG.WV.berryPops || 0, as: TG.AS.state(),
       };
     },
     spawn(kind, n, near) {
@@ -1280,6 +1326,8 @@
       if (name === 'rest' || name === 'fail') { ensurePlay(); G.time = Math.max(G.time, 74); G.popped = Math.max(G.popped, 41); G.notes = Math.max(G.notes, 30); G.maxCombo = Math.max(G.maxCombo, 12); return finish(false); }
     },
     bot(on) { G.bot = on !== false; },
+    // 시험: 주인공·보조 바꾸기 (타이틀 버튼과 같은 길). hero('berri','sseni')
+    hero(h, a) { if (h) setHeroNow(h, a == null ? TG.assistId : a); return { hero: TG.heroId, assist: TG.assistId }; },
     god(on) { TG.Q.god = on !== false; },
     pause(on) { setPause(on !== false); },
     big() { G.gaugeLock = 0; G.gauge = 100; return bigSound(); },

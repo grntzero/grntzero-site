@@ -35,8 +35,9 @@
     return { geo, mat, size: size.multiplyScalar(s) };
   }
 
+  M.parse = parse;
   M.load = function (onProgress) {
-    const names = ['sefo', 'tick', 'tower', 'speaker', 'crate', 'shop', 'house', 'lamp'].filter((n) => window.TG_MODELS && window.TG_MODELS[n]);
+    const names = ['sefo', 'berri', 'tick', 'tower', 'speaker', 'crate', 'shop', 'house', 'lamp'].filter((n) => window.TG_MODELS && window.TG_MODELS[n]);
     let done = 0;
     const rest = () => new Promise((r) => { let d = false; const f = () => { if (!d) { d = true; r(); } }; requestAnimationFrame(f); setTimeout(f, 80); });
     const list0 = [];
@@ -47,6 +48,7 @@
         const G = Object.fromEntries(list);
         const F = -Math.PI / 2; // Tripo 모델은 앞면이 +x → 카메라 쪽(+z)으로 돌림
         M.sefoGltf = G.sefo;
+        M.gltf = { sefo: G.sefo, berri: G.berri || null }; // 주인공 모델(11-16 베리 추가). 보조용 두 번째 사본은 M.parse 로 따로 풂
         M.tick = prop(G.tick, { rotY: F, height: 2.0, mat: { teal: true, gain: 1.25, gamma: 0.9, sat: 1.15, rim: 0.5, spec: 0.55, inst: true } });
         // 배경 소품은 캐릭터·이펙트보다 한 단계 낮은 채도·밝기 (SEFO·안개가 먼저 읽히게). 장애물은 SEFO 허리 높이 아래로 낮게
         M.tower = prop(G.tower, { rotY: F, height: 8.6, mat: { gain: 1.08, gamma: 0.95, sat: 0.96, rim: 0.34, spec: 0.22 } });

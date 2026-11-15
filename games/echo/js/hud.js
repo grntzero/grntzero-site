@@ -102,9 +102,11 @@
   H.loadProg = function (k) { H.lfill.style.width = Math.round(5 + k * 95) + '%'; };
   H.show = function (el, on) { el.classList.toggle('hide', !on); };
 
-  // SEFO 얼굴 아이콘: 모델을 따로 렌더해 캔버스로
+  // 주인공 얼굴 아이콘: 모델을 따로 렌더해 캔버스로 (SEFO 는 저지 번호 딱지까지). 이름표도 여기서 맞춤
   H.makeFace = function () {
     const R = TG.R, P = TG.PL, size = 384; // 화질(갤럭시탭): 192 → 384 (태블릿에서 얼굴 아이콘이 늘어나 흐렸음)
+    const hero = P.hero || TG.HEROES.sefo, hk = P.hk || 1;
+    { const nt = $('nameTag'); if (nt && nt.firstChild && nt.firstChild.nodeType === 3) nt.firstChild.nodeValue = hero.name + ' '; }
     const rt = new T.WebGLRenderTarget(size, size, { samples: 4 });
     const sc = new T.Scene();
     sc.add(new T.HemisphereLight(0xffffff, 0xd9a878, 2.2));
@@ -115,7 +117,7 @@
     P.root.position.set(0, 0, 0); P.root.rotation.y = 0.25;
     P.root.updateMatrixWorld(true);
     const cam = new T.PerspectiveCamera(26, 1, 0.1, 50);
-    cam.position.set(0.14, 2.5, 4.48); cam.lookAt(0, 2.2, 0); // 얼굴 위주 (가슴 번호는 아래 딱지로 또렷하게 다시 그림)
+    cam.position.set(0.14, 2.5 * hk, 4.48 * hk); cam.lookAt(0, 2.2 * hk, 0); // 얼굴 위주 (가슴 번호는 아래 딱지로 또렷하게 다시 그림). 키가 다른 주인공은 비율대로
     const old = R.renderer.getRenderTarget();
     const ring = P.ring.visible; P.ring.visible = false;
     R.renderer.setRenderTarget(rt);
@@ -136,12 +138,13 @@
     const tmp = document.createElement('canvas'); tmp.width = tmp.height = size; tmp.getContext('2d').putImageData(img, 0, 0);
     ctx.clearRect(0, 0, cv.width, cv.height);
     { const k = cv.width / 160; ctx.drawImage(tmp, 0, 0, size, size, -6 * k, 4 * k, cv.width + 12 * k, cv.height + 12 * k); } // 캔버스를 키워도 자리는 그대로
+    if (!hero.badge) return;
     // 저지 번호 딱지 「34」: 작은 초상화에서도 또렷하게 (검정 저지 + 빨간 테 + 흰 숫자)
     const W = cv.width, bw = W * 0.56, bh = W * 0.25, bx = (W - bw) / 2, by = W * 0.685, r = bh * 0.4;
     ctx.beginPath(); ctx.moveTo(bx + r, by); ctx.arcTo(bx + bw, by, bx + bw, by + bh, r); ctx.arcTo(bx + bw, by + bh, bx, by + bh, r); ctx.arcTo(bx, by + bh, bx, by, r); ctx.arcTo(bx, by, bx + bw, by, r); ctx.closePath();
     ctx.fillStyle = '#1e1e24'; ctx.fill(); ctx.lineWidth = W * 0.035; ctx.strokeStyle = '#e5352b'; ctx.stroke();
     ctx.font = '900 italic ' + Math.round(bh * 0.92) + 'px Arial Black, Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#ffffff'; ctx.fillText('34', W / 2, by + bh * 0.54);
+    ctx.fillStyle = '#ffffff'; ctx.fillText(hero.badge, W / 2, by + bh * 0.54);
   };
 
   const pv = new T.Vector3();
@@ -271,10 +274,13 @@
     }
     const b = TG.F.boss;
     if (b && TG.F.bossObj.group.visible) { c.fillStyle = '#5e5a7a'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(X(b.x), Z(b.z), 9, 0, 6.3); c.fill(); c.stroke(); }
-    // SEFO (방향 삼각형)
+    // 보조 캐릭터 (작은 점)
+    const AS = TG.AS;
+    if (AS && AS.on) { c.fillStyle = '#' + (AS.def.color | 0).toString(16).padStart(6, '0'); c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(X(AS.x), Z(AS.z), 4.5, 0, 6.3); c.fill(); c.stroke(); }
+    // 주인공 (방향 삼각형, 대표색)
     const P = TG.PL;
     c.save(); c.translate(X(P.rx), Z(P.rz)); c.rotate(-P.yaw + Math.PI);
-    c.fillStyle = '#e5352b'; c.strokeStyle = '#fff'; c.lineWidth = 2.5;
+    c.fillStyle = (P.hero && P.hero.colorCss) || '#e5352b'; c.strokeStyle = '#fff'; c.lineWidth = 2.5;
     c.beginPath(); c.moveTo(0, -9); c.lineTo(7, 6); c.lineTo(-7, 6); c.closePath(); c.fill(); c.stroke();
     c.restore();
   }

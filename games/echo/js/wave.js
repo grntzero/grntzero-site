@@ -1,4 +1,5 @@
-/* 톱니골 던전 — 「소리 파동」: 「소리」 버튼을 누르는 동안 나가는 빨간 호 3겹(겨눈 방향), 관통. update = 규칙 계산 / draw = 그리기 */
+/* 톱니골 던전 — 「소리 파동」: 「소리」 버튼을 누르는 동안 나가는 빨간 호 3겹(겨눈 방향), 관통. update = 규칙 계산 / draw = 그리기
+   11-16 베리 「베리 방울」(TG.hero.shot === 'berry'): 핑크 열매 방울이 데굴데굴 굴러가다 닿으면(또는 사거리 끝에서) 퐁 — 둘레 안개를 함께 터뜨림, 지나간 자리에 작은 꽃(js/flowers.js) */
 (function () {
   'use strict';
   const TG = window.TG, T = THREE;
@@ -61,9 +62,21 @@
       for (let k = 0; k < 3; k++) { const m = new T.Mesh(WV.geos[0][0], waveMat()); m.renderOrder = 15 - k; m.frustumCulled = false; g.add(m); parts.push(m); }
       WV.pool.push({ g, parts, on: false });
     }
+    // 베리 방울 풀: 핑크 열매(점 무늬) + 초록 잎 꼭지 + 외곽선
+    WV.berries = [];
+    const R = TG.R;
+    const seedTex = R.canvasTex(128, 128, (c) => { c.fillStyle = '#ff6fae'; c.fillRect(0, 0, 128, 128); c.fillStyle = '#ffe9a8'; for (let i = 0; i < 14; i++) { const a = (i * 2.399), r = 10 + (i * 37) % 44; c.beginPath(); c.ellipse(64 + Math.cos(a) * r, 64 + Math.sin(a) * r, 5, 7.5, a, 0, 6.283); c.fill(); } }, { repeat: true });
+    const bodyMat = R.toon({ map: seedTex, gain: 1.15, rim: 0.55, spec: 0.35 }), leafMat = R.toon({ color: 0x6fd36b, gain: 1.1, rim: 0.4 });
+    for (let i = 0; i < 14; i++) {
+      const g = new T.Group(); g.visible = false; scene.add(g);
+      const ball = new T.Mesh(new T.SphereGeometry(0.46, 20, 14), bodyMat); ball.castShadow = true; ball.renderOrder = 14; g.add(ball); R.addOutline(ball, 1.0).renderOrder = 14;
+      const leaf = new T.Mesh(new T.ConeGeometry(0.22, 0.26, 6), leafMat); leaf.position.y = 0.5; leaf.renderOrder = 14; ball.add(leaf); R.addOutline(leaf, 1.0).renderOrder = 14;
+      WV.berries.push({ g, ball, on: false });
+    }
+    WV.berryPops = 0;
   };
-  WV.reset = function () { WV.pool.forEach((w) => { w.on = false; w.g.visible = false; }); WV.pending.length = 0; id = 1; };
-  WV.activeCount = () => WV.pool.filter((w) => w.on).length;
+  WV.reset = function () { WV.pool.forEach((w) => { w.on = false; w.g.visible = false; }); WV.berries.forEach((b) => { b.on = false; b.g.visible = false; }); WV.pending.length = 0; id = 1; WV.berryPops = 0; };
+  WV.activeCount = () => WV.pool.filter((w) => w.on).length + WV.berries.filter((b) => b.on).length;
 
   // 단계 + 카드 효과를 합친 실제 값
   WV.stat = function (level) {
@@ -90,8 +103,10 @@
     const P = TG.PL;
     n = n || 1;
     P.fireAnim(dir, level);
-    for (let i = 0; i < n; i++) WV.pending.push({ t: 0.05, dir: dir + (i / n) * Math.PI * 2, level });
-    TG.A.wave(level);
+    const berry = !!(TG.hero && TG.hero.shot === 'berry');
+    for (let i = 0; i < n; i++) WV.pending.push({ t: 0.05, dir: dir + (i / n) * Math.PI * 2, level, berry });
+    if (berry) { TG.A.play('sfx_pop', { rate: 1.5 + level * 0.1 + TG.fra(-0.05, 0.05), gain: 0.4 + level * 0.1 }); TG.A.pick(); }
+    else TG.A.wave(level);
     if (level >= 2) { TG.FX.shake(0.12 + level * 0.05); TG.FX.punch(0.015 * level); }
   };
 
@@ -111,12 +126,74 @@
     }
   }
 
+  // ── 베리 방울 (주인공 베리) ──
+  const BERRY = { speed: 0.78, pop: 1.7, trail: 1.6, maxTrail: 2 }; // 파동 속도 배율, 퐁 둘레(안개 함께 터짐), 꽃 자국 간격, 한 방울이 남기는 꽃 수
+  function launchBerry(dir, level) {
+    const b = WV.berries.find((q) => !q.on); if (!b) return;
+    const P = TG.PL, L = WV.stat(level);
+    const rad = 0.46 * (1 + level * 0.16) * (1 + L.sizeLv * 0.12);
+    const ox = P.x + Math.sin(dir) * 0.9, oz = P.z + Math.cos(dir) * 0.9;
+    Object.assign(b, { on: true, id: id++, ox, oz, x: ox, z: oz, px: ox, pz: oz, dir, level, L, rad, t: 0, r: 0, pr: 0, done: false, trailAt: 0, trails: 0, roll: 0 });
+    b.g.visible = true; b.g.scale.setScalar(rad / 0.46); b.g.position.set(ox, rad, oz);
+    TG.FX.emit(TG.FX.CELL.glow, ox, 1.0, oz, { life: 0.12, size: 1.0 + level * 0.3, size1: 1.6 + level * 0.3, color: [2.0, 1.0, 1.5], alpha: 0.4 });
+  }
+  function berryPop(b, G, hitU) {
+    const F = TG.F, L = b.L, R2 = BERRY.pop + b.level * 0.45 + b.rad;
+    b.done = true; b.on = false; b.g.visible = false; WV.berryPops++;
+    const FX = TG.FX;
+    FX.popBurst(b.x, b.rad, b.z, 0.9 + b.level * 0.25, [2.3, 1.0, 1.5]);
+    for (let i = 0; i < 3 + b.level; i++) FX.emit(FX.CELL.flower, b.x, b.rad + 0.2, b.z, { vx: TG.fra(-2.5, 2.5), vy: TG.fra(3, 5.5), vz: TG.fra(-2.5, 2.5), life: 0.6, size: 0.45, size1: 0.15, color: [2.3, 1.2, 1.7], grav: 8, pop: true, vrot: TG.fra(-4, 4), rot: 0 });
+    FX.ring(b.x, b.z, { r0: 0.3, r1: R2, dur: 0.3, color: 0xff9ccb, width: 0.22, alpha: 0.9 });
+    if (hitU) G.hitUnit(hitU, L.dmg, b.x, b.z, false, b.level, [2.2, 1.1, 1.6]);
+    for (const u of F.list) {
+      if (u === hitU || u.state !== 'live' || u.spawnT < 0.3 || u.kind === 'cocoon') continue;
+      if (Math.hypot(u.x - b.x, u.z - b.z) < R2 + u.r * u.scale) G.hitUnit(u, L.dmg, b.x, b.z, true, b.level, [2.2, 1.1, 1.6]);
+    }
+    const bs = F.boss;
+    if (bs && bs.state === 'fight' && Math.hypot(bs.x - b.x, bs.z - b.z) < R2 + bs.r * bs.scale) G.hitBoss(L.dmg, b.x, b.z, !!hitU, b.level);
+  }
+  function berryUpdate(dt, G) {
+    const F = TG.F;
+    for (const b of WV.berries) {
+      if (!b.on) continue;
+      const L = b.L;
+      b.t += dt; b.pr = b.r; b.px = b.x; b.pz = b.z;
+      b.r += L.speed * BERRY.speed * dt;
+      b.roll += (L.speed * BERRY.speed * dt) / b.rad;
+      b.x = b.ox + Math.sin(b.dir) * b.r; b.z = b.oz + Math.cos(b.dir) * b.r;
+      // 꽃 자국: 굴러간 길에 띄엄띄엄
+      if (b.r - b.trailAt >= BERRY.trail && b.trails < BERRY.maxTrail && TG.FL) { b.trailAt = b.r; b.trails++; TG.FL.add(b.x, b.z, false); }
+      if (TG.AR.blocked(b.x, b.z, 0.3) || Math.abs(b.x) > TG.AR.bx - 0.3 || Math.abs(b.z) > TG.AR.bz - 0.3) { berryPop(b, G, null); continue; } // 벽·상자에 닿으면 퐁
+      if (b.r >= L.range) { berryPop(b, G, null); continue; }
+      let hit = null, hd = 1e9;
+      for (const u of F.list) {
+        if (u.state !== 'live' || u.spawnT < 0.3 || u.kind === 'cocoon') continue;
+        const d = Math.hypot(u.x - b.x, u.z - b.z) - u.r * u.scale - b.rad;
+        if (d < 0 && d < hd) { hd = d; hit = u; }
+      }
+      if (hit) { berryPop(b, G, hit); continue; }
+      const bs = F.boss;
+      if (bs && bs.state === 'fight' && Math.hypot(bs.x - b.x, bs.z - b.z) < bs.r * bs.scale + b.rad) { berryPop(b, G, null); continue; }
+    }
+  }
+  function berryDraw(al) {
+    for (const b of WV.berries) {
+      if (!b.on) continue;
+      const x = TG.lerp(b.px, b.x, al), z = TG.lerp(b.pz, b.z, al), r = TG.lerp(b.pr, b.r, al);
+      const hop = Math.abs(Math.sin(r * 2.4)) * 0.22 * b.rad; // 데굴데굴 + 살짝 통통
+      b.g.position.set(x, b.rad + hop, z);
+      b.ball.rotation.set(0, 0, 0); b.ball.rotateY(b.dir); b.ball.rotateX(b.roll);
+      if (TG.fr() < 0.35) TG.FX.emit(TG.FX.CELL.sparkle, x + TG.fra(-0.3, 0.3), b.rad * 1.6, z + TG.fra(-0.3, 0.3), { life: 0.2, size: 0.3, size1: 0, color: [2.4, 1.4, 1.8] });
+    }
+  }
+
   // ── 규칙 계산 ──
   WV.update = function (dt, G) {
     for (let i = 0; i < WV.pending.length; i++) {
       const p = WV.pending[i]; p.t -= dt;
-      if (p.t <= 0) { launch(p.dir, p.level); WV.pending.splice(i, 1); i--; }
+      if (p.t <= 0) { if (p.berry) launchBerry(p.dir, p.level); else launch(p.dir, p.level); WV.pending.splice(i, 1); i--; }
     }
+    berryUpdate(dt, G);
     const F = TG.F;
     for (const w of WV.pool) {
       if (!w.on) continue;
@@ -149,6 +226,7 @@
 
   // ── 그리기 ──
   WV.draw = function (al) {
+    berryDraw(al);
     for (const w of WV.pool) {
       if (!w.on) continue;
       const L = w.L, r = TG.lerp(w.pr, w.r, al);

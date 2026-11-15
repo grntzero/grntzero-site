@@ -1,15 +1,29 @@
-/* 톱니골 던전 — SEFO: 리깅 모델 + idle/run 블렌딩 + 프로시저럴 덧칠(기울기·통통·스쿼시·반동·맞음·큰 소리 점프·쉬기) */
+/* 톱니골 던전 — 주인공(SEFO·BERRI, js/heroes.js): 리깅 모델 + idle/run 블렌딩 + 프로시저럴 덧칠(기울기·통통·스쿼시·반동·맞음·큰 소리 점프·쉬기)
+   11-16 베리: 같은 뼈 이름이라 SEFO 동작 9개를 그대로 씀(tools/build_berri.py). 딸기 막대(베리 마라카스)는 GLB 안에서 RightHand 뼈 자식 — 손을 따라감 */
 (function () {
   'use strict';
   const TG = window.TG, T = THREE;
   const PL = (TG.PL = {});
-  const HEIGHT = 2.87; // 월드 키
+  const HEIGHT0 = 2.87; // SEFO 월드 키 (다른 주인공은 heroes.js 의 height, 머리 위 자리 등은 이 비율로)
   PL.MAXSPD = 7.2;
 
+  // 주인공 바꾸기 (타이틀에서 고름): 만든 것을 걷어내고 다시 만듦
+  PL.setHero = function (scene) {
+    if (PL.root) {
+      [PL.root, PL.ring, PL.aim].concat(PL.chargeRings || []).forEach((o) => { if (o && o.parent) o.parent.remove(o); });
+      if (PL.back34 && PL.back34.parent) PL.back34.parent.remove(PL.back34);
+      const drop = []; PL.model.traverse((o) => { if (o.userData.isOutline) drop.push(o); }); drop.forEach((o) => o.parent && o.parent.remove(o)); // 지난번 외곽선·실루엣 껍데기 걷어냄
+      PL.bones = null; PL.outlines = null; PL.mats = null; PL.mega = null; PL.back34 = null; PL.wand = null; PL.xray = null; PL.special = null;
+    }
+    PL.init(scene);
+  };
+
   PL.init = function (scene) {
-    const R = TG.R, gltf = TG.M.sefoGltf;
+    const R = TG.R, hero = (PL.hero = TG.hero || TG.HEROES.sefo), gltf = (TG.M.gltf && TG.M.gltf[hero.model]) || TG.M.sefoGltf;
+    const HEIGHT = (PL.HEIGHT = hero.height || HEIGHT0);
+    PL.hk = HEIGHT / HEIGHT0;
     const model = (PL.model = gltf.scene);
-    model.scale.multiplyScalar(HEIGHT);
+    model.scale.set(1, 1, 1).multiplyScalar(HEIGHT);
     const root = (PL.root = new T.Group());
     const body = (PL.body = new T.Group());
     root.add(body); body.add(model);
@@ -28,10 +42,10 @@
       return m;
     };
     const meshes = [];
-    model.traverse((o) => { if (o.isMesh) meshes.push(o); if (o.isBone) { PL.bones = PL.bones || {}; PL.bones[o.name] = o; } });
+    model.traverse((o) => { if (o.isMesh && !o.userData.isOutline) meshes.push(o); if (o.isBone) { PL.bones = PL.bones || {}; PL.bones[o.name] = o; } });
     meshes.forEach((o) => {
       const map = o.material.map; if (map) { map.anisotropy = TG.R.maxAniso || 4; }
-      if (map && o.isSkinnedMesh) boldSleeveRed(o, map);
+      if (map && o.isSkinnedMesh && hero.id === 'sefo' && !map.userData.bold) { map.userData.bold = true; boldSleeveRed(o, map); }
       const m = PL.toon({ map, gain: 1.12, gamma: 0.95, sat: 1.12, rim: 0.5, spec: 0.12 });
       o.material = m; PL.mats.push(m);
       o.castShadow = true; o.receiveShadow = false; o.frustumCulled = false;
@@ -41,7 +55,7 @@
       // 불투명 순서 0.5 = 다른 물체 다음·SEFO 자기 외곽선(1) 앞 → 제 몸끼리 겹친 곳에는 안 그려짐
       if (o.isSkinnedMesh) {
         const src = R.outlineMat(1.15);
-        const xm = new T.MeshBasicMaterial({ color: 0xf0483c, side: T.BackSide, depthWrite: false, depthFunc: T.GreaterDepth });
+        const xm = new T.MeshBasicMaterial({ color: hero.xray || 0xf0483c, side: T.BackSide, depthWrite: false, depthFunc: T.GreaterDepth });
         xm.onBeforeCompile = src.onBeforeCompile; xm.customProgramCacheKey = src.customProgramCacheKey;
         const x = new T.SkinnedMesh(o.geometry, xm); x.bind(o.skeleton, o.bindMatrix); x.frustumCulled = false;
         x.position.copy(o.position); x.quaternion.copy(o.quaternion); x.scale.copy(o.scale);
@@ -83,9 +97,9 @@
 
     // 발밑 대표색 링 + 방향 화살표
     const ringG = new T.Group(); PL.ring = ringG; scene.add(ringG);
-    const ringMat = (PL.ringMat = new T.MeshBasicMaterial({ color: new T.Color(0xe5352b), transparent: true, opacity: 0.95, depthWrite: false, depthTest: false }));
+    const ringMat = (PL.ringMat = new T.MeshBasicMaterial({ color: new T.Color(hero.color), transparent: true, opacity: 0.95, depthWrite: false, depthTest: false }));
     const ring = new T.Mesh(new T.RingGeometry(1.08, 1.34, 48), ringMat); ring.rotation.x = -Math.PI / 2; ringG.add(ring);
-    const inner = new T.Mesh(new T.CircleGeometry(1.08, 40), new T.MeshBasicMaterial({ color: 0xe5352b, transparent: true, opacity: 0.22, depthWrite: false })); inner.rotation.x = -Math.PI / 2; ringG.add(inner);
+    const inner = new T.Mesh(new T.CircleGeometry(1.08, 40), new T.MeshBasicMaterial({ color: hero.color, transparent: true, opacity: 0.22, depthWrite: false })); inner.rotation.x = -Math.PI / 2; ringG.add(inner);
     // 흰 테 2줄: 빨간 타일 위에서도 링이 읽히게
     const edgeMat = new T.MeshBasicMaterial({ color: 0xfff6e8, transparent: true, opacity: 0.95, depthWrite: false, depthTest: false });
     [[1.34, 1.43], [1.01, 1.08]].forEach((r) => { const e = new T.Mesh(new T.RingGeometry(r[0], r[1], 48), edgeMat); e.rotation.x = -Math.PI / 2; e.renderOrder = 8; ringG.add(e); });
@@ -98,7 +112,7 @@
 
     // 모으기 링 3단
     PL.chargeRings = [];
-    const cc = [0xff8a5b, 0xe5352b, 0xffd966];
+    const cc = hero.charge || [0xff8a5b, 0xe5352b, 0xffd966];
     for (let i = 0; i < 3; i++) {
       const m = new T.Mesh(new T.TorusGeometry(1.7 + i * 0.55, 0.09 + i * 0.02, 6, 56), new T.MeshBasicMaterial({ color: new T.Color(cc[i]).multiplyScalar(2.2), transparent: true, opacity: 0, depthWrite: false }));
       m.rotation.x = -Math.PI / 2; m.position.y = 0.12; m.visible = false; scene.add(m); PL.chargeRings.push(m);
@@ -108,7 +122,7 @@
     const half = 0.5;
     const sg = new T.CircleGeometry(1, 28, -Math.PI / 2 - half, half * 2); sg.rotateX(-Math.PI / 2);
     PL.aim = new T.Mesh(sg, new T.ShaderMaterial({
-      uniforms: { uA: { value: 0.0 }, uCol: { value: new T.Color(0xff6a4a) }, uH: { value: half } },
+      uniforms: { uA: { value: 0.0 }, uCol: { value: new T.Color(hero.aim || 0xff6a4a) }, uH: { value: half } },
       vertexShader: 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
       fragmentShader: 'uniform float uA; uniform vec3 uCol; uniform float uH; varying vec3 vP; void main(){ float r = length(vP.xz); float an = abs(atan(vP.x, vP.z)); float edge = max(smoothstep(0.93, 0.985, r), smoothstep(uH - 0.07, uH - 0.015, an)); float mid = (1.0 - smoothstep(0.0, 0.035, an)) * step(0.5, fract(r * 6.0)); float a = (0.2 + 0.6 * edge + 0.45 * mid) * uA; a *= smoothstep(0.1, 0.22, r); vec3 c = mix(uCol * 1.4, vec3(1.5, 1.4, 1.2), max(edge, mid) * 0.75); gl_FragColor = vec4(c, clamp(a, 0.0, 1.0)); }',
       transparent: true, depthWrite: false,
@@ -189,7 +203,7 @@
 
   PL.setRest = function (on) {
     PL.resting = on; PL.restT = 0;
-    if (on) { PL.act.cheer.stop(); PL.act.run.setEffectiveWeight(0); PL.act.idle.setEffectiveWeight(1); PL.act.idle.timeScale = 0.6; PL.playSpecial(PL.act.covered ? 'covered' : 'sit'); PL.tyaw = 0.2; PL.faceLock = 0; }
+    if (on) { PL.act.cheer.stop(); PL.act.run.setEffectiveWeight(0); PL.act.idle.setEffectiveWeight(1); PL.act.idle.timeScale = 0.6; PL.playSpecial(PL.act.covered && !(PL.hero && PL.hero.kid) ? 'covered' : 'sit'); PL.tyaw = 0.2; PL.faceLock = 0; } // 아이 캐릭터는 「꽃잎에 싸여 쉬는 중」 — 앉아 쉬는 동작(웅크림·쓰러짐 X, 기획서 ④ 안전 4)
   };
   // 특별 동작 (sit = 잠깐 쉬어요, victory = 결과 화면 승리)
   PL.playSpecial = function (name) {
@@ -208,7 +222,7 @@
     const ax = input ? input.x : 0, az = input ? input.z : 0;
     const mag = Math.min(1, Math.hypot(ax, az));
     const cheering = PL.cheerT >= 0;
-    const maxs = PL.MAXSPD * PL.spdMul * PL.slow * (cheering ? 0.35 : 1) * (PL.resting ? 0 : 1) * (PL.special === 'arise' ? 0.2 : 1);
+    const maxs = PL.MAXSPD * PL.spdMul * (TG.AS ? TG.AS.spdMul() : 1) * PL.slow * (cheering ? 0.35 : 1) * (PL.resting ? 0 : 1) * (PL.special === 'arise' ? 0.2 : 1); // AS.spdMul = 쎄니 「스타팡팡」 뒤 잠깐 빨라짐(규칙 쪽)
     if (simOn && !PL.introFly) {
       const tx = ax * maxs, tz = az * maxs;
       PL.vx = TG.damp(PL.vx, tx, mag > 0.05 ? 16 : 20, dt);
@@ -285,7 +299,7 @@
     // 달리기 클립이 몸을 많이 숙여 위에서 얼굴이 가려짐 → 허리·고개를 세움
     const rw = PL.act.run.getEffectiveWeight(), B = PL.bones;
     if (rw > 0.01 && B.Hips && B.Head) { B.Hips.rotateX(-0.35 * rw); B.Head.rotateX(-0.25 * rw); }
-    if (B.Head) B.Head.scale.setScalar(PL.headS0 * 0.93); // 머리를 7% 줄여 위에서도 어깨·빨간 줄이 보이게 (처음 값 기준 — 쌓이지 않음)
+    if (B.Head) B.Head.scale.setScalar(PL.headS0 * (PL.hero.headScale || 1)); // SEFO 는 머리를 7% 줄여 위에서도 어깨·빨간 줄이 보이게 (처음 값 기준 — 쌓이지 않음). 베리는 그대로
 
     // 스쿼시 스프링
     const sdt = Math.min(dt, 0.033);
@@ -331,6 +345,12 @@
       PL.mega.position.set(megaV.x - 0.04 - up * 0.1, megaV.y + 0.1 - up * 0.12, megaV.z + 0.12);
       PL.mega.rotation.set(-(0.38 + up * 0.12 + fire * 0.3) + Math.sin(t * 9) * 0.05 * f, -0.32 - up * 0.75, 0);
       PL.mega.scale.setScalar(1 + fire * 0.28);
+    }
+
+    // 딸기 막대(베리): 뼈에 붙어 손을 따라감. 소리 낼 때 톡 커졌다 돌아옴
+    if (PL.wand) {
+      const fire = PL.recoil >= 0 ? Math.sin(Math.min(1, PL.recoil / 0.36) * Math.PI) : 0;
+      PL.wand.scale.copy(PL.wandS0).multiplyScalar(1 + fire * 0.25);
     }
 
     // 번쩍 (닿음·무적 깜빡임)
@@ -380,7 +400,11 @@
   function buildProps() {
     const R = TG.R, B = PL.bones || {};
     const keep = (g) => g.traverse((o) => { if (o.isMesh && !o.userData.isOutline) { o.castShadow = true; o.renderOrder = 9; PL.mats.push(o.material); } else if (o.userData.isOutline) { o.renderOrder = 1; PL.outlines = PL.outlines || []; PL.outlines.push(o); } });
-    if (B.RightHand) { // 몸통에 달고 매 프레임 손 위치로 옮김 → 늘 앞을 향해 위에서도 원뿔로 보임 (단위: 월드)
+    if (PL.hero.prop === 'wand') { // 베리: 딸기 막대는 GLB 안 RightHand 자식 노드 (tools/build_berri.py) — 찾아서 소리 낼 때 톡 커지게만
+      PL.model.traverse((o) => { if (o.name === 'berri_wand_grip') PL.wand = o; });
+      if (PL.wand) PL.wandS0 = PL.wand.scale.clone();
+    }
+    if (B.RightHand && PL.hero.prop === 'mega') { // 몸통에 달고 매 프레임 손 위치로 옮김 → 늘 앞을 향해 위에서도 원뿔로 보임 (단위: 월드)
       const g = new T.Group();
       const gold = PL.toon({ color: 0xe8b23a, gain: 1.15, rim: 0.6, spec: 0.5, side: T.DoubleSide }), red = PL.toon({ color: 0xe5352b, gain: 1.1, rim: 0.4, spec: 0.3 }), dark = PL.toon({ color: 0x7a4a1c, gain: 0.9 });
       const add = (geo, mat, z, ol) => { const m = new T.Mesh(geo, mat); m.position.z = z; g.add(m); if (ol) R.addOutline(m, 1.0); return m; };
@@ -394,17 +418,17 @@
       g.rotation.order = 'YXZ';
       PL.body.add(g); PL.mega = g;
     }
-    if (B.Spine02) { // 등번호 34: 2배 가까이 키우고 등 굴곡에 맞춰 살짝 휨
+    if (B.Spine02 && PL.hero.badge) { // 등번호 34: 2배 가까이 키우고 등 굴곡에 맞춰 살짝 휨
       const cv = document.createElement('canvas'); cv.width = 256; cv.height = 192;
       const c = cv.getContext('2d'); c.font = '900 italic 150px Arial Black, Arial, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.lineJoin = 'round'; c.lineWidth = 26; c.strokeStyle = '#e5352b'; c.strokeText('34', 128, 104); c.fillStyle = '#ffffff'; c.fillText('34', 128, 104);
+      c.lineJoin = 'round'; c.lineWidth = 26; c.strokeStyle = '#e5352b'; c.strokeText(PL.hero.badge, 128, 104); c.fillStyle = '#ffffff'; c.fillText(PL.hero.badge, 128, 104);
       const tx = new T.CanvasTexture(cv); tx.colorSpace = T.SRGBColorSpace; tx.anisotropy = TG.R.maxAniso || 4;
       const geo = new T.PlaneGeometry(27, 20, 8, 1), pa = geo.getAttribute('position');
       for (let i = 0; i < pa.count; i++) { const x = pa.getX(i); pa.setZ(i, -(x * x) / 130); }
       const m = new T.Mesh(geo, new T.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 }));
       m.position.set(0, -1.5, -12.6); m.rotation.y = Math.PI; m.renderOrder = 10; B.Spine02.add(m); PL.back34 = m;
     }
-    if (B.Head) PL.headS0 = B.Head.scale.x;
+    if (B.Head) { if (B.Head.userData.s0 == null) B.Head.userData.s0 = B.Head.scale.x; PL.headS0 = B.Head.userData.s0; }
   }
 
   // 뼈에 주로 붙은 정점 고르기 (이름 정규식)
@@ -466,6 +490,6 @@
   }
 
   PL.headPos = function (out) {
-    return out.set(PL.rx, PL.root.position.y + 3.45 + PL.sq * 1.2, PL.rz);
+    return out.set(PL.rx, PL.root.position.y + 3.45 * (PL.hk || 1) + PL.sq * 1.2, PL.rz);
   };
 })();

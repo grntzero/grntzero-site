@@ -368,6 +368,14 @@ body:not(.touch) #btnSnd { opacity: 0.85; }
 #atkPick .atkL { font-size: calc(15px * var(--s)); color: #fff; margin-right: calc(4px * var(--s)); }
 #atkPick .atkB { color: #fff; background: #6b5d80; font-size: calc(19px * var(--s)); }
 #atkPick .atkB.on { color: #fff; background: linear-gradient(#ff8a6a, #e5352b 60%, #b8241b); }
+/* 주인공·함께 고르기 (타이틀, 11-16 베리): 소리 방울 칸 위에 두 줄 */
+#charPick { position: absolute; bottom: calc(var(--vh, 100dvh) * 0.02 + 196px * var(--s)); right: max(env(safe-area-inset-right, 0px), 2.5vw); display: flex; flex-direction: column; gap: calc(5px * var(--s)); background: rgba(27,20,36,0.62); border-radius: calc(18px * var(--s)); padding: calc(6px * var(--s)) calc(8px * var(--s)) calc(8px * var(--s)) calc(12px * var(--s)); }
+#charPick .atkL { font-size: calc(15px * var(--s)); color: #fff; margin-right: calc(4px * var(--s)); min-width: calc(46px * var(--s)); }
+#charPick .atkB { color: #fff; background: #6b5d80; font-size: calc(17px * var(--s)); padding: calc(4px * var(--s)) calc(12px * var(--s)); }
+#charPick .atkB.on { color: #fff; background: linear-gradient(#ff8a6a, #e5352b 60%, #b8241b); }
+#charPick .atkB.berri.on { background: linear-gradient(#ffb3d6, #ff7fb6 60%, #d9558f); color: #2a1424; }
+#charPick .atkB.sseni.on { background: linear-gradient(#cdb0ff, #a46bff 60%, #7a46d6); }
+#charPick .atkB.hide { display: none; }
 .atkSeg.sm .atkB { font-size: calc(15px * var(--s)); padding: calc(3px * var(--s)) calc(12px * var(--s)); }
 body.atkAuto .manOnly { display: none !important; }
 body:not(.atkAuto) .autoOnly { display: none !important; }
