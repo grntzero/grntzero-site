@@ -1,5 +1,6 @@
-/* 톱니골 던전 — 주인공(SEFO·BERRI, js/heroes.js): 리깅 모델 + idle/run 블렌딩 + 프로시저럴 덧칠(기울기·통통·스쿼시·반동·맞음·큰 소리 점프·쉬기)
-   11-16 베리: 같은 뼈 이름이라 SEFO 동작 9개를 그대로 씀(tools/build_berri.py). 딸기 막대(베리 마라카스)는 GLB 안에서 RightHand 뼈 자식 — 손을 따라감 */
+/* 톱니골 던전 — 주인공(SEFO·BERRI·허조교·MOSHEE, js/heroes.js): 리깅 모델 + idle/run 블렌딩 + 프로시저럴 덧칠(기울기·통통·스쿼시·반동·맞음·큰 소리 점프·쉬기)
+   11-16 베리: 같은 뼈 이름이라 SEFO 동작 9개를 그대로 씀(tools/build_berri.py). 딸기 막대(베리 마라카스)는 GLB 안에서 RightHand 뼈 자식 — 손을 따라감
+   11-16 MOSHEE: 큐브 머리 앞 화면판(moshee_face_screen, Head 뼈 자식)의 그림을 표정 아틀라스 7칸(tools/build_moshee.py)에서 골라 보임(PL.face) — 평소 웃음·소리 ^^·큰 소리 하트·안개 닿음 놀람·쉼 Z·이김 별눈·카드 윙크 */
 (function () {
   'use strict';
   const TG = window.TG, T = THREE;
@@ -13,10 +14,46 @@
       [PL.root, PL.ring, PL.aim].concat(PL.chargeRings || []).forEach((o) => { if (o && o.parent) o.parent.remove(o); });
       if (PL.back34 && PL.back34.parent) PL.back34.parent.remove(PL.back34);
       const drop = []; PL.model.traverse((o) => { if (o.userData.isOutline) drop.push(o); }); drop.forEach((o) => o.parent && o.parent.remove(o)); // 지난번 외곽선·실루엣 껍데기 걷어냄
-      PL.bones = null; PL.outlines = null; PL.mats = null; PL.mega = null; PL.back34 = null; PL.wand = null; PL.xray = null; PL.special = null;
+      if (PL.faceScr && PL.faceScr.material) PL.faceScr.material.dispose(); // MOSHEE 표정 재질(바꿀 때마다 새로 만듦)
+      PL.bones = null; PL.outlines = null; PL.mats = null; PL.mega = null; PL.back34 = null; PL.wand = null; PL.xray = null; PL.special = null; PL.faceScr = null;
     }
     PL.init(scene);
   };
+
+  // ── MOSHEE 표정 화면 (큐브 얼굴): 아틀라스 가로 7칸, map.offset 으로 고름. hold = 잠깐 고정(초) ──
+  const FACES = { smile: 0, happy: 1, heart: 2, surprised: 3, sleepy: 4, stareyes: 5, wink: 6 };
+  PL.FACES = FACES;
+  function setupFace(o) {
+    const map = o.material.map; // GLTFLoader: KHR_materials_unlit → MeshBasicMaterial(map). 그림 하나에 7칸
+    if (map) { map.wrapS = map.wrapT = T.ClampToEdgeWrapping; map.repeat.set(1 / 7, 1); map.offset.set(0, 0); map.anisotropy = TG.R.maxAniso || 4; map.needsUpdate = true; }
+    const m = new T.MeshBasicMaterial({ map, color: 0xffffff }); // 화면은 빛을 안 받아 늘 또렷함(툰 조명·외곽선·무적 깜빡임 밖. 톤매핑은 OutputPass 가 화면 전체에 — 재질 플래그는 효과 없음)
+    o.material = m; o.castShadow = false; o.receiveShadow = false; o.frustumCulled = false; o.renderOrder = 10;
+    PL.faceScr = o; PL.faceMap = map; PL.faceName = ''; PL.faceHold = 0; PL.faceHoldName = null;
+    setFace('smile');
+  }
+  function setFace(name) {
+    if (!PL.faceScr || PL.faceName === name || FACES[name] == null) return;
+    PL.faceName = name;
+    if (PL.faceMap) PL.faceMap.offset.x = FACES[name] / 7;
+  }
+  PL.face = function (name, hold) { // 바깥에서(큰 소리·카드 등) 잠깐 고정. 다른 주인공이면 아무 일 없음
+    if (!PL.faceScr || FACES[name] == null) return false;
+    PL.faceHold = hold || 0.8; PL.faceHoldName = name; setFace(name);
+    return true;
+  };
+  function faceUpdate(dt) {
+    if (!PL.faceScr) return;
+    if (PL.faceHold > 0) { PL.faceHold -= dt; if (PL.faceHold > 0) { setFace(PL.faceHoldName); return; } PL.faceHoldName = null; }
+    let f = 'smile';
+    if (PL.special === 'victory') f = 'stareyes';                                          // 이김(결과 화면)
+    else if (PL.resting || PL.special === 'covered' || PL.special === 'sit') f = 'sleepy'; // 쉬는 중·안개에 덮임: 감은 눈 + Z
+    else if (PL.inv > 0.9) f = 'surprised';                                                // 안개에 닿은 직후 0.6초: 동그란 눈 + o 입
+    else if (PL.bigOn || (PL.airborne && PL.onLand)) f = 'heart';                          // 큰 소리 도약 중
+    else if (PL.joyT > 0) f = 'wink';                                                      // 카드 고른 뒤 폴짝
+    else if (PL.recoil >= 0 && PL.recoil < 0.3) f = 'happy';                               // 소리 쏠 때 ^^
+    setFace(f);
+  }
+  PL.faceState = () => (PL.faceScr ? { name: PL.faceName, offset: +PL.faceMap.offset.x.toFixed(4), hold: +PL.faceHold.toFixed(2) } : null);
 
   PL.init = function (scene) {
     const R = TG.R, hero = (PL.hero = TG.hero || TG.HEROES.sefo), gltf = (TG.M.gltf && TG.M.gltf[hero.model]) || TG.M.sefoGltf;
@@ -35,14 +72,16 @@
       o.fHead = 'uniform vec4 uSefo;\n';
       o.fFinal = '  outgoingLight *= 1.0 + 0.3 * uSefo.x;\n' +
         '  outgoingLight += vec3(1.0, 0.93, 0.82) * smoothstep(0.38, 0.78, fr) * uSefo.x * 0.9;\n' +
-        '  outgoingLight += vec3(1.0, 0.74, 0.22) * smoothstep(0.42, 0.8, fr) * uSefo.y * 0.85;\n';
+        '  outgoingLight += vec3(1.0, 0.74, 0.22) * smoothstep(0.42, 0.8, fr) * uSefo.y * 0.85;\n' +
+        (hero.rimGlow ? '  outgoingLight += mix(vec3(0.55, 0.25, 0.95), vec3(0.18, 0.88, 0.94), smoothstep(-0.2, 0.8, N.y)) * smoothstep(0.5, 0.82, fr) * 0.32;\n' : ''); // MOSHEE: 검은 몸이 어두운 굴에서도 읽히게 은은한 림 라이트(아래 보라 → 위 시안, 큐브에 시안 테두리가 이미 있어 약하게). 다른 주인공은 빈 문자열(셰이더 그대로)
       const m = R.toon(o), obc = m.onBeforeCompile;
       m.onBeforeCompile = function (sh, rn) { sh.uniforms.uSefo = PL.fxU; obc(sh, rn); };
       m.transparent = true; // 무적 시간은 투명도 깜빡임으로 (늘 켜 둠 → 깜빡일 때 셰이더를 새로 만들지 않음)
       return m;
     };
     const meshes = [];
-    model.traverse((o) => { if (o.isMesh && !o.userData.isOutline) meshes.push(o); if (o.isBone) { PL.bones = PL.bones || {}; PL.bones[o.name] = o; } });
+    PL.faceScr = null;
+    model.traverse((o) => { if (o.isMesh && !o.userData.isOutline) { if (o.name === 'moshee_face_screen') setupFace(o); else meshes.push(o); } if (o.isBone) { PL.bones = PL.bones || {}; PL.bones[o.name] = o; } }); // MOSHEE 표정 화면판은 툰·외곽선 없이 따로
     meshes.forEach((o) => {
       const map = o.material.map; if (map) { map.anisotropy = TG.R.maxAniso || 4; }
       if (map && o.isSkinnedMesh && hero.id === 'sefo' && !map.userData.bold) { map.userData.bold = true; boldSleeveRed(o, map); }
@@ -347,11 +386,12 @@
       PL.mega.scale.setScalar(1 + fire * 0.28);
     }
 
-    // 딸기 막대(베리): 뼈에 붙어 손을 따라감. 소리 낼 때 톡 커졌다 돌아옴
+    // 딸기 막대(베리)·호루라기(허조교)·붐박스(MOSHEE): 뼈에 붙어 몸을 따라감. 소리 낼 때 톡 커졌다 돌아옴
     if (PL.wand) {
       const fire = PL.recoil >= 0 ? Math.sin(Math.min(1, PL.recoil / 0.36) * Math.PI) : 0;
-      PL.wand.scale.copy(PL.wandS0).multiplyScalar(1 + fire * 0.25);
+      PL.wand.scale.copy(PL.wandS0).multiplyScalar(1 + fire * (PL.hero.prop === 'boombox' ? 0.15 : 0.25));
     }
+    faceUpdate(dt); // MOSHEE 큐브 표정 (다른 주인공은 아무 일 없음)
 
     // 번쩍 (닿음·무적 깜빡임)
     // 닿음 번쩍은 0.1초(밝기 +30% + 테두리 빛), 무적 시간은 투명도 깜빡임, 보호 시간은 발밑 링만 깜빡 → 몸 색(검정·빨강·34)은 늘 그대로
@@ -400,8 +440,8 @@
   function buildProps() {
     const R = TG.R, B = PL.bones || {};
     const keep = (g) => g.traverse((o) => { if (o.isMesh && !o.userData.isOutline) { o.castShadow = true; o.renderOrder = 9; PL.mats.push(o.material); } else if (o.userData.isOutline) { o.renderOrder = 1; PL.outlines = PL.outlines || []; PL.outlines.push(o); } });
-    if (PL.hero.prop === 'wand') { // 베리: 딸기 막대는 GLB 안 RightHand 자식 노드 (tools/build_berri.py) — 찾아서 소리 낼 때 톡 커지게만
-      PL.model.traverse((o) => { if (o.name === 'berri_wand_grip') PL.wand = o; });
+    if (PL.hero.propNode) { // 베리 딸기 막대(RightHand 자식)·허조교 호루라기(Spine 자식)·MOSHEE 붐박스(RightHand 자식)는 GLB 안 노드 (tools/build_*.py) — 찾아서 소리 낼 때 톡 커지게만
+      PL.model.traverse((o) => { if (o.name === PL.hero.propNode) PL.wand = o; });
       if (PL.wand) PL.wandS0 = PL.wand.scale.clone();
     }
     if (B.RightHand && PL.hero.prop === 'mega') { // 몸통에 달고 매 프레임 손 위치로 옮김 → 늘 앞을 향해 위에서도 원뿔로 보임 (단위: 월드)

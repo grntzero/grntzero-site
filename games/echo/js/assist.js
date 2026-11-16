@@ -52,9 +52,9 @@
       for (let i = 0; i < 2; i++) { const s = new T.Mesh(starGeo, mat); s.scale.setScalar(0.8); vis.body.add(s); R.addOutline(s, 1.0).renderOrder = 1; vis.orbit.push(s); }
       vis.ready = true;
     } else if (AS.def.model) { // 베리: GLB 를 따로 한 번 더 풀어 두 번째 사본 (주인공 모델과 뼈를 안 섞음)
-      const myVis = vis;
-      (AS.cache || (AS.cache = {}))[AS.def.model] = AS.cache[AS.def.model] || TG.M.parse(AS.def.model); // 한 번만 풀어 둠 (타이틀에서 여러 번 바꿔도 다시 안 풂)
-      AS.cache[AS.def.model].then((gltf) => {
+      const myVis = vis, mdl = AS.def.model;
+      (AS.cache || (AS.cache = {}))[mdl] = AS.cache[mdl] || TG.M.ensure(mdl).then(() => TG.M.parse(mdl)); // 한 번만 풀어 둠 (타이틀에서 여러 번 바꿔도 다시 안 풂). 11-16: 묶음이 따로면 먼저 받음(M.ensure)
+      AS.cache[mdl].then((gltf) => {
         if (vis !== myVis) return;
         const model = gltf.scene; model.scale.setScalar(2.3);
         model.traverse((o) => {
@@ -70,7 +70,7 @@
         myVis.act.idle.play(); myVis.act.run.play(); myVis.act.run.setEffectiveWeight(0);
         if (myVis.act.cheer) { myVis.act.cheer.setLoop(T.LoopOnce, 1); myVis.act.cheer.clampWhenFinished = true; }
         myVis.ready = true;
-      }).catch(() => { /* 못 풀면 링만 */ });
+      }).catch(() => { delete AS.cache[mdl]; /* 못 풀면 링만 (다음에 다시 시도) */ });
     }
   };
 

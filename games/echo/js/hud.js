@@ -117,7 +117,7 @@
     P.root.position.set(0, 0, 0); P.root.rotation.y = 0.25;
     P.root.updateMatrixWorld(true);
     const cam = new T.PerspectiveCamera(26, 1, 0.1, 50);
-    cam.position.set(0.14, 2.5 * hk, 4.48 * hk); cam.lookAt(0, 2.2 * hk, 0); // 얼굴 위주 (가슴 번호는 아래 딱지로 또렷하게 다시 그림). 키가 다른 주인공은 비율대로
+    const fc = hero.faceCam || [2.5, 4.48, 2.2]; cam.position.set(0.14, fc[0] * hk, fc[1] * hk); cam.lookAt(0, fc[2] * hk, 0); // 얼굴 위주 (가슴 번호는 아래 딱지로 또렷하게 다시 그림). 키가 다른 주인공은 비율대로, heroes.js faceCam 으로 조정(허조교: 철모가 커서 더 아래를 봄)
     const old = R.renderer.getRenderTarget();
     const ring = P.ring.visible; P.ring.visible = false;
     R.renderer.setRenderTarget(rt);

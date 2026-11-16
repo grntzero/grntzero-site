@@ -133,7 +133,7 @@
   function resetRun(keepFx) {
     G.tick = 0; G.time = 0; G.realT = 0; G.gauge = 0; G.combo = 0; G.comboT = 0; G.maxCombo = 0; G.notes = 0; G.popped = 0; G.rescued = 0; G.bossStarted = false;
     G.floor = 1; G.fogPop = 0; G.floorDone = false; G.cocoonDone = false; G.level = 1; G.xp = 0; G.xpNeed = XP0; G.pendingCards = 0; G.cardOpen = null; G.cardN = 0; G.revived = false;
-    G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.hintT = 0; G.hurts = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
+    G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.lined = 0; G.hintT = 0; G.hurts = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
     G.gaugeLock = 0; G.hintStage = 0; G.moved = 0; G.afters.length = 0; G.inBig = false; G.inPick = -1; G.inCard = -1; G.botW = 0; G.botStuck = 0; G.botSideT = 0; G.botSideS = 1; G.botLx = 0; G.botLz = 0; G.botCocT = 0; G.machSlow = false; G.camFocusK = 0.45;
     G.autoTicks = 0; G.playTicks = 0; G.autoShots = 0; G.autoOn = false;
     G.denyT = -9; G.shelterT = 0; G.shelterPick = -1; G.covT = 0; G.biT = 0; G.biStage = 0; G.lid = null; G.countAt = null; G.lastCount = -1;
@@ -160,6 +160,7 @@
   }
   // 시작 연출: 맨홀 덜컹 → SEFO 튀어나와 착지 → 출발!
   function startIntro() {
+    if (G.heroWait) return; // 주인공 모델을 받는 중이면 잠깐(버튼도 잠김)
     resetRun();
     showHud();
     G.phase = 'intro'; G.introT = 0; G.replay = null;
@@ -228,8 +229,8 @@
     G.spawnT = 1.0; G.clumpT = 3; G.echoT = 2.5; G.tickT = 6;
     G.hemiT = 1.35; G.camZoom = 1;
     TG.H.hideShelter(); TG.H.gruntHide();
-    const berryTxt = TG.hero.shot === 'berry' && n === 1; // 베리: 1층 안내만 「베리 방울」로
-    TG.H.showBanner(f.title, n === 1 && isAuto() ? (berryTxt ? '가까운 안개에 베리 방울이 저절로 굴러가요' : '가까운 안개에 소리 방울이 저절로 나가요') : berryTxt ? '「소리」 버튼을 꾹! 베리 방울이 데굴데굴 굴러가요' : f.sub, '', 2.4);
+    const hg = n === 1 && TG.hero.guide; // 베리·허조교: 1층 안내만 그 주인공 소리로(heroes.js guide)
+    TG.H.showBanner(f.title, n === 1 && isAuto() ? (hg ? hg.auto : '가까운 안개에 소리 방울이 저절로 나가요') : hg ? hg.man : f.sub, '', 2.4);
     if (n === 1) SSEL(isAuto() ? 'ok' : 'wink', isAuto() ? '소리 방울은 저절로! 넌 음표만 주워~' : TG.isTouch ? '안개 온다! 「소리」 꾹 눌러 봐!' : '안개 온다! 마우스 꾹 눌러 봐!', 3.2, 2.4);
     else if (n === 2) SSEL('think', '뭉치는 터지면 둘로 나뉘어! 조심~', 3.0, 2.4);
     else SSEL('wink', '메아리는 두 번 맞혀야 퐁! 할 수 있지?', 3.0, 2.4);
@@ -561,7 +562,9 @@
       FX.punch(0.02); TG.R.bloomPulse = Math.max(TG.R.bloomPulse, 0.12);
     }
     p.bigJump(() => {
-      const FX = TG.FX, x = p.x, z = p.z, R2 = 12.5 * pow, flower = TG.hero.big === 'flower';
+      const FX = TG.FX, x = p.x, z = p.z, R2 = 12.5 * pow, flower = TG.hero.big === 'flower', line = TG.hero.big === 'line';
+      if (line) return bigLine(x, z, pow, lv); // 허조교 「열 맞춰!」: 앞쪽 안개를 한 줄로 세운 뒤 삑 한 번에 관통(둥근 파동 없음)
+      if (TG.hero.big === 'heart') return bigHeart(x, z, pow, lv); // MOSHEE 「픽셀 하트!」: 큰 하트가 날아가 줄 위 안개 퐁, 벽에서 넷으로(둥근 파동 없음)
       FX.hitstop(80); FX.shake(flower ? 0.4 : 0.75); FX.punch(flower ? 0.05 : 0.1); TG.R.bloomPulse = 0.32; vib('big');
       TG.A.play('sfx_big', { gain: flower ? 0.6 : 1, rate: flower ? 1.15 : 1 }); if (!flower) TG.A.boom(); else TG.A.syn('rescue');
       if (flower) { // 베리 「꽃 피었다!」: 꽃잎 원이 퍼지며 안개 퐁 + 나(와 보조) 회복 1칸 + 꽃잎 보호막 (아이 안전: 큰 폭발·흔들림 작게)
@@ -595,6 +598,61 @@
       const b = TG.F.boss;
       if (b && b.state === 'fight' && Math.hypot(b.x - x, b.z - z) < 15 * pow) G.after(15, () => G.hitBoss(Math.round(12 * (1 + lv * 0.25)), b.x, b.z, true));
     });
+    return true;
+  }
+
+  // 허조교 큰 소리 「열 맞춰!」(기획서 ④ 2번, 갈래 「줄」): 착지하면 앞쪽(보는 방향 ±60°, 반경 R2) 안개가 0.4초 동안 내 앞 한 줄로 모여 서고,
+  // 줄이 서면 긴 음표(삑!)가 줄을 따라 날아가 차례로 퐁. 줄 밖(뒤·옆) 안개는 그대로(둥근 파동 없음). 보스는 줄 위에 있을 때만 맞음(음표가 지나며)
+  const LINE = { half: 1.05, start: 3.2, gap: 1.7, max: 12, ticks: 24, go: 30 };
+  function bigLine(x, z, pow, lv) {
+    const FX = TG.FX, F = TG.F, R2 = 14 * pow, dir = G.fireOn ? G.fireDir : G.faceDir; // 누르는 중이면 겨눈 쪽, 아니면 보는 쪽(검토 지적: fireDir 은 숫자라 늘 참이었음)
+    FX.hitstop(60); FX.shake(0.35); FX.punch(0.05); TG.R.bloomPulse = 0.3; vib('big');
+    TG.A.play('sfx_big', { gain: 0.75, rate: 1.1 });
+    FX.ring(x, z, { r0: 0.8, r1: 5, dur: 0.45, color: 0xa7b04f, width: 0.14, hdr: 1.3 });
+    FX.dust(x, z, 10, 1.3);
+    // 줄 바닥 표시: 앞쪽으로 점선(음표 알갱이)
+    for (let k = 0; k < 14; k++) { const d = LINE.start - 1 + k * 1.1; FX.emit(FX.CELL.note, x + Math.sin(dir) * d, 0.35, z + Math.cos(dir) * d, { vy: 1.2, life: 0.7 + k * 0.04, size: 0.5, size1: 0.2, color: [2.2, 2.3, 1.0], drag: 3 }); }
+    const cands = [];
+    for (const u of F.list) {
+      if (u.state !== 'live' || u.kind === 'cocoon') continue;
+      const dx = u.x - x, dz = u.z - z, d = Math.hypot(dx, dz);
+      if (d > R2 || d < 0.5 || Math.abs(TG.angDiff(dir, Math.atan2(dx, dz))) > LINE.half) continue;
+      cands.push([d, u]);
+    }
+    cands.sort((a, b) => a[0] - b[0]);
+    const lined = [], AR = TG.AR;
+    for (let k = 0; k < Math.min(LINE.max, cands.length); k++) { // 줄 자리가 벽 밖이면 거기서 끊음(검토 지적: 벽에 뭉치지 않게) — 못 선 안개는 그대로 둠
+      const tx = x + Math.sin(dir) * (LINE.start + k * LINE.gap), tz = z + Math.cos(dir) * (LINE.start + k * LINE.gap);
+      if (Math.abs(tx) > AR.bx - 0.8 || Math.abs(tz) > AR.bz - 0.8) break;
+      const u = cands[k][1]; u.byBig = true; lined.push({ u, fx: u.x, fz: u.z, tx, tz });
+    }
+    G.lined = lined.length;
+    for (let t = 1; t <= LINE.ticks; t++) {
+      G.after(t, () => {
+        const k = t / LINE.ticks, e = k * k * (3 - 2 * k);
+        for (const q of lined) { const u = q.u; if (u.state !== 'live') continue; u.x = TG.lerp(q.fx, q.tx, e); u.z = TG.lerp(q.fz, q.tz, e); u.vx = u.vz = 0; if (t === LINE.ticks) FX.emit(FX.CELL.sparkle, u.x, u.y + 1.6, u.z, { vy: 2, life: 0.35, size: 0.6, size1: 0, color: [2.4, 2.4, 1.2] }); }
+        if (t === LINE.ticks && lined.length) { TG.A.syn('charge', { level: 2 }); FX.text('줄 섰다!', x + Math.sin(dir) * 2.4, 3.6, z + Math.cos(dir) * 2.4, 'word'); }
+      });
+    }
+    TG.AS.onBig(x, z, G); // 보조 캐릭터도 함께 (60초에 한 번)
+    G.after(LINE.go, () => { if (isPlay()) TG.WV.whistleBig(x, z, dir, R2 + 2, lv); });
+    return true;
+  }
+
+  // MOSHEE 「픽셀 하트!」(11-16, 회의록 2안 v2): 착지 → 얼굴이 하트로 → 큰 픽셀 하트가 앞으로(누르는 중이면 겨눈 쪽, 아니면 보는 쪽) 날아가며 지나간 줄 안개 퐁(큰 소리 판정 99)
+  //   + 지나는 길 곁 상자에서 「숨은 음표」 → 벽(또는 사거리 끝)에서 작은 하트 4개로 쪼개져 튕김(wave.js heartBig). 둥근 파동·회복·보호막 없음. 보조 함께(AS.onBig) 그대로
+  const HEART_BIG = { range: 16, go: 4 };
+  function bigHeart(x, z, pow, lv) {
+    const FX = TG.FX, dir = G.fireOn ? G.fireDir : G.faceDir;
+    FX.hitstop(60); FX.shake(0.35); FX.punch(0.05); TG.R.bloomPulse = 0.3; vib('big');
+    TG.A.play('sfx_big', { gain: 0.75, rate: 1.05 });
+    FX.ring(x, z, { r0: 0.8, r1: 5, dur: 0.45, color: 0x2fe0f0, width: 0.14, hdr: 1.3 });
+    FX.ring(x, z, { r0: 0.8, r1: 4, dur: 0.5, color: 0xff5fb8, width: 0.1, delay: 0.1, hdr: 1.2, alpha: 0.85 });
+    for (let i = 0; i < 10; i++) { const a = (i / 10) * 6.283; FX.emit(FX.CELL.heart, x + Math.cos(a) * 1.1, 2.4, z + Math.sin(a) * 1.1, { vx: Math.cos(a) * 3, vy: TG.fra(3, 6), vz: Math.sin(a) * 3, life: 0.6, size: 0.55, size1: 0.1, color: [2.4, 0.9, 1.7], grav: 6, pop: true, vrot: TG.fra(-3, 3), rot: 0 }); }
+    FX.dust(x, z, 10, 1.3);
+    TG.PL.face && TG.PL.face('heart', 1.6); // 큐브 얼굴 하트(화면에서 하트가 튀어나가는 연출)
+    TG.AS.onBig(x, z, G); // 보조 캐릭터도 함께 (60초에 한 번)
+    G.after(HEART_BIG.go, () => { if (isPlay()) TG.WV.heartBig(x, z, dir, HEART_BIG.range * pow, lv); });
     return true;
   }
 
@@ -844,18 +902,32 @@
   }
   // 주인공·보조 바꾸기: 모델·얼굴·보조 겉모습을 다시 만듦 (타이틀에서만, 또는 재생 기록이 다른 주인공일 때)
   const kidK = (v) => (TG.hero && TG.hero.kid ? 1 : v); // 보스 등장 카메라: 아이 주인공이면 보스만 잡음
+  // 11-16: 주인공 GLB 는 고른 것만 따로 받음(js/assets.js M.hero). 아직 없으면 규칙(TG.hero)은 바로 바꾸고 모습은 받아서 풀린 뒤에 — 그동안 주인공을 숨기고 버튼을 흐리게(「…」), 시작 버튼 잠금
   function setHeroNow(h, a, noSave) {
     const r = TG.pickHero(h, a, noSave); // noSave = 재생 때(남의 기록이 내 기본값을 바꾸지 않게)
-    TG.PL.setHero(TG.R.scene); TG.PL.mixer.update(0.01); TG.H.makeFace();
-    TG.AS.set(TG.assistId); TG.C.recalc();
-    if (G.phase === 'title') { TG.PL.x = TG.PL.px = 0; TG.PL.z = TG.PL.pz = 3.5; TG.PL.yaw = TG.PL.tyaw = 0; TG.AS.reset(); }
-    applyPickUI();
+    const need = TG.hero.model && TG.hero.model !== 'sefo' && !TG.M.has(TG.hero.model) ? TG.hero.model : null;
+    G.heroWait = need;
+    applyHero();
+    if (need) {
+      const done = (why) => { if (G.heroWait !== need) return; G.heroWait = null; if (why) console.warn(why); if (TG.hero.model === need) applyHero(true); else applyPickUI(); };
+      const to = setTimeout(() => done('주인공 모델 20초 안에 못 받음 — SEFO 모습으로 계속: ' + need), 20000); // 검토 ②: 묶음이 영영 안 오면 잠금 해제
+      TG.M.hero(need).then(() => { clearTimeout(to); done(); }, (e) => { clearTimeout(to); done(e.message); });
+    }
     return r;
   }
+  function applyHero(late) { // late = 모델이 뒤늦게 온 때: 놀이 중이면 모습만 바꿈(보조·카드 상태는 건드리지 않음 — 검토 ①)
+    TG.PL.setHero(TG.R.scene); TG.PL.mixer.update(0.01); TG.H.makeFace();
+    if (late && G.phase !== 'title') { applyPickUI(); return; }
+    TG.AS.set(TG.assistId); TG.C.recalc();
+    if (G.phase === 'title') { TG.PL.x = TG.PL.px = 0; TG.PL.z = TG.PL.pz = 3.5; TG.PL.yaw = TG.PL.tyaw = 0; TG.AS.reset(); }
+    if (G.heroWait && G.phase === 'title') { TG.PL.root.visible = false; TG.PL.ring.visible = false; } // 받는 동안 SEFO 몸으로 보이지 않게(타이틀에서만 숨김)
+    applyPickUI();
+  }
   function applyPickUI() {
-    document.querySelectorAll('[data-hero]').forEach((b) => { const on = b.dataset.hero === TG.heroId; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    document.querySelectorAll('[data-hero]').forEach((b) => { const on = b.dataset.hero === TG.heroId; b.classList.toggle('on', on); b.classList.toggle('busy', on && !!G.heroWait); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     document.querySelectorAll('[data-assist]').forEach((b) => { const on = b.dataset.assist === TG.assistId, bad = b.dataset.assist === TG.heroId; b.classList.toggle('on', on); b.classList.toggle('hide', bad); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     document.body.classList.toggle('heroKid', !!(TG.hero && TG.hero.kid));
+    document.body.classList.toggle('heroWait', !!G.heroWait);
   }
   // 소리 방울 자동/수동: 저장하고 다음 걸음부터 적용(입력 깃발로 기록 → 재생도 같음)
   function setAtk(m) {
@@ -1298,7 +1370,8 @@
         fps: +TG.R.fps.toFixed(1), drawCalls: G.drawCalls, tris: G.tris, pixelRatio: TG.R.pr, gauge: Math.round(G.gauge), gaugeLock: +G.gaugeLock.toFixed(2), combo: G.combo, maxCombo: G.maxCombo,
         notes: G.notes, level: G.level, xp: G.xp, popped: G.popped, rescued: G.rescued, revived: G.revived, cards: Object.assign({}, G.cards), cardOpen: G.cardOpen ? G.cardOpen.opts.slice() : null,
         still: p.stillLv || 0, shots: G.shots, autoShots: G.autoShots, autoOn: !!G.autoOn, atk: G.settings.atk, hurts: G.hurts, fire: !!G.fireOn, fireDir: +TG.angDiff(0, G.fireDir || 0).toFixed(3), particles: TG.FX.count(), waves: TG.WV.activeCount(), paused: G.paused, x: +p.x.toFixed(3), z: +p.z.toFixed(3), hash: G.hash, seed: G.seed, replayDone: !!G.replayDone,
-        hero: TG.heroId, assist: TG.assistId, petal: TG.FL.petal || 0, flowers: TG.FL.count(), healed: TG.FL.healed || 0, berryPops: TG.WV.berryPops || 0, as: TG.AS.state(),
+        hero: TG.heroId, assist: TG.assistId, petal: TG.FL.petal || 0, flowers: TG.FL.count(), healed: TG.FL.healed || 0, berryPops: TG.WV.berryPops || 0, whistlePops: TG.WV.whistlePops || 0, lineHits: TG.WV.lineHits || 0, lined: G.lined || 0, as: TG.AS.state(),
+        pixelPops: TG.WV.pixelPops || 0, pixelBounces: TG.WV.pixelBounces || 0, heartHits: TG.WV.heartHits || 0, heartSplits: TG.WV.heartSplits || 0, crateLit: TG.WV.crateLit || 0, heroWait: G.heroWait || null, face: TG.PL.faceState ? TG.PL.faceState() : null,
       };
     },
     spawn(kind, n, near) {
