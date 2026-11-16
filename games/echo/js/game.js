@@ -1171,6 +1171,10 @@
     if (!snap && G.drawT - fitMeasT < 0.1 && G.drawT >= fitMeasT) return; // 재기는 0.1초마다(배치 읽기·투영 — 가볍게), 따라가기는 매 프레임
     fitMeasT = G.drawT;
     const pick = document.getElementById('charPick'), PL = P();
+    { // 공개본 「시험용(베타)」 안내(#gzBeta, 게임주소_공개본.py 가 오른쪽 위에 붙임)가 있으면 주인공 칸을 그 바로 아래로 — 없으면 CSS 자리 그대로
+      const gb = document.getElementById('gzBeta');
+      if (pick) { const top = gb && gb.style.visibility !== 'hidden' ? Math.round(gb.getBoundingClientRect().bottom + 6) : null; const v = top ? top + 'px' : ''; if (pick.style.top !== v) pick.style.top = v; }
+    }
     if (!pick || !pick.offsetParent || !PL.root.visible || G.heroWait) return;
     const hb = heroBox(); if (!hb) return;
     const c = TG.R.camera, cvr = TG.R.renderer.domElement.getBoundingClientRect(), H = cvr.height || innerHeight, rx = PL.root.position.x, rz = PL.root.position.z;
