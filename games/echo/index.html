@@ -91,6 +91,8 @@
     </div>
 
     <div id="hint" class="hide ol"></div>
+    <!-- 남은 안개 방향 화살표(11-16 대표): 층에 안개가 3개 이하로 남았는데 8초 넘게 못 맞히면 화면 가장자리에 가장 가까운 남은 안개 쪽 화살표. 안개가 화면 안에 들어오면 사라짐 -->
+    <div id="fogArrow" class="hide"><svg viewBox="0 0 60 60"><path d="M30 6 L52 34 L38 34 L38 54 L22 54 L22 34 L8 34 Z" fill="#ffd23f" stroke="#1b1424" stroke-width="4" stroke-linejoin="round"/></svg></div>
     <!-- 비서 쎌 (진행자): 왼쪽 얼굴 아래 작은 말풍선. 그림은 상황별 표정으로 바꿔 끼움 -->
     <div id="grunt" class="hide ssel">
       <img class="sselImg" alt="" draggable="false" src="assets/img/assistant/ssel/basic.webp">
@@ -165,7 +167,7 @@
         <div class="srow"><span>최고 연속</span><b id="rCombo">0</b></div>
         <div class="srow"><span>모은 음표</span><b id="rNote">0</b></div>
       </div>
-      <button id="againBtn" class="bub yel"><span class="ol">다시 하기</span></button>
+      <div class="btns"><button id="againBtn" class="bub yel"><span class="ol">다시 한번</span></button><button id="resHomeBtn" class="bub sky"><span class="ol">처음으로</span></button></div>
       <div id="sselRes" class="ssel">
         <div class="gtxt"><b>쎌</b><span id="sselResTxt"></span></div>
         <img class="sselImg" alt="" draggable="false" src="assets/img/assistant/ssel/cheer.webp">
@@ -204,7 +206,7 @@
 <script src="js/cards.js"></script>
 <script src="js/hud.js"></script>
 <script src="js/game.js"></script>
-<div id="gzBeta" style="position:fixed;top:max(10px,env(safe-area-inset-top));z-index:99999;right:max(64px,calc(env(safe-area-inset-right) + 64px));max-width:min(44vw,420px);width:max-content;box-sizing:border-box;word-break:keep-all;background:rgba(13,10,6,.72);color:#fff;border-radius:12px;padding:5px 12px;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;text-align:center;pointer-events:none;transition:opacity .3s;opacity:0">🧪 <b>시험용(베타 테스트)</b> — 등급분류 전 시험 버전입니다<br><span style="opacity:.88">설치·로그인 없이 브라우저에서 바로 · 기록은 이 기기에만 저장 · 시험 참가 최대 20,000명<br>⚠ 시험 기간(최대 60일)의 점수·기록·카드는 정식 오픈 때 모두 초기화됩니다 · 오류 제보 grnt@grntzero.com</span></div>
-<script>/*시험용 표시 11-16*/(function(){var e=document.getElementById("gzBeta");function ph(){try{return window.__tg&&__tg.state&&__tg.state().phase}catch(_){return null}}setInterval(function(){var p=ph();e.style.opacity=(p==="title")?"1":"0";e.style.visibility=(p==="title")?"visible":"hidden"},400)})();</script>
+<div id="gzBeta" style="position:fixed;top:max(10px,env(safe-area-inset-top));z-index:99999;right:max(64px,calc(env(safe-area-inset-right) + 64px));max-width:min(44vw,420px);width:max-content;box-sizing:border-box;word-break:keep-all;background:rgba(13,10,6,.72);color:#fff;border-radius:12px;padding:4px 12px 5px;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;text-align:center;pointer-events:none;transition:opacity .3s;opacity:0;visibility:hidden"><div>🧪 <b>시험용(베타)</b> · 등급분류 전 시험 버전</div><button id="gzBetaMore" type="button" aria-expanded="false" style="pointer-events:auto;cursor:pointer;margin-top:1px;padding:0 9px;border:1px solid rgba(255,255,255,.55);border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;font-size:10.5px;line-height:1.6">ⓘ 자세히</button><div id="gzBetaBox" style="display:none;position:absolute;right:0;top:calc(100% + 6px);width:max-content;max-width:min(80vw,440px);box-sizing:border-box;text-align:left;pointer-events:auto;background:rgba(13,10,6,.92);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:8px 12px 9px;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;"><div>🧪 <b>시험용(베타 테스트)</b> — 등급분류 전 시험 버전입니다</div><div style="opacity:.9;margin-top:3px">설치·로그인 없이 브라우저에서 바로 · 기록은 이 기기에만 저장 · 시험 참가 최대 20,000명</div><div style="opacity:.9;margin-top:3px">⚠ 시험 기간(최대 60일)의 점수·기록·카드는 정식 오픈 때 모두 초기화됩니다 · 오류 제보 grnt@grntzero.com</div><button id="gzBetaClose" type="button" style="pointer-events:auto;cursor:pointer;display:block;margin:7px auto 0;padding:1px 14px;border:1px solid rgba(255,255,255,.55);border-radius:99px;background:rgba(255,255,255,.14);color:#fff;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;">닫기</button></div></div>
+<script>/*시험용 표시 11-16*/(function(){var e=document.getElementById("gzBeta"),m=document.getElementById("gzBetaMore"),x=document.getElementById("gzBetaBox"),c=document.getElementById("gzBetaClose");function ph(){try{return window.__tg&&__tg.state&&__tg.state().phase}catch(_){return null}}function tog(on){x.style.display=on?"block":"none";m.setAttribute("aria-expanded",on?"true":"false")}m.addEventListener("click",function(ev){ev.stopPropagation();tog(x.style.display==="none")});c.addEventListener("click",function(ev){ev.stopPropagation();tog(false)});setInterval(function(){var p=ph();var on=(p==="title");e.style.opacity=on?"1":"0";e.style.visibility=on?"visible":"hidden";if(!on)tog(false)},400)})();</script>
 </body>
 </html>

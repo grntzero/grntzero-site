@@ -551,6 +551,7 @@
     for (const c of AR.colliders) {
       const dx = p.x - c.x, dz = p.z - c.z, d2 = dx * dx + dz * dz, rr = r + c.r;
       if (d2 < rr * rr && d2 > 1e-6) { const d = Math.sqrt(d2), k = (rr - d) / d; p.x += dx * k; p.z += dz * k; }
+      else if (d2 <= 1e-6 && rr > 0) { p.x = c.x + rr; } // 11-16: 정확히 중심에 끼면(밀 방향이 없어 영영 끼던 것) 옆으로 꺼냄
     }
     p.x = TG.clamp(p.x, -AR.bx, AR.bx); p.z = TG.clamp(p.z, -AR.bz, AR.bz);
   };

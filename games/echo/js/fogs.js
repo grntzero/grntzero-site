@@ -445,6 +445,33 @@
         continue;
       }
       if (u.spawnT < 0) continue;
+      // 11-16 큰 소리 특수 상태(js/game.js 가 켬). 둘 다: 보통 움직임·주인공에게 닿는 판정 없음
+      if (u.dance > 0 && u.state === 'live' && u.kind !== 'cocoon') { // 세포 「세포체조!」: 홀린 듯 신나게 춤(폴짝폴짝·빙글) — 끝나면 game.js 가 퐁
+        u.dance = Math.max(u.dance - dt, 1e-3); u.danceK = (u.danceK || 0) + dt; // 0 에 닿지 않게(끝내는 건 game.js 콜백 — 검토 ①)
+        u.vx = TG.damp(u.vx, 0, 8, dt); u.vz = TG.damp(u.vz, 0, 8, dt);
+        const base = u.kind === 'clump' ? 0.12 : 0.95, hop = Math.abs(Math.sin(u.danceK * 8.4)); // 체조 박자(약 161 BPM)에 맞춰 폴짝
+        u.y = base + hop * (u.kind === 'clump' ? 0.5 : 0.8);
+        u.yaw += dt * 5.5; u.sqT = hop < 0.15 ? 0.08 : u.sqT;
+        if (TG.fr() < 0.08) TG.FX.emit(TG.FX.CELL.note, u.x + TG.fra(-0.5, 0.5), u.y + 1.3 * u.scale, u.z, { vy: TG.fra(1.5, 3), life: 0.6, size: 0.45, size1: 0.1, color: [[2.4, 0.6, 0.5], [2.4, 2.0, 0.6], [0.7, 1.9, 2.4]][u.id % 3], rot: 0, pop: true });
+        u.x += u.vx * dt; u.z += u.vz * dt;
+        continue;
+      }
+      if (u.fly && u.state === 'live') { // 허조교 「좌우로 밀착!」: 바깥으로 밀려 벽까지 날아가 부딪힘 → 체력 1이면 퐁, 체력 많으면(뭉치·째깍이) 피해만
+        const f = u.fly; f.t += dt;
+        u.vx = f.vx; u.vz = f.vz; u.y = TG.damp(u.y, (u.kind === 'clump' ? 0.12 : 0.95) + 0.5, 6, dt);
+        u.yaw += dt * 12;
+        if (TG.fr() < 0.5) TG.FX.emit(TG.FX.CELL.puff, u.x, u.y + 0.4, u.z, { life: 0.25, size: 0.6, size1: 1.0, color: [0.95, 0.93, 1.05], alpha: 0.3 });
+        u.x += u.vx * dt; u.z += u.vz * dt;
+        const ur = u.r * u.scale * 0.8, wall = Math.abs(u.x) > AR.bx - ur || Math.abs(u.z) > AR.bz - ur;
+        if (wall || f.t > f.max) {
+          u.x = TG.clamp(u.x, -AR.bx + ur, AR.bx - ur); u.z = TG.clamp(u.z, -AR.bz + ur, AR.bz - ur);
+          u.fly = null; u.vx = u.vz = 0;
+          if (wall) { TG.FX.ring(u.x, u.z, { wall: true, r0: 0.4, r1: 2.2, dur: 0.3, color: 0xdce383, h: 1.4, alpha: 0.6, hdr: 1.2 }); TG.A.play('sfx_bonk', { rate: 1.3, gain: 0.35 }); TG.FX.dust(u.x, u.z, 6, 0.8); }
+          if (u.maxHp <= 1 || u.kind === 'echo') G.hitUnit(u, 99, u.x - f.vx * 0.1, u.z - f.vz * 0.1, true, 3, [2.2, 2.3, 1.0]);
+          else { G.hitUnit(u, f.dmg, u.x - f.vx * 0.1, u.z - f.vz * 0.1, true, 2, [2.2, 2.3, 1.0]); u.byBig = false; }
+        }
+        continue;
+      }
       const dx = P.x - u.x, dz = P.z - u.z, d = Math.hypot(dx, dz) || 1;
       if (u.kind === 'cocoon') {
         if (u.state === 'live') {

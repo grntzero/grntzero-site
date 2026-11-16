@@ -403,3 +403,15 @@ body:not(.atkAuto) .autoOnly { display: none !important; }
 #pause .fsTop { position: absolute; z-index: 2; top: calc(14px * var(--s)); right: calc(12px * var(--s)); pointer-events: auto; cursor: pointer; white-space: nowrap; font: 800 calc(12px * var(--s))/1.15 inherit; padding: calc(4px * var(--s)) calc(9px * var(--s)); color: var(--ink); background: #e6dcff; border: 3px solid var(--ink); border-radius: calc(14px * var(--s)); box-shadow: 0 3px 0 var(--ink); }
 #pause .fsTop.on { background: #ffd23a; }
 #pause .fsTop:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }   /* 11-14 멈춤 창 「⛶ 전체화면」: 창 오른쪽 위 — 설정 줄을 늘리지 않음(가로 폰에서 계속하기가 밀리지 않게) */
+
+/* 11-16 밸런스 개편: 남은 안개 방향 화살표(화면 가장자리, 노란 화살표가 통통) */
+#fogArrow { position: absolute; left: 0; top: 0; width: calc(56px * var(--s)); height: calc(56px * var(--s)); transform: translate(-50%, -50%); pointer-events: none; z-index: 3; filter: drop-shadow(0 3px 0 rgba(27,20,36,0.5)); }
+#fogArrow svg { width: 100%; height: 100%; animation: arrowBob 0.6s ease-in-out infinite; }
+#fogArrow.hide { display: none; }
+@keyframes arrowBob { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.1); } }
+/* 결과 창: 「다시 한번」·「처음으로」 두 버튼(11-16 대표) */
+#result .btns { margin-top: calc(10px * var(--s)); }
+/* 버튼 글: 주인공마다 기술 이름(11-16 대표) — 조금 길어도 한 줄 */
+#btnBig .lbl { font-size: calc(14px * var(--s)); }
+#btnSnd .lbl { font-size: calc(16px * var(--s)); }
+#btnSnd .lbl .autoTag { display: inline-block; margin-left: calc(3px * var(--s)); padding: 0 calc(5px * var(--s)); border-radius: 99px; background: #ffd23f; color: #1b1424; font-size: calc(11px * var(--s)); text-shadow: none; vertical-align: middle; }

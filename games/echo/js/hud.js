@@ -266,11 +266,14 @@
     c.fillStyle = '#b8433a'; c.strokeStyle = '#1b1424'; c.lineWidth = 2;
     c.beginPath(); c.arc(X(AR.towerPos.x), Z(AR.towerPos.z), 3 * sx, 0, 6.3); c.fill(); c.stroke();
     // 안개·째깍이
+    const blink = G.arrowU && ((performance.now() / 220) | 0) % 2 === 0; // 11-16 남은 안개 화살표가 켜져 있으면 남은 안개 점 깜빡임(크고 밝게)
     for (const u of TG.F.list) {
       if (u.spawnT < 0) continue;
-      c.fillStyle = u.kind === 'tick' ? (u.state === 'live' ? '#2fb7a8' : '#ffd23f') : u.kind === 'cocoon' ? '#ffb347' : u.kind === 'echo' ? '#5f8de0' : '#6e6a8e';
-      const r = u.kind === 'clump' ? 4 : 3;
+      const fog = u.kind !== 'tick' && u.kind !== 'cocoon' && u.state === 'live';
+      c.fillStyle = blink && fog ? '#fff3b0' : u.kind === 'tick' ? (u.state === 'live' ? '#2fb7a8' : '#ffd23f') : u.kind === 'cocoon' ? '#ffb347' : u.kind === 'echo' ? '#5f8de0' : '#6e6a8e';
+      const r = (u.kind === 'clump' ? 4 : 3) + (blink && fog ? 3 : 0);
       c.beginPath(); c.arc(X(u.x), Z(u.z), r, 0, 6.3); c.fill();
+      if (blink && fog) { c.strokeStyle = '#e5352b'; c.lineWidth = 2; c.stroke(); }
     }
     const b = TG.F.boss;
     if (b && TG.F.bossObj.group.visible) { c.fillStyle = '#5e5a7a'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(X(b.x), Z(b.z), 9, 0, 6.3); c.fill(); c.stroke(); }
@@ -400,6 +403,13 @@
   H.allText = function () { return document.getElementById('ui').innerText; };
 
   // 스틱 표시
+  // 남은 안개 방향 화살표(11-16): 화면 자리(px)·방향(라디안, 화면 x축 기준). 그림(svg)은 위를 보고 있어 +90°
+  H.arrowAt = function (x, y, ang) {
+    const a = document.getElementById('fogArrow'); if (!a) return;
+    a.classList.remove('hide');
+    a.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) translate(-50%,-50%) rotate(' + (ang * 180 / Math.PI + 90).toFixed(1) + 'deg)';
+  };
+  H.arrowHide = function () { const a = document.getElementById('fogArrow'); if (a) a.classList.add('hide'); };
   H.stickAt = function (x, y, kx, ky, active) {
     H.stickBase.style.left = x + 'px'; H.stickBase.style.top = y + 'px';
     H.stickKnob.style.left = (x + kx) + 'px'; H.stickKnob.style.top = (y + ky) + 'px';
