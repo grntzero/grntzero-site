@@ -146,7 +146,7 @@
 
   function toTitle() {
     resetRun();
-    G.phase = 'title'; G.replay = null;
+    G.phase = 'title'; G.replay = null; G.titleSnap = 0.6; // 11-16: 타이틀 들어간 뒤 0.6초는 카메라·주인공 맞춤이 바로 따라감(늦게 따라오며 머리가 칸·말풍선에 잠깐 가리지 않게)
     TG.PL.x = 0; TG.PL.z = 3.5; TG.PL.px = 0; TG.PL.pz = 3.5; TG.PL.yaw = TG.PL.tyaw = 0;
     TG.H.show(TG.H.title, true); TG.H.show(TG.H.hud, false); TG.H.show(TG.H.result, false); TG.H.show(TG.H.pause, false);
     TG.A.bgm('bgm_win', 0.6, true);
@@ -897,6 +897,12 @@
     // 주인공·보조 고르기 (타이틀, 11-16)
     document.querySelectorAll('[data-hero]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); if (G.phase === 'title') setHeroNow(b.dataset.hero, TG.assistId); }));
     document.querySelectorAll('[data-assist]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); if (G.phase === 'title') setHeroNow(TG.heroId, b.dataset.assist); }));
+    // 쎄니 주인공 자리(3D 전, 11-16 대표): 눌러도 안 골라짐 — 버튼 아래 「곧 만나요!」만 잠깐
+    { let soonTO = 0; document.querySelectorAll('[data-soon]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); TG.A.unlock(); TG.A.ui(0.8);
+      const tip = document.getElementById('soonTip'), cp = document.getElementById('charPick'); if (!tip || !cp) return;
+      const br = b.getBoundingClientRect(), cr = cp.getBoundingClientRect(); tip.classList.remove('hide');
+      tip.style.left = Math.max(0, Math.min(cr.width - tip.offsetWidth, br.left - cr.left + br.width / 2 - tip.offsetWidth / 2)) + 'px';
+      clearTimeout(soonTO); soonTO = setTimeout(() => tip.classList.add('hide'), 1600); })); }
     document.getElementById('optBgm').addEventListener('input', (e) => { G.settings.bgm = e.target.value / 100; applySettings(); saveSet(); });
     document.getElementById('optSfx').addEventListener('input', (e) => { G.settings.sfx = e.target.value / 100; applySettings(); saveSet(); });
   }
@@ -1088,9 +1094,9 @@
     const aspect = R.w / R.h;
     let dist, pitch, yaw = 0, tx, tz, ty = 0.6, bossCam = false;
     if (G.phase === 'title') {
-      const t = G.drawT;
-      dist = 9.6; pitch = 0.36; yaw = -0.18 + Math.sin(t * 0.25) * 0.12;
-      tx = p.rx - 3.0; tz = p.rz - 0.6; ty = 2.0;
+      const t = G.drawT, f = G.titleFit || 1; // f = 주인공 맞춤 배율(발 자리를 중심으로 거리·목표점을 같이 늘림 → 주인공만 작아 보임, 발은 같은 자리). 아래 titleFitUpdate
+      dist = 9.6 * f; pitch = 0.36; yaw = -0.18 + Math.sin(t * 0.25) * 0.12;
+      tx = p.rx - 3.0 * f + (G.titleShift || 0); tz = p.rz - 0.6 * f; ty = 2.0 * f; // titleShift = 쎌 말풍선에 얼굴이 걸리면 주인공을 화면 왼쪽으로 조금
     } else {
       const base = aspect > 2 ? 20.8 : 22.5; // 대표 의견(11-12): 더 넓게 — 예전 15.4/17 의 1.35배
       dist = base * G.camZoom; ty = 1.0; // SEFO 가 화면 높이의 1/5 이상
@@ -1122,6 +1128,7 @@
       else if (G.phase === 'bossIntro') { tx = TG.lerp(p.rx, 0, 0.5); tz = TG.lerp(p.rz, 1, 0.5) - 1; }
     }
     if (api.camOv) { const o = api.camOv; dist = o.dist; pitch = o.pitch; yaw = o.yaw; tx = p.rx; tz = p.rz; ty = o.ty; cam.dist = dist; cam.pitch = pitch; cam.yaw = yaw; cam.x = tx; cam.z = tz; cam.ty = ty; } // 시험: 가까이 보기
+    if (G.titleSnap > 0 && G.phase === 'title') { G.titleSnap -= dt; cam.x = tx; cam.z = tz; cam.dist = dist; cam.pitch = pitch; cam.yaw = yaw; cam.ty = ty; }
     const k = G.phase === 'title' ? 3 : G.phase === 'intro' ? 2.2 : bossCam ? 3.2 : 6;
     cam.x = TG.damp(cam.x, tx, k, dt); cam.z = TG.damp(cam.z, tz, k, dt);
     cam.dist = TG.damp(cam.dist, dist, G.phase === 'intro' ? 2 : bossCam ? 2.2 : 3, dt); cam.pitch = TG.damp(cam.pitch, pitch, 2.5, dt); cam.yaw = TG.damp(cam.yaw, yaw, 2.5, dt);
@@ -1135,6 +1142,60 @@
     c.translateX(sh.x); c.translateY(sh.y);
     c.rotateZ(sh.roll);
     R.followShadow(cam.x, cam.z - 2);
+    if (G.phase === 'title') titleFitUpdate(dt);
+  }
+  // 타이틀 주인공 맞춤 (11-16 대표: 폰에서 모쉬 큐브 머리가 주인공 칸에 가림): 머리 꼭대기(모델 경계 상자 위 네 모서리)가 주인공 칸 아래 8px 보다 위로 가면
+  // 필요한 만큼만 f 를 키움(최대 1.8). 주인공·화면 크기마다 저절로 맞음. 그리기 전용(규칙·기록과 무관)
+  let fitBox = null;
+  const _fv = new T.Vector3();
+  function heroBox() {
+    const PL = P(); if (!PL.model) return null;
+    if (fitBox && fitBox.m === PL.model && G.drawT - fitBox.t < 0.5) return fitBox; // 자세가 바뀌니 0.5초마다 다시 잼(꼭짓점 1500개 남짓 — 타이틀에서만)
+    PL.root.updateMatrixWorld(true);
+    const bb = new T.Box3(), v = new T.Vector3();
+    PL.model.traverse((o) => {
+      if (!o.isMesh || o.userData.isOutline || !o.visible || !o.geometry || !o.geometry.attributes.position) return;
+      const pos = o.geometry.attributes.position, step = Math.max(1, Math.floor(pos.count / 1500));
+      for (let i = 0; i < pos.count; i += step) { v.fromBufferAttribute(pos, i); if (o.isSkinnedMesh) o.applyBoneTransform(i, v); v.applyMatrix4(o.matrixWorld); bb.expandByPoint(v); }
+    });
+    if (bb.isEmpty()) return null;
+    const r = PL.root.position;
+    fitBox = { m: PL.model, t: G.drawT, x0: bb.min.x - r.x, x1: bb.max.x - r.x, z0: bb.min.z - r.z, z1: bb.max.z - r.z, top: (bb.max.y - r.y) * 1.04 }; // 4% = 숨 쉬기·통통 여유
+    return fitBox;
+  }
+  let fitMeasT = -1;
+  function titleFitUpdate(dt) {
+    const snap = G.titleSnap > 0;
+    if (G.titleFitT) G.titleFit = snap ? G.titleFitT : TG.damp(G.titleFit || G.titleFitT, G.titleFitT, G.titleFitT > (G.titleFit || 1) ? 20 : 3, dt); // 가릴 땐 빨리, 풀릴 땐 천천히
+    if (G.titleShiftT != null) G.titleShift = snap ? G.titleShiftT : TG.damp(G.titleShift || 0, G.titleShiftT, G.titleShiftT > (G.titleShift || 0) ? 12 : 2, dt);
+    if (!snap && G.drawT - fitMeasT < 0.1 && G.drawT >= fitMeasT) return; // 재기는 0.1초마다(배치 읽기·투영 — 가볍게), 따라가기는 매 프레임
+    fitMeasT = G.drawT;
+    const pick = document.getElementById('charPick'), PL = P();
+    if (!pick || !pick.offsetParent || !PL.root.visible || G.heroWait) return;
+    const hb = heroBox(); if (!hb) return;
+    const c = TG.R.camera, cvr = TG.R.renderer.domElement.getBoundingClientRect(), H = cvr.height || innerHeight, rx = PL.root.position.x, rz = PL.root.position.z;
+    c.updateMatrixWorld();
+    let head = 1e9;
+    for (const x of [hb.x0, hb.x1]) for (const z of [hb.z0, hb.z1]) { _fv.set(rx + x, hb.top, rz + z).project(c); head = Math.min(head, cvr.top + (1 - _fv.y) / 2 * H); }
+    _fv.set(rx, 0, rz).project(c); const feet = cvr.top + (1 - _fv.y) / 2 * H;
+    const L = pick.getBoundingClientRect().bottom + 8, fc = cam.dist / 9.6;
+    // 쎌 말풍선(오른쪽 아래) 과 겹치면 옆으로: 위 네 모서리 오른쪽 끝이 말풍선 왼쪽 6px 안으로 들어오면 그만큼 목표점을 오른쪽으로(= 주인공이 왼쪽으로). 최대 1.6·f, 머리쪽만 봄
+    const bub = document.querySelector('#sselTitle .gtxt');
+    if (bub && bub.offsetParent) {
+      const br = bub.getBoundingClientRect();
+      let right = -1e9, hLo = -1e9; // 머리쪽(키 62% 위)만 — 몸·발은 말풍선 뒤여도 됨
+      for (const x of [hb.x0, hb.x1]) for (const z of [hb.z0, hb.z1]) for (const y of [hb.top * 0.62, hb.top]) { _fv.set(rx + x, y, rz + z).project(c); right = Math.max(right, cvr.left + (_fv.x + 1) / 2 * cvr.width); hLo = Math.max(hLo, cvr.top + (1 - _fv.y) / 2 * cvr.height); }
+      _fv.set(rx, 0, rz).project(c); const fx0 = _fv.x; _fv.set(rx + 1, 0, rz).project(c); const ppu = Math.abs(_fv.x - fx0) / 2 * cvr.width || 1;
+      const yOv = br.bottom > head && br.top < hLo, over = yOv ? right - (br.left - 6) : -1e9, cur = G.titleShift || 0;
+      const base = cam.x - (rx - 3.0 * fc); // 지금 카메라가 실제로 옮겨 가 있는 만큼(목표값 아님 — 따라가는 중에 쌓이지 않게)
+      let want = cur;
+      if (over > 0) want = base + over / ppu; else if (!yOv) want = 0; else if (over < -24) want = base + (over + 24) / ppu;
+      want = TG.clamp(want, 0, 1.6 * (G.titleFit || 1));
+      G.titleShiftT = want; if (snap) G.titleShift = want;
+    }
+    if (!(feet > L + 20)) return;
+    const need = TG.clamp(fc * (feet - head) / (feet - L), 1, 1.8);
+    G.titleFitT = need; if (snap || !G.titleFit) G.titleFit = need;
   }
 
   // ── 매 프레임: 밀린 시간만큼 규칙 계산을 1/60초 걸음으로 돌리고, 그리기는 한 번 ──

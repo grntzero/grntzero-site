@@ -369,9 +369,11 @@ body:not(.touch) #btnSnd { opacity: 0.85; }
 #atkPick .atkB { color: #fff; background: #6b5d80; font-size: calc(19px * var(--s)); }
 #atkPick .atkB.on { color: #fff; background: linear-gradient(#ff8a6a, #e5352b 60%, #b8241b); }
 /* 주인공·함께 고르기 (타이틀, 11-16 베리): 소리 방울 칸 위에 두 줄 */
-#charPick { position: absolute; bottom: calc(var(--vh, 100dvh) * 0.02 + 196px * var(--s)); right: max(env(safe-area-inset-right, 0px), 2.5vw); display: flex; flex-direction: column; gap: calc(5px * var(--s)); background: rgba(27,20,36,0.62); border-radius: calc(18px * var(--s)); padding: calc(6px * var(--s)) calc(8px * var(--s)) calc(8px * var(--s)) calc(12px * var(--s)); }
-#charPick .atkL { font-size: calc(15px * var(--s)); color: #fff; margin-right: calc(4px * var(--s)); min-width: calc(46px * var(--s)); }
-#charPick .atkB { color: #fff; background: #6b5d80; font-size: calc(17px * var(--s)); padding: calc(4px * var(--s)) calc(12px * var(--s)); }
+/* 11-16 대표: 주인공 다섯(세포·허조교·모쉬·쎄니 준비 중·베리) 한 줄. 칸을 오른쪽 위(⛶ 버튼 아래)로 올리고 버튼을 줄여, 키 큰 주인공(모쉬 큐브 머리)도 머리가 안 가리게.
+   그래도 머리가 닿으면 타이틀 카메라가 주인공만 살짝 작게(발 자리는 그대로) — js/game.js titleFit */
+#charPick { position: absolute; top: calc(max(env(safe-area-inset-top, 0px), 8px) + 50px); right: max(env(safe-area-inset-right, 0px), 2.5vw); display: flex; flex-direction: column; align-items: flex-start; gap: calc(5px * var(--s)); background: rgba(27,20,36,0.62); border-radius: calc(16px * var(--s)); padding: calc(6px * var(--s)) calc(7px * var(--s)) calc(7px * var(--s)) calc(9px * var(--s)); }
+#charPick .atkL { font-size: calc(13.5px * var(--s)); color: #fff; margin-right: calc(2px * var(--s)); min-width: calc(40px * var(--s)); }
+#charPick .atkB { color: #fff; background: #6b5d80; font-size: calc(16px * var(--s)); padding: calc(4px * var(--s)) calc(8.5px * var(--s)); }
 #charPick .atkB.on { color: #fff; background: linear-gradient(#ff8a6a, #e5352b 60%, #b8241b); }
 #charPick .atkB.berri.on { background: linear-gradient(#ffb3d6, #ff7fb6 60%, #d9558f); color: #2a1424; }
 #charPick .atkB.sseni.on { background: linear-gradient(#cdb0ff, #a46bff 60%, #7a46d6); }
@@ -381,6 +383,12 @@ body:not(.touch) #btnSnd { opacity: 0.85; }
 #charPick .atkB.busy .ol::after { content: '…'; }
 body.heroWait #startBtn { opacity: 0.55; pointer-events: none; }
 #charPick .atkB.hide { display: none; }
+/* 쎄니 주인공 자리(3D 전): 흐리게 + 「준비 중」 꼬리표, 눌러도 안 골라짐 — 「곧 만나요!」 작은 말풍선만 (js/game.js) */
+#charPick .atkB.soon { position: relative; background: #4a4158; color: rgba(255,255,255,0.5); border-style: dashed; box-shadow: none; cursor: default; }
+#charPick .atkB.soon:active { transform: none; }
+#charPick .atkB.soon .soonTag { position: absolute; left: 50%; top: calc(-9px * var(--s)); transform: translateX(-50%); font-style: normal; white-space: nowrap; font-size: calc(9.5px * var(--s)); line-height: 1; padding: calc(2px * var(--s)) calc(5px * var(--s)); border-radius: 99px; background: #ffd23f; color: #1b1424; border: 1.5px solid #1b1424; }
+#soonTip { position: absolute; z-index: 2; top: 100%; margin-top: calc(6px * var(--s)); font-size: calc(14px * var(--s)); background: #fff; color: #1b1424; border: 3px solid #1b1424; border-radius: calc(12px * var(--s)); padding: calc(3px * var(--s)) calc(10px * var(--s)); white-space: nowrap; pointer-events: none; text-shadow: none; }
+#soonTip.hide { display: none; }
 .atkSeg.sm .atkB { font-size: calc(15px * var(--s)); padding: calc(3px * var(--s)) calc(12px * var(--s)); }
 body.atkAuto .manOnly { display: none !important; }
 body:not(.atkAuto) .autoOnly { display: none !important; }
