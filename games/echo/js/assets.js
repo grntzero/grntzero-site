@@ -5,7 +5,7 @@
   'use strict';
   const TG = window.TG, T = THREE;
   const M = (TG.M = {});
-  const HERO_PACK = { berri: 1, gunner: 1, moshee: 1 }; // 따로 묶인 주인공 모델 (pack_assets.py HERO_SPLIT 과 같게)
+  const HERO_PACK = { berri: 1, gunner: 1, moshee: 1, sseni: 1 }; // 따로 묶인 주인공 모델 (pack_assets.py HERO_SPLIT 과 같게). 11-16 쎄니 추가
   const loading = {}, parsed = {};
 
   function parse(name) {

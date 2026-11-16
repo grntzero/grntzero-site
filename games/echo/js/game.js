@@ -144,7 +144,7 @@
     G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.lined = 0; G.hintT = 0; G.hurts = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
     G.gaugeLock = 0; G.hintStage = 0; G.moved = 0; G.afters.length = 0; G.inBig = false; G.inPick = -1; G.inCard = -1; G.botW = 0; G.botStuck = 0; G.botSideT = 0; G.botSideS = 1; G.botLx = 0; G.botLz = 0; G.botCocT = 0; G.machSlow = false; G.camFocusK = 0.45;
     G.autoTicks = 0; G.playTicks = 0; G.autoShots = 0; G.autoOn = false;
-    G.lastPopT = 0; G.arrowU = null; G.arrowSaid = false; G.danceN = 0; G.dancePops = 0; G.flyN = 0; G.beamN = 0; // 11-16: 남은 안개 화살표·큰 소리 셈
+    G.lastPopT = 0; G.arrowU = null; G.arrowSaid = false; G.danceN = 0; G.dancePops = 0; G.flyN = 0; G.beamN = 0; G.paintN = 0; G.paintPops = 0; // 11-16: 남은 안개 화살표·큰 소리 셈
     G.denyT = -9; G.shelterT = 0; G.shelterPick = -1; G.covT = 0; G.biT = 0; G.biStage = 0; G.lid = null; G.countAt = null; G.lastCount = -1;
     TG.F.reset(); TG.WV.reset(); if (!keepFx) TG.FX.clear(); TG.PL.reset(); TG.PL.setRest(false); TG.C.reset(); TG.FL.reset(); TG.AS.reset();
     TG.H.hideCards(); TG.H.hideShelter(); TG.H.gruntHide(); TG.H.hintSet(null);
@@ -564,6 +564,7 @@
     push: { R: 11.5, spd: 26, max: 1.6, dmg: 3, boss: 12 }, // 밀려 나는 빠르기, 최대 비행 초, 체력 많은 안개 피해
     beam: { R: 12.5 },                                   // 보스 피해는 wave.js BEAM.bossDmg(빔이 직접 맞힘)
     flower: { R: 12.5, boss: 12 },
+    paint: { R: 13.0, half: 2.4, dur: 1.0, boss: 12 }, // 11-16 밤 쎄니 「퍼플팡팡!」: 넓은 부채꼴(겨눈 쪽 ±half 라디안 ≈ 275° — 처음 ±1.8(206°)은 자동 모드 봇이 뒤쪽 안개에 맞아 보스전 1판 짐 → 넓힘)·반경 R 안 안개가 dur 초 보라로 물들며 작아짐 → 별·반짝이로 퐁. 체력 많은 안개도 퐁(큰 소리 판정 99), 보스는 피해만
   };
   const bigVoice = () => { const h = TG.hero; if (h && h.ult) TG.A.play(h.ult, { gain: 0.95 }); }; // 큰 소리 목소리(assets/audio/<ult>.mp3, 없으면 조용히)
   function bigSound() {
@@ -590,6 +591,7 @@
       if (kind === 'dance') return bigDance(x, z, pow, lv);
       if (kind === 'push') return bigPush(x, z, pow, lv);
       if (kind === 'beam') return bigBeam(x, z, pow, lv);
+      if (kind === 'paint') return bigPaint(x, z, pow, lv);
       const flower = kind === 'flower', R2 = (flower ? BIG.flower.R : 12.5) * pow;
       FX.hitstop(80); FX.shake(flower ? 0.4 : 0.75); FX.punch(flower ? 0.05 : 0.1); TG.R.bloomPulse = 0.32; vib('big');
       TG.A.play('sfx_big', { gain: flower ? 0.6 : 1, rate: flower ? 1.15 : 1 }); if (!flower) TG.A.boom(); else TG.A.syn('rescue');
@@ -708,6 +710,53 @@
     return true;
   }
 
+  // 쎄니 「퍼플팡팡!」: 착지 → 소리굽쇠를 붓처럼 휘둘러 보라 물감 방울이 부채꼴(겨눈 쪽)로 퍼짐 → 닿은 안개가 보라로 물들며 작아짐(fogs.js u.paint, 녹는 표현 X·아파하는 얼굴 X) → 1초 뒤 별·반짝이로 퐁 + 모두 잠깐 아주 빨라짐(AS.fastAll)
+  //  화면 흔들림 0, 화면 전체 덮개 X — 바닥 물감 자국 ≤12개·1.5초, 가장자리 0.3초 보라 테두리만(hud zoneVig 색만 잠깐 바꿈). 보조 쎄니도 같은 paintBurst(작게)
+  function paintBurst(x, z, dir, R2, half, dur, lv, boss, G) {
+    const FX = TG.FX, F = TG.F, ticks = Math.round(dur * 60), col = [1.8, 1.2, 2.6];
+    // 부채꼴 안쪽으로 물감 방울(그림): 각도 고르게 12줄 × 3방울, 바닥 자국은 최대 12개(1.5초)
+    for (let i = 0; i < 12; i++) {
+      const a = dir + (i / 11 - 0.5) * 2 * half * 0.92, rr = R2 * (0.35 + 0.55 * ((i * 7) % 12) / 11);
+      for (let k = 0; k < 3; k++) FX.emit(FX.CELL.drop, x + Math.sin(a) * 1.0, 1.3, z + Math.cos(a) * 1.0, { vx: Math.sin(a) * (10 + k * 5), vy: TG.fra(3, 6), vz: Math.cos(a) * (10 + k * 5), life: 0.55 + k * 0.1, size: 0.55 - k * 0.1, size1: 0.25, color: [1.4, 0.8, 2.4], grav: 7, drag: 1.2, rot: 0 });
+      FX.ring(x + Math.sin(a) * rr, z + Math.cos(a) * rr, { r0: 0.2, r1: 0.9 + (i % 3) * 0.25, dur: 1.5, color: 0xa46bff, width: 0.9, alpha: 0.42 }); // 바닥 물감 자국(둥근 얼룩)
+    }
+    FX.ring(x, z, { r0: 0.8, r1: R2, dur: 0.5, color: 0xa46bff, width: 0.12, hdr: 1.3, alpha: 0.8 });
+    let n = 0;
+    const inFan = (ux, uz, ur) => { const dx = ux - x, dz = uz - z, d = Math.hypot(dx, dz); if (d > R2 + ur) return false; if (d < 0.6) return true; return Math.abs(TG.angDiff(dir, Math.atan2(dx, dz))) <= half + Math.atan2(ur, d); };
+    for (const u of F.list) {
+      if (u.state !== 'live' || u.kind === 'cocoon' || !inFan(u.x, u.z, u.r * u.scale)) continue;
+      u.paint = dur; u.paintD = dur; u.paintK = 0; u.byBig = true; u.dance = 0; u.fly = null; u.leap = null; u.dash = 0; n++;
+      FX.emit(FX.CELL.glow, u.x, u.y + 0.8 * u.scale, u.z, { life: 0.3, size: 1.2 * u.scale, size1: 2.0 * u.scale, color: [1.2, 0.7, 2.0], alpha: 0.5 });
+    }
+    G.paintN = (G.paintN || 0) + n;
+    G.after(ticks, () => { // 물듦 끝 → 별·반짝이로 퐁 (가까운 것부터 차례로). 쓰러진 뒤라도 물든 상태는 풂
+      for (const u of F.list) {
+        if (u.state !== 'live' || !(u.paint > 0)) continue;
+        u.paint = 0;
+        const d = Math.hypot(u.x - x, u.z - z);
+        G.after(1 + Math.round(d * 1.4), () => { if (u.state === 'live') { G.paintPops = (G.paintPops || 0) + 1; for (let k = 0; k < 5; k++) FX.emit(FX.CELL.star, u.x, u.y + 0.6 * u.scale, u.z, { vx: TG.fra(-3, 3), vy: TG.fra(3, 6), vz: TG.fra(-3, 3), life: 0.6, size: 0.45, size1: 0.1, color: col, rot: TG.fra(0, 3), vrot: 6, grav: 4 }); G.hitUnit(u, 99, x, z, true, 3, col); } });
+      }
+      if (isPlay() && n) { TG.A.play('sfx_pop', { rate: 1.25, gain: 0.7 }); TG.A.play('sfx_pick', { rate: 1.7, gain: 0.5 }); }
+    });
+    const b = F.boss;
+    if (boss && b && b.state === 'fight' && inFan(b.x, b.z, b.r * b.scale + 3)) G.after(ticks, () => G.hitBoss(Math.round(boss * (1 + lv * 0.25)), b.x, b.z, true));
+    return n;
+  }
+  G.paintBurst = paintBurst;
+  function bigPaint(x, z, pow, lv) {
+    const FX = TG.FX, Pa = BIG.paint, R2 = Pa.R * pow, dir = G.fireOn ? G.fireDir : G.faceDir;
+    FX.hitstop(50); FX.punch(0.04); TG.R.bloomPulse = 0.25; vib('big'); // 흔들림 0
+    TG.A.play('sfx_big', { gain: 0.7, rate: 1.2 }); TG.A.play('sfx_wave', { rate: 1.5, gain: 0.6 }); TG.A.syn('rescue');
+    FX.dust(x, z, 10, 1.3);
+    FX.text('보라 물감!', x + Math.sin(dir) * 2.4, 3.8, z + Math.cos(dir) * 2.4, 'word');
+    { const v = TG.H.zoneVig; if (v) { v.classList.remove('on'); void v.offsetWidth; v.style.boxShadow = 'inset 0 0 40px 8px rgba(164,107,255,0.65)'; v.classList.add('on'); setTimeout(() => { v.style.boxShadow = ''; }, 320); } } // 가장자리 0.3초 보라 테두리(색만 잠깐 — 'on' 끄기는 hud.js 구역 판단에 맡김, 검토 ①)
+    const n = paintBurst(x, z, dir, R2, Pa.half, Pa.dur, lv, Pa.boss, G);
+    P().noHurt = Math.max(P().noHurt, Pa.dur + 1.0); // 물감이 퍼지는 동안(2초) 나를 못 건드림 — 세포체조(3.6초)·꽃 피었다(보호막)처럼 큰 소리에 잠깐 숨 돌릴 틈(자동 모드 보스전에서 쎄니만 맞아 쓰러지던 것 맞춤)
+    TG.AS.fastAll(); // 모두 잠깐 아주 빨라짐(소리 간격 0.5·이동 1.25)
+    TG.AS.onBig(x, z, G); // 보조 캐릭터도 함께 (60초에 한 번)
+    return true;
+  }
+
   // ── 소리 파동: 누르고 있는 동안만 나감(연사 간격 = WV.stat().cd). 끌어 겨눈 방향, 안 끌면 SEFO 가 보는(움직이는) 방향 ──
   // 멈춰 서 있으면(안 쏘는 동안) 둘레 링이 3단까지 커져 다음 파동 한 번·큰 소리가 세짐. 쏘면 링은 처음부터 다시 모음
   function aimAssist(p, dir, range) {
@@ -760,7 +809,7 @@
     G.fireDir = dir;
     p.tyaw = dir; p.faceLock = Math.max(p.faceLock, 0.12);
     if (G.autoCd <= 0) {
-      TG.WV.fire(dir, slv, 1 + G.mod.more); G.autoCd = L.cd * TG.AS.cdMul(); G.stillT = 0; // AS.cdMul = 쎄니 응원 「빠르게」(간격 25% 짧게 / 스타팡팡 뒤 50%)
+      TG.WV.fire(dir, slv, 1 + G.mod.more); G.autoCd = L.cd * TG.AS.cdMul(); G.stillT = 0; // AS.cdMul = 쎄니 응원 「빠르게」(간격 25% 짧게 / 퍼플팡팡 뒤 50%)
       G.shots++; if (inp.aim != null) G.aimShots++;
     }
   }
@@ -950,12 +999,7 @@
     // 주인공·보조 고르기 (타이틀, 11-16)
     document.querySelectorAll('[data-hero]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); if (G.phase === 'title') setHeroNow(b.dataset.hero, TG.assistId); }));
     document.querySelectorAll('[data-assist]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); if (G.phase === 'title') setHeroNow(TG.heroId, b.dataset.assist); }));
-    // 쎄니 주인공 자리(3D 전, 11-16 대표): 눌러도 안 골라짐 — 버튼 아래 「곧 만나요!」만 잠깐
-    { let soonTO = 0; document.querySelectorAll('[data-soon]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); TG.A.unlock(); TG.A.ui(0.8);
-      const tip = document.getElementById('soonTip'), cp = document.getElementById('charPick'); if (!tip || !cp) return;
-      const br = b.getBoundingClientRect(), cr = cp.getBoundingClientRect(); tip.classList.remove('hide');
-      tip.style.left = Math.max(0, Math.min(cr.width - tip.offsetWidth, br.left - cr.left + br.width / 2 - tip.offsetWidth / 2)) + 'px';
-      clearTimeout(soonTO); soonTO = setTimeout(() => tip.classList.add('hide'), 1600); })); }
+    // (11-16 밤) 쎄니 「준비 중」 자리는 3D 가 들어와 없어짐 — data-soon 버튼·「곧 만나요!」 처리 삭제
     document.getElementById('optBgm').addEventListener('input', (e) => { G.settings.bgm = e.target.value / 100; applySettings(); saveSet(); });
     document.getElementById('optSfx').addEventListener('input', (e) => { G.settings.sfx = e.target.value / 100; applySettings(); saveSet(); });
   }

@@ -383,12 +383,7 @@ body:not(.touch) #btnSnd { opacity: 0.85; }
 #charPick .atkB.busy .ol::after { content: '…'; }
 body.heroWait #startBtn { opacity: 0.55; pointer-events: none; }
 #charPick .atkB.hide { display: none; }
-/* 쎄니 주인공 자리(3D 전): 흐리게 + 「준비 중」 꼬리표, 눌러도 안 골라짐 — 「곧 만나요!」 작은 말풍선만 (js/game.js) */
-#charPick .atkB.soon { position: relative; background: #4a4158; color: rgba(255,255,255,0.5); border-style: dashed; box-shadow: none; cursor: default; }
-#charPick .atkB.soon:active { transform: none; }
-#charPick .atkB.soon .soonTag { position: absolute; left: 50%; top: calc(-9px * var(--s)); transform: translateX(-50%); font-style: normal; white-space: nowrap; font-size: calc(9.5px * var(--s)); line-height: 1; padding: calc(2px * var(--s)) calc(5px * var(--s)); border-radius: 99px; background: #ffd23f; color: #1b1424; border: 1.5px solid #1b1424; }
-#soonTip { position: absolute; z-index: 2; top: 100%; margin-top: calc(6px * var(--s)); font-size: calc(14px * var(--s)); background: #fff; color: #1b1424; border: 3px solid #1b1424; border-radius: calc(12px * var(--s)); padding: calc(3px * var(--s)) calc(10px * var(--s)); white-space: nowrap; pointer-events: none; text-shadow: none; }
-#soonTip.hide { display: none; }
+/* (11-16 밤) 쎄니 「준비 중」 자리 CSS(.soon·.soonTag·#soonTip)는 3D 가 들어와 지움 */
 .atkSeg.sm .atkB { font-size: calc(15px * var(--s)); padding: calc(3px * var(--s)) calc(12px * var(--s)); }
 body.atkAuto .manOnly { display: none !important; }
 body:not(.atkAuto) .autoOnly { display: none !important; }

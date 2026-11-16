@@ -1,9 +1,10 @@
 /* 톱니골 던전 — 보조 캐릭터 (2026-11-16, 기획서 ⑦-A-4): 쎄니(빠르게) · 베리(버티게). 주인공 뒤를 저절로 따라다님(조작 없음)
    · 판정 없음: 안개에 맞지 않고 쓰러지지 않음(안개·보스는 주인공 TG.PL 만 봄). 카드 적용 없음
    · 평소(응원): 쎄니 = 600걸음마다 180걸음 동안 주인공 소리 간격 25% 짧게 / 베리 = 900걸음마다 회복 조각(큰 꽃) + 걸은 자리에 작은 꽃
-   · 기본 소리(작게, 피해 0.5배·간격 2배): 쎄니 별 3갈래 / 베리 작은 베리 방울 — 가까운 안개 쪽으로 저절로
-   · 큰 소리: 주인공이 큰 소리를 쓰면 함께 — 쎄니 「스타팡팡!」(별이 위에서 떨어짐 + 모두 잠깐 아주 빨라짐) / 베리 「꽃 피었다!」(회복 + 꽃잎 보호막), 60초에 한 번
-   · 쎄니 3D 전까지는 보라 별 도형(이름은 보호자 동의 있음). sim = 규칙 계산(1/60초, 난수는 TG.sr 만) / draw = 그리기 */
+   · 기본 소리(작게, 피해 0.5배·간격 2배): 쎄니 퍼플팝 작은 보라 별 1발 / 베리 작은 베리 방울 — 가까운 안개 쪽으로 저절로 (11-16 밤: 별 3갈래는 뺌)
+   · 큰 소리: 주인공이 큰 소리를 쓰면 함께 — 쎄니 「퍼플팡팡!」(작은 부채꼴 보라 물감, game.js paintBurst + 모두 잠깐 아주 빨라짐) / 베리 「꽃 피었다!」(회복 + 꽃잎 보호막), 60초에 한 번 (스타팡팡은 폐기)
+   · 11-16 밤: 쎄니도 3D(GLB 두 번째 사본, 주인공과 같은 묶음 pack_hero_sseni.js). sim = 규칙 계산(1/60초, 난수는 TG.sr 만) / draw = 그리기
+   · fastAll(): 쎄니 주인공의 큰 소리도 「모두 빨라짐」을 씀 — fast2T 는 보조가 없어도(AS.on 아님) 돌아감 */
 (function () {
   'use strict';
   const TG = window.TG, T = THREE;
@@ -30,7 +31,7 @@
     AS.set(TG.assistId || 'none');
   };
 
-  // 보조 고르기: 겉모습을 만들고(쎄니 = 별 도형, 베리 = GLB 두 번째 사본) 자리 초기화
+  // 보조 고르기: 겉모습을 만들고(쎄니·베리 = GLB 두 번째 사본) 자리 초기화
   AS.set = function (id) {
     if (!TG.ASSISTS[id]) id = 'none';
     AS.id = id; AS.def = TG.ASSISTS[id]; AS.on = id !== 'none';
@@ -43,20 +44,12 @@
     // 발밑 작은 링(보조 색)
     const ring = new T.Mesh(new T.RingGeometry(0.62, 0.78, 36), new T.MeshBasicMaterial({ color: AS.def.color, transparent: true, opacity: 0.8, depthWrite: false, depthTest: false }));
     ring.rotation.x = -Math.PI / 2; ring.position.y = 0.04; ring.renderOrder = 8; root.add(ring); vis.ring = ring;
-    if (id === 'sseni') { // 별 도형: 큰 보라 별 + 작은 별 2개가 돎 (3D 오면 바꿈)
-      const mat = R.toon({ color: 0xa46bff, gain: 1.25, rim: 0.6, spec: 0.3, side: T.DoubleSide });
-      const big = new T.Mesh(starGeo, mat); big.scale.setScalar(2.2); big.position.y = 1.5; big.renderOrder = 9; vis.body.add(big); R.addOutline(big, 1.15).renderOrder = 1;
-      const eyeMat = new T.MeshBasicMaterial({ color: 0x1b1424 });
-      [-0.2, 0.2].forEach((x) => { const e = new T.Mesh(new T.SphereGeometry(0.075, 8, 6), eyeMat); e.position.set(x, 1.62, 0.2); vis.body.add(e); });
-      vis.orbit = [];
-      for (let i = 0; i < 2; i++) { const s = new T.Mesh(starGeo, mat); s.scale.setScalar(0.8); vis.body.add(s); R.addOutline(s, 1.0).renderOrder = 1; vis.orbit.push(s); }
-      vis.ready = true;
-    } else if (AS.def.model) { // 베리: GLB 를 따로 한 번 더 풀어 두 번째 사본 (주인공 모델과 뼈를 안 섞음)
+    if (AS.def.model) { // 쎄니·베리: GLB 를 따로 한 번 더 풀어 두 번째 사본 (주인공 모델과 뼈를 안 섞음)
       const myVis = vis, mdl = AS.def.model;
       (AS.cache || (AS.cache = {}))[mdl] = AS.cache[mdl] || TG.M.ensure(mdl).then(() => TG.M.parse(mdl)); // 한 번만 풀어 둠 (타이틀에서 여러 번 바꿔도 다시 안 풂). 11-16: 묶음이 따로면 먼저 받음(M.ensure)
       AS.cache[mdl].then((gltf) => {
         if (vis !== myVis) return;
-        const model = gltf.scene; model.scale.setScalar(2.3);
+        const model = gltf.scene; model.scale.setScalar(2.3); // 아이 보조 키(월드 약 2.76 — 주인공 아이 2.32×1.2 와 거의 같음)
         model.traverse((o) => {
           if (!o.isMesh) return;
           const map = o.material.map; if (map) map.anisotropy = TG.R.maxAniso || 4;
@@ -84,12 +77,14 @@
     if (vis && vis.act && vis.act.cheer) vis.act.cheer.stop();
   };
 
-  // 주인공 소리 간격 배율 (쎄니 응원): 평소 응원 0.75, 스타팡팡 뒤 0.5
-  AS.cdMul = function () { return !AS.on ? 1 : AS.fast2T > 0 ? 0.5 : AS.fastT > 0 ? 1 - CHEER.star.pct : 1; };
-  AS.spdMul = function () { return AS.on && AS.fast2T > 0 ? 1.25 : 1; };
+  // 주인공 소리 간격 배율 (쎄니 응원): 평소 응원 0.75, 퍼플팡팡 뒤 0.5(보조가 없어도 쎄니 주인공의 큰 소리로 켜짐 — fastAll)
+  AS.cdMul = function () { return AS.fast2T > 0 ? 0.5 : AS.on && AS.fastT > 0 ? 1 - CHEER.star.pct : 1; };
+  AS.spdMul = function () { return AS.fast2T > 0 ? 1.25 : 1; };
+  AS.fastAll = function () { AS.fast2T = FAST_TICKS; };
 
   // ── 규칙 계산 ──
   AS.sim = function (dt, P, G, play) {
+    AS.fast2T = Math.max(0, (AS.fast2T || 0) - 1); // 모두 빨라짐은 보조가 없어도 흐름(쎄니 주인공 큰 소리)
     if (!AS.on) return;
     AS.px = AS.x; AS.pz = AS.z;
     // 따라다니기: 주인공 뒤(보는 반대쪽) 2.3 자리로, 1.3 안쪽으로는 안 붙음
@@ -105,7 +100,7 @@
     const ty = AS.speed > 0.6 ? Math.atan2(AS.vx, AS.vz) : Math.atan2(P.x - AS.x, P.z - AS.z);
     AS.yaw += TG.angDiff(AS.yaw, ty) * (1 - Math.exp(-12 * dt));
     AS.walked += Math.hypot(AS.x - AS.px, AS.z - AS.pz);
-    AS.fastT = Math.max(0, AS.fastT - 1); AS.fast2T = Math.max(0, AS.fast2T - 1);
+    AS.fastT = Math.max(0, AS.fastT - 1);
     AS.bigCd = Math.max(0, AS.bigCd - dt);
     updateShots(dt, G);
     if (!play) return;
@@ -127,8 +122,7 @@
         const dir = Math.atan2(t.x - AS.x, t.z - AS.z);
         AS.shotCd = TG.WV.LV[0].cd * SHOT.cdK;
         AS.shotsFired++;
-        if (AS.def.cheer === 'star') [-0.32, 0, 0.32].forEach((o) => fireShot(dir + o, 'star'));
-        else fireShot(dir, 'berry');
+        fireShot(dir, AS.def.cheer === 'star' ? 'star' : 'berry'); // 쎄니 퍼플팝 작은 별 1발 / 베리 작은 방울
         AS.yaw = dir;
         if (AS.def.cheer === 'star') TG.A.play('sfx_pick', { rate: 1.6 + TG.fra(-0.1, 0.1), gain: 0.3 }); else TG.A.play('sfx_pop', { rate: 1.7, gain: 0.3 });
       } else AS.shotCd = 0.2;
@@ -161,21 +155,10 @@
     AS.bigCd = BIG_CD; AS.bigs++;
     const FX = TG.FX, P = TG.PL;
     if (vis && vis.act && vis.act.cheer) { vis.act.cheer.reset(); vis.act.cheer.setEffectiveWeight(1); vis.act.cheer.fadeIn(0.1); vis.act.cheer.play(); vis.cheerT = 0; }
-    if (AS.def.cheer === 'star') { // 스타팡팡!: 별 10개가 위에서 떨어져 둘레 안개 퐁 + 모두 잠깐 아주 빨라짐
-      FX.text('스타팡팡!', AS.x, 2.4, AS.z, 'cheer');
+    if (AS.def.cheer === 'star') { // 퍼플팡팡!(보조판): 쎄니 자리에서 주인공 쪽 반원(±1.6)·반경 6.5 보라 물감 → 물든 안개 별로 퐁(큰 소리 판정) + 모두 잠깐 아주 빨라짐
+      FX.text('퍼플팡팡!', AS.x, 2.4, AS.z, 'cheer');
       AS.fast2T = FAST_TICKS;
-      for (let i = 0; i < 10; i++) {
-        const a = TG.sr() * 6.283, r = TG.srr(2, 7), sx = x + Math.cos(a) * r, sz = z + Math.sin(a) * r;
-        G.after(6 + i * 5, () => {
-          for (let k = 0; k < 3; k++) FX.emit(FX.CELL.star, sx + TG.fra(-0.3, 0.3), 9 + k * 0.6, sz, { vy: -16, life: 0.6, size: 0.9 - k * 0.15, size1: 0.6, color: [1.8, 1.2, 2.5], vrot: 6, rot: 0 });
-          G.after(34, () => {
-            FX.popBurst(sx, 0.4, sz, 1.1, [1.6, 1.1, 2.4]); FX.ring(sx, sz, { r0: 0.3, r1: 2.4, dur: 0.3, color: 0xc9a6ff, width: 0.2 });
-            TG.A.play('sfx_pop', { rate: 1.3 + TG.fra(-0.1, 0.1), gain: 0.5 });
-            for (const u of TG.F.list) { if (u.state !== 'live' || u.kind === 'cocoon' || u.spawnT < 0.3) continue; if (Math.hypot(u.x - sx, u.z - sz) < 2.0 + u.r * u.scale) G.hitUnit(u, 2, sx, sz, true, 1, [1.6, 1.1, 2.4]); }
-            const b = TG.F.boss; if (b && b.state === 'fight' && Math.hypot(b.x - sx, b.z - sz) < 2.0 + b.r * b.scale) G.hitBoss(1, sx, sz, true, 0);
-          });
-        });
-      }
+      G.paintBurst(AS.x, AS.z, Math.atan2(P.x - AS.x, P.z - AS.z), 6.5, 1.6, 1.0, 0, 1, G);
     } else { // 꽃 피었다!: 꽃잎 원 → 주인공 회복 1칸 + 꽃잎 보호막, 둘레 안개 퐁
       FX.text('꽃 피었다!', AS.x, 2.4, AS.z, 'cheer');
       flowerBloom(AS.x, AS.z, G, 6.5, 2, 1);
@@ -207,11 +190,7 @@
     const x = TG.lerp(AS.px, AS.x, al), z = TG.lerp(AS.pz, AS.z, al);
     vis.root.position.set(x, 0, z); vis.root.rotation.y = AS.yaw;
     vis.ring.material.opacity = AS.fastT > 0 || AS.fast2T > 0 ? 0.6 + Math.sin(t * 14) * 0.35 : 0.8;
-    if (vis.kind === 'sseni') {
-      vis.body.position.y = Math.sin(t * 2.6) * 0.12 + 0.2;
-      vis.body.rotation.z = Math.sin(t * 1.7) * 0.12 + (AS.speed > 1 ? -0.2 : 0);
-      vis.orbit.forEach((s, i) => { const a = t * 2.2 + i * Math.PI; s.position.set(Math.cos(a) * 1.0, 1.5 + Math.sin(a * 2) * 0.3, Math.sin(a) * 1.0); s.rotation.z = t * 3; });
-    } else if (vis.mixer) {
+    if (vis.mixer) {
       const f = TG.clamp(AS.speed / (TG.PL.MAXSPD * 0.75), 0, 1);
       const cw = vis.act.cheer && vis.act.cheer.isRunning() ? 1 : 0;
       if (cw) { vis.cheerT = (vis.cheerT || 0) + dt; if (vis.cheerT > 1.8) vis.act.cheer.fadeOut(0.25); }

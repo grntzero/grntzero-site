@@ -261,7 +261,7 @@
     const ax = input ? input.x : 0, az = input ? input.z : 0;
     const mag = Math.min(1, Math.hypot(ax, az));
     const cheering = PL.cheerT >= 0;
-    const maxs = PL.MAXSPD * PL.spdMul * (TG.AS ? TG.AS.spdMul() : 1) * PL.slow * (cheering ? 0.35 : 1) * (PL.resting ? 0 : 1) * (PL.special === 'arise' ? 0.2 : 1); // AS.spdMul = 쎄니 「스타팡팡」 뒤 잠깐 빨라짐(규칙 쪽)
+    const maxs = PL.MAXSPD * PL.spdMul * (TG.AS ? TG.AS.spdMul() : 1) * PL.slow * (cheering ? 0.35 : 1) * (PL.resting ? 0 : 1) * (PL.special === 'arise' ? 0.2 : 1); // AS.spdMul = 쎄니 「퍼플팡팡」 뒤 잠깐 빨라짐(규칙 쪽)
     if (simOn && !PL.introFly) {
       const tx = ax * maxs, tz = az * maxs;
       PL.vx = TG.damp(PL.vx, tx, mag > 0.05 ? 16 : 20, dt);
@@ -338,7 +338,8 @@
     // 달리기 클립이 몸을 많이 숙여 위에서 얼굴이 가려짐 → 허리·고개를 세움
     const rw = PL.act.run.getEffectiveWeight(), B = PL.bones;
     if (rw > 0.01 && B.Hips && B.Head) { B.Hips.rotateX(-0.35 * rw); B.Head.rotateX(-0.25 * rw); }
-    if (B.Head) B.Head.scale.setScalar(PL.headS0 * (PL.hero.headScale || 1)); // SEFO 는 머리를 7% 줄여 위에서도 어깨·빨간 줄이 보이게 (처음 값 기준 — 쌓이지 않음). 베리는 그대로
+    if (B.Head) B.Head.scale.setScalar(PL.headS0 * (PL.hero.headScale || 1)); // SEFO v0 는 머리를 18% 줄여(0.82) 위에서도 어깨·빨간 줄이 보이게 (처음 값 기준 — 쌓이지 않음). 다른 주인공은 그대로
+    if (PL.hero.pose) for (const k in PL.hero.pose) { const b = B[k]; if (b) { const e = PL.hero.pose[k]; b.rotateX(e[0]); b.rotateY(e[1]); b.rotateZ(e[2]); } } // 11-16 밤: 뼈 회전 덧칠(베리 편 손 → 쥐는 손처럼, heroes.js pose) — 동작 위에 매 프레임 더함(mixer 가 매 프레임 다시 쓰므로 쌓이지 않음)
 
     // 스쿼시 스프링
     const sdt = Math.min(dt, 0.033);
@@ -440,7 +441,7 @@
   function buildProps() {
     const R = TG.R, B = PL.bones || {};
     const keep = (g) => g.traverse((o) => { if (o.isMesh && !o.userData.isOutline) { o.castShadow = true; o.renderOrder = 9; PL.mats.push(o.material); } else if (o.userData.isOutline) { o.renderOrder = 1; PL.outlines = PL.outlines || []; PL.outlines.push(o); } });
-    if (PL.hero.propNode) { // 베리 딸기 막대(RightHand 자식)·허조교 호루라기(Spine 자식)·MOSHEE 붐박스(RightHand 자식)는 GLB 안 노드 (tools/build_*.py) — 찾아서 소리 낼 때 톡 커지게만
+    if (PL.hero.propNode) { // 베리 딸기 막대·세포 확성기(v0)·쎄니 소리굽쇠·MOSHEE 붐박스(RightHand 자식)·허조교 호루라기(Spine 자식)는 GLB 안 노드 (tools/build_hero.py) — 찾아서 소리 낼 때 톡 커지게만
       PL.model.traverse((o) => { if (o.name === PL.hero.propNode) PL.wand = o; });
       if (PL.wand) PL.wandS0 = PL.wand.scale.clone();
     }

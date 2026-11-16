@@ -64,7 +64,8 @@
   }
   // 안개 몸 재질: 불투명한 보라빛 회색(#9C98B8, 그늘 #6E6A8E) — 비눗방울처럼 비치지 않게
   // 색조 3단(같은 보라빛 회색 안에서 기본·푸른 기·분홍 기) — 떼가 한 덩어리로 안 보이게
-  const TINT = 'diffuseColor.rgb *= vVar.x < 0.5 ? vec3(1.0) : (vVar.x < 1.5 ? vec3(0.86, 0.95, 1.13) : vec3(1.12, 0.92, 1.0));\n';
+  // 11-16 밤: vVar.x 3 = 쎄니 「퍼플팡팡!」에 물든 보라(진한 보라로 — 게임 바닥·다른 안개와 구분)
+  const TINT = 'diffuseColor.rgb *= vVar.x < 0.5 ? vec3(1.0) : (vVar.x < 1.5 ? vec3(0.86, 0.95, 1.13) : (vVar.x < 2.5 ? vec3(1.12, 0.92, 1.0) : vec3(1.05, 0.55, 1.75)));\n';
   function fogMat(o) {
     const m = TG.R.toon({
       color: o.color, rim: o.rim != null ? o.rim : 0.3, spec: o.spec != null ? o.spec : 0, inst: o.inst, key: o.key, flashCol: o.flashCol || 'vec3(0.9, 0.84, 1.12)', gain: o.gain, sat: o.sat,
@@ -453,6 +454,14 @@
         u.y = base + hop * (u.kind === 'clump' ? 0.5 : 0.8);
         u.yaw += dt * 5.5; u.sqT = hop < 0.15 ? 0.08 : u.sqT;
         if (TG.fr() < 0.08) TG.FX.emit(TG.FX.CELL.note, u.x + TG.fra(-0.5, 0.5), u.y + 1.3 * u.scale, u.z, { vy: TG.fra(1.5, 3), life: 0.6, size: 0.45, size1: 0.1, color: [[2.4, 0.6, 0.5], [2.4, 2.0, 0.6], [0.7, 1.9, 2.4]][u.id % 3], rot: 0, pop: true });
+        u.x += u.vx * dt; u.z += u.vz * dt;
+        continue;
+      }
+      if (u.paint > 0 && u.state === 'live' && u.kind !== 'cocoon') { // 쎄니 「퍼플팡팡!」: 보라 물감에 물들어 작아짐(그리기 쪽 scale) — 끝나면 game.js 가 별·반짝이로 퐁. 녹는 표현 X(모양 그대로, 작아지기만)
+        u.paint = Math.max(u.paint - dt, 1e-3); u.paintK = (u.paintK || 0) + dt;
+        u.vx = TG.damp(u.vx, 0, 10, dt); u.vz = TG.damp(u.vz, 0, 10, dt);
+        u.y = TG.damp(u.y, u.kind === 'clump' ? 0.12 : 0.95, 8, dt);
+        if (TG.fr() < 0.12) TG.FX.emit(TG.FX.CELL.star, u.x + TG.fra(-0.4, 0.4), u.y + TG.fra(0.6, 1.4) * u.scale, u.z, { vy: TG.fra(1, 2.5), life: 0.45, size: 0.35, size1: 0, color: [1.8, 1.2, 2.6], rot: 0, vrot: 5 });
         u.x += u.vx * dt; u.z += u.vz * dt;
         continue;
       }
@@ -917,6 +926,7 @@
       if (u.kind === 'tick' && k < 1) s *= TG.easeOutBack(k);
       if (u.kind === 'clump') s *= (0.62 + 0.38 * (u.hp / u.maxHp)) * (0.93 + 0.14 * hsh(u.id, 1));
       else if (u.kind === 'bubble') s *= 0.87 + 0.27 * hsh(u.id, 1); // 꾸밈용 크기 ±13% (판정 반지름은 그대로)
+      if (u.paint > 0 && u.paintD) s *= Math.max(0.35, 1 - 0.65 * TG.clamp((u.paintK || 0) / u.paintD, 0, 1)); // 퍼플팡팡: 물든 동안 65% 까지 작아짐(그림만, 판정 그대로)
       let sx = 1, sy = 1;
       if (u.sqT > 0) { const q = Math.sin((u.sqT / 0.13) * Math.PI); sx = 1 + q * 0.4; sy = 1 - q * 0.38; }
       if (u.kind !== 'tick') { const w = Math.sin(t * 3.1 + u.ph) * 0.04; sx += w; sy -= w; }
@@ -946,7 +956,7 @@
       tmpM.compose(tmpP.set(ux, uy, uz), tmpQ, tmpS.set(s * sx, s * sy, s * sx));
       const lkx = TG.clamp(Math.sin(la) * 1.5, -1, 1), lky = TG.clamp(-Math.cos(la), -0.25, 1) * 0.8 - 0.1, ph = (u.id * 0.371) % 1;
       const put = (mesh, flash, look, i, w) => { mesh.setMatrixAt(i, tmpM); flash.array[i] = fl; const a = look.array; a[i * 4] = lkx; a[i * 4 + 1] = lky; a[i * 4 + 2] = ph; a[i * 4 + 3] = w; };
-      const vary = (attr, i) => { const fv = hsh(u.id, 3); attr.array[i * 2] = Math.floor(hsh(u.id, 2) * 3); attr.array[i * 2 + 1] = fv < 0.5 ? 0 : fv < 0.8 ? 1 : 2; }; // 색조 3단 · 표정 3종 (id 해시)
+      const vary = (attr, i) => { const fv = hsh(u.id, 3); attr.array[i * 2] = u.paint > 0 ? 3 : Math.floor(hsh(u.id, 2) * 3); attr.array[i * 2 + 1] = fv < 0.5 ? 0 : fv < 0.8 ? 1 : 2; }; // 색조 3단(+물든 보라 3) · 표정 3종 (id 해시)
       if (u.kind === 'bubble') { vary(F.bubbleVar, nb); put(F.bubbleMesh, F.bubbleFlash, F.bubbleLook, nb, 0); nb++; pushShadow(ux, uz, 1.6 * s); }
       else if (u.kind === 'echo') { put(F.echoMesh, F.echoFlash, F.echoLook, ne, u.shield ? 1 : 0); ne++; pushShadow(ux, uz, 1.8 * s); }
       else { vary(F.clumpVar, nc); put(F.clumpMesh, F.clumpFlash, F.clumpLook, nc, 0); nc++; pushShadow(ux, uz, 3.0 * s); }

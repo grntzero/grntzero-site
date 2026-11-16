@@ -113,6 +113,7 @@
     if (st.flowers) { TG.A.play('sfx_pop', { rate: 1.5 + level * 0.1 + TG.fra(-0.05, 0.05), gain: 0.4 + level * 0.1 }); TG.A.play('sfx_wave', { rate: 1.2 + level * 0.08, gain: 0.4 + level * 0.1 }); } // 베리: 퐁 + 파동 높게
     else if (st.beep) { TG.A.countBeep(true); TG.A.play('sfx_wave', { rate: 1.7 + level * 0.12, gain: 0.35 + level * 0.1 }); } // 허조교: 출발 삑 + 파동 샘플 높게
     else if (st.pixel) { TG.A.play('sfx_pick', { rate: 1.9 + level * 0.1, gain: 0.28 }); TG.A.play('sfx_wave', { rate: 1.3 + level * 0.1, gain: 0.3 + level * 0.08 }); } // 모쉬: 삐빅 + 파동
+    else if (st.stars) { TG.A.play('sfx_pick', { rate: 1.5 + level * 0.1 + TG.fra(-0.05, 0.05), gain: 0.3 }); TG.A.play('sfx_wave', { rate: 1.45 + level * 0.08, gain: 0.35 + level * 0.1 }); } // 쎄니: 반짝 + 파동 높게
     else TG.A.wave(level);
     if (level >= 2) { TG.FX.shake(0.12 + level * 0.05); TG.FX.punch(0.015 * level); }
   };
@@ -244,8 +245,9 @@
       // 호 끝 반짝이 (주인공 색). 모쉬는 네모 점·베리는 꽃잎도 섞임
       if (TG.fr() < 0.5) {
         const side = TG.fr() < 0.5 ? -1 : 1, a = w.dir + side * L.half * 0.85;
-        const cell = st.pixel ? TG.FX.CELL.dot : st.flowers && TG.fr() < 0.4 ? TG.FX.CELL.flower : TG.FX.CELL.sparkle;
-        TG.FX.emit(cell, w.x + Math.sin(a) * r, 1.1 + TG.fra(-0.3, 0.3), w.z + Math.cos(a) * r, { life: 0.22, size: st.pixel ? 0.3 : 0.4, size1: 0, color: st.spark, rot: 0 });
+        const cell = st.pixel ? TG.FX.CELL.dot : st.stars ? TG.FX.CELL.star : st.flowers && TG.fr() < 0.4 ? TG.FX.CELL.flower : TG.FX.CELL.sparkle;
+        TG.FX.emit(cell, w.x + Math.sin(a) * r, 1.1 + TG.fra(-0.3, 0.3), w.z + Math.cos(a) * r, { life: st.stars ? 0.3 : 0.22, size: st.pixel ? 0.3 : st.stars ? 0.34 : 0.4, size1: 0, color: st.spark, rot: 0, vrot: st.stars ? 6 : 0 });
+        if (st.stars && TG.fr() < 0.6) { const a2 = w.dir + TG.fra(-1, 1) * L.half * 0.7; TG.FX.emit(TG.FX.CELL.star, w.x + Math.sin(a2) * r, 1.0 + TG.fra(0, 0.6), w.z + Math.cos(a2) * r, { vy: TG.fra(0.5, 1.5), life: 0.35, size: 0.26, size1: 0, color: [1.6, 1.1, 2.5], rot: TG.fra(0, 3), vrot: 4 }); } // 쎄니 퍼플팝: 호 전체에 보라 작은 별이 퍼져 나감
       }
     }
   };
