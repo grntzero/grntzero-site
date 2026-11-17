@@ -446,6 +446,23 @@
         continue;
       }
       if (u.spawnT < 0) continue;
+      // 11-17 표시 시계: 쎄니 물감 구역 안(보라 물듦)·바닥 물감 위 — wave.js WV.zones 가 매 걸음 다시 켬
+      if (u.mistT > 0) u.mistT -= dt; if (u.stainT > 0) u.stainT -= dt;
+      // 11-17 허조교 고함 「올려놔!」: 뚱 멈춤(u.stun 초) — 제자리에 서서 어질, 다가오지 않음(닿는 판정은 그대로 — 홀린 게 아니라 멈춘 것). 뛰는 중인 째깍이는 뛰기 끝나고
+      if (u.stun > 0 && u.state === 'live' && u.kind !== 'cocoon' && !u.fly && !(u.dance > 0) && !(u.kind === 'tick' && u.leap && u.leap.t >= 0.5)) { // 날아가는 중(밀착)·춤 중엔 멈춤보다 그 상태가 우선(검토 ②4)
+        const dx = P.x - u.x, dz = P.z - u.z, d = Math.hypot(dx, dz) || 1;
+        u.stun -= dt; u.stunK = (u.stunK || 0) + dt;
+        u.vx = TG.damp(u.vx, 0, 14, dt); u.vz = TG.damp(u.vz, 0, 14, dt);
+        u.y = TG.damp(u.y, u.kind === 'clump' ? 0.12 : u.kind === 'tick' ? 0 : 0.95, 10, dt);
+        u.yaw += Math.sin(u.stunK * 28) * 0.12 * dt * 60 * 0.08; // 어질어질(작게)
+        if (u.kind === 'tick' && u.leap) u.leap = null;
+        if (u.dash) u.dash = 0;
+        if (TG.fr() < 0.1) TG.FX.emit(TG.FX.CELL.star, u.x + TG.fra(-0.4, 0.4), u.y + 1.5 * u.scale, u.z, { vy: 1.2, life: 0.4, size: 0.3, size1: 0, color: [2.4, 2.3, 1.0], rot: 0, vrot: 6 });
+        if (u.kind !== 'tick') { const hitR = u.r * u.scale + 0.5; if (d < hitR && u.spawnT > 0.4 && playing) { const h = P.hurt(u.x, u.z); if (h) { G.onHurt(u, h); u.vx -= (dx / d) * 7; u.vz -= (dz / d) * 7; } } }
+        else if (d < u.r + 0.6) { const h = P.hurt(u.x, u.z); if (h) { G.onHurt(u, h); u.vx -= (dx / d) * 4; u.vz -= (dz / d) * 4; } }
+        u.x += u.vx * dt; u.z += u.vz * dt;
+        continue;
+      }
       // 11-16 큰 소리 특수 상태(js/game.js 가 켬). 둘 다: 보통 움직임·주인공에게 닿는 판정 없음
       if (u.dance > 0 && u.state === 'live' && u.kind !== 'cocoon') { // 세포 「세포체조!」: 홀린 듯 신나게 춤(폴짝폴짝·빙글) — 끝나면 game.js 가 퐁
         u.dance = Math.max(u.dance - dt, 1e-3); u.danceK = (u.danceK || 0) + dt; // 0 에 닿지 않게(끝내는 건 game.js 콜백 — 검토 ①)
@@ -924,7 +941,7 @@
       if (u.kind === 'cocoon') { drawCocoon(u, k, t, dt); pushShadow(ux, uz, 3.0); continue; }
       let s = u.scale * (u.kind === 'tick' ? 1 : TG.easeOutElastic(k));
       if (u.kind === 'tick' && k < 1) s *= TG.easeOutBack(k);
-      if (u.kind === 'clump') s *= (0.62 + 0.38 * (u.hp / u.maxHp)) * (0.93 + 0.14 * hsh(u.id, 1));
+      if (u.kind === 'clump') s *= (0.62 + 0.38 * (Math.max(0, u.hp) / u.maxHp)) * (0.93 + 0.14 * hsh(u.id, 1)); // 11-17: 큰 소리(99)로 터질 때 hp 가 음수 → 크기가 음수가 되어 거대한 검은 덩어리가 한 프레임 보이던 것 막음(그림만, max 0)
       else if (u.kind === 'bubble') s *= 0.87 + 0.27 * hsh(u.id, 1); // 꾸밈용 크기 ±13% (판정 반지름은 그대로)
       if (u.paint > 0 && u.paintD) s *= Math.max(0.35, 1 - 0.65 * TG.clamp((u.paintK || 0) / u.paintD, 0, 1)); // 퍼플팡팡: 물든 동안 65% 까지 작아짐(그림만, 판정 그대로)
       let sx = 1, sy = 1;
@@ -956,7 +973,7 @@
       tmpM.compose(tmpP.set(ux, uy, uz), tmpQ, tmpS.set(s * sx, s * sy, s * sx));
       const lkx = TG.clamp(Math.sin(la) * 1.5, -1, 1), lky = TG.clamp(-Math.cos(la), -0.25, 1) * 0.8 - 0.1, ph = (u.id * 0.371) % 1;
       const put = (mesh, flash, look, i, w) => { mesh.setMatrixAt(i, tmpM); flash.array[i] = fl; const a = look.array; a[i * 4] = lkx; a[i * 4 + 1] = lky; a[i * 4 + 2] = ph; a[i * 4 + 3] = w; };
-      const vary = (attr, i) => { const fv = hsh(u.id, 3); attr.array[i * 2] = u.paint > 0 ? 3 : Math.floor(hsh(u.id, 2) * 3); attr.array[i * 2 + 1] = fv < 0.5 ? 0 : fv < 0.8 ? 1 : 2; }; // 색조 3단(+물든 보라 3) · 표정 3종 (id 해시)
+      const vary = (attr, i) => { const fv = hsh(u.id, 3); attr.array[i * 2] = u.paint > 0 || u.mistT > 0 ? 3 : Math.floor(hsh(u.id, 2) * 3); attr.array[i * 2 + 1] = fv < 0.5 ? 0 : fv < 0.8 ? 1 : 2; }; // 색조 3단(+물든 보라 3) · 표정 3종 (id 해시)
       if (u.kind === 'bubble') { vary(F.bubbleVar, nb); put(F.bubbleMesh, F.bubbleFlash, F.bubbleLook, nb, 0); nb++; pushShadow(ux, uz, 1.6 * s); }
       else if (u.kind === 'echo') { put(F.echoMesh, F.echoFlash, F.echoLook, ne, u.shield ? 1 : 0); ne++; pushShadow(ux, uz, 1.8 * s); }
       else { vary(F.clumpVar, nc); put(F.clumpMesh, F.clumpFlash, F.clumpLook, nc, 0); nc++; pushShadow(ux, uz, 3.0 * s); }

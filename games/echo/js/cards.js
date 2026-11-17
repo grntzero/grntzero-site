@@ -17,7 +17,11 @@
     { id: 'poy', name: '다이얼 링', tag: 'POY', col: '#00FF00' },
     { id: 'woad', name: '거품 자국', tag: 'WOAD', col: '#FF6F61' },
     { id: 'rogun', name: '째깍 원판', tag: 'ROGUN', col: '#3D7BFF' },
+    // 11-17 모쉬 전용(hero): 「푸슝 빔」을 키우는 카드 — 다른 주인공에게는 안 나옴
+    { id: 'bounce', name: '튕기는 빔', col: '#2fe0f0', hero: 'moshee', max: 4 }, // 맞은 안개에서 가까운 다른 안개로 튕김: 1단 2명·2단 3명·3단 4명·4단 5명
+    { id: 'pierce', name: '지나는 빔', col: '#8ff4ff', hero: 'moshee', max: 3 }, // 뚫고 지나감: 단마다 +1 명
   ];
+  C.maxOf = (id) => (C.byId[id] && C.byId[id].max) || MAXLV;
   C.byId = {}; C.DEFS.forEach((d) => (C.byId[d.id] = d));
   C.MAXLV = MAXLV;
 
@@ -31,19 +35,19 @@
   // 카드 단계 → 실제 값
   C.recalc = function () {
     const G = TG.G, P = TG.PL;
-    G.mod = { size: C.lv('size'), fast: C.lv('fast'), more: C.lv('more'), magnet: C.lv('magnet') * 2.2, charge: 1 + C.lv('charge') * 0.3 };
+    G.mod = { size: C.lv('size'), fast: C.lv('fast'), more: C.lv('more'), magnet: C.lv('magnet') * 2.2, charge: 1 + C.lv('charge') * 0.3, bounce: C.lv('bounce'), pierce: C.lv('pierce') };
     if (P) P.spdMul = 1 + C.lv('move') * 0.1;
   };
   // 3장 뽑기 (다 찬 카드는 빼고)
   C.offer = function () {
-    const av = C.DEFS.filter((d) => C.lv(d.id) < MAXLV).map((d) => d.id);
+    const av = C.DEFS.filter((d) => C.lv(d.id) < C.maxOf(d.id) && (!d.hero || d.hero === TG.heroId)).map((d) => d.id);
     const out = [];
     while (out.length < 3 && av.length) out.push(av.splice((TG.sr() * av.length) | 0, 1)[0]);
     return out;
   };
   C.apply = function (id) {
     const G = TG.G, P = TG.PL;
-    G.cards[id] = Math.min(MAXLV, C.lv(id) + 1);
+    G.cards[id] = Math.min(C.maxOf(id), C.lv(id) + 1);
     if (id === 'heart') { P.maxHp++; P.hp = Math.min(P.maxHp, P.hp + 1); }
     C.recalc();
   };
@@ -96,11 +100,11 @@
       }
     }
     // ROGUN 째깍 원판: 파란 원 안의 안개는 느려짐
+    //  11-17: 느려짐 배율은 매 걸음 여기서 1 로 되돌리고(원판 안이면 k) → 그 뒤 쎄니 물감 구역(wave.js WV.zones)이 곱함
     const rl = C.lv('rogun');
-    if (rl > 0) {
-      const R = C.rogunR(rl), k = [1, 0.8, 0.68, 0.58][rl];
-      for (let j = 0; j < list.length; j++) { const u = list[j]; u.slowK = (u.x - P.x) ** 2 + (u.z - P.z) ** 2 < R * R ? k : 1; }
-      if (F.boss) F.boss.slowK = Math.hypot(F.boss.x - P.x, F.boss.z - P.z) < R + 2 ? Math.max(0.7, k) : 1;
+    { const R = rl > 0 ? C.rogunR(rl) : 0, k = [1, 0.8, 0.68, 0.58][rl];
+      for (let j = 0; j < list.length; j++) { const u = list[j]; u.slowK = rl > 0 && (u.x - P.x) ** 2 + (u.z - P.z) ** 2 < R * R ? k : 1; }
+      if (F.boss) F.boss.slowK = rl > 0 && Math.hypot(F.boss.x - P.x, F.boss.z - P.z) < R + 2 ? Math.max(0.7, k) : 1;
     }
   };
   C.rogunR = (lv) => 3.6 + lv * 0.9;
@@ -229,6 +233,15 @@
       for (let i = 0; i < 12; i++) { const a = (i / 12) * 6.283; c.beginPath(); c.moveTo(64 + Math.cos(a) * 26, 64 + Math.sin(a) * 26); c.lineTo(64 + Math.cos(a) * 31, 64 + Math.sin(a) * 31); c.lineWidth = 4; c.strokeStyle = INK; c.stroke(); }
       c.beginPath(); c.moveTo(64, 64); c.lineTo(64, 40); c.moveTo(64, 64); c.lineTo(82, 72); c.lineWidth = 7; c.strokeStyle = INK; c.lineCap = 'round'; c.stroke();
       c.beginPath(); c.arc(64, 64, 5, 0, 6.3); c.fillStyle = '#e5352b'; c.fill();
+    },
+    bounce(c) { // 시안 빔이 점 셋 사이를 지그재그로 튕김
+      [[22, 96], [60, 40], [98, 84]].forEach(([x, y]) => { c.beginPath(); c.arc(x, y, 13, 0, 6.3); ol(c, '#9c98b8', 6); });
+      c.beginPath(); c.moveTo(8, 118); c.lineTo(28, 88); c.lineTo(58, 50); c.lineTo(94, 76); c.lineTo(118, 30); c.lineWidth = 15; c.strokeStyle = INK; c.lineCap = 'round'; c.lineJoin = 'round'; c.stroke(); c.lineWidth = 8; c.strokeStyle = '#2fe0f0'; c.stroke(); c.lineWidth = 3; c.strokeStyle = '#eafeff'; c.stroke();
+    },
+    pierce(c) { // 곧은 시안 빔이 점 둘을 뚫고 지나감
+      [[46, 64], [84, 64]].forEach(([x, y]) => { c.beginPath(); c.arc(x, y, 14, 0, 6.3); ol(c, '#9c98b8', 6); });
+      c.beginPath(); c.moveTo(8, 64); c.lineTo(120, 64); c.lineWidth = 16; c.strokeStyle = INK; c.lineCap = 'round'; c.stroke(); c.lineWidth = 9; c.strokeStyle = '#2fe0f0'; c.stroke(); c.lineWidth = 3; c.strokeStyle = '#eafeff'; c.stroke();
+      c.beginPath(); c.moveTo(104, 50); c.lineTo(122, 64); c.lineTo(104, 78); c.lineWidth = 12; c.strokeStyle = INK; c.lineJoin = 'round'; c.stroke(); c.lineWidth = 5; c.strokeStyle = '#fff'; c.stroke();
     },
     // 쉼터 고르기용
     shield(c) { c.beginPath(); c.arc(64, 64, 42, 0, 6.3); ol(c, 'rgba(143,220,255,0.9)', 8); c.beginPath(); c.ellipse(48, 46, 12, 7, -0.7, 0, 6.3); c.fillStyle = '#fff'; c.fill(); c.beginPath(); c.arc(64, 70, 14, 0, 6.3); ol(c, '#e5352b', 6); },

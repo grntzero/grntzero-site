@@ -2,7 +2,7 @@
    · 판정 없음: 안개에 맞지 않고 쓰러지지 않음(안개·보스는 주인공 TG.PL 만 봄). 카드 적용 없음
    · 평소(응원): 쎄니 = 600걸음마다 180걸음 동안 주인공 소리 간격 25% 짧게 / 베리 = 900걸음마다 회복 조각(큰 꽃) + 걸은 자리에 작은 꽃
    · 기본 소리(작게, 피해 0.5배·간격 2배): 쎄니 퍼플팝 작은 보라 별 1발 / 베리 작은 베리 방울 — 가까운 안개 쪽으로 저절로 (11-16 밤: 별 3갈래는 뺌)
-   · 큰 소리: 주인공이 큰 소리를 쓰면 함께 — 쎄니 「퍼플팡팡!」(작은 부채꼴 보라 물감, game.js paintBurst + 모두 잠깐 아주 빨라짐) / 베리 「꽃 피었다!」(회복 + 꽃잎 보호막), 60초에 한 번 (스타팡팡은 폐기)
+   · 큰 소리: 주인공이 큰 소리를 쓰면 함께 — 쎄니 「퍼플팡팡!」(작은 물감 구역 — 느려짐+도트, game.js paintBurst + 모두 잠깐 아주 빨라짐) / 베리 「꽃 피었다!」(회복 + 꽃잎 보호막), 60초에 한 번 (스타팡팡은 폐기)
    · 11-16 밤: 쎄니도 3D(GLB 두 번째 사본, 주인공과 같은 묶음 pack_hero_sseni.js). sim = 규칙 계산(1/60초, 난수는 TG.sr 만) / draw = 그리기
    · fastAll(): 쎄니 주인공의 큰 소리도 「모두 빨라짐」을 씀 — fast2T 는 보조가 없어도(AS.on 아님) 돌아감 */
 (function () {
@@ -155,10 +155,10 @@
     AS.bigCd = BIG_CD; AS.bigs++;
     const FX = TG.FX, P = TG.PL;
     if (vis && vis.act && vis.act.cheer) { vis.act.cheer.reset(); vis.act.cheer.setEffectiveWeight(1); vis.act.cheer.fadeIn(0.1); vis.act.cheer.play(); vis.cheerT = 0; }
-    if (AS.def.cheer === 'star') { // 퍼플팡팡!(보조판): 쎄니 자리에서 주인공 쪽 반원(±1.6)·반경 6.5 보라 물감 → 물든 안개 별로 퐁(큰 소리 판정) + 모두 잠깐 아주 빨라짐
+    if (AS.def.cheer === 'star') { // 퍼플팡팡!(보조판, 11-17): 쎄니 자리에 작은 물감 구역(반경 5, 2초 느려짐+도트, 보스 피해 X) + 모두 잠깐 아주 빨라짐
       FX.text('퍼플팡팡!', AS.x, 2.4, AS.z, 'cheer');
       AS.fast2T = FAST_TICKS;
-      G.paintBurst(AS.x, AS.z, Math.atan2(P.x - AS.x, P.z - AS.z), 6.5, 1.6, 1.0, 0, 1, G);
+      G.paintBurst(AS.x, AS.z, Math.atan2(P.x - AS.x, P.z - AS.z), 5.0, 0.4, G, { boss: false, dur: 2.0, stainDur: 2.5 });
     } else { // 꽃 피었다!: 꽃잎 원 → 주인공 회복 1칸 + 꽃잎 보호막, 둘레 안개 퐁
       FX.text('꽃 피었다!', AS.x, 2.4, AS.z, 'cheer');
       flowerBloom(AS.x, AS.z, G, 6.5, 2, 1);

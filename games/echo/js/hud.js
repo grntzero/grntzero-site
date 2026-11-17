@@ -371,7 +371,7 @@
       const tag = document.createElement('div'); tag.className = 'ctag'; tag.textContent = d.tag ? 'with ' + d.tag : ''; b.appendChild(tag);
       const nm = document.createElement('div'); nm.className = 'cname'; nm.textContent = d.name; b.appendChild(nm);
       const pp = document.createElement('div'); pp.className = 'pips';
-      for (let k = 0; k < C.MAXLV; k++) { const p = document.createElement('i'); if (k < lv) p.className = 'on'; else if (k === lv) p.className = 'new'; pp.appendChild(p); }
+      for (let k = 0; k < C.maxOf(id); k++) { const p = document.createElement('i'); if (k < lv) p.className = 'on'; else if (k === lv) p.className = 'new'; pp.appendChild(p); }
       b.appendChild(pp);
       const key = document.createElement('div'); key.className = 'k'; key.textContent = String(i + 1); b.appendChild(key);
       b.addEventListener('click', (e) => { e.stopPropagation(); onPick(i); });

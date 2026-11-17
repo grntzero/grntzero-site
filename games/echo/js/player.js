@@ -176,7 +176,7 @@
       x: 0, z: 3.5, y: 0, vy: 0, vx: 0, vz: 0, kx: 0, kz: 0, yaw: Math.PI * 0, tyaw: 0, speed: 0,
       hp: 3, maxHp: 3, shield: 0, inv: 0, flash: 0, glow: 0, sq: 0, sqv: 0, lean: 0, side: 0, recoil: -1, recoilDir: 0,
       faceLock: 0, airborne: false, cheerT: -1, cheerOut: false, resting: false, restT: 0, slow: 1, spdMul: 1, onLand: null, noHurt: 0,
-      chargeVis: 0, chargeLevel: 0, charging: false, introFly: false, lastHurt: 99, zoneT: 0, inZone: false, keepFace: false, aimK: 0, aimDir: 0, aimR: 8, aimA: 0,
+      chargeVis: 0, chargeLevel: 0, charging: false, introFly: false, lastHurt: 99, zoneT: 0, inZone: false, keepFace: false, aimK: 0, aimDir: 0, aimR: 8, aimA: 0, spin: null, headSpin: 0,
     });
     PL.px = PL.rx = PL.x; PL.pz = PL.rz = PL.z; PL.py = PL.ry = PL.y;
     PL.root.position.set(PL.x, 0, PL.z);
@@ -306,7 +306,7 @@
 
   // ── 그리기 (화면 주사율): 걸음 사이를 보간, 애니·스쿼시·번쩍·링 ──
   let drawT = 0;
-  const megaV = new T.Vector3();
+  const megaV = new T.Vector3(), spinQ = new T.Quaternion(), spinAx = new T.Vector3();
   PL.draw = function (dt, alpha) {
     drawT += dt;
     const t = drawT;
@@ -340,6 +340,9 @@
     if (rw > 0.01 && B.Hips && B.Head) { B.Hips.rotateX(-0.35 * rw); B.Head.rotateX(-0.25 * rw); }
     if (B.Head) B.Head.scale.setScalar(PL.headS0 * (PL.hero.headScale || 1)); // SEFO v0 는 머리를 18% 줄여(0.82) 위에서도 어깨·빨간 줄이 보이게 (처음 값 기준 — 쌓이지 않음). 다른 주인공은 그대로
     if (PL.hero.pose) for (const k in PL.hero.pose) { const b = B[k]; if (b) { const e = PL.hero.pose[k]; b.rotateX(e[0]); b.rotateY(e[1]); b.rotateZ(e[2]); } } // 11-16 밤: 뼈 회전 덧칠(베리 편 손 → 쥐는 손처럼, heroes.js pose) — 동작 위에 매 프레임 더함(mixer 가 매 프레임 다시 쓰므로 쌓이지 않음)
+    // 11-17 모쉬 「픽셀 빔!」: 빔이 도는 동안 머리(큐브)도 같은 각도로 돎 — 세계 위 축 기준, mixer 가 매 프레임 다시 쓰므로 쌓이지 않음(한 몸)
+    { const bm = TG.WV && TG.WV.beam; PL.headSpin = 0;
+      if (bm && bm.on && B.Head) { const ang = TG.WV.beamAngle() - bm.dir; PL.headSpin = ang; B.Head.parent.updateWorldMatrix(true, false); B.Head.parent.getWorldQuaternion(spinQ); spinAx.set(0, 1, 0).applyQuaternion(spinQ.invert()).normalize(); B.Head.quaternion.premultiply(spinQ.setFromAxisAngle(spinAx, ang)); } }
 
     // 스쿼시 스프링
     const sdt = Math.min(dt, 0.033);
@@ -372,7 +375,10 @@
     // 반영
     const sy = 1 + PL.sq + breathe, sxz = 1 - PL.sq * 0.55 - breathe * 0.5;
     PL.root.position.set(PL.rx, PL.ry + bob * (PL.airborne ? 0 : 1), PL.rz);
-    PL.root.rotation.y = PL.yaw;
+    // 11-17 쎄니 「퍼플팡팡!」: 한 바퀴 싹 돌며 물감 뿌림 — 그림만(규칙 yaw 는 그대로)
+    let spinOff = 0;
+    if (PL.spin) { PL.spin.t += dt; const k = TG.clamp(PL.spin.t / PL.spin.dur, 0, 1); spinOff = (k * k * (3 - 2 * k)) * Math.PI * 2 * (PL.spin.turns || 1); if (k >= 1) PL.spin = null; }
+    PL.root.rotation.y = PL.yaw + spinOff;
     PL.body.rotation.set(PL.lean, 0, PL.side);
     PL.body.scale.set(sxz, sy, sxz);
     if (PL.resting && !PL.act.sit) poseRest(restDrop, t);
@@ -393,6 +399,7 @@
       PL.wand.scale.copy(PL.wandS0).multiplyScalar(1 + fire * (PL.hero.prop === 'boombox' ? 0.15 : 0.25));
     }
     faceUpdate(dt); // MOSHEE 큐브 표정 (다른 주인공은 아무 일 없음)
+    if (B.Head) { PL.root.updateMatrixWorld(true); B.Head.getWorldPosition(PL.headW || (PL.headW = new T.Vector3())); } // 11-17 머리 세계 위치(모쉬 빔이 머리에서 나옴, wave.js beamDraw)
 
     // 번쩍 (닿음·무적 깜빡임)
     // 닿음 번쩍은 0.1초(밝기 +30% + 테두리 빛), 무적 시간은 투명도 깜빡임, 보호 시간은 발밑 링만 깜빡 → 몸 색(검정·빨강·34)은 늘 그대로

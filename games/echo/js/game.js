@@ -25,14 +25,15 @@
     { budget: 120, cap: 28, iv: [1.15, 0.8], grp: [4, 7], clump: 5, echo: 0, tick: 0, spd: 1.65, split: 2, cocoonAt: 0.45, title: '2층 · 안개 뭉치가 굴러와요!', sub: '터지면 둘로 나뉘어요' },
     { budget: 150, cap: 36, iv: [1.0, 0.7], grp: [5, 8], clump: 6, echo: 4, tick: 8, spd: 1.85, split: 3, cocoonAt: 0.45, title: '3층 · 메아리 안개 등장!', sub: '한 번은 통! 튕겨요. 두 번째에 퐁' },
   ];
-  const REC_V = 4;                  // 입력 기록 판 번호(11-16 오후 밸런스 개편 → 4)
+  const REC_V = 5;                  // 입력 기록 판 번호(11-16 오후 밸런스 개편 → 4, 11-17 필살기·평타 개편(세포체조 길이·모쉬/허조교 평타·쎄니 구역) → 5: v4 이하는 재생 안 함)
   const XP0 = 10, XP_STEP = 24;      // 레벨업 필요 음표: XP0 + XP_STEP × (레벨 − 1)
   const REST_HEAL = 2;              // 쉼터 「소리 회복」: 2칸 (전에는 가득)
   const AIM_N = 256;                // 조준 방향 기록 단위(한 바퀴 256칸)
   const AIM_ASSIST = 0.21;          // 약한 조준 도움: 쏘는 방향 좌우 약 12° 안의 대상에만 붙음
+  const AIM_ASSIST_ONE = 0.5;       // 11-17 한 발 한 명(모쉬 푸슝 빔·허조교 고함)은 좁은 빛이라 좌우 약 29° 까지 붙음(파형은 부채라 그대로)
   const END_HOLD = 0.9;
   // 자동 모드(11-13): 너무 쉬워지지 않게 저절로 나가는 것만 조금 약하게 — 사거리 AUTO.range 배, 연사 간격 AUTO.cd 배. 받는 피해·직접 누름·큰 소리는 그대로
-  const AUTO = { range: 0.75, cd: 1.5 };             // 0칸 → 결과 화면까지 (초)
+  const AUTO = { range: 0.75, cd: 1.5, cdBolt: 1.2 };             // 0칸 → 결과 화면까지 (초)
   const REST = [{ id: 'heal', name: '소리 회복', icon: 'heal' }, { id: 'shield', name: '보호 방울', icon: 'shield' }, { id: 'notes', name: '음표 선물', icon: 'notes' }];
   // 비서 쎌(진행자) 대사 [표정, 말] — 그림·글만, 규칙 계산과 무관
   const GRUNT_REST = [null, ['smile', '잘했어! 하나 골라 봐~'], ['ok', '마지막 층이야. 숨 고르고 가자!']];
@@ -144,7 +145,7 @@
     G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.lined = 0; G.hintT = 0; G.hurts = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
     G.gaugeLock = 0; G.hintStage = 0; G.moved = 0; G.afters.length = 0; G.inBig = false; G.inPick = -1; G.inCard = -1; G.botW = 0; G.botStuck = 0; G.botSideT = 0; G.botSideS = 1; G.botLx = 0; G.botLz = 0; G.botCocT = 0; G.machSlow = false; G.camFocusK = 0.45;
     G.autoTicks = 0; G.playTicks = 0; G.autoShots = 0; G.autoOn = false;
-    G.lastPopT = 0; G.arrowU = null; G.arrowSaid = false; G.danceN = 0; G.dancePops = 0; G.flyN = 0; G.beamN = 0; G.paintN = 0; G.paintPops = 0; // 11-16: 남은 안개 화살표·큰 소리 셈
+    G.lastPopT = 0; G.arrowU = null; G.arrowSaid = false; G.danceN = 0; G.dancePops = 0; G.flyN = 0; G.beamN = 0; G.paintN = 0; G.danceMusicAt = G.danceVoiceAt = G.danceBoomAt = null; G.hurtBy = {}; // 11-16: 남은 안개 화살표·큰 소리 셈
     G.denyT = -9; G.shelterT = 0; G.shelterPick = -1; G.covT = 0; G.biT = 0; G.biStage = 0; G.lid = null; G.countAt = null; G.lastCount = -1;
     TG.F.reset(); TG.WV.reset(); if (!keepFx) TG.FX.clear(); TG.PL.reset(); TG.PL.setRest(false); TG.C.reset(); TG.FL.reset(); TG.AS.reset();
     TG.H.hideCards(); TG.H.hideShelter(); TG.H.gruntHide(); TG.H.hintSet(null);
@@ -476,6 +477,7 @@
   // 안개에 닿음: 「소리 크기」 1칸 줄고 「뽀잉」
   G.onHurt = function (src, res) {
     const FX = TG.FX, p = P();
+    { const k = src && src.kind ? src.kind : src === TG.F.boss ? 'boss' : '?'; (G.hurtBy || (G.hurtBy = {}))[k] = (G.hurtBy[k] || 0) + 1; } // 시험용 셈(무엇에 맞았나) — api.state().hurtBy
     if (res === 'shield') {
       TG.A.syn('shield'); FX.shake(0.12); vib('shield');
       FX.text('보호 방울 톡!', p.x, 3.6, p.z, 'word');
@@ -560,11 +562,13 @@
   //  berri 'flower' 「꽃 피었다!」  꽃잎 원(반경 R)이 퍼지며 퐁 + 회복 1칸 + 꽃잎 보호막 (그대로)
   //  둥근 파동(옛 SEFO 「다 같이 손 머리 위로!」)은 big 이 위 넷 중 하나가 아닐 때만
   const BIG = {
-    dance: { R: 14.5, dur: 3.0, boss: 12, bossR: 16 },   // dur 초 춤 → 퐁. 보스 피해 = boss × (1 + 둘레 링 단계 × 0.25)
+    // 11-17 대표: 체조 음악(sfx_gym, 붐붐 세포런 sefo_gym.m4a 50.30~55.00초 토막 4.7초·−7dB·끝 0.5초 페이드, 159 BPM·박 0.377초) 먼저 → voiceAt 초 뒤 대사(ult_sefo 2.94초, 첫 음절 0.14→음악 2번째 박 0.551, 「체조!」 2.32→박 2.813 ±0.04) → 대사 끝(voiceAt+2.80 = dur) 순간 전부 퐁.
+    //  음악 시작부터 dur 까지 시야 안 안개가 계속 춤(못 다가옴·못 건드림). 음원 재면 도구/음원분석/analyze.py
+    dance: { R: 14.5, voiceAt: 0.45, voiceLen: 2.80, dur: 3.25, boss: 12, bossR: 16, beat: 0.377, beat0: 0.174 },
     push: { R: 11.5, spd: 26, max: 1.6, dmg: 3, boss: 12 }, // 밀려 나는 빠르기, 최대 비행 초, 체력 많은 안개 피해
     beam: { R: 12.5 },                                   // 보스 피해는 wave.js BEAM.bossDmg(빔이 직접 맞힘)
     flower: { R: 12.5, boss: 12 },
-    paint: { R: 13.0, half: 2.4, dur: 1.0, boss: 12 }, // 11-16 밤 쎄니 「퍼플팡팡!」: 넓은 부채꼴(겨눈 쪽 ±half 라디안 ≈ 275° — 처음 ±1.8(206°)은 자동 모드 봇이 뒤쪽 안개에 맞아 보스전 1판 짐 → 넓힘)·반경 R 안 안개가 dur 초 보라로 물들며 작아짐 → 별·반짝이로 퐁. 체력 많은 안개도 퐁(큰 소리 판정 99), 보스는 피해만
+    paint: { R: 9.0, spin: 0.5 }, // 11-17 쎄니 「퍼플팡팡!」: 한 바퀴(spin 초) 돌며 둘레 R 에 물감 → 물감 구역(wave.js WV.mist: 3초 느려짐+도트, 바닥 물감 4초 밟으면 느려짐). (옛) 11-16 밤 쎄니 「퍼플팡팡!」: 넓은 부채꼴(겨눈 쪽 ±half 라디안 ≈ 275° — 처음 ±1.8(206°)은 자동 모드 봇이 뒤쪽 안개에 맞아 보스전 1판 짐 → 넓힘)·반경 R 안 안개가 dur 초 보라로 물들며 작아짐 → 별·반짝이로 퐁. 체력 많은 안개도 퐁(큰 소리 판정 99), 보스는 피해만
   };
   const bigVoice = () => { const h = TG.hero; if (h && h.ult) TG.A.play(h.ult, { gain: 0.95 }); }; // 큰 소리 목소리(assets/audio/<ult>.mp3, 없으면 조용히)
   function bigSound() {
@@ -576,7 +580,7 @@
     TG.H.say(TG.hero.bigSay || '다 같이 손 머리 위로!', 1.8);
     TG.A.duck(0.35, 1.4);
     TG.A.ui(1.2);
-    bigVoice();
+    if (TG.hero.big !== 'dance') bigVoice(); // 세포는 착지 뒤 체조 음악 박자에 맞춰(bigDance)
     p.noHurt = Math.max(p.noHurt, 1.6);
     { // 누른 즉시: 버튼 번쩍·발밑 링 2겹·위로 솟는 반짝·모으는 소리 (효과 판정은 착지 때 그대로)
       const FX = TG.FX, c = TG.hero.color || 0xe5352b;
@@ -629,12 +633,14 @@
     return true;
   }
 
-  // 세포 「세포체조!」(일명 「세포와 함께하는 신나는 체조!」): 착지(딱!) → 시야 안 안개가 3초 동안 신나게 춤(홀린 듯 — 나를 못 건드림, fogs.js u.dance) + 체조 음악 → 전부 퐁(보스는 큰 피해만)
-  //  음악: assets/audio/sfx_gym.mp3(붐붐 세포런 체조 음원 3.6초 토막, 자리표시) — 대표가 주면 같은 이름으로 바꾸고 tools/pack_assets.py
+  // 세포 「세포체조!」(일명 「세포와 함께하는 신나는 체조!」, 11-17 대표 순서): 착지(딱!) → 체조 음악 시작 = 시야 안 안개가 춤 시작(홀린 듯 폴짝·빙글, 못 다가옴·나를 못 건드림, fogs.js u.dance)
+  //  → voiceAt 초 뒤 대사 「세포와 함께하는 신나는 체조!」가 음악 박자에 얹힘 → 대사가 끝나는 순간(dur) 전부 '빵' 퐁(보스는 큰 피해만). 음악은 퐁 뒤 1초쯤 더 흐르다 페이드
+  //  음악: assets/audio/sfx_gym.mp3(붐붐 세포런 체조 음원 토막, 자리표시 — 대표 음원 오면 같은 이름으로 넣고 tools/pack_assets.py, BIG.dance 의 voiceAt·dur 다시 잼)
   function bigDance(x, z, pow, lv) {
-    const FX = TG.FX, F = TG.F, D = BIG.dance, R2 = D.R * pow, ticks = Math.round(D.dur * 60);
+    const FX = TG.FX, F = TG.F, D = BIG.dance, R2 = D.R * pow, ticks = Math.round(D.dur * 60), vTicks = Math.round(D.voiceAt * 60);
     FX.hitstop(70); FX.shake(0.4); FX.punch(0.06); TG.R.bloomPulse = 0.3; vib('big');
-    TG.A.play('sfx_bonk', { rate: 0.9, gain: 0.8 }); TG.A.play('sfx_gym', { gain: 0.9 }); TG.A.duck(0.3, D.dur + 0.3);
+    TG.A.play('sfx_bonk', { rate: 0.9, gain: 0.8 }); TG.A.play('sfx_gym', { gain: 0.9 }); TG.A.duck(0.3, D.dur + 1.0); // 음악 먼저
+    G.danceMusicAt = G.time;
     FX.ring(x, z, { r0: 0.8, r1: R2, dur: 0.6, color: 0xe5352b, width: 0.12, hdr: 1.4 });
     FX.ring(x, z, { r0: 0.8, r1: R2 * 0.85, dur: 0.7, color: 0xffd966, width: 0.1, delay: 0.1, hdr: 1.3, alpha: 0.85 });
     FX.dust(x, z, 14, 1.6);
@@ -644,14 +650,16 @@
     for (const u of F.list) {
       if (u.state !== 'live' || u.kind === 'cocoon') continue;
       if (Math.hypot(u.x - x, u.z - z) > R2 + u.r * u.scale) continue;
-      u.dance = D.dur; u.danceK = 0; u.byBig = true; u.vx = u.vz = 0; n++;
+      u.dance = D.dur; u.danceK = 0; u.byBig = true; u.vx = u.vz = 0; u.stun = 0; n++;
       if (u.leap) u.leap = null; if (u.dash) u.dash = 0;
     }
     G.danceN += n;
-    // 박자마다 반짝(그림만) — 춤추는 안개 위 음표
-    for (let k = 1; k <= 7; k++) G.after(Math.round(k * ticks / 8), () => { for (const u of F.list) if (u.dance > 0 && u.state === 'live') FX.emit(FX.CELL.sparkle, u.x, u.y + 1.4 * u.scale, u.z, { vy: 2, life: 0.3, size: 0.5, size1: 0, color: [2.5, 2.2, 1.0] }); });
+    G.after(vTicks, () => { if (isPlay()) { bigVoice(); G.danceVoiceAt = G.time; } }); // 대사는 음악 2번째 박에 얹힘
+    // 박마다 반짝(그림만) — 춤추는 안개 위 음표 (음악 박 0.377초, 첫 박 0.174)
+    for (let k = 0; k * D.beat + D.beat0 < D.dur; k++) G.after(Math.max(1, Math.round((k * D.beat + D.beat0) * 60)), () => { for (const u of F.list) if (u.dance > 0 && u.state === 'live') FX.emit(FX.CELL.sparkle, u.x, u.y + 1.4 * u.scale, u.z, { vy: 2, life: 0.3, size: 0.5, size1: 0, color: [2.5, 2.2, 1.0] }); });
     TG.AS.onBig(x, z, G); // 보조 캐릭터도 함께 (60초에 한 번)
-    G.after(ticks, () => { // 체조 끝 → 전부 퐁 (가까운 것부터 차례로). 쓰러진 뒤라도 춤 상태는 풂(검토 ②)
+    G.after(ticks, () => { // 대사 끝 → 전부 '빵' 퐁 (가까운 것부터 아주 빠르게). 쓰러진 뒤라도 춤 상태는 풂(검토 ②)
+      G.danceBoomAt = G.time;
       if (isPlay()) { TG.A.play('sfx_big', { gain: 0.9 }); TG.A.boom(); FX.shake(0.5); FX.punch(0.08); TG.R.bloomPulse = 0.3; }
       FX.ring(x, z, { wall: true, r0: 2.2, r1: R2 * 0.96, dur: 0.6, color: 0xff6a4a, h: 1.6, alpha: 0.45, hdr: 1 });
       FX.noteFlower(x, z, 9 * pow);
@@ -659,7 +667,7 @@
         if (u.state !== 'live' || !(u.dance > 0)) continue;
         u.dance = 0;
         const d = Math.hypot(u.x - x, u.z - z);
-        G.after(1 + Math.round(d * 1.6), () => { if (u.state === 'live') { G.dancePops++; G.hitUnit(u, 99, x, z, true, 3); } });
+        G.after(1 + Math.round(d * 0.9), () => { if (u.state === 'live') { G.dancePops++; G.hitUnit(u, 99, x, z, true, 3); } });
       }
       const b = F.boss;
       if (b && b.state === 'fight' && Math.hypot(b.x - x, b.z - z) < D.bossR * pow) G.hitBoss(Math.round(D.boss * (1 + lv * 0.25)), b.x, b.z, true);
@@ -683,7 +691,7 @@
       const dx = u.x - x, dz = u.z - z, d = Math.hypot(dx, dz);
       if (d > R2 + u.r * u.scale) continue;
       const a = d < 0.3 ? dir0 : Math.atan2(dx, dz);
-      u.fly = { vx: Math.sin(a) * Pu.spd, vz: Math.cos(a) * Pu.spd, t: 0, max: Pu.max, dmg: Pu.dmg }; u.byBig = true; u.dance = 0; u.leap = null; u.dash = 0; n++;
+      u.fly = { vx: Math.sin(a) * Pu.spd, vz: Math.cos(a) * Pu.spd, t: 0, max: Pu.max, dmg: Pu.dmg }; u.byBig = true; u.dance = 0; u.stun = 0; u.leap = null; u.dash = 0; n++; // 11-17: 고함으로 멈춘 안개도 바로 날아감
       FX.emit(FX.CELL.sparkle, u.x, u.y + 1.2, u.z, { vy: 2, life: 0.3, size: 0.6, size1: 0, color: [2.4, 2.4, 1.2] });
     }
     G.flyN += n;
@@ -694,7 +702,7 @@
     return true;
   }
 
-  // 모쉬 「픽셀 빔!」: 착지 → 큐브 헬멧 앞·왼·오·뒤 4방향으로 빛줄기가 촥(1초) → 샥 한 바퀴 반 돌며 범위 안 안개 전부 퐁(wave.js WV.beam). 얼굴은 별눈
+  // 모쉬 「픽셀 빔!」(11-17): 착지 → 큐브 머리에서 4방향 빛줄기가 나오자마자 빠르게 두 바퀴(0.5초) 돌며 훑어 범위 안 안개 전부 퐁(wave.js WV.beam). 머리도 빔과 한 몸으로 돎(player.js headSpin). 얼굴은 별눈
   function bigBeam(x, z, pow, lv) {
     const FX = TG.FX, dir = G.fireOn ? G.fireDir : G.faceDir, R2 = BIG.beam.R * pow;
     FX.hitstop(60); FX.shake(0.35); FX.punch(0.05); TG.R.bloomPulse = 0.3; vib('big');
@@ -705,53 +713,37 @@
     TG.PL.face && TG.PL.face('stareyes', 1.9); // 큐브 얼굴 별눈(빛줄기가 뻗어 나가는 연출)
     G.beamN++;
     G.after(2, () => { if (isPlay()) TG.WV.beamStart(P().x, P().z, dir, R2, lv); });
-    G.after(62, () => { if (isPlay() && TG.WV.beam.on) { TG.A.play('sfx_wave', { rate: 1.6, gain: 0.7 }); TG.A.play('sfx_pick', { rate: 1.4, gain: 0.5 }); FX.shake(0.3); FX.text('샥!', P().x + 1.5, 4.4, P().z, 'word'); } });
+    G.after(2 + Math.round(TG.WV.BEAM.hold * 60), () => { if (isPlay() && TG.WV.beam.on) { TG.A.play('sfx_wave', { rate: 1.6, gain: 0.7 }); TG.A.play('sfx_pick', { rate: 1.4, gain: 0.5 }); FX.shake(0.3); FX.text('샥!', P().x + 1.5, 4.4, P().z, 'word'); } });
     TG.AS.onBig(x, z, G); // 보조 캐릭터도 함께 (60초에 한 번)
     return true;
   }
 
-  // 쎄니 「퍼플팡팡!」: 착지 → 소리굽쇠를 붓처럼 휘둘러 보라 물감 방울이 부채꼴(겨눈 쪽)로 퍼짐 → 닿은 안개가 보라로 물들며 작아짐(fogs.js u.paint, 녹는 표현 X·아파하는 얼굴 X) → 1초 뒤 별·반짝이로 퐁 + 모두 잠깐 아주 빨라짐(AS.fastAll)
-  //  화면 흔들림 0, 화면 전체 덮개 X — 바닥 물감 자국 ≤12개·1.5초, 가장자리 0.3초 보라 테두리만(hud zoneVig 색만 잠깐 바꿈). 보조 쎄니도 같은 paintBurst(작게)
-  function paintBurst(x, z, dir, R2, half, dur, lv, boss, G) {
-    const FX = TG.FX, F = TG.F, ticks = Math.round(dur * 60), col = [1.8, 1.2, 2.6];
-    // 부채꼴 안쪽으로 물감 방울(그림): 각도 고르게 12줄 × 3방울, 바닥 자국은 최대 12개(1.5초)
-    for (let i = 0; i < 12; i++) {
-      const a = dir + (i / 11 - 0.5) * 2 * half * 0.92, rr = R2 * (0.35 + 0.55 * ((i * 7) % 12) / 11);
-      for (let k = 0; k < 3; k++) FX.emit(FX.CELL.drop, x + Math.sin(a) * 1.0, 1.3, z + Math.cos(a) * 1.0, { vx: Math.sin(a) * (10 + k * 5), vy: TG.fra(3, 6), vz: Math.cos(a) * (10 + k * 5), life: 0.55 + k * 0.1, size: 0.55 - k * 0.1, size1: 0.25, color: [1.4, 0.8, 2.4], grav: 7, drag: 1.2, rot: 0 });
-      FX.ring(x + Math.sin(a) * rr, z + Math.cos(a) * rr, { r0: 0.2, r1: 0.9 + (i % 3) * 0.25, dur: 1.5, color: 0xa46bff, width: 0.9, alpha: 0.42 }); // 바닥 물감 자국(둥근 얼룩)
+  // 쎄니 「퍼플팡팡!」(11-17 대표): 착지 → 쎄니가 한 바퀴 싹 돌며(player.js PL.spin) 둘레에 보라 물감 뿌림 → 둥근 물감 구역(wave.js WV.mist): 안 안개는 느려짐+천천히 피해(한 방 X), 보라로 물듦(아파하는 얼굴·녹는 표현 X)
+  //  구역이 끝나면 바닥 물감이 남아 밟은 안개가 느려짐(WV.MIST.floorSlow, 대표: 켜짐). 보스는 구역 안에서 조금씩 피해(합 12). 화면 흔들림 0, 전체 덮개 X — 가장자리 0.3초 보라 테두리만. 보조 쎄니도 같은 paintBurst(작게·보스 X)
+  function paintBurst(x, z, dir, R2, spinDur, G, o) {
+    const FX = TG.FX, ticks = Math.round(spinDur * 60), rows = 16;
+    for (let i = 0; i < rows; i++) { // 돌면서 차례로 뿌리는 물감 방울(그림)
+      G.after(Math.max(1, Math.round(ticks * i / rows)), () => {
+        const a = dir + (i / rows) * Math.PI * 2;
+        for (let k = 0; k < 3; k++) FX.emit(FX.CELL.drop, x + Math.sin(a) * 0.9, 1.4, z + Math.cos(a) * 0.9, { vx: Math.sin(a) * (8 + k * 5), vy: TG.fra(3, 6), vz: Math.cos(a) * (8 + k * 5), life: 0.5 + k * 0.1, size: 0.55 - k * 0.1, size1: 0.25, color: [1.4, 0.8, 2.4], grav: 7, drag: 1.2, rot: 0 });
+        if (i % 4 === 0) FX.ring(x, z, { r0: 0.6, r1: R2 * (0.5 + 0.5 * i / rows), dur: 0.5, color: 0xa46bff, width: 0.1, hdr: 1.3, alpha: 0.7 });
+      });
     }
-    FX.ring(x, z, { r0: 0.8, r1: R2, dur: 0.5, color: 0xa46bff, width: 0.12, hdr: 1.3, alpha: 0.8 });
-    let n = 0;
-    const inFan = (ux, uz, ur) => { const dx = ux - x, dz = uz - z, d = Math.hypot(dx, dz); if (d > R2 + ur) return false; if (d < 0.6) return true; return Math.abs(TG.angDiff(dir, Math.atan2(dx, dz))) <= half + Math.atan2(ur, d); };
-    for (const u of F.list) {
-      if (u.state !== 'live' || u.kind === 'cocoon' || !inFan(u.x, u.z, u.r * u.scale)) continue;
-      u.paint = dur; u.paintD = dur; u.paintK = 0; u.byBig = true; u.dance = 0; u.fly = null; u.leap = null; u.dash = 0; n++;
-      FX.emit(FX.CELL.glow, u.x, u.y + 0.8 * u.scale, u.z, { life: 0.3, size: 1.2 * u.scale, size1: 2.0 * u.scale, color: [1.2, 0.7, 2.0], alpha: 0.5 });
-    }
-    G.paintN = (G.paintN || 0) + n;
-    G.after(ticks, () => { // 물듦 끝 → 별·반짝이로 퐁 (가까운 것부터 차례로). 쓰러진 뒤라도 물든 상태는 풂
-      for (const u of F.list) {
-        if (u.state !== 'live' || !(u.paint > 0)) continue;
-        u.paint = 0;
-        const d = Math.hypot(u.x - x, u.z - z);
-        G.after(1 + Math.round(d * 1.4), () => { if (u.state === 'live') { G.paintPops = (G.paintPops || 0) + 1; for (let k = 0; k < 5; k++) FX.emit(FX.CELL.star, u.x, u.y + 0.6 * u.scale, u.z, { vx: TG.fra(-3, 3), vy: TG.fra(3, 6), vz: TG.fra(-3, 3), life: 0.6, size: 0.45, size1: 0.1, color: col, rot: TG.fra(0, 3), vrot: 6, grav: 4 }); G.hitUnit(u, 99, x, z, true, 3, col); } });
-      }
-      if (isPlay() && n) { TG.A.play('sfx_pop', { rate: 1.25, gain: 0.7 }); TG.A.play('sfx_pick', { rate: 1.7, gain: 0.5 }); }
-    });
-    const b = F.boss;
-    if (boss && b && b.state === 'fight' && inFan(b.x, b.z, b.r * b.scale + 3)) G.after(ticks, () => G.hitBoss(Math.round(boss * (1 + lv * 0.25)), b.x, b.z, true));
-    return n;
+    const m = TG.WV.mistStart(x, z, R2, o || {});
+    G.paintN = (G.paintN || 0) + 1;
+    return m;
   }
   G.paintBurst = paintBurst;
   function bigPaint(x, z, pow, lv) {
-    const FX = TG.FX, Pa = BIG.paint, R2 = Pa.R * pow, dir = G.fireOn ? G.fireDir : G.faceDir;
+    const FX = TG.FX, Pa = BIG.paint, R2 = Pa.R * pow, dir = G.fireOn ? G.fireDir : G.faceDir, p = P();
     FX.hitstop(50); FX.punch(0.04); TG.R.bloomPulse = 0.25; vib('big'); // 흔들림 0
     TG.A.play('sfx_big', { gain: 0.7, rate: 1.2 }); TG.A.play('sfx_wave', { rate: 1.5, gain: 0.6 }); TG.A.syn('rescue');
     FX.dust(x, z, 10, 1.3);
     FX.text('보라 물감!', x + Math.sin(dir) * 2.4, 3.8, z + Math.cos(dir) * 2.4, 'word');
+    p.spin = { t: 0, dur: Pa.spin, turns: 1 }; // 한 바퀴 싹(그림만)
     { const v = TG.H.zoneVig; if (v) { v.classList.remove('on'); void v.offsetWidth; v.style.boxShadow = 'inset 0 0 40px 8px rgba(164,107,255,0.65)'; v.classList.add('on'); setTimeout(() => { v.style.boxShadow = ''; }, 320); } } // 가장자리 0.3초 보라 테두리(색만 잠깐 — 'on' 끄기는 hud.js 구역 판단에 맡김, 검토 ①)
-    const n = paintBurst(x, z, dir, R2, Pa.half, Pa.dur, lv, Pa.boss, G);
-    P().noHurt = Math.max(P().noHurt, Pa.dur + 1.0); // 물감이 퍼지는 동안(2초) 나를 못 건드림 — 세포체조(3.6초)·꽃 피었다(보호막)처럼 큰 소리에 잠깐 숨 돌릴 틈(자동 모드 보스전에서 쎄니만 맞아 쓰러지던 것 맞춤)
+    paintBurst(x, z, dir, R2, Pa.spin, G, { boss: true });
+    p.noHurt = Math.max(p.noHurt, Pa.spin + 1.0); // 돌며 뿌리는 동안(1.5초) 나를 못 건드림 — 큰 소리에 잠깐 숨 돌릴 틈(세포체조·꽃 피었다처럼)
     TG.AS.fastAll(); // 모두 잠깐 아주 빨라짐(소리 간격 0.5·이동 1.25)
     TG.AS.onBig(x, z, G); // 보조 캐릭터도 함께 (60초에 한 번)
     return true;
@@ -760,7 +752,7 @@
   // ── 소리 파동: 누르고 있는 동안만 나감(연사 간격 = WV.stat().cd). 끌어 겨눈 방향, 안 끌면 SEFO 가 보는(움직이는) 방향 ──
   // 멈춰 서 있으면(안 쏘는 동안) 둘레 링이 3단까지 커져 다음 파동 한 번·큰 소리가 세짐. 쏘면 링은 처음부터 다시 모음
   function aimAssist(p, dir, range) {
-    let best = dir, ba = AIM_ASSIST, r2 = range * range;
+    const st = TG.hero && TG.hero.style; let best = dir, ba = st && (st.bolt || st.shout) ? AIM_ASSIST_ONE : AIM_ASSIST, r2 = range * range;
     for (const u of TG.F.list) {
       if (u.state !== 'live' || u.spawnT < 0.3 || u.kind === 'cocoon') continue;
       const dx = u.x - p.x, dz = u.z - p.z;
@@ -800,7 +792,7 @@
     if (autoT) {
       const L0 = TG.WV.stat(0), dir = Math.atan2(autoT.x - p.x, autoT.z - p.z);
       G.fireDir = dir; p.tyaw = dir; p.faceLock = Math.max(p.faceLock, 0.12);
-      if (G.autoCd <= 0) { TG.WV.fire(dir, 0, 1 + G.mod.more); G.autoCd = L0.cd * AUTO.cd * TG.AS.cdMul(); G.shots++; G.autoShots++; }
+      if (G.autoCd <= 0) { TG.WV.fire(dir, 0, 1 + G.mod.more); G.autoCd = L0.cd * (TG.hero.style && TG.hero.style.bolt ? AUTO.cdBolt : AUTO.cd) * TG.AS.cdMul(); G.shots++; G.autoShots++; } // 11-17: 푸슝 빔(한 발 한 명)은 자동 간격 배율 1.2(파형 1.5) — 자동 모드 측정 모쉬 보스전 +22% → 맞춤
       return;
     }
     if (inp.aim != null) G.faceDir = inp.aim;
@@ -846,7 +838,7 @@
     p.glow = 0.35; p.kick(4); p.noHurt = Math.max(p.noHurt, 0.8); if (p.joy) p.joy();
   }
   function botCard() { // 봇: 정해진 순서대로 고름 (난수 안 씀)
-    const pri = ['more', 'size', 'poy', 'fast', 'rogun', 'woad', 'heart', 'charge', 'magnet', 'move'], o = G.cardOpen.opts;
+    const pri = ['bounce', 'pierce', 'more', 'size', 'poy', 'fast', 'rogun', 'woad', 'heart', 'charge', 'magnet', 'move'], o = G.cardOpen.opts; // 11-17: 모쉬 전용 카드가 나오면 먼저
     let best = 0, bp = 99;
     o.forEach((id, i) => { const q = pri.indexOf(id); if (q < bp) { bp = q; best = i; } });
     return best;
@@ -1392,6 +1384,7 @@
         G.denyT = G.realT; TG.H.bigDeny(G.gauge < 100 ? '아직!' : '잠깐!'); TG.A.ui(0.55);
       }
       TG.C.sim(dt, p, G);
+      TG.WV.zones(dt, G); // 11-17 쎄니 물감 구역(느려짐·도트) — 안개 움직임 전에, 카드가 되돌린 slowK 에 곱함
       updateHints(dt, input);
       updateArrow();
     } else { p.charging = false; p.stillLv = 0; G.fireOn = false; p.keepFace = false; }
@@ -1499,7 +1492,7 @@
     }
     p.draw(vis, al);
     TG.F.draw(vis, G.drawT, p, al);
-    TG.WV.draw(al);
+    TG.WV.draw(al, vis, G.drawT);
     TG.C.draw(vis, G.drawT, p);
     TG.FL.draw(G.drawT);
     TG.AS.draw(vis, G.drawT, al);
@@ -1572,6 +1565,13 @@
         danceN: G.danceN || 0, dancePops: G.dancePops || 0, dancing: F.list.filter((u) => u.state === 'live' && u.dance > 0).length, flyN: G.flyN || 0, flying: F.list.filter((u) => u.state === 'live' && !!u.fly).length,
         beamOn: !!(TG.WV.beam && TG.WV.beam.on), beamT: TG.WV.beam ? +TG.WV.beam.t.toFixed(2) : 0, beamPops: TG.WV.beamPops || 0, arrow: G.arrowU ? { id: G.arrowU.id, x: +G.arrowU.x.toFixed(2), z: +G.arrowU.z.toFixed(2) } : null, arrowShown: !!G.arrowShown, sinceLastPop: +(G.time - (G.lastPopT || 0)).toFixed(2),
         heroWait: G.heroWait || null, face: TG.PL.faceState ? TG.PL.faceState() : null,
+        // 11-17 개편 상태: 푸슝 빔·고함 멈춤·물감 구역·세포체조 시각
+        bolts: TG.WV.bolts.length, boltHits: TG.WV.boltHits || 0, boltChains: TG.WV.boltChains || 0, boltPierces: TG.WV.boltPierces || 0,
+        shoutHits: TG.WV.shoutHits || 0, shoutStuns: TG.WV.shoutStuns || 0, stunned: F.list.filter((u) => u.state === 'live' && u.stun > 0).length,
+        mists: TG.WV.mists.map((m) => ({ x: +m.x.toFixed(2), z: +m.z.toFixed(2), R: +m.R.toFixed(2), t: +m.t.toFixed(2), dur: m.dur, stainDur: m.stainDur, live: m.t < m.dur })), mistDots: TG.WV.mistDots || 0, mistBoss: TG.WV.mistBoss || 0, misted: F.list.filter((u) => u.state === 'live' && u.mistT > 0).length, stained: F.list.filter((u) => u.state === 'live' && u.stainT > 0).length,
+        slowed: F.list.filter((u) => u.state === 'live' && u.slowK < 0.999).map((u) => +u.slowK.toFixed(3)),
+        danceMusicAt: G.danceMusicAt == null ? null : +G.danceMusicAt.toFixed(2), danceVoiceAt: G.danceVoiceAt == null ? null : +G.danceVoiceAt.toFixed(2), danceBoomAt: G.danceBoomAt == null ? null : +G.danceBoomAt.toFixed(2),
+        headSpin: +(TG.PL.headSpin || 0).toFixed(3), bodySpin: !!TG.PL.spin, hurtBy: Object.assign({}, G.hurtBy || {}), cardMax: Object.fromEntries(TG.C.DEFS.map((d) => [d.id, TG.C.maxOf(d.id)])),
       };
     },
     spawn(kind, n, near) {
@@ -1612,7 +1612,7 @@
     card(i) { G.inCard = i | 0; },
     rest(i) { G.inPick = i | 0; },
     give(id, n) { for (let i = 0; i < (n || 1); i++) TG.C.apply(id); },
-    set(k, v) { if (k === 'lives') P().hp = v; else if (k === 'gauge') { G.gaugeLock = 0; G.gauge = v; } else if (k === 'notes') { for (let i = 0; i < v; i++) G.onPick({ x: P().x, y: 1, z: P().z }); } else G[k] = v; },
+    set(k, v) { if (k === 'lives') P().hp = v; else if (k === 'floorSlow') TG.WV.MIST.floorSlow = !!v; else if (k === 'gauge') { G.gaugeLock = 0; G.gauge = v; } else if (k === 'notes') { for (let i = 0; i < v; i++) G.onPick({ x: P().x, y: 1, z: P().z }); } else G[k] = v; },
     settings: G.settings,
     simK: Math.max(1, Math.min(16, Number(new URLSearchParams(location.search).get('sim')) || 1)),
     speed(k) { api.simK = Math.max(1, Math.min(16, k | 0)); },
@@ -1626,7 +1626,7 @@
     },
     // 입력 기록 (같은 시드 + 이 기록 → 같은 결과)
     rec() { return G.rec ? JSON.parse(JSON.stringify(G.rec)) : null; },
-    replay(rec) { if (!rec || rec.v !== REC_V) { console.warn('옛 기록(v' + (rec && rec.v) + ') — 11-16 규칙이 바뀌어 재생하지 않음(지금 v' + REC_V + ')'); return false; } G.replay = rec; G.bot = false; startPlay(true); return true; },
+    replay(rec) { if (!rec || rec.v !== REC_V) { console.warn('옛 기록(v' + (rec && rec.v) + ') — 규칙이 바뀌어 재생하지 않음(지금 v' + REC_V + ')'); return false; } G.replay = rec; G.bot = false; startPlay(true); return true; },
     recVersion: REC_V,
     result() { return G.result || null; },
     texts() { return TG.H.allText(); },

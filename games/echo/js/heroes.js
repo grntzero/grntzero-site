@@ -35,17 +35,17 @@
       id: 'gunner', name: '허조교', model: 'gunner', height: 2.78, kid: false, // 11-16 밤 v2(2.38등신, 철모 글자 또렷 — 덧칠 없음)
       color: 0xa7b04f, colorCss: '#a7b04f', xray: 0xb9c25a, aim: 0xd8e26c, charge: [0xdce383, 0xa7b04f, 0xffe88a],
       prop: 'whistle', propNode: 'gunner_whistle_mount', badge: null, headScale: 1.0, faceCam: [2.7, 4.3, 2.4],
-      shot: 'wave', shotName: '삑!', style: { in: 0xf3f7b8, out: 0xa7b04f, edge: [0.3, 0.33, 0.1], cell: 'note', spark: [2.0, 2.2, 1.0], beep: true },
+      shot: 'shout', shotName: '올려놔!', style: { in: 0xf3f7b8, out: 0xa7b04f, edge: [0.3, 0.33, 0.1], cell: 'note', spark: [2.0, 2.2, 1.0], shout: true }, // 11-17 고함: 처음 맞은 하나 피해+0.5초 멈춤, 둘레는 같이 멈춤(wave.js SHOUT)
       big: 'push', bigSay: '좌우로 밀착!', ult: 'ult_gunner',
-      guide: { auto: '가까운 안개에 삑! 호루라기 파형이 저절로 나가요', man: '「삑!」 버튼을 꾹! 호루라기 음표 파형이 퍼져요' },
+      guide: { auto: '가까운 안개에 호루라기 「올려놔!」 고함이 저절로 나가요 — 맞은 안개는 뚱 멈춰요', man: '「올려놔!」 버튼을 꾹! 호루라기 고함에 맞은 안개가 뚱 멈춰요' },
     },
     moshee: { // MOSHEE: 큐브 머리 화면 표정 7종(tools/build_moshee.py 아틀라스, js/player.js PL.face), 붐박스는 GLB 안 RightHand 뼈 자식. 어른 — 쓰러짐·보스 연출은 SEFO 와 같음
       id: 'moshee', name: '모쉬', model: 'moshee', height: 2.7, kid: false,
       color: 0x2fe0f0, colorCss: '#2fe0f0', xray: 0x3de8f5, aim: 0x5df0ff, charge: [0x8ff4ff, 0x2fe0f0, 0xff5fb8],
       prop: 'boombox', propNode: 'moshee_boombox_grip', badge: null, headScale: 1.0, faceCam: [2.7, 4.6, 2.7], rimGlow: true,
-      shot: 'wave', shotName: '픽셀 빛줄', style: { in: 0xc6fbff, out: 0x2fe0f0, edge: [0.05, 0.3, 0.36], cell: 'dot', spark: [0.8, 2.2, 2.5], pixel: true },
+      shot: 'bolt', shotName: '푸슝 빔', style: { in: 0xc6fbff, out: 0x2fe0f0, edge: [0.05, 0.3, 0.36], cell: 'dot', spark: [0.8, 2.2, 2.5], pixel: true, bolt: true }, // 11-17 단발 빔: 한 발 한 명(wave.js BOLT), 카드 「튕기는 빔」「지나는 빔」
       big: 'beam', bigSay: '픽셀 빔!', ult: 'ult_moshee',
-      guide: { auto: '가까운 안개에 픽셀 빛줄이 저절로 퍼져요', man: '「픽셀 빛줄」 버튼을 꾹! 네모난 빛 파형이 퍼져요' },
+      guide: { auto: '가까운 안개에 푸슝 빔이 저절로 나가요 — 한 발에 하나씩', man: '「푸슝 빔」 버튼을 꾹! 곧은 빛이 푸슝 푸슝 나가요' },
     },
     sseni: { // 쎄니(11-16 밤 3D): 소리굽쇠는 GLB 안 RightHand 뼈 자식. 아이 — 쓰러짐은 「꽃잎에 싸여 쉬는 중」(베리와 같음)
       id: 'sseni', name: '쎄니', model: 'sseni', height: 2.32, kid: true,
