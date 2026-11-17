@@ -562,9 +562,9 @@
   //  berri 'flower' 「꽃 피었다!」  꽃잎 원(반경 R)이 퍼지며 퐁 + 회복 1칸 + 꽃잎 보호막 (그대로)
   //  둥근 파동(옛 SEFO 「다 같이 손 머리 위로!」)은 big 이 위 넷 중 하나가 아닐 때만
   const BIG = {
-    // 11-17 대표: 체조 음악(sfx_gym, 붐붐 세포런 sefo_gym.m4a 50.30~55.00초 토막 4.7초·−7dB·끝 0.5초 페이드, 159 BPM·박 0.377초) 먼저 → voiceAt 초 뒤 대사(ult_sefo 2.94초, 첫 음절 0.14→음악 2번째 박 0.551, 「체조!」 2.32→박 2.813 ±0.04) → 대사 끝(voiceAt+2.80 = dur) 순간 전부 퐁.
-    //  음악 시작부터 dur 까지 시야 안 안개가 계속 춤(못 다가옴·못 건드림). 음원 재면 도구/음원분석/analyze.py
-    dance: { R: 14.5, voiceAt: 0.45, voiceLen: 2.80, dur: 3.25, boss: 12, bossR: 16, beat: 0.377, beat0: 0.174 },
+    // 11-17 2차 대표: 체조 음악(sfx_gym, 붐붐 세포런 sefo_gym.m4a 50.30~55.00초 토막 4.7초·−7dB·끝 0.5초 페이드, 159 BPM·박 0.377초)과 대사 「세포와 함께하는 신나는 체조!」(ult_sefo 2.94초, 소리 끝 2.800 — 도구/음원분석/analyze.py 재측정)가 **같은 걸음에** 시작(voiceAt 0)
+    //  → 대사 끝(voiceAt+voiceLen = dur 2.80) 순간 전부 퐁. (1차는 voiceAt 0.45 로 2번째 박에 얹었음 → 대표: 노래가 먼저 나오다 말이 나와 어색) 음악 시작부터 dur 까지 시야 안 안개가 계속 춤(못 다가옴·못 건드림)
+    dance: { R: 14.5, voiceAt: 0, voiceLen: 2.80, dur: 2.80, boss: 12, bossR: 16, beat: 0.377, beat0: 0.174 },
     push: { R: 11.5, spd: 26, max: 1.6, dmg: 3, boss: 12 }, // 밀려 나는 빠르기, 최대 비행 초, 체력 많은 안개 피해
     beam: { R: 12.5 },                                   // 보스 피해는 wave.js BEAM.bossDmg(빔이 직접 맞힘)
     flower: { R: 12.5, boss: 12 },
@@ -634,12 +634,12 @@
   }
 
   // 세포 「세포체조!」(일명 「세포와 함께하는 신나는 체조!」, 11-17 대표 순서): 착지(딱!) → 체조 음악 시작 = 시야 안 안개가 춤 시작(홀린 듯 폴짝·빙글, 못 다가옴·나를 못 건드림, fogs.js u.dance)
-  //  → voiceAt 초 뒤 대사 「세포와 함께하는 신나는 체조!」가 음악 박자에 얹힘 → 대사가 끝나는 순간(dur) 전부 '빵' 퐁(보스는 큰 피해만). 음악은 퐁 뒤 1초쯤 더 흐르다 페이드
+  //  = 대사 「세포와 함께하는 신나는 체조!」 동시 시작(voiceAt 0, 11-17 2차) → 대사가 끝나는 순간(dur 2.80) 전부 '빵' 퐁(보스는 큰 피해만). 음악(4.7초)은 퐁 뒤 1.9초쯤 더 흐르다 페이드
   //  음악: assets/audio/sfx_gym.mp3(붐붐 세포런 체조 음원 토막, 자리표시 — 대표 음원 오면 같은 이름으로 넣고 tools/pack_assets.py, BIG.dance 의 voiceAt·dur 다시 잼)
   function bigDance(x, z, pow, lv) {
     const FX = TG.FX, F = TG.F, D = BIG.dance, R2 = D.R * pow, ticks = Math.round(D.dur * 60), vTicks = Math.round(D.voiceAt * 60);
     FX.hitstop(70); FX.shake(0.4); FX.punch(0.06); TG.R.bloomPulse = 0.3; vib('big');
-    TG.A.play('sfx_bonk', { rate: 0.9, gain: 0.8 }); TG.A.play('sfx_gym', { gain: 0.9 }); TG.A.duck(0.3, D.dur + 1.0); // 음악 먼저
+    TG.A.play('sfx_bonk', { rate: 0.9, gain: 0.8 }); TG.A.play('sfx_gym', { gain: 0.9 }); TG.A.duck(0.3, D.dur + 1.9); // 음악(4.7초) 끝까지 배경음 줄임(검토: dur 2.80 + 1.9 = 4.7)
     G.danceMusicAt = G.time;
     FX.ring(x, z, { r0: 0.8, r1: R2, dur: 0.6, color: 0xe5352b, width: 0.12, hdr: 1.4 });
     FX.ring(x, z, { r0: 0.8, r1: R2 * 0.85, dur: 0.7, color: 0xffd966, width: 0.1, delay: 0.1, hdr: 1.3, alpha: 0.85 });
@@ -654,7 +654,8 @@
       if (u.leap) u.leap = null; if (u.dash) u.dash = 0;
     }
     G.danceN += n;
-    G.after(vTicks, () => { if (isPlay()) { bigVoice(); G.danceVoiceAt = G.time; } }); // 대사는 음악 2번째 박에 얹힘
+    const sayNow = () => { bigVoice(); G.danceVoiceAt = G.time; };
+    if (vTicks <= 0) sayNow(); else G.after(vTicks, () => { if (isPlay()) sayNow(); }); // 11-17 2차: voiceAt 0 → 음악과 같은 걸음에 대사 시작(voiceAt 을 다시 띄우면 그만큼 뒤에)
     // 박마다 반짝(그림만) — 춤추는 안개 위 음표 (음악 박 0.377초, 첫 박 0.174)
     for (let k = 0; k * D.beat + D.beat0 < D.dur; k++) G.after(Math.max(1, Math.round((k * D.beat + D.beat0) * 60)), () => { for (const u of F.list) if (u.dance > 0 && u.state === 'live') FX.emit(FX.CELL.sparkle, u.x, u.y + 1.4 * u.scale, u.z, { vy: 2, life: 0.3, size: 0.5, size1: 0, color: [2.5, 2.2, 1.0] }); });
     TG.AS.onBig(x, z, G); // 보조 캐릭터도 함께 (60초에 한 번)
@@ -725,7 +726,7 @@
     for (let i = 0; i < rows; i++) { // 돌면서 차례로 뿌리는 물감 방울(그림)
       G.after(Math.max(1, Math.round(ticks * i / rows)), () => {
         const a = dir + (i / rows) * Math.PI * 2;
-        for (let k = 0; k < 3; k++) FX.emit(FX.CELL.drop, x + Math.sin(a) * 0.9, 1.4, z + Math.cos(a) * 0.9, { vx: Math.sin(a) * (8 + k * 5), vy: TG.fra(3, 6), vz: Math.cos(a) * (8 + k * 5), life: 0.5 + k * 0.1, size: 0.55 - k * 0.1, size1: 0.25, color: [1.4, 0.8, 2.4], grav: 7, drag: 1.2, rot: 0 });
+        for (let k = 0; k < 4; k++) FX.emit(FX.CELL.drop, x + Math.sin(a) * 0.9, 1.4, z + Math.cos(a) * 0.9, { vx: Math.sin(a) * (7 + k * 4.5), vy: TG.fra(3, 6.5), vz: Math.cos(a) * (7 + k * 4.5), life: 0.55 + k * 0.1, size: 0.8 - k * 0.12, size1: 0.45, color: [1.0, 0.5, 2.1], grav: 8, drag: 1.2, rot: 0 }); // 11-17 2차: 물감 방울 더 크고 진하게(두껍게 튀는 페인트)
         if (i % 4 === 0) FX.ring(x, z, { r0: 0.6, r1: R2 * (0.5 + 0.5 * i / rows), dur: 0.5, color: 0xa46bff, width: 0.1, hdr: 1.3, alpha: 0.7 });
       });
     }

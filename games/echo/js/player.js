@@ -15,7 +15,7 @@
       if (PL.back34 && PL.back34.parent) PL.back34.parent.remove(PL.back34);
       const drop = []; PL.model.traverse((o) => { if (o.userData.isOutline) drop.push(o); }); drop.forEach((o) => o.parent && o.parent.remove(o)); // 지난번 외곽선·실루엣 껍데기 걷어냄
       if (PL.faceScr && PL.faceScr.material) PL.faceScr.material.dispose(); // MOSHEE 표정 재질(바꿀 때마다 새로 만듦)
-      PL.bones = null; PL.outlines = null; PL.mats = null; PL.mega = null; PL.back34 = null; PL.wand = null; PL.xray = null; PL.special = null; PL.faceScr = null;
+      PL.bones = null; PL._ovl = null; PL.headP0 = null; PL.outlines = null; PL.mats = null; PL.mega = null; PL.back34 = null; PL.wand = null; PL.xray = null; PL.special = null; PL.faceScr = null;
     }
     PL.init(scene);
   };
@@ -102,6 +102,7 @@
       }
     });
     PL.mainMesh = meshes[0];
+    PL.headP0 = PL.bones && PL.bones.Head ? PL.bones.Head.position.clone() : null; // 11-17 2차: 머리 뼈의 처음 자리(동작 클립에 Head 위치 트랙이 없어 매 프레임 여기서 다시 놓음 — 모쉬 머리 내밀기가 쌓이지 않게)
 
     // 애니메이션: 뿌리 이동 빼기 (Hips 위치 x,z 고정)
     const mixer = (PL.mixer = new T.AnimationMixer(model));
@@ -304,6 +305,46 @@
     PL.yaw += TG.angDiff(PL.yaw, PL.tyaw) * (1 - Math.exp(-20 * dt));
   };
 
+  // ── 11-17 2차: 소리 낼 때 몸동작 덧칠(그림만, 규칙 X). 세계 축 기준으로 뼈를 돌리고(rotW) 머리를 옮김 — mixer 가 매 프레임 회전을 다시 쓰고 머리 자리는 headP0 로 되돌리므로 쌓이지 않음 ──
+  //  허조교 「올려놔!」: 한 발씩 나가는 멈춤 공격 → 호각 불며 고함치는 몸동작이 또렷하게: 머리 뒤로 젖힘(0~0.06초) → 앞으로 내지름, 가슴 펴기, 오른손은 입(호각)으로, 왼팔은 앞으로 쭉(「올려놔!」 지휘). 0.36초에 제자리
+  //  모쉬 「푸슝 빔」: 큐브 머리를 뒤로 당겼다(0~0.07초) 앞으로 쑥 내밀며(0.07~0.17초, 월드 0.5) 얼굴 화면에서 빔이 나감(wave.js 빔 자리 = PL.headW) → 0.36초에 제자리
+  const poseQ = new T.Quaternion(), poseAx = new T.Vector3(), poseF = new T.Vector3(), poseR = new T.Vector3();
+  function rotW(b, ax, ang) { // 뼈 b 를 세계 축 ax 로 ang 만큼 돌림(부모 공간에서 premultiply — 뼈의 로컬 축을 몰라도 됨)
+    if (!b || !ang) return;
+    b.parent.updateWorldMatrix(true, false); b.parent.getWorldQuaternion(poseQ);
+    poseAx.copy(ax).applyQuaternion(poseQ.invert()).normalize();
+    b.quaternion.premultiply(poseQ.setFromAxisAngle(poseAx, ang));
+  }
+  function shotPose(dt) {
+    const B = PL.bones; if (!B) return;
+    if (B.Head && PL.headP0) B.Head.position.copy(PL.headP0); // 머리 자리 되돌림(아래 내밀기 전)
+    const r = PL.recoil; PL.shotPoseK = 0;
+    if (!(r >= 0)) return;
+    const id = PL.hero.id, yaw = PL.yaw;
+    const fwd = poseF.set(Math.sin(yaw), 0, Math.cos(yaw)), right = poseR.set(Math.cos(yaw), 0, -Math.sin(yaw)); // right 축 + 회전 = 앞으로 숙임, − = 뒤로 젖힘 / 내린 팔은 − 로 앞으로 들림
+    if (id === 'gunner') {
+      const wind = r < 0.06 ? r / 0.06 : 0;                                                            // 젖힘
+      const hit = r < 0.06 ? 0 : r < 0.14 ? (r - 0.06) / 0.08 : r < 0.36 ? 1 - (r - 0.14) / 0.22 : 0; // 내지름 → 천천히 제자리
+      const k = Math.max(wind, hit); PL.shotPoseK = k;
+      rotW(B.Head, right, -0.5 * wind - 0.9 * hit);     // 머리: 뒤로 크게 젖혀 하늘 보고 고함(위에서 내려다보는 카메라에 얼굴·호각이 보임 — 앞으로 숙이면 철모가 얼굴을 가려 안 읽혔음)
+      rotW(B.Spine01, right, 0.3 * hit);                // 몸통은 앞으로 쏠림(한 발 내지르기)
+      rotW(B.Spine02, right, -0.2 * wind - 0.15 * hit);  // 가슴 펴기
+      rotW(B.RightArm, right, -2.2 * k); rotW(B.RightForeArm, right, -1.8 * k); rotW(B.RightArm, fwd, 0.6 * k); // 오른손 → 입 앞(호각)
+      rotW(B.LeftArm, right, -2.2 * k); rotW(B.LeftArm, fwd, -0.3 * k);                                   // 왼팔 → 앞으로 쭉(「올려놔!」)
+    } else if (id === 'moshee') {
+      const back = r < 0.07 ? r / 0.07 : 0;
+      const out = r < 0.07 ? 0 : r < 0.17 ? TG.easeOutBack((r - 0.07) / 0.1) : r < 0.36 ? 1 - (r - 0.17) / 0.19 : 0;
+      const off = -0.22 * back + 0.5 * out; PL.shotPoseK = off; // 머리 앞뒤 거리(월드 단위, − 뒤)
+      if (B.Head && PL.headP0 && off) {
+        B.Head.parent.updateWorldMatrix(true, false); B.Head.parent.getWorldQuaternion(poseQ); B.Head.parent.getWorldScale(poseAx);
+        const s = poseAx.x || 1; // 부모 월드 배율 → 뼈 단위로
+        poseAx.copy(fwd).applyQuaternion(poseQ.invert()).multiplyScalar(off / s);
+        B.Head.position.add(poseAx);
+      }
+      rotW(B.Head, right, -0.3 * back + 0.25 * out); // 뒤로 살짝 젖혔다 앞으로 꾸벅
+    }
+  }
+
   // ── 그리기 (화면 주사율): 걸음 사이를 보간, 애니·스쿼시·번쩍·링 ──
   let drawT = 0;
   const megaV = new T.Vector3(), spinQ = new T.Quaternion(), spinAx = new T.Vector3();
@@ -334,7 +375,12 @@
     PL.act.idle.setEffectiveWeight((1 - f) * (1 - cheerW) * (1 - spW));
     PL.act.run.timeScale = TG.clamp(PL.speed / 5.6, 0.6, 1.35);
     if (PL.cheerOut) { PL.act.cheer.fadeOut(0.25); PL.cheerOut = false; }
+    // 11-17 2차: 뼈 덧칠(허리 세움·pose·headSpin·shotPose)은 mixer 가 매 프레임 다시 쓴다는 전제였는데, three.js PropertyMixer 는 **값이 바뀐 뼈만** 다시 씀(멈춤 창·dt 0 이면 안 씀) → 멈춘 채 그리면 덧칠이 프레임마다 쌓임.
+    //  → 지난 프레임에 덧칠한 뼈를 먼저 덧칠 전 값으로 되돌린 뒤 mixer 를 돌리고, 덧칠 직전 값을 다시 적어 둠(어느 경우에도 쌓이지 않음)
+    if (PL._ovl) for (const o of PL._ovl) o.b.quaternion.copy(o.q);
     PL.mixer.update(dt);
+    if (!PL._ovl && PL.bones) PL._ovl = ['Hips', 'Head', 'Spine01', 'Spine02', 'RightArm', 'RightForeArm', 'LeftArm'].concat(Object.keys(PL.hero.pose || {})).filter((n, i, a) => PL.bones[n] && a.indexOf(n) === i).map((n) => ({ b: PL.bones[n], q: new T.Quaternion() }));
+    if (PL._ovl) for (const o of PL._ovl) o.q.copy(o.b.quaternion);
     // 달리기 클립이 몸을 많이 숙여 위에서 얼굴이 가려짐 → 허리·고개를 세움
     const rw = PL.act.run.getEffectiveWeight(), B = PL.bones;
     if (rw > 0.01 && B.Hips && B.Head) { B.Hips.rotateX(-0.35 * rw); B.Head.rotateX(-0.25 * rw); }
@@ -343,6 +389,7 @@
     // 11-17 모쉬 「픽셀 빔!」: 빔이 도는 동안 머리(큐브)도 같은 각도로 돎 — 세계 위 축 기준, mixer 가 매 프레임 다시 쓰므로 쌓이지 않음(한 몸)
     { const bm = TG.WV && TG.WV.beam; PL.headSpin = 0;
       if (bm && bm.on && B.Head) { const ang = TG.WV.beamAngle() - bm.dir; PL.headSpin = ang; B.Head.parent.updateWorldMatrix(true, false); B.Head.parent.getWorldQuaternion(spinQ); spinAx.set(0, 1, 0).applyQuaternion(spinQ.invert()).normalize(); B.Head.quaternion.premultiply(spinQ.setFromAxisAngle(spinAx, ang)); } }
+    shotPose(dt); // 11-17 2차: 소리 낼 때 주인공별 몸동작 덧칠(허조교 호각 고함·모쉬 머리 내밀기) — 세계 축 기준 뼈 회전·이동, mixer 가 매 프레임 다시 쓰므로 쌓이지 않음
 
     // 스쿼시 스프링
     const sdt = Math.min(dt, 0.033);

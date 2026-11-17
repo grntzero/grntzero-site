@@ -92,21 +92,30 @@
     WV.boltPool = [];
     for (let i = 0; i < 32; i++) { // 32: 파동+1 3단(4발)×빠르게 3단×fastAll 때 20개 넘게 겹칠 수 있음(검토 ②5)
       const g = new T.Group(); g.visible = false; scene.add(g);
-      const box = new T.Mesh(new T.BoxGeometry(0.42, 0.42, BOLT.len), bMat); box.renderOrder = 14; g.add(box); R.addOutline(box, 0.9).renderOrder = 14;
-      const core = new T.Mesh(new T.BoxGeometry(0.16, 0.16, BOLT.len * 1.05), bCore); core.renderOrder = 15; g.add(core);
+      // 11-17 2차: 상자의 앞끝이 빔 자리(g), 꼬리가 뒤로 — 나올 때 얼굴에서 뻗어 나오는 모양(앞에 던져진 토막 X). 판정(boltUpdate 토막 px→x)은 그대로
+      const box = new T.Mesh(new T.BoxGeometry(0.42, 0.42, BOLT.len), bMat); box.position.z = -BOLT.len / 2; box.renderOrder = 14; g.add(box); R.addOutline(box, 0.9).renderOrder = 14;
+      const core = new T.Mesh(new T.BoxGeometry(0.16, 0.16, BOLT.len * 1.05), bCore); core.position.z = -BOLT.len / 2; core.renderOrder = 15; g.add(core);
       WV.boltPool.push({ g, box, core, on: false });
     }
-    // 쎄니 「퍼플팡팡!」 물감 구역: 바닥 둥근 보라 얼룩(안쪽 옅고 가장자리 진함) 3개
+    // 쎄니 「퍼플팡팡!」 물감 구역 3개 — 11-17 2차 대표: 「투명한 구역」 X → 두껍게 막 칠한 페인트: 진한 보라 불투명 덩이(밝은 줄기·어두운 얼룩), 울퉁불퉁 테두리에 짙은 테, 둘레로 튄 방울 자국(6개).
+    //  네모 판(2.6×2.6, 판정 반경 1 = 가운데, 튄 자국은 1.3 까지) 위 셰이더 한 장 — 삼각함수 몇 개·6번 루프라 폰에서도 가벼움(최대 3장). 판정(WV.zones, R 안)은 그대로
     WV.mistPool = [];
     for (let i = 0; i < 3; i++) {
-      const m = new T.Mesh(new T.CircleGeometry(1, 48), new T.ShaderMaterial({
-        uniforms: { uA: { value: 0 }, uT: { value: 0 }, uCol: { value: new T.Color(0xa46bff) } },
+      const m = new T.Mesh(new T.PlaneGeometry(2.6, 2.6), new T.ShaderMaterial({
+        uniforms: { uA: { value: 0 }, uT: { value: 0 }, uCol: { value: new T.Color(0x7d3fe6) }, uSeed: { value: 0 }, uStain: { value: 0 } },
         vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-        fragmentShader: ['uniform float uA; uniform float uT; uniform vec3 uCol; varying vec2 vUv;',
-          'void main(){ vec2 p = vUv * 2.0 - 1.0; float r = length(p); if (r > 1.0) discard;',
-          ' float an = atan(p.x, p.y); float edge = 1.0 - smoothstep(0.86 + 0.05 * sin(an * 7.0 + uT * 0.8), 1.0, r);', // 물감 얼룩: 가장자리가 울퉁불퉁
-          ' float rim = smoothstep(0.7, 0.92, r) * edge; float blob = 0.5 + 0.5 * sin(r * 9.0 - uT * 2.0 + an * 3.0);',
-          ' float a = uA * edge * (0.45 + 0.35 * rim + 0.12 * blob); gl_FragColor = vec4(uCol * (0.85 + 0.5 * rim), a); }'].join('\n'),
+        fragmentShader: ['uniform float uA; uniform float uT; uniform vec3 uCol; uniform float uSeed; uniform float uStain; varying vec2 vUv;',
+          'float hs(float n){ return fract(sin(n * 127.1 + uSeed * 31.7) * 43758.5453); }',
+          'void main(){ vec2 p = (vUv * 2.0 - 1.0) * 1.3; float r = length(p); float an = atan(p.x, p.y);',
+          ' float edge = 0.86 + 0.07 * sin(an * 5.0 + uSeed) + 0.05 * sin(an * 11.0 + uSeed * 2.1) + 0.03 * sin(an * 23.0 + uSeed * 3.3);', // 덩이 테두리: 크게·작게 울퉁불퉁
+          ' float spl = -1.0; for (int i = 0; i < 6; i++) { float fi = float(i); float a0 = hs(fi) * 6.2832; vec2 c = vec2(sin(a0), cos(a0)) * (0.92 + hs(fi + 7.0) * 0.3); float w = 0.07 + hs(fi + 13.0) * 0.09; spl = max(spl, w - length(p - c)); }', // 둘레로 튄 방울 자국 6개
+          ' float body = max(edge - r, spl); if (body < 0.0) discard;',
+          ' float blob = sin(p.x * 9.5 + uSeed) * sin(p.y * 8.5 - uSeed * 0.7 + uT * 0.15) + 0.5 * sin((p.x + p.y) * 13.0 + uSeed * 2.0);', // 두껍게 칠한 덩이(크고 작은 어두운 얼룩, 아주 느리게 일렁)
+          ' float dark = smoothstep(0.3, 0.95, blob); float hi = smoothstep(0.8, 0.96, 0.5 + 0.5 * sin(p.x * 15.0 + p.y * 6.0 + uSeed * 1.3 + 0.6 * sin(p.y * 9.0))) * smoothstep(0.3, 0.75, sin(p.x * 4.0 + uSeed) * sin(p.y * 5.0 - uSeed)) * (1.0 - dark);', // 가늘게 굽은 밝은 붓 줄기(짧게 끊김)
+          ' vec3 col = uCol * (0.86 + 0.08 * blob); col = mix(col, uCol * 0.5, dark * 0.6); col += vec3(0.4, 0.28, 0.55) * hi * 0.35;', // 어두운 얼룩·밝은 줄기(페인트 광택, 은은하게)
+          ' float rim = smoothstep(0.0, 0.09, body); col = mix(uCol * 0.42, col, rim);',             // 가장자리 짙은 테
+          ' col = mix(col, col * 0.78 + vec3(0.04, 0.02, 0.06), uStain);',                           // 바닥에 남은 물감: 조금 어둡고 탁하게
+          ' gl_FragColor = vec4(col, uA); }'].join('\n'),
         transparent: true, depthWrite: false,
       }));
       m.rotation.x = -Math.PI / 2; m.position.y = 0.065; m.renderOrder = 4; m.visible = false; m.frustumCulled = false; scene.add(m);
@@ -201,13 +210,15 @@
     const b = WV.boltPool.find((q) => !q.on); if (!b) return;
     const P = TG.PL, L = WV.stat(level);
     const ox = P.x + Math.sin(dir) * 0.6, oz = P.z + Math.cos(dir) * 0.6;
-    Object.assign(b, { on: true, id: id++, x: ox, z: oz, px: ox, pz: oz, dir, level, L, trav: 0, range: L.range, hit: new Set(), bounce: L.bounce || 0, pierce: L.pierce || 0, chained: 0, fade: 1, done: false, t: 0 });
-    b.g.visible = true; b.g.position.set(ox, 1.55 + level * 0.1, oz); b.g.rotation.y = dir;
+    // 11-17 2차: 빔은 얼굴(큐브 화면)에서 — 그림 높이 y0 = 머리 뼈 세계 높이 + 0.45(큐브 가운데, 큰 소리 빔과 같은 기준), 머리가 없으면 1.55. 판정(x·z)은 전처럼 주인공 자리 기준(규칙 그대로)
+    const hp = P.headW, y0 = hp ? hp.y + 0.45 : 1.55 + level * 0.1;
+    Object.assign(b, { on: true, id: id++, x: ox, z: oz, px: ox, pz: oz, dir, level, L, trav: 0, range: L.range, hit: new Set(), bounce: L.bounce || 0, pierce: L.pierce || 0, chained: 0, fade: 1, done: false, t: 0, y0 });
+    b.g.visible = true; b.g.position.set(ox, y0, oz); b.g.rotation.y = dir;
     const k = 1 + level * 0.18 + (L.r - BOLT.r) * 2; b.box.scale.set(k, k, 1); b.core.scale.set(k, k, 1);
     WV.bolts.push(b);
-    const FX = TG.FX, mx = P.x + Math.sin(dir) * 1.2, mz = P.z + Math.cos(dir) * 1.2;
-    FX.emit(FX.CELL.glow, mx, 1.5, mz, { life: 0.1, size: 1.0 + level * 0.3, size1: 1.6 + level * 0.3, color: [0.6, 1.7, 1.9], alpha: 0.5 });
-    for (let i = 0; i < 2 + level; i++) FX.emit(FX.CELL.dot, mx, 1.5, mz, { vx: Math.sin(dir + TG.fra(-0.5, 0.5)) * 5, vy: TG.fra(0.5, 2), vz: Math.cos(dir + TG.fra(-0.5, 0.5)) * 5, life: 0.3, size: 0.3, size1: 0.05, color: [0.8, 2.2, 2.5], drag: 4, rot: 0 });
+    const FX = TG.FX, fx0 = hp ? hp.x : P.x, fz0 = hp ? hp.z : P.z, mx = fx0 + Math.sin(dir) * 0.7, mz = fz0 + Math.cos(dir) * 0.7; // 얼굴 화면 바로 앞에서 번쩍
+    FX.emit(FX.CELL.glow, mx, y0, mz, { life: 0.1, size: 1.0 + level * 0.3, size1: 1.6 + level * 0.3, color: [0.6, 1.7, 1.9], alpha: 0.5 });
+    for (let i = 0; i < 2 + level; i++) FX.emit(FX.CELL.dot, mx, y0, mz, { vx: Math.sin(dir + TG.fra(-0.5, 0.5)) * 5, vy: TG.fra(0.5, 2), vz: Math.cos(dir + TG.fra(-0.5, 0.5)) * 5, life: 0.3, size: 0.3, size1: 0.05, color: [0.8, 2.2, 2.5], drag: 4, rot: 0 });
   }
   // 빔 토막(앞 자리→지금 자리)과 둥근 안개가 닿았나
   function segHit(ax, az, bx, bz, ux, uz, rr) {
@@ -246,7 +257,7 @@
         if (next) {
           b.bounce--; b.chained++; WV.boltChains++;
           b.x = hx; b.z = hz; b.dir = Math.atan2(next.x - hx, next.z - hz); b.range = b.trav + Math.hypot(next.x - hx, next.z - hz) + 1.0;
-          b.g.position.set(hx, 1.55 + b.level * 0.1, hz); b.g.rotation.y = b.dir;
+          b.g.position.set(hx, b.y0, hz); b.g.rotation.y = b.dir; b.trav0 = b.trav; // 꼬리는 튕긴 자리에서 다시 자람(검토 ②: 상자가 뒤로 뻗어 튕기는 순간 반대쪽으로 튀어나오지 않게, 그림만)
           for (let k = 0; k < 4; k++) FX.emit(FX.CELL.dot, hx, 1.5, hz, { vx: TG.fra(-3, 3), vy: TG.fra(1, 3), vz: TG.fra(-3, 3), life: 0.25, size: 0.28, size1: 0, color: [1.2, 2.4, 2.5], rot: 0 });
           TG.A.play('sfx_pick', { rate: 2.6 + b.chained * 0.15, gain: 0.25 }); // 타다닥
         } else if (b.pierce > 0 && hitU) { b.pierce--; WV.boltPierces++; }
@@ -261,7 +272,7 @@
       const x = TG.lerp(b.px, b.x, al), z = TG.lerp(b.pz, b.z, al);
       b.g.position.x = x; b.g.position.z = z; b.g.rotation.y = b.dir;
       const s = Math.min(1, b.t / 0.06) * b.fade;
-      b.g.scale.set(s, s, Math.max(0.05, Math.min(1, b.trav / BOLT.len)) * s);
+      b.g.scale.set(s, s, Math.max(0.05, Math.min(1, (b.trav - (b.trav0 || 0)) / BOLT.len)) * s);
       if (TG.fr() < 0.5) TG.FX.emit(TG.FX.CELL.dot, x - Math.sin(b.dir) * TG.fra(0.3, 1.2), 1.5 + TG.fra(-0.15, 0.15), z - Math.cos(b.dir) * TG.fra(0.3, 1.2), { life: 0.18, size: 0.26, size1: 0, color: [0.8, 2.2, 2.5], rot: 0 }); // 지나간 자리 픽셀 점
     }
   }
@@ -376,9 +387,11 @@
       const live = m.t < m.dur, u = mesh.material.uniforms, left = m.dur + m.stainDur - m.t;
       const grow = TG.clamp(m.t / 0.35, 0, 1), e = 1 - Math.pow(1 - grow, 3);
       mesh.visible = true; mesh.position.set(m.x, 0.065 + i * 0.002, m.z); mesh.scale.set(m.R * e, m.R * e, 1);
-      u.uT.value = t; u.uA.value = (live ? 0.62 : 0.4) * Math.min(1, left / 0.6) * Math.min(1, m.t / 0.1);
-      u.uCol.value.set(live ? 0xa46bff : 0x8a5be0);
-      if (live) for (let k = 0; k < 2; k++) if (TG.fr() < 0.8) { const a = TG.fr() * 6.283, r = Math.sqrt(TG.fr()) * m.R * 0.95; TG.FX.emit(TG.fr() < 0.5 ? TG.FX.CELL.puff : TG.FX.CELL.star, m.x + Math.sin(a) * r, 0.3 + TG.fr() * 1.2, m.z + Math.cos(a) * r, { vy: TG.fra(0.6, 1.6), life: TG.fra(0.5, 0.9), size: TG.fra(0.5, 0.9), size1: 0.15, color: [1.4, 0.9, 2.3], alpha: 0.55, rot: TG.fra(0, 3), vrot: 3 }); } // 보라 안개(물감 김)·작은 별
+      // 11-17 2차: 불투명한 페인트(살아 있을 땐 0.96, 바닥 물감 0.88) — 끝나기 0.6초 전부터만 사라짐. 씨앗(uSeed)은 구역마다 달라 얼룩·튄 자국 모양이 다름
+      u.uT.value = t; u.uA.value = (live ? 0.96 : 0.88) * Math.min(1, left / 0.6) * Math.min(1, m.t / 0.08);
+      u.uSeed.value = (m.id * 7.31) % 10; u.uStain.value = live ? 0 : TG.clamp((m.t - m.dur) / 0.4, 0, 1);
+      u.uCol.value.set(0x7d3fe6);
+      if (live) for (let k = 0; k < 3; k++) if (TG.fr() < 0.8) { const a = TG.fr() * 6.283, r = Math.sqrt(TG.fr()) * m.R * 0.95, drop = TG.fr() < 0.45; TG.FX.emit(drop ? TG.FX.CELL.drop : TG.fr() < 0.5 ? TG.FX.CELL.puff : TG.FX.CELL.star, m.x + Math.sin(a) * r, drop ? 0.2 : 0.3 + TG.fr() * 1.2, m.z + Math.cos(a) * r, drop ? { vy: TG.fra(3, 6), life: TG.fra(0.4, 0.7), size: TG.fra(0.35, 0.6), size1: 0.3, color: [1.0, 0.5, 2.1], grav: 11, rot: 0 } : { vy: TG.fra(0.6, 1.6), life: TG.fra(0.5, 0.9), size: TG.fra(0.5, 0.9), size1: 0.15, color: [1.4, 0.9, 2.3], alpha: 0.55, rot: TG.fra(0, 3), vrot: 3 }); } // 보라 안개(물감 김)·작은 별 + 바닥에서 튀어 오르는 진한 물감 방울(2차)
     }
   }
 
@@ -436,11 +449,12 @@
       if (!w.on) continue;
       const L = w.L, r = TG.lerp(w.pr, w.r, al), st = w.st || DEF_STYLE;
       const grow = 0.55 + Math.min(1, r / L.range) * 0.45;
+      const shout = !!st.shout; // 11-17 2차 허조교: 소리 모양은 작게(높이 0.55배, 호 2줄) — 몸동작(player.js shotPose)이 주인공. 판정(L.band·half)은 그대로
       w.parts.forEach((m, k) => {
         const rr = Math.max(0.3, r - k * 1.05);                 // 호 사이를 띄워 「)))」 로 읽히게
-        const hh = L.h * 0.58 * grow * (1 - k * 0.2);
+        const hh = L.h * 0.58 * grow * (1 - k * 0.2) * (shout ? 0.55 : 1);
         m.scale.set(rr, hh, rr);
-        m.material.uniforms.uA.value = (1 - k * 0.22) * w.fade * (w.t < 0.04 ? w.t / 0.04 : 1);
+        m.material.uniforms.uA.value = (shout && k === 2 ? 0 : 1 - k * 0.22) * w.fade * (w.t < 0.04 ? w.t / 0.04 : 1);
       });
       // 호 끝 반짝이 (주인공 색). 모쉬는 네모 점·베리는 꽃잎도 섞임
       if (TG.fr() < 0.5) {

@@ -35,7 +35,15 @@
   AS.set = function (id) {
     if (!TG.ASSISTS[id]) id = 'none';
     AS.id = id; AS.def = TG.ASSISTS[id]; AS.on = id !== 'none';
-    if (vis) { scene.remove(vis.root); vis.root.traverse((o) => { if (o.geometry && !o.userData.shared) o.geometry.dispose(); }); vis = null; } // 링·별 geometry 정리 (GLB 사본은 캐시라 두 번째부터 같은 scene 그래프를 다시 씀)
+    if (vis) { // 걷어내기. GLB 사본(캐시)은 다음에 또 쓰므로 geometry 를 버리지 않고, 지난번에 붙인 외곽선 껍데기만 떼어 냄(player.js PL.setHero 와 같게)
+      scene.remove(vis.root);
+      if (vis.ring) vis.ring.geometry.dispose();
+      const drop = []; vis.root.traverse((o) => { if (o.userData.isOutline) drop.push(o); }); drop.forEach((o) => o.parent && o.parent.remove(o));
+      vis = null;
+    }
+    // 11-17 2차 ①(보조 쎄니·베리가 흰색으로 나오던 원인): 두 번째 AS.set 부터는 캐시된 같은 GLB 장면을 다시 traverse 하는데, 첫 번째에 붙인 외곽선 메시(isOutline, 1.15배 껍데기)도 isMesh 라
+    //  map 없는 흰 툰 재질(FrontSide)로 바뀌어 캐릭터를 흰 껍데기로 덮었음(+ 외곽선 위에 외곽선이 또 붙음). 또 캐시 GLB 의 geometry 를 dispose 하고 있었음.
+    //  → 외곽선은 걷어내고(위) traverse 에서 건너뜀(아래), 그림(map)은 첫 번째에 userData.map0 에 적어 두고 그걸 씀
     AS.reset();
     if (!AS.on) return;
     const R = TG.R, root = new T.Group(); scene.add(root);
@@ -50,9 +58,10 @@
       AS.cache[mdl].then((gltf) => {
         if (vis !== myVis) return;
         const model = gltf.scene; model.scale.setScalar(2.3); // 아이 보조 키(월드 약 2.76 — 주인공 아이 2.32×1.2 와 거의 같음)
-        model.traverse((o) => {
-          if (!o.isMesh) return;
-          const map = o.material.map; if (map) map.anisotropy = TG.R.maxAniso || 4;
+        const meshes = []; model.traverse((o) => { if (o.isMesh && !o.userData.isOutline) meshes.push(o); }); // 외곽선 껍데기는 건너뜀(traverse 중에 자식을 더하지 않게 먼저 모음)
+        meshes.forEach((o) => {
+          if (o.userData.map0 === undefined) o.userData.map0 = o.material.map || null; // 첫 번째: GLB 원래 그림을 적어 둠(두 번째부터는 이걸 씀)
+          const map = o.userData.map0; if (map) map.anisotropy = TG.R.maxAniso || 4;
           o.material = R.toon({ map, gain: 1.12, gamma: 0.95, sat: 1.1, rim: 0.5, spec: 0.12 }); o.castShadow = true; o.frustumCulled = false; o.renderOrder = 9;
           R.addOutline(o, 1.15).renderOrder = 1;
         });
