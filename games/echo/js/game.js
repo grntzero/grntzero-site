@@ -25,7 +25,7 @@
     { budget: 120, cap: 28, iv: [1.15, 0.8], grp: [4, 7], clump: 5, echo: 0, tick: 0, spd: 1.65, split: 2, cocoonAt: 0.45, title: '2층 · 안개 뭉치가 굴러와요!', sub: '터지면 둘로 나뉘어요' },
     { budget: 150, cap: 36, iv: [1.0, 0.7], grp: [5, 8], clump: 6, echo: 4, tick: 8, spd: 1.85, split: 3, cocoonAt: 0.45, title: '3층 · 메아리 안개 등장!', sub: '한 번은 통! 튕겨요. 두 번째에 퐁' },
   ];
-  const REC_V = 5;                  // 입력 기록 판 번호(11-16 오후 밸런스 개편 → 4, 11-17 필살기·평타 개편(세포체조 길이·모쉬/허조교 평타·쎄니 구역) → 5: v4 이하는 재생 안 함)
+  const REC_V = 6;                  // 입력 기록 판 번호(11-17 3차: 고함 둘레 2.0·보스 0.95·세포체조 층 전체·보스 16·충전 0.85 → 6. 11-16 오후 밸런스 개편 → 4, 11-17 필살기·평타 개편(세포체조 길이·모쉬/허조교 평타·쎄니 구역) → 5: v4 이하는 재생 안 함)
   const XP0 = 10, XP_STEP = 24;      // 레벨업 필요 음표: XP0 + XP_STEP × (레벨 − 1)
   const REST_HEAL = 2;              // 쉼터 「소리 회복」: 2칸 (전에는 가득)
   const AIM_N = 256;                // 조준 방향 기록 단위(한 바퀴 256칸)
@@ -551,7 +551,7 @@
   function addGauge(v) {
     if (G.gaugeLock > 0) return;
     const before = G.gauge;
-    G.gauge = Math.min(100, G.gauge + v * G.mod.charge);
+    G.gauge = Math.min(100, G.gauge + v * G.mod.charge * ((TG.hero && TG.hero.bigChargeK) || 1)); // bigChargeK: 주인공별 충전 빠르기(11-17 3차 세포 — 층 전체 체조라 느리게)
     if (before < 100 && G.gauge >= 100) { TG.A.syn('bigReady'); TG.FX.text('큰 소리 준비!', P().x, 3.2, P().z, 'word'); }
   }
 
@@ -564,7 +564,8 @@
   const BIG = {
     // 11-17 2차 대표: 체조 음악(sfx_gym, 붐붐 세포런 sefo_gym.m4a 50.30~55.00초 토막 4.7초·−7dB·끝 0.5초 페이드, 159 BPM·박 0.377초)과 대사 「세포와 함께하는 신나는 체조!」(ult_sefo 2.94초, 소리 끝 2.800 — 도구/음원분석/analyze.py 재측정)가 **같은 걸음에** 시작(voiceAt 0)
     //  → 대사 끝(voiceAt+voiceLen = dur 2.80) 순간 전부 퐁. (1차는 voiceAt 0.45 로 2번째 박에 얹었음 → 대표: 노래가 먼저 나오다 말이 나와 어색) 음악 시작부터 dur 까지 시야 안 안개가 계속 춤(못 다가옴·못 건드림)
-    dance: { R: 14.5, voiceAt: 0, voiceLen: 2.80, dur: 2.80, boss: 12, bossR: 16, beat: 0.377, beat0: 0.174 },
+    // 11-17 3차 대표: 긴 대사·음악은 그대로(IP 기억) + 범위 「시야 안(R)」 → 그 층 전체 안개(all) 가 춤추고 대사 끝에 전부 퐁, 보스 피해 12→16(보스는 거리 무관). 대신 세포 큰 소리 충전을 늦춤(heroes.js sefo.bigChargeK — 밸런스 표 기록.md 3절)
+    dance: { R: 14.5, all: true, voiceAt: 0, voiceLen: 2.80, dur: 2.80, boss: 16, bossR: 16, beat: 0.377, beat0: 0.174 },
     push: { R: 11.5, spd: 26, max: 1.6, dmg: 3, boss: 12 }, // 밀려 나는 빠르기, 최대 비행 초, 체력 많은 안개 피해
     beam: { R: 12.5 },                                   // 보스 피해는 wave.js BEAM.bossDmg(빔이 직접 맞힘)
     flower: { R: 12.5, boss: 12 },
@@ -649,7 +650,7 @@
     let n = 0;
     for (const u of F.list) {
       if (u.state !== 'live' || u.kind === 'cocoon') continue;
-      if (Math.hypot(u.x - x, u.z - z) > R2 + u.r * u.scale) continue;
+      if (!D.all && Math.hypot(u.x - x, u.z - z) > R2 + u.r * u.scale) continue; // 3차: all 이면 층 전체(화면 밖도)
       u.dance = D.dur; u.danceK = 0; u.byBig = true; u.vx = u.vz = 0; u.stun = 0; n++;
       if (u.leap) u.leap = null; if (u.dash) u.dash = 0;
     }
@@ -671,7 +672,7 @@
         G.after(1 + Math.round(d * 0.9), () => { if (u.state === 'live') { G.dancePops++; G.hitUnit(u, 99, x, z, true, 3); } });
       }
       const b = F.boss;
-      if (b && b.state === 'fight' && Math.hypot(b.x - x, b.z - z) < D.bossR * pow) G.hitBoss(Math.round(D.boss * (1 + lv * 0.25)), b.x, b.z, true);
+      if (b && b.state === 'fight' && (D.all || Math.hypot(b.x - x, b.z - z) < D.bossR * pow)) G.hitBoss(Math.round(D.boss * (1 + lv * 0.25)), b.x, b.z, true);
     });
     return true;
   }

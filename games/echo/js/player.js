@@ -15,7 +15,7 @@
       if (PL.back34 && PL.back34.parent) PL.back34.parent.remove(PL.back34);
       const drop = []; PL.model.traverse((o) => { if (o.userData.isOutline) drop.push(o); }); drop.forEach((o) => o.parent && o.parent.remove(o)); // 지난번 외곽선·실루엣 껍데기 걷어냄
       if (PL.faceScr && PL.faceScr.material) PL.faceScr.material.dispose(); // MOSHEE 표정 재질(바꿀 때마다 새로 만듦)
-      PL.bones = null; PL._ovl = null; PL.headP0 = null; PL.outlines = null; PL.mats = null; PL.mega = null; PL.back34 = null; PL.wand = null; PL.xray = null; PL.special = null; PL.faceScr = null;
+      PL.bones = null; PL._ovl = null; PL.headP0 = null; PL.flashT = 0; PL.outlines = null; PL.mats = null; PL.mega = null; PL.back34 = null; PL.wand = null; PL.xray = null; PL.special = null; PL.faceScr = null;
     }
     PL.init(scene);
   };
@@ -41,8 +41,16 @@
     PL.faceHold = hold || 0.8; PL.faceHoldName = name; setFace(name);
     return true;
   };
+  PL.faceFlash = function (k) { // 11-17 3차: 빔 쏠 때 큐브 화면 번쩍(0.14초, 화면 재질 색을 1 넘게 → 블룸이 받음). 다른 주인공이면 아무 일 없음
+    if (!PL.faceScr) return false;
+    PL.flashK = Math.max(PL.flashT > 0 ? PL.flashK || 0 : 0, k || 1); PL.flashT = 0.14; // 겹치면 센 쪽(검토 ⑥)
+    return true;
+  };
   function faceUpdate(dt) {
     if (!PL.faceScr) return;
+    const fm = PL.faceScr.material;
+    if (PL.flashT > 0) { PL.flashT -= dt; fm.color.setScalar(1 + (PL.flashK || 1) * 2.4 * Math.max(0, PL.flashT / 0.14)); }
+    else if (fm.color.r !== 1) fm.color.setScalar(1);
     if (PL.faceHold > 0) { PL.faceHold -= dt; if (PL.faceHold > 0) { setFace(PL.faceHoldName); return; } PL.faceHoldName = null; }
     let f = 'smile';
     if (PL.special === 'victory') f = 'stareyes';                                          // 이김(결과 화면)
@@ -53,7 +61,7 @@
     else if (PL.recoil >= 0 && PL.recoil < 0.3) f = 'happy';                               // 소리 쏠 때 ^^
     setFace(f);
   }
-  PL.faceState = () => (PL.faceScr ? { name: PL.faceName, offset: +PL.faceMap.offset.x.toFixed(4), hold: +PL.faceHold.toFixed(2) } : null);
+  PL.faceState = () => (PL.faceScr ? { name: PL.faceName, offset: +PL.faceMap.offset.x.toFixed(4), hold: +PL.faceHold.toFixed(2), flash: +(PL.flashT > 0 ? PL.flashT : 0).toFixed(3), bright: +PL.faceScr.material.color.r.toFixed(2) } : null);
 
   PL.init = function (scene) {
     const R = TG.R, hero = (PL.hero = TG.hero || TG.HEROES.sefo), gltf = (TG.M.gltf && TG.M.gltf[hero.model]) || TG.M.sefoGltf;

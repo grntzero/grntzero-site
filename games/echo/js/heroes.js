@@ -20,7 +20,7 @@
       color: 0xe5352b, colorCss: '#e5352b', xray: 0xf0483c, aim: 0xff6a4a, charge: [0xff8a5b, 0xe5352b, 0xffd966],
       prop: 'megaglb', propNode: 'sefo_mega_grip', badge: null, headScale: 0.82, faceCam: [2.6, 4.3, 2.3], // 확성기·등 34 는 GLB 안(코드 확성기 'mega'·등번호 판 끔)
       shot: 'wave', shotName: '소리 방울', style: { in: 0xff8a5b, out: 0xe5352b, edge: [0.62, 0.08, 0.08], cell: 'note', spark: [2.5, 1.2, 0.8] },
-      big: 'dance', bigSay: '세포체조!', ult: 'ult_sefo',
+      big: 'dance', bigSay: '세포체조!', ult: 'ult_sefo', bigChargeK: 0.85, // 11-17 3차: 체조가 층 전체 → 큰 소리 충전 0.85배(밸런스 s2 — 0.75 는 자동 모드 세포 보스전 100→109s 로 느려져 모쉬 −20%, game.js addGauge)
     },
     berri: {
       id: 'berri', name: '베리', model: 'berri', height: 2.32, kid: true, // 11-16 밤 v2(2.34등신): 아이 키 2.32(어른의 약 84%)

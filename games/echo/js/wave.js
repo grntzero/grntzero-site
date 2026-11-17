@@ -62,6 +62,30 @@
     });
   }
 
+  // 11-17 3차 모쉬 「광선」(대표: 더 광선 느낌 — 곧고 밝은 레이저): 십자 판 2장(위·옆 어느 카메라에서도 보임) 위 셰이더 — 가운데 가늘고 아주 밝은 흰 심지 + 둘레로 번지는 시안 빛. 더하기 섞기(AdditiveBlending)라 겹칠수록 밝고 블룸이 받음. 그림만 — 판정(boltUpdate·beamUpdate)은 안 건드림
+  function laserGeo(w, z0, z1) { // 길이 방향 z0→z1(uv.x 0→1), 너비 w(uv.y 0→1): 가로 판 + 세로 판
+    const pos = [], uv = [], idx = [];
+    const quad = (flat) => { const b = pos.length / 3; for (const [u, v] of [[0, -1], [1, -1], [1, 1], [0, 1]]) { const zz = z0 + (z1 - z0) * u, c = v * w * 0.5; pos.push(flat ? c : 0, flat ? 0 : c, zz); uv.push(u, (v + 1) / 2); } idx.push(b, b + 1, b + 2, b, b + 2, b + 3); };
+    quad(true); quad(false);
+    const g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); g.setIndex(idx);
+    return g;
+  }
+  function laserMat(col, o) { // o.core = 흰 심지 세기(0 이면 빛만), o.fade0 / o.fade1 = uv.x 0 쪽 / 1 쪽에서 사라지는 길이(0~1, 0 이면 안 사라짐)
+    o = o || {};
+    return new T.ShaderMaterial({
+      uniforms: { uA: { value: 1 }, uCol: { value: new T.Color(col) }, uCore: { value: o.core != null ? o.core : 1 }, uFade0: { value: o.fade0 || 0 }, uFade1: { value: o.fade1 || 0 } },
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+      fragmentShader: ['uniform float uA; uniform vec3 uCol; uniform float uCore; uniform float uFade0; uniform float uFade1; varying vec2 vUv;',
+        'void main(){ float y = abs(vUv.y * 2.0 - 1.0), x = vUv.x;',
+        ' float core = exp(-pow(y * 4.5, 2.0)); float glow = exp(-pow(y * 1.6, 2.0)) * 0.55;',       // 가운데 흰 심지(가늘게) + 둘레로 번지는 빛(넓게, 가장자리로 부드럽게 0)
+        ' float k = (uFade0 > 0.0 ? smoothstep(0.0, uFade0, x) : 1.0) * (uFade1 > 0.0 ? 1.0 - smoothstep(1.0 - uFade1, 1.0, x) : 1.0);',
+        ' vec3 col = (uCol * glow * 1.15 + vec3(1.0) * core * uCore * 1.3) * k * uA;',               // HDR(1 넘음) → 블룸이 번짐을 더함
+        ' if (max(col.r, max(col.g, col.b)) < 0.01) discard; gl_FragColor = vec4(col, 1.0); }'].join('\n'),
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide,
+    });
+  }
+  WV.laserGeo = laserGeo; WV.laserMat = laserMat;
+
   const SIZES = [1, 1.15, 1.3, 1.45]; // 「파동 크게」 카드 단계
   WV.init = function (scene) {
     WV.geos = WV.LV.map((l) => SIZES.map((k) => bandGeo(Math.min(1.25, l.half * (1 + (k - 1) * 0.8)))));
@@ -72,30 +96,28 @@
       for (let k = 0; k < 3; k++) { const m = new T.Mesh(WV.geos[0][0], waveMat()); m.renderOrder = 15 - k; m.frustumCulled = false; g.add(m); parts.push(m); }
       WV.pool.push({ g, parts, on: false });
     }
-    // 모쉬 「픽셀 빔!」: 시안 빛줄기 4개(앞·왼·오·뒤) — 곧게 뻗는 광선: 길쭉한 상자 + 밝은 심지 + 바깥 옅은 빛(11-17 보강)
-    const R = TG.R;
-    const bmMat = R.toon({ color: 0x2fe0f0, gain: 1.5, rim: 0.6, spec: 0.3, emissive: 0x0a6a74, ei: 0.9 }), coreMat = new T.MeshBasicMaterial({ color: 0xeafeff, transparent: true, opacity: 0.95 });
-    const haloMat = new T.MeshBasicMaterial({ color: 0x7ff3ff, transparent: true, opacity: 0.28, depthWrite: false });
+    // 모쉬 「픽셀 빔!」: 시안 빛줄기 4개(앞·왼·오·뒤) — 11-17 3차: 곧고 밝은 레이저(십자 판 셰이더 3겹: 바깥 넓게 번지는 빛 halo·몸 box·흰 심지 core, 더하기 섞기) + 끝 섬광(beamDraw). 판정(beamUpdate)은 그대로
     const bg = new T.Group(); bg.visible = false; scene.add(bg);
     const arms = [];
     for (let k = 0; k < 4; k++) {
       const arm = new T.Group(); arm.rotation.y = k * Math.PI / 2; bg.add(arm);
-      const box = new T.Mesh(new T.BoxGeometry(0.5, 0.5, 1), bmMat); box.position.z = 0.5; box.renderOrder = 14; arm.add(box); R.addOutline(box, 1.0).renderOrder = 14;
-      const core = new T.Mesh(new T.BoxGeometry(0.18, 0.18, 1), coreMat); core.position.z = 0.5; core.renderOrder = 15; arm.add(core);
-      const halo = new T.Mesh(new T.BoxGeometry(0.95, 0.95, 1), haloMat); halo.position.z = 0.5; halo.renderOrder = 13; arm.add(halo);
+      const halo = new T.Mesh(laserGeo(2.2, 0, 1), laserMat(0x2fe0f0, { core: 0, fade0: 0.03, fade1: 0.3 })); halo.material.uniforms.uA.value = 0.35; halo.renderOrder = 13; halo.frustumCulled = false; arm.add(halo);
+      const box = new T.Mesh(laserGeo(1.0, 0, 1), laserMat(0x5ff0ff, { core: 0.4, fade0: 0.02, fade1: 0.12 })); box.renderOrder = 14; box.frustumCulled = false; arm.add(box);
+      const core = new T.Mesh(laserGeo(0.32, 0, 1.02), laserMat(0xeafeff, { core: 1.5, fade0: 0.02, fade1: 0.06 })); core.renderOrder = 15; core.frustumCulled = false; arm.add(core);
       arms.push(arm);
     }
     WV.beam = { on: false, g: bg, arms, t: 0, x: 0, z: 0, dir: 0, len: 0, lv: 0, hit: new Set(), pops: 0, spins: 0 };
     WV.beamPops = 0;
-    // 모쉬 기본 「푸슝 빔」: 짧은 빛 토막(픽셀 느낌 네모) 풀
-    const bMat = R.toon({ color: 0x2fe0f0, gain: 1.5, rim: 0.5, spec: 0.3, emissive: 0x0a6a74, ei: 0.8 }), bCore = new T.MeshBasicMaterial({ color: 0xeafeff });
+    // 모쉬 기본 「푸슝 빔」 풀 — 11-17 3차: 네모 토막 → 곧고 밝은 레이저(십자 판 셰이더 2겹: 번지는 시안 빛 box + 흰 심지 core, 꼬리로 갈수록 사라짐) + 끝 섬광 tip(흰 팔면체, 돌며 깜빡). 외곽선 X
+    //  보이는 길이 BOLT.vis(3.4) 는 그림만 — 판정 토막(BOLT.len 1.5, boltUpdate 토막 px→x)은 그대로. 2차처럼 앞끝이 빔 자리(g), 꼬리가 뒤로(position.z = −vis/2)
     WV.boltPool = [];
+    const tipMat = new T.MeshBasicMaterial({ color: 0xf4ffff, transparent: true, opacity: 0.9, blending: T.AdditiveBlending, depthWrite: false });
     for (let i = 0; i < 32; i++) { // 32: 파동+1 3단(4발)×빠르게 3단×fastAll 때 20개 넘게 겹칠 수 있음(검토 ②5)
       const g = new T.Group(); g.visible = false; scene.add(g);
-      // 11-17 2차: 상자의 앞끝이 빔 자리(g), 꼬리가 뒤로 — 나올 때 얼굴에서 뻗어 나오는 모양(앞에 던져진 토막 X). 판정(boltUpdate 토막 px→x)은 그대로
-      const box = new T.Mesh(new T.BoxGeometry(0.42, 0.42, BOLT.len), bMat); box.position.z = -BOLT.len / 2; box.renderOrder = 14; g.add(box); R.addOutline(box, 0.9).renderOrder = 14;
-      const core = new T.Mesh(new T.BoxGeometry(0.16, 0.16, BOLT.len * 1.05), bCore); core.position.z = -BOLT.len / 2; core.renderOrder = 15; g.add(core);
-      WV.boltPool.push({ g, box, core, on: false });
+      const box = new T.Mesh(laserGeo(0.9, -BOLT.vis / 2, BOLT.vis / 2), laserMat(0x2fe0f0, { core: 0.25, fade0: 0.6 })); box.position.z = -BOLT.vis / 2; box.renderOrder = 14; box.frustumCulled = false; g.add(box);
+      const core = new T.Mesh(laserGeo(0.26, -BOLT.vis / 2, BOLT.vis / 2 + 0.05), laserMat(0xeafeff, { core: 1.5, fade0: 0.5 })); core.position.z = -BOLT.vis / 2; core.renderOrder = 15; core.frustumCulled = false; g.add(core);
+      const tip = new T.Mesh(new T.OctahedronGeometry(0.3, 0), tipMat); tip.renderOrder = 16; tip.frustumCulled = false; g.add(tip);
+      WV.boltPool.push({ g, box, core, tip, on: false });
     }
     // 쎄니 「퍼플팡팡!」 물감 구역 3개 — 11-17 2차 대표: 「투명한 구역」 X → 두껍게 막 칠한 페인트: 진한 보라 불투명 덩이(밝은 줄기·어두운 얼룩), 울퉁불퉁 테두리에 짙은 테, 둘레로 튄 방울 자국(6개).
     //  네모 판(2.6×2.6, 판정 반경 1 = 가운데, 튄 자국은 1.3 까지) 위 셰이더 한 장 — 삼각함수 몇 개·6번 루프라 폰에서도 가벼움(최대 3장). 판정(WV.zones, R 안)은 그대로
@@ -142,9 +164,9 @@
   };
   // 11-17 기본 소리 개편 수치(초안 — 밸런스 측정으로 맞춤, 기록.md 3절)
   //  BOLT: 한 발 한 명이라 파형(세 마리 동시)보다 약함 → 간격 짧게·세기 보강. bounce = 튕기는 수(1단 2명 … 4단 5명), pierce = 뚫는 수
-  const BOLT = { spd: 30, len: 1.5, r: 0.42, rangeK: 1.0, cdK: 0.52, dmgAdd: [1, 1, 1, 2], chainR: 7.0, bossK: 0.69 }; // 간격 0.42×0.52≈0.22초(푸슝푸슝 — 한 발 한 명이라 안개 치우기가 파형보다 느려 짧게), bossK: 보스엔 파형 표 세기 × 0.69 → 초당 보스 피해 ≈ 3.2(파형 2.4 보다 조금 위: 보스를 겨눌 땐 안개를 못 치우는 몫). 측정 r2 ×0.6/cd0.25 +12% · r3 ×1.2 −25% · r4 ×0.8 −10%(카드 있음) → r5. 튕김은 보스로 안 감(직접 맞을 때만)
+  const BOLT = { spd: 30, len: 1.5, vis: 3.4, r: 0.42, rangeK: 1.0, cdK: 0.52, dmgAdd: [1, 1, 1, 2], chainR: 7.0, bossK: 0.69 }; // vis = 보이는 광선 길이(그림만, 3차) // 간격 0.42×0.52≈0.22초(푸슝푸슝 — 한 발 한 명이라 안개 치우기가 파형보다 느려 짧게), bossK: 보스엔 파형 표 세기 × 0.69 → 초당 보스 피해 ≈ 3.2(파형 2.4 보다 조금 위: 보스를 겨눌 땐 안개를 못 치우는 몫). 측정 r2 ×0.6/cd0.25 +12% · r3 ×1.2 −25% · r4 ×0.8 −10%(카드 있음) → r5. 튕김은 보스로 안 감(직접 맞을 때만)
   //  SHOUT: 처음 맞은 하나만 피해 + 멈춤(stun 초), 둘레 splash 안 안개도 같이 멈춤(피해 X) → 세기 보강·간격 조금 짧게
-  const SHOUT = { stun: 0.5, splash: 4.0, rangeK: 0.95, cdK: 0.62, dmgAdd: [1, 1, 2, 2], bossK: 1.02 }; // 간격 0.42×0.62≈0.26초(1층이 느려 r3·r4 +17% → 짧게), 둘레 4.0, bossK: 보스엔 × 1.02 → 초당 3.9(하나만 맞히는 대신). 측정 r2 ×0.8 +33% · r3 ×1.6 −16% · r4 ×1.15/cd0.29 −5%(카드 있음) → r5
+  const SHOUT = { stun: 0.5, splash: 2.0, rangeK: 0.95, cdK: 0.58, dmgAdd: [1, 1, 2, 2], bossK: 1.02 }; // 간격 0.42×0.58≈0.24초(3차 g4: 둘레 2.0 으로 자동 모드 보스전이 104→115s 느려져 0.62→0.58 로 보완 — 대표: 범위 말고 간격·피해로), 둘레 2.0(11-17 3차 대표: 4.0 의 1/2), bossK 1.02 그대로(3차에 0.95·1.0 도 재 봤으나 보스 피해는 반올림이라 차이가 시드 흔들림 수준 → 원래 값). 측정 r2 ×0.8 +33% · r3 ×1.6 −16% · r4 ×1.15/cd0.29 −5%(카드 있음) → r5
   //  MIST(쎄니 큰 소리): dur 초 동안 느려짐(slow)+dot 초마다 dmg(보스는 bossEvery 초마다 bossDmg → 합 12), 끝나면 stainDur 초 바닥 물감(밟으면 stainSlow — floorSlow 스위치, 11-17 대표: 켜짐)
   const MIST = { dur: 3.0, slow: 0.45, dot: 0.5, dmg: 1, bossEvery: 0.5, bossDmg: 2, stainDur: 4.0, stainSlow: 0.65, floorSlow: true };
   WV.BOLT = BOLT; WV.SHOUT = SHOUT; WV.MIST = MIST;
@@ -170,12 +192,13 @@
     if (st.bolt) { // 모쉬 「푸슝 빔」: 곧은 빛 한 발(「파동 +1」이면 좁게 벌려 여러 발)
       for (let i = 0; i < n; i++) WV.pending.push({ t: 0.03, dir: dir + (i / n) * Math.PI * 2, level, bolt: true }); // 「파동 +1」은 파형과 같게 둥글게 고르게(좁게 벌리면 보스에게 전부 맞아 보스전이 너무 빨라짐 — r1)
       TG.A.play('sfx_pick', { rate: 2.3 + level * 0.15, gain: 0.3 }); TG.A.play('sfx_wave', { rate: 2.0 + level * 0.1, gain: 0.22 + level * 0.06 }); // 푸슝(짧고 높게)
+      if (P.faceFlash) P.faceFlash(1.0); TG.R.bloomPulse = Math.max(TG.R.bloomPulse, 0.07); // 11-17 3차: 쏠 때 얼굴 화면 번쩍 + 빛 번짐 살짝
       if (level >= 2) { TG.FX.shake(0.1 + level * 0.04); TG.FX.punch(0.012 * level); }
       return;
     }
     for (let i = 0; i < n; i++) WV.pending.push({ t: 0.05, dir: dir + (i / n) * Math.PI * 2, level });
     if (st.flowers) { TG.A.play('sfx_pop', { rate: 1.5 + level * 0.1 + TG.fra(-0.05, 0.05), gain: 0.4 + level * 0.1 }); TG.A.play('sfx_wave', { rate: 1.2 + level * 0.08, gain: 0.4 + level * 0.1 }); } // 베리: 퐁 + 파동 높게
-    else if (st.shout) { TG.A.countBeep(true); TG.A.play('sfx_wave', { rate: 0.95 + level * 0.1, gain: 0.5 + level * 0.1 }); TG.A.play('sfx_bonk', { rate: 1.6, gain: 0.25 }); } // 허조교: 호각 + 낮고 굵은 고함 파형
+    else if (st.shout) { TG.A.play('sfx_wave', { rate: 0.95 + level * 0.1, gain: 0.5 + level * 0.1 }); TG.A.play('sfx_bonk', { rate: 1.6, gain: 0.25 }); } // 허조교: 낮고 굵은 고함 파형 + 툭 (11-17 3차 대표: 연속 「삐삐삐」 호각 삑(countBeep) 뺌 — 고함 동작은 그대로)
     else if (st.beep) { TG.A.countBeep(true); TG.A.play('sfx_wave', { rate: 1.7 + level * 0.12, gain: 0.35 + level * 0.1 }); } // (옛 허조교) 출발 삑 + 파동 샘플 높게
     else if (st.pixel) { TG.A.play('sfx_pick', { rate: 1.9 + level * 0.1, gain: 0.28 }); TG.A.play('sfx_wave', { rate: 1.3 + level * 0.1, gain: 0.3 + level * 0.08 }); } // (옛 모쉬) 삐빅 + 파동
     else if (st.stars) { TG.A.play('sfx_pick', { rate: 1.5 + level * 0.1 + TG.fra(-0.05, 0.05), gain: 0.3 }); TG.A.play('sfx_wave', { rate: 1.45 + level * 0.08, gain: 0.35 + level * 0.1 }); } // 쎄니: 반짝 + 파동 높게
@@ -198,8 +221,9 @@
     // 입 앞 반짝 + 주인공마다 다른 알갱이(음표·꽃·픽셀 점)
     const mx = P.x + Math.sin(dir) * 1.2, mz = P.z + Math.cos(dir) * 1.2, FX = TG.FX, cell = FX.CELL[st.cell] != null ? FX.CELL[st.cell] : FX.CELL.note;
     const c1 = st.spark, c2 = [c1[0] * 0.96, c1[1] * 0.9, c1[2] * 0.9];
-    FX.emit(FX.CELL.glow, mx, 1.15, mz, { life: 0.12, size: 1.2 + level * 0.4, size1: 1.8 + level * 0.5, color: [c1[0] * 0.75, c1[1] * 0.75, c1[2] * 0.75], alpha: 0.4 });
-    for (let i = 0; i < 3 + level * 2; i++) {
+    const sk = st.shout ? 0.5 : 1; // 11-17 3차 허조교: 고함 범위 1/2 → 입 앞 반짝·알갱이도 절반
+    FX.emit(FX.CELL.glow, mx, 1.15, mz, { life: 0.12, size: (1.2 + level * 0.4) * sk, size1: (1.8 + level * 0.5) * sk, color: [c1[0] * 0.75, c1[1] * 0.75, c1[2] * 0.75], alpha: 0.4 });
+    for (let i = 0; i < Math.round((3 + level * 2) * sk); i++) {
       const a = dir + TG.fra(-0.6, 0.6), sp = TG.fra(4, 8);
       FX.emit(i % 2 ? cell : FX.CELL.sparkle, mx, 1.2, mz, { vx: Math.sin(a) * sp, vy: TG.fra(1, 3), vz: Math.cos(a) * sp, life: 0.4, size: 0.35 + level * 0.06, size1: 0.1, color: i % 2 ? c2 : [2.4, 2.0, 1.4], drag: 4, rot: 0 });
     }
@@ -212,12 +236,13 @@
     const ox = P.x + Math.sin(dir) * 0.6, oz = P.z + Math.cos(dir) * 0.6;
     // 11-17 2차: 빔은 얼굴(큐브 화면)에서 — 그림 높이 y0 = 머리 뼈 세계 높이 + 0.45(큐브 가운데, 큰 소리 빔과 같은 기준), 머리가 없으면 1.55. 판정(x·z)은 전처럼 주인공 자리 기준(규칙 그대로)
     const hp = P.headW, y0 = hp ? hp.y + 0.45 : 1.55 + level * 0.1;
-    Object.assign(b, { on: true, id: id++, x: ox, z: oz, px: ox, pz: oz, dir, level, L, trav: 0, range: L.range, hit: new Set(), bounce: L.bounce || 0, pierce: L.pierce || 0, chained: 0, fade: 1, done: false, t: 0, y0 });
+    Object.assign(b, { on: true, id: id++, x: ox, z: oz, px: ox, pz: oz, dir, level, L, trav: 0, range: L.range, hit: new Set(), bounce: L.bounce || 0, pierce: L.pierce || 0, chained: 0, fade: 1, done: false, t: 0, y0, trav0: 0 }); // trav0 초기화(3차 검토 ⑤: 풀 재사용 때 전 튕김 값이 남아 꼬리가 짧게 나오던 것)
     b.g.visible = true; b.g.position.set(ox, y0, oz); b.g.rotation.y = dir;
     const k = 1 + level * 0.18 + (L.r - BOLT.r) * 2; b.box.scale.set(k, k, 1); b.core.scale.set(k, k, 1);
     WV.bolts.push(b);
     const FX = TG.FX, fx0 = hp ? hp.x : P.x, fz0 = hp ? hp.z : P.z, mx = fx0 + Math.sin(dir) * 0.7, mz = fz0 + Math.cos(dir) * 0.7; // 얼굴 화면 바로 앞에서 번쩍
-    FX.emit(FX.CELL.glow, mx, y0, mz, { life: 0.1, size: 1.0 + level * 0.3, size1: 1.6 + level * 0.3, color: [0.6, 1.7, 1.9], alpha: 0.5 });
+    FX.emit(FX.CELL.glow, mx, y0, mz, { life: 0.1, size: 1.3 + level * 0.3, size1: 2.2 + level * 0.3, color: [0.9, 2.2, 2.5], alpha: 0.6 }); // 3차: 총구 섬광 더 밝고 크게
+    FX.emit(FX.CELL.sparkle, mx, y0, mz, { life: 0.08, size: 0.9, size1: 0.2, color: [1.8, 2.5, 2.6], rot: 0 });
     for (let i = 0; i < 2 + level; i++) FX.emit(FX.CELL.dot, mx, y0, mz, { vx: Math.sin(dir + TG.fra(-0.5, 0.5)) * 5, vy: TG.fra(0.5, 2), vz: Math.cos(dir + TG.fra(-0.5, 0.5)) * 5, life: 0.3, size: 0.3, size1: 0.05, color: [0.8, 2.2, 2.5], drag: 4, rot: 0 });
   }
   // 빔 토막(앞 자리→지금 자리)과 둥근 안개가 닿았나
@@ -247,7 +272,7 @@
         if (hitU) { b.hit.add(hitU.id); G.hitUnit(hitU, L.dmg, b.px, b.pz, false, b.level, spark); }
         else { b.hit.add('boss'); G.hitBoss(L.bossDmg, b.x, b.z, false, b.level); }
         WV.boltHits++;
-        FX.emit(FX.CELL.glow, hx, 1.4, hz, { life: 0.12, size: 0.8, size1: 1.6, color: [0.7, 1.9, 2.1], alpha: 0.5 });
+        FX.emit(FX.CELL.glow, hx, b.y0, hz, { life: 0.12, size: 1.0, size1: 2.2, color: [0.9, 2.2, 2.5], alpha: 0.6 }); // 3차: 맞은 자리 섬광(빔 높이에)
         // 튕김: 아직 안 맞은 가장 가까운 안개(보스 포함)로 방향을 꺾음
         let next = null;
         if (b.bounce > 0) {
@@ -271,9 +296,11 @@
       if (!b.on) continue;
       const x = TG.lerp(b.px, b.x, al), z = TG.lerp(b.pz, b.z, al);
       b.g.position.x = x; b.g.position.z = z; b.g.rotation.y = b.dir;
-      const s = Math.min(1, b.t / 0.06) * b.fade;
-      b.g.scale.set(s, s, Math.max(0.05, Math.min(1, (b.trav - (b.trav0 || 0)) / BOLT.len)) * s);
-      if (TG.fr() < 0.5) TG.FX.emit(TG.FX.CELL.dot, x - Math.sin(b.dir) * TG.fra(0.3, 1.2), 1.5 + TG.fra(-0.15, 0.15), z - Math.cos(b.dir) * TG.fra(0.3, 1.2), { life: 0.18, size: 0.26, size1: 0, color: [0.8, 2.2, 2.5], rot: 0 }); // 지나간 자리 픽셀 점
+      const s = Math.min(1, b.t / 0.05) * b.fade;
+      b.g.scale.set(s, s, Math.max(0.05, Math.min(1, (b.trav - (b.trav0 || 0)) / BOLT.vis)) * s); // 꼬리(보이는 길이 vis)는 나온 자리·튕긴 자리에서 자람
+      if (b.tip) { const ts = (1.1 + 0.4 * Math.sin(b.t * 45)) * (b.done ? 1.6 : 1); b.tip.scale.set(ts, ts, ts); b.tip.rotation.set(b.t * 9, 0, b.t * 14); } // 끝 섬광: 돌며 깜빡, 맞으면 크게
+      if (!b.done && TG.fr() < 0.7) TG.FX.emit(TG.FX.CELL.glow, x, b.y0, z, { life: 0.07, size: 0.9 + b.level * 0.2, size1: 0.5, color: [0.8, 2.0, 2.3], alpha: 0.45 }); // 앞끝 번지는 빛
+      if (TG.fr() < 0.5) TG.FX.emit(TG.FX.CELL.dot, x - Math.sin(b.dir) * TG.fra(0.3, 1.2), b.y0 + TG.fra(-0.15, 0.15), z - Math.cos(b.dir) * TG.fra(0.3, 1.2), { life: 0.18, size: 0.26, size1: 0, color: [0.8, 2.2, 2.5], rot: 0 }); // 지나간 자리 픽셀 점
     }
   }
 
@@ -302,6 +329,7 @@
     const b = WV.beam;
     Object.assign(b, { on: true, t: 0, x, z, dir, len, lv, bossHit: false });
     b.hit.clear(); b.g.visible = true; b.g.position.set(x, 2.2, z); b.g.rotation.y = dir;
+    if (TG.PL.faceFlash) TG.PL.faceFlash(1.6); // 11-17 3차: 빔 나올 때 얼굴 화면 번쩍
     return b;
   };
   WV.beamAngle = function () { const b = WV.beam; const k = TG.clamp((b.t - BEAM.hold) / BEAM.spin, 0, 1); return b.dir + (k * k * (3 - 2 * k)) * BEAM.turns * Math.PI * 2; };
@@ -339,6 +367,7 @@
     b.g.rotation.y = WV.beamAngle();
     for (const arm of b.arms) { arm.scale.set(fade, fade, Math.max(0.01, len)); }
     const y0 = b.g.position.y;
+    if (end <= 0) for (let k = 0; k < 4; k++) { const a = WV.beamAngle() + k * Math.PI / 2; TG.FX.emit(TG.FX.CELL.glow, b.g.position.x + Math.sin(a) * len, y0, b.g.position.z + Math.cos(a) * len, { life: 0.08, size: 1.3, size1: 0.8, color: [0.9, 2.2, 2.5], alpha: 0.45 }); } // 11-17 3차: 네 끝 섬광(번지는 빛)
     if (spinning) { for (let k = 0; k < 3; k++) if (TG.fr() < 0.9) { const a = WV.beamAngle() + ((TG.fr() * 4) | 0) * Math.PI / 2, r = TG.fra(2, b.len); TG.FX.emit(TG.FX.CELL.dot, b.g.position.x + Math.sin(a) * r, y0 + TG.fra(-0.3, 0.4), b.g.position.z + Math.cos(a) * r, { life: 0.25, size: 0.32, size1: 0, color: [0.8, 2.3, 2.5] }); } } // 훑고 지나간 자리 픽셀 점 (곧은 광선 느낌)
     else if (!spinning && end <= 0 && TG.fr() < 0.7) { const a = b.dir + ((TG.fr() * 4) | 0) * Math.PI / 2; TG.FX.emit(TG.FX.CELL.sparkle, b.g.position.x + Math.sin(a) * len, y0, b.g.position.z + Math.cos(a) * len, { life: 0.2, size: 0.6, size1: 0, color: [1.5, 2.4, 2.5] }); }
   }
@@ -449,12 +478,12 @@
       if (!w.on) continue;
       const L = w.L, r = TG.lerp(w.pr, w.r, al), st = w.st || DEF_STYLE;
       const grow = 0.55 + Math.min(1, r / L.range) * 0.45;
-      const shout = !!st.shout; // 11-17 2차 허조교: 소리 모양은 작게(높이 0.55배, 호 2줄) — 몸동작(player.js shotPose)이 주인공. 판정(L.band·half)은 그대로
+      const shout = !!st.shout; // 11-17 3차 허조교(대표: 범위 1/2): 소리 모양도 절반 — 높이 0.28배(2차 0.55 의 1/2), 호 사이 0.55(1.05 의 1/2), 호 2줄(3번째 투명)·2번째 옅게. 몸동작(player.js shotPose)이 주인공. 판정(L.band·half)은 그대로
       w.parts.forEach((m, k) => {
-        const rr = Math.max(0.3, r - k * 1.05);                 // 호 사이를 띄워 「)))」 로 읽히게
-        const hh = L.h * 0.58 * grow * (1 - k * 0.2) * (shout ? 0.55 : 1);
+        const rr = Math.max(0.3, r - k * (shout ? 0.55 : 1.05)); // 호 사이를 띄워 「)))」 로 읽히게
+        const hh = L.h * 0.58 * grow * (1 - k * 0.2) * (shout ? 0.28 : 1);
         m.scale.set(rr, hh, rr);
-        m.material.uniforms.uA.value = (shout && k === 2 ? 0 : 1 - k * 0.22) * w.fade * (w.t < 0.04 ? w.t / 0.04 : 1);
+        m.material.uniforms.uA.value = (shout ? [1, 0.6, 0][k] : 1 - k * 0.22) * w.fade * (w.t < 0.04 ? w.t / 0.04 : 1);
       });
       // 호 끝 반짝이 (주인공 색). 모쉬는 네모 점·베리는 꽃잎도 섞임
       if (TG.fr() < 0.5) {
