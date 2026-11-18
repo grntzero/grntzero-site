@@ -8,7 +8,12 @@
   H.init = function () {
     ['hud', 'lives', 'lvTag', 'xpFill', 'noteN', 'progGear', 'map', 'bossBar', 'bossFill', 'bossGhost', 'combo', 'comboN', 'overPips',
       'speech', 'zoneVig', 'stick', 'stickKnob', 'stickBase', 'keyHint', 'btnBig', 'btnSnd', 'bigArc', 'banner', 'count', 'title', 'pause', 'result', 'rotate', 'loading', 'lfill',
-      'resTitle', 'stars', 'rTime', 'rFog', 'rCombo', 'rNote', 'hint', 'grunt', 'gruntTxt', 'shelter', 'cards', 'cardRow'].forEach((k) => (H[k] = $(k)));
+      'resTitle', 'stars', 'rTime', 'rFog', 'rCombo', 'rNote', 'hint', 'grunt', 'gruntTxt', 'shelter', 'cards', 'cardRow', 'rerollBtn', 'skills', 'skHero', 'skList', 'skClose', 'face'].forEach((k) => (H[k] = $(k)));
+    H.rerollBtn.addEventListener('click', (e) => { e.stopPropagation(); if (H.onReroll) H.onReroll(); }); // 11-18 다시 뽑기
+    H.skClose.addEventListener('click', (e) => { e.stopPropagation(); if (H.onSkillsClose) H.onSkillsClose(); });
+    H.skills.addEventListener('click', (e) => { if (e.target === H.skills && H.onSkillsClose) H.onSkillsClose(); }); // 바깥 누르면 닫힘
+    H.face.addEventListener('click', (e) => { e.stopPropagation(); if (H.onFace) H.onFace(); }); // 11-18 얼굴 칸 → 내 리믹스 카드
+    H.reviveCnt = document.createElement('div'); H.reviveCnt.id = 'reviveCnt'; H.reviveCnt.className = 'ol hide'; document.getElementById('ui').appendChild(H.reviveCnt); // 11-18 다시 일어나기 카운트
     H.mapCtx = H.map.getContext('2d');
     H.segs = Array.from(document.querySelectorAll('#progBar .seg'));
     H.fogs = H.segs.map((e) => e.querySelector('.fog'));
@@ -361,9 +366,10 @@
   H.gruntHide = function () { clearTimeout(gruntTO); clearTimeout(gruntLater); gruntLater = null; H.show(H.grunt, false); if (TG.SV) TG.SV.stop(); };
 
   // 리믹스 카드 3장 (큰 그림 + 두 단어 이하). onPick(번호)
-  H.showCards = function (opts, onPick) {
+  H.showCards = function (opts, onPick, reroll) { // reroll = { left, onReroll } (11-18 다시 뽑기: 한 판 2번, 0이면 회색)
     const C = TG.C;
     H.cardRow.innerHTML = '';
+    H.onReroll = reroll ? reroll.onReroll : null; H.setReroll(reroll ? reroll.left : 0);
     opts.forEach((id, i) => {
       const d = C.byId[id], lv = C.lv(id);
       const b = document.createElement('button'); b.className = 'card'; b.style.setProperty('--cc', d.col);
@@ -380,6 +386,26 @@
     H.show(H.cards, true);
     document.body.classList.add('cardsOpen'); // 카드가 떠 있는 동안 떠 있는 글자·안내 줄을 숨김 (카드 뒤로 비치지 않게)
   };
+  H.setReroll = function (left) { H.rerollBtn.querySelector('span').textContent = '다시 뽑기 (' + Math.max(0, left | 0) + ')'; H.rerollBtn.classList.toggle('off', !(left > 0)); H.rerollBtn.disabled = !(left > 0); };
+  H.reviveCount = function (n) { if (n == null) { H.reviveCnt.classList.add('hide'); return; } H.reviveCnt.classList.remove('hide'); H.reviveCnt.innerHTML = ''; H.reviveCnt.appendChild(document.createTextNode(String(n))); const s = document.createElement('small'); s.textContent = '다시 일어나요!'; H.reviveCnt.appendChild(s); };
+  // 11-18 내 리믹스 카드 목록: data = { hero: {name, shot, big}, cards: [{id, name, lv, max, desc}] }
+  H.showSkills = function (data) {
+    const C = TG.C;
+    H.skHero.textContent = data.hero.name + ' · 소리 「' + data.hero.shot + '」 · 큰 소리 「' + data.hero.big + '」';
+    H.skList.innerHTML = '';
+    if (!data.cards.length) { const e = document.createElement('div'); e.className = 'skEmpty ol'; e.textContent = '아직 고른 카드가 없어요'; H.skList.appendChild(e); }
+    data.cards.forEach((c) => {
+      const row = document.createElement('div'); row.className = 'skRow';
+      const cv = document.createElement('canvas'); cv.width = cv.height = 128; C.icon(c.id, cv); row.appendChild(cv);
+      const tx = document.createElement('div'); tx.className = 'skTxt';
+      const nm = document.createElement('div'); nm.className = 'skName'; nm.textContent = c.name + ' ' + c.lv + '단';
+      const pp = document.createElement('span'); pp.className = 'pips'; for (let k = 0; k < c.max; k++) { const i = document.createElement('i'); if (k < c.lv) i.className = 'on'; pp.appendChild(i); } nm.appendChild(pp);
+      const ds = document.createElement('div'); ds.className = 'skDesc'; ds.textContent = c.desc;
+      tx.appendChild(nm); tx.appendChild(ds); row.appendChild(tx); H.skList.appendChild(row);
+    });
+    H.show(H.skills, true); H.skills.scrollTop = 0; document.body.classList.add('skillsOpen');
+  };
+  H.hideSkills = function () { H.show(H.skills, false); document.body.classList.remove('skillsOpen'); };
   H.markCard = function (i) { const b = H.cardRow.children[i]; if (b) b.classList.add('pick'); };
   H.hideCards = function () { H.show(H.cards, false); document.body.classList.remove('cardsOpen'); };
 

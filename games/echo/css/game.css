@@ -301,6 +301,24 @@ body.touch #shelter .sc .k, body.touch #cards .k { display: none; }
 #cards { gap: calc(8px * var(--s)); z-index: 20; }
 #cards .ctitle { font-size: calc(34px * var(--s)); color: #ffd23f; animation: bannerIn 0.4s cubic-bezier(.2,1.5,.4,1); transform: none; }
 #cards .csub { font-size: calc(15px * var(--s)); }
+#rerollBtn.reroll { margin-top: calc(4px * var(--s)); padding: calc(7px * var(--s)) calc(18px * var(--s)); font-size: calc(16px * var(--s)); } /* 11-18 다시 뽑기(한 판 2번) */
+#rerollBtn.off { opacity: 0.45; filter: grayscale(1); pointer-events: none; }
+/* 11-18 얼굴 칸 → 내 리믹스 카드 목록(게임 멈춤) */
+#face { cursor: pointer; }
+#skills { z-index: 30; }
+#skills .panel.skPanel { max-height: 88vh; max-height: 88dvh; overflow-y: auto; width: min(92vw, calc(560px * var(--s))); padding: calc(10px * var(--s)) calc(12px * var(--s)) calc(12px * var(--s)); }
+#skHero { font-size: calc(13px * var(--s)); color: #ffd23f; margin: 0 0 calc(6px * var(--s)); text-align: center; line-height: 1.35; }
+#skList { display: flex; flex-direction: column; gap: calc(6px * var(--s)); }
+#skList .skEmpty { text-align: center; font-size: calc(15px * var(--s)); color: #fff6e0; padding: calc(10px * var(--s)) 0; }
+.skRow { display: flex; align-items: center; gap: calc(8px * var(--s)); background: linear-gradient(#fff6e0, #f3e3c3); border: 3px solid var(--ink); border-radius: calc(14px * var(--s)); padding: calc(5px * var(--s)) calc(8px * var(--s)); color: var(--ink); text-align: left; }
+.skRow canvas { width: calc(44px * var(--s)); height: calc(44px * var(--s)); flex: 0 0 auto; }
+.skRow .skTxt { flex: 1 1 auto; min-width: 0; }
+.skRow .skName { font-size: calc(15px * var(--s)); font-weight: 900; display: flex; align-items: center; gap: calc(6px * var(--s)); flex-wrap: wrap; }
+.skRow .skName .pips { display: flex; gap: 3px; } .skRow .skName .pips i { width: calc(9px * var(--s)); height: calc(9px * var(--s)); border-radius: 50%; border: 2px solid var(--ink); background: #cfc3b0; } .skRow .skName .pips i.on { background: #ffc21f; }
+.skRow .skDesc { font-size: calc(12px * var(--s)); line-height: 1.3; color: #4a3a2a; margin-top: 2px; word-break: keep-all; }
+#skills .btns { margin-top: calc(8px * var(--s)); }
+#reviveCnt { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); font-size: calc(44px * var(--s)); color: #8cf06a; pointer-events: none; z-index: 21; text-align: center; line-height: 1.1; }
+#reviveCnt small { display: block; font-size: calc(18px * var(--s)); color: #fff6e0; }
 #cardRow { display: flex; gap: calc(16px * var(--s)); }
 .card { position: relative; width: calc(150px * var(--s)); padding: calc(10px * var(--s)) calc(6px * var(--s)) calc(10px * var(--s)); display: flex; flex-direction: column; align-items: center; gap: calc(2px * var(--s)); color: var(--ink);
   background: linear-gradient(#fff6e0, #f3e3c3); border: 4px solid var(--ink); border-radius: calc(22px * var(--s)); box-shadow: 0 6px 0 var(--ink), inset 0 -8px 0 rgba(201,162,58,0.35); animation: cardIn 0.4s cubic-bezier(.2,1.5,.4,1) backwards; transition: transform 0.08s; }

@@ -13,6 +13,7 @@
   const C = (TG.C = {});
   const MAXLV = 3;
   // name = 화면 글(순한 말), tag = 함께하는 친구 이름, hero = 전용(그 주인공에게만), needAssist = 보조가 있을 때만, noRank = 순위 모드에선 안 나옴
+  //  for = 효과 있는 주인공 목록(11-18 대표 요청 3: 의미 없는 카드는 안 나오게). 없으면 다섯 모두. 공통 10장은 코드로 확인해 다섯 모두에게 효과(파동 크게·빠르게·+1 은 WV.stat 한 표라 빔·고함도 같이 커지고·빨라지고·+1발) — 표는 기록.md 11절. 주인공별로 빼려면 예: for: ['sefo', 'sseni', 'berri']
   C.DEFS = [
     { id: 'size', name: '파동 크게', col: '#e5352b' },
     { id: 'fast', name: '파동 빠르게', col: '#ff8a5b' },
@@ -62,6 +63,7 @@
     pathK: [1, 1.2, 1.4, 1.6], pathHealCd: [0, 0, 12, 10],
     shakaK: [1, 1.25, 1.5, 1.75],
     noteX2T: [0, 10, 15, 20],
+    reviveDown: 3.0, reviveGuard: 1.5, // 다시 일어나기(11-18 대표 요청 3): 쓰러진 채 3초(3·2·1 카운트, 안개는 움직이고 나는 안전) → 일어나며 1.5초 보호
     cheerK: [1, 1.25, 1.5, 1.75],
   };
   C.maxOf = (id) => (C.byId[id] && C.byId[id].max) || MAXLV;
@@ -82,6 +84,7 @@
   };
   C.lv = (id) => (TG.G.cards[id] || 0);
   const H = () => TG.heroId; // 전용 카드는 그 주인공일 때만 효과(다른 주인공이 시험용 give 로 받아도 0)
+  C.fits = (d) => (!d.hero || d.hero === H()) && (!d.for || d.for.indexOf(H()) >= 0); // 이 주인공에게 효과 있는 카드인가(전용·for)
   C.hlv = (id) => (C.byId[id] && C.byId[id].hero && C.byId[id].hero !== H() ? 0 : C.lv(id));
   // 카드 단계 → 실제 값
   C.recalc = function () {
@@ -94,8 +97,10 @@
   };
   C.rank = () => !!(TG.G.rankMode || (TG.Q && TG.Q.rank)); // 순위(끝까지) 모드 — 「다시 일어나기」 안 나옴
   // 3장 뽑기 (다 찬 카드는 빼고). 11-18: 전용(hero)은 3장 중 최대 1장 — 「내 캐릭터 1장 + 다른 맛 2장」. 보조 없으면 「친구 응원 더」 X, 순위 모드면 「다시 일어나기」 X
-  C.offer = function () {
-    const av = C.DEFS.filter((d) => C.lv(d.id) < C.maxOf(d.id) && (!d.hero || d.hero === H()) && (!d.needAssist || (TG.AS && TG.AS.on)) && (!d.noRank || !C.rank()));
+  //  11-18 다시 뽑기: avoid = 방금 나온 3장 — 뺀 뒤에도 3장 이상 남으면 빼고 뽑음(가능하면 피하기). 뽑을 카드가 3장이 안 되면 남은 만큼만(0장이면 game.js openCard 가 소리 크기 1칸으로)
+  C.offer = function (avoid) {
+    let av = C.DEFS.filter((d) => C.lv(d.id) < C.maxOf(d.id) && C.fits(d) && (!d.needAssist || (TG.AS && TG.AS.on)) && (!d.noRank || !C.rank()));
+    if (avoid && avoid.length) { const rest = av.filter((d) => avoid.indexOf(d.id) < 0); if (rest.length >= 3) av = rest; }
     const out = []; let heroN = 0;
     while (out.length < 3 && av.length) {
       const d = av.splice((TG.sr() * av.length) | 0, 1)[0];
@@ -137,11 +142,46 @@
     return true;
   };
   // 다시 일어나기: 쓰러질 때 1번 소리 크기 1칸으로 버팀 (game.js onHurt). 순위 모드에선 카드가 안 나오니 여기도 안 옴
-  C.tryRevive = function (P) {
+  C.tryRevive = function (P) { // 11-18 요청 3: 바로 일어나지 않고 game.js 가 reviveDown 초 세고 나서 일으킴(hp 는 그때 1)
     if (!C.lv('revive') || C.revived || C.rank()) return false;
-    C.revived = true; P.hp = 1; P.inv = Math.max(P.inv, 2.0); P.noHurt = Math.max(P.noHurt || 0, 1.0);
+    C.revived = true;
     return true;
   };
+  // 11-18 카드 설명(얼굴 칸 → 내 리믹스 카드, 지금 단 숫자) — 순한 말
+  const pct = (v) => Math.round(v * 100) + '%';
+  C.DESC = {
+    size: (l) => '소리 파동이 더 커져요 (×' + [1, 1.15, 1.3, 1.45][l] + ')',
+    fast: (l) => '파동이 더 자주 나가요 (간격 ' + pct([1, 0.88, 0.78, 0.7][l]) + ')',
+    more: (l) => '한 번에 파동이 ' + (1 + l) + '개 나가요',
+    move: (l) => '달리기가 빨라져요 (+' + l * 10 + '%)',
+    magnet: (l) => '음표가 더 멀리서도 끌려와요 (둘레 +' + (l * 2.2).toFixed(1) + ')',
+    heart: (l) => '소리 크기 칸이 ' + l + '칸 늘어요',
+    charge: (l) => '큰 소리가 더 빨리 차요 (+' + l * 30 + '%)',
+    poy: (l) => 'POY 초록 다이얼 고리 ' + (l + 1) + '개가 몸 둘레를 돌며 닿는 안개를 톡',
+    woad: (l) => 'WOAD 거품 자국이 길에 남아요 (' + (6 + l * 4) + '개, ' + (2.4 + l * 0.8).toFixed(1) + '초' + (l >= 3 ? ', 두 배 세게' : '') + ')',
+    rogun: (l) => 'ROGUN 째깍 원판 안 안개가 느려져요 (둘레 ' + (3.6 + l * 0.9).toFixed(1) + ', 빠르기 ' + pct([1, 0.8, 0.68, 0.58][l]) + ')',
+    bounce: (l) => '푸슝 빔이 가까운 안개로 ' + l + '번 튕겨요 (' + (l + 1) + '명)',
+    pierce: (l) => '푸슝 빔이 안개 ' + l + '명을 더 뚫고 지나가요',
+    thick: (l) => '빔이 ' + C.NUM.thickK[l] + '배 굵어져 옆 안개 ' + C.NUM.thickN[l] + '마리도 같이' + (l >= 3 ? ', 세기 +10%' : ''),
+    echo: (l) => '파동이 끝에서 튕겨 돌아와요 (돌아온 세기 ' + pct(C.NUM.echoK[l]) + ')',
+    beat: (l) => '3초 안에 연속으로 터뜨리면 소리 +' + pct(C.NUM.beatPct[l]) + '씩, 최대 3겹' + (l >= 3 ? ' · 34연속이면 음표 비' : ''),
+    run: (l) => '2초 쉬지 않고 달리면 이동 +6%·파동 +5% (최대 ' + C.NUM.runMax[l] + '겹)',
+    stun: (l) => '고함에 맞은 안개가 ' + (0.5 + C.NUM.stunAdd[l]).toFixed(1) + '초 멈춰요 (큰 안개는 절반)',
+    line: (l) => '멈춤이 번지는 둘레 +' + pct(C.NUM.lineK[l] - 1),
+    whistle2: (l) => '0.15초 뒤 두 번째 고함 (세기 ' + pct(C.NUM.whistleK[l]) + (l >= 3 ? ', 멈춤까지' : '') + ')',
+    stars: (l) => '퍼플팝이 맞히면 별 조각 ' + C.NUM.starsN[l] + '개가 가까운 안개로 더 날아가요',
+    stain: (l) => '바닥 물감이 +' + C.NUM.stainAdd[l] + '초 더 오래 남아요',
+    bright: (l) => '물감에 물든 안개가 더 빨리 퐁 (+' + pct(C.NUM.brightK[l] - 1) + ')',
+    drops: (l) => '베리 방울이 한 번에 ' + C.NUM.dropsN[l] + '개' + (l >= 3 ? ' (하나는 조금 큰 방울)' : ''),
+    path: (l) => '꽃 자국 폭 +' + pct(C.NUM.pathK[l] - 1) + (l >= 2 ? ', 밟으면 회복 1칸(' + C.NUM.pathHealCd[l] + '초에 1번)' : ''),
+    shaka: (l) => '방울이 ' + pct(C.NUM.shakaK[l] - 1) + ' 더 멀리·빠르게 굴러가요',
+    notex2: (l) => '뽑은 뒤 ' + C.NUM.noteX2T[l] + '초 동안 음표 하나가 둘로 쳐져요',
+    cheer: (l) => '함께하는 친구의 응원이 +' + pct(C.NUM.cheerK[l] - 1) + ' 더 길게·자주',
+    revive: () => '쓰러지면 한 번, ' + C.NUM.reviveDown + '초 뒤 소리 크기 1칸으로 다시 일어나요 (' + C.NUM.reviveGuard + '초 보호)',
+  };
+  C.desc = (id, lv) => { const f = C.DESC[id]; try { return f ? f(Math.max(1, lv | 0)) : ''; } catch (e) { return ''; } };
+  // 지금까지 고른 카드 목록(고른 순서 — G.cards 는 넣은 순서가 유지됨). 이 주인공에게 효과 없는 카드(for 밖·다른 주인공 전용)는 시험용 give 로 받았어도 안 보임
+  C.picked = () => Object.keys(TG.G.cards).filter((id) => TG.G.cards[id] > 0 && C.byId[id] && C.fits(C.byId[id])).map((id) => ({ id, name: C.byId[id].name, lv: TG.G.cards[id], max: C.maxOf(id), desc: C.desc(id, TG.G.cards[id]) }));
   C.state = function () { return { beatStk: C.beatStk, beatT: +C.beatT.toFixed(2), beatChain: C.beatChain, beatRains: C.beatRains, runStk: C.runStk, runT: +C.runT.toFixed(2), noteX2T: +C.noteX2T.toFixed(2), noteX2N: C.noteX2N, revived: C.revived, pathCd: +C.pathCd.toFixed(2), pathHeals: C.pathHeals, echoWaves: C.echoWaves, starHits: C.starHits, thickHits: C.thickHits, whistle2N: C.whistle2N, bossStuns: C.bossStuns, dropWaves: C.dropWaves, spdMul: TG.PL ? +TG.PL.spdMul.toFixed(3) : 1 }; };
 
   // ── 규칙 계산: 함께하는 친구 3종 ──

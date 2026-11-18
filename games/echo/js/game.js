@@ -27,6 +27,7 @@
   ];
   const REC_V = 7;                  // 입력 기록 판 번호(11-18 리믹스 카드 28종·전용 최대 1장 뽑기 → 7. 11-17 3차: 고함 둘레 2.0·보스 0.95·세포체조 층 전체·보스 16·충전 0.85 → 6. 11-16 오후 밸런스 개편 → 4, 11-17 필살기·평타 개편(세포체조 길이·모쉬/허조교 평타·쎄니 구역) → 5: v4 이하는 재생 안 함)
   const XP0 = 10, XP_STEP = 24;      // 레벨업 필요 음표: XP0 + XP_STEP × (레벨 − 1)
+  const REROLL_MAX = 2;             // 11-18 대표: 리믹스 카드 「다시 뽑기」 한 판에 2번(모두 같은 조건 — 순위 공정). 기록 cards 에 −1 로 들어가 재현 때 같은 순서로 다시 뽑음
   const REST_HEAL = 2;              // 쉼터 「소리 회복」: 2칸 (전에는 가득)
   const AIM_N = 256;                // 조준 방향 기록 단위(한 바퀴 256칸)
   const AIM_ASSIST = 0.21;          // 약한 조준 도움: 쏘는 방향 좌우 약 12° 안의 대상에만 붙음
@@ -142,6 +143,7 @@
   function resetRun(keepFx) {
     G.tick = 0; G.time = 0; G.realT = 0; G.gauge = 0; G.combo = 0; G.comboT = 0; G.maxCombo = 0; G.notes = 0; G.popped = 0; G.rescued = 0; G.bossStarted = false;
     G.floor = 1; G.fogPop = 0; G.floorDone = false; G.cocoonDone = false; G.level = 1; G.xp = 0; G.xpNeed = XP0; G.pendingCards = 0; G.cardOpen = null; G.cardN = 0; G.revived = false;
+    G.rerollLeft = REROLL_MAX; G.rerollN = 0; G.inReroll = false; G.reviveT = 0; if (TG.H.reviveCount) TG.H.reviveCount(null); if (G.skillOpen) closeSkills(); // 11-18 다시 뽑기·다시 일어나기 카운트·내 리믹스 카드 창
     G.rankMode = !!(TG.Q && TG.Q.rank); // 11-18 순위(끝까지) 모드 깃발(?rank=1, 끝까지 모드 만들 때 여기서 켬) — 「다시 일어나기」 카드 안 나옴
     G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.lined = 0; G.hintT = 0; G.hurts = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
     G.gaugeLock = 0; G.hintStage = 0; G.moved = 0; G.afters.length = 0; G.inBig = false; G.inPick = -1; G.inCard = -1; G.botW = 0; G.botStuck = 0; G.botSideT = 0; G.botSideS = 1; G.botLx = 0; G.botLz = 0; G.botCocT = 0; G.machSlow = false; G.camFocusK = 0.45;
@@ -493,12 +495,12 @@
     FX.text('뽀잉!', p.x, 3.6, p.z, 'boing');
     for (let i = 0; i < 5; i++) FX.emit(FX.CELL.star, p.x, 1.6, p.z, { vx: TG.fra(-3, 3), vy: TG.fra(2, 5), vz: TG.fra(-3, 3), life: 0.45, size: 0.4, size1: 0.1, color: [2.2, 2.2, 2.2], grav: 8, pop: true });
     G.combo = 0; G.hurts++;
-    if (p.hp <= 0 && TG.C.tryRevive && TG.C.tryRevive(p)) { // 11-18 「다시 일어나기」 카드: 1번만 소리 크기 1칸으로 버팀(순위 모드엔 카드가 안 나옴)
-      G.revived = true;
-      FX.text('일어나!', p.x, 4.4, p.z, 'cheer'); SSEL('cheer', '일어나! 아직 할 수 있어!', 2.4);
-      FX.ring(p.x, p.z, { r0: 0.5, r1: 4.5, dur: 0.5, color: 0x8cf06a, width: 0.3, hdr: 1.3 });
-      for (let i = 0; i < 12; i++) FX.emit(FX.CELL.sparkle, p.x + TG.fra(-1, 1), 0.5 + TG.fra(0, 1.5), p.z + TG.fra(-1, 1), { vy: TG.fra(2, 5), life: 0.7, size: 0.5, size1: 0, color: [1.4, 2.5, 1.0] });
-      TG.A.syn('rescue'); p.glow = 0.8; p.kick(3);
+    if (p.hp <= 0 && TG.C.tryRevive && TG.C.tryRevive(p)) { // 11-18 「다시 일어나기」 카드(요청 3): 바로 안 일어남 — 쓰러진 채 reviveDown 초 카운트(reviveTick) 뒤 소리 크기 1칸으로(순위 모드엔 카드가 안 나옴)
+      G.revived = true; G.reviveT = TG.C.NUM.reviveDown; G.pendingCards = Math.max(0, G.pendingCards); G.fireOn = false;
+      p.setRest(true); p.noHurt = Math.max(p.noHurt, 0.2); p.inv = Math.max(p.inv, 0.2);
+      TG.H.reviveCount(Math.ceil(G.reviveT)); SSEL('surprise', '앗! 잠깐만, 다시 일어날게!', 2.4);
+      TG.A.syn('covered'); TG.A.duck(0.3, 1.2);
+      for (let i = 0; i < 10; i++) FX.emit(FX.CELL.sparkle, p.x + TG.fra(-1, 1), 0.4 + TG.fra(0, 1.2), p.z + TG.fra(-1, 1), { vy: TG.fra(1, 3), life: 0.6, size: 0.4, size1: 0, color: [1.4, 2.5, 1.0] });
       return;
     }
     if (p.hp <= 0) toCovered();
@@ -834,11 +836,55 @@
     const opts = TG.C.offer(), p = P();
     G.pendingCards--;
     if (!opts.length) { p.hp = Math.min(p.maxHp, p.hp + 1); return; } // 카드가 다 차면 소리 크기 1칸
-    G.cardOpen = { opts }; G.inCard = -1; G.cardAt = performance.now();
-    TG.H.showCards(opts, (i) => { G.inCard = i; });
+    G.cardOpen = { opts }; G.inCard = -1; G.inReroll = false; G.cardAt = performance.now();
+    TG.H.showCards(opts, (i) => { G.inCard = i; }, { left: G.rerollLeft, onReroll: () => { G.inReroll = true; } });
     TG.A.syn('levelUp'); TG.A.duck(0.4, 1.2);
     TG.FX.ring(p.x, p.z, { r0: 0.6, r1: 4.5, dur: 0.5, color: 0xffd23f, width: 0.25 });
     keys.KeyA = keys.KeyD = keys.KeyW = keys.KeyS = keys.ArrowLeft = keys.ArrowRight = keys.ArrowUp = keys.ArrowDown = keys.Space = false; mouse.down = false;
+  }
+  // 11-18 다시 뽑기: 같은 뽑기 규칙으로 3장 새로(방금 3장은 가능하면 피함), 한 판 2번. 봇·시험 빠른 모드는 안 씀. 기록 cards 에 −1
+  function doReroll() {
+    const c = G.cardOpen; if (!c || !(G.rerollLeft > 0)) return false;
+    G.rerollLeft--; G.rerollN++;
+    c.opts = TG.C.offer(c.opts); c.rerolled = true;
+    G.rec.cards.push(-1); G.cardN++;
+    G.inCard = -1;
+    TG.H.showCards(c.opts, (i) => { G.inCard = i; }, { left: G.rerollLeft, onReroll: () => { G.inReroll = true; } });
+    TG.A.syn('ui'); TG.A.play('sfx_pick', { rate: 1.3, gain: 0.5 });
+    return true;
+  }
+  // 11-18 얼굴 칸 → 내 리믹스 카드 목록: 게임 완전히 멈춤(규칙 걸음·그림·소리 — G.time·안개·시계 그대로, 재현 해시 영향 X). 순위 모드에서도 멈춤 OK(기록.md 메모)
+  function openSkills() {
+    if (G.skillOpen || G.cardOpen || !(G.phase === 'floor' || G.phase === 'shelter' || G.phase === 'bossIntro' || G.phase === 'boss')) return false;
+    G.skillOpen = true; G.skillOpenN = (G.skillOpenN || 0) + 1;
+    const h = TG.hero;
+    TG.H.showSkills({ hero: { name: h.name, shot: h.shotName || '소리 방울', big: h.bigSay || '큰 소리' }, cards: TG.C.picked() });
+    TG.H.onSkillsClose = closeSkills;
+    TG.A.pause(true);
+    stick.id = null; stick.x = stick.y = 0; fire.id = null; fire.aim = false; fire.kx = fire.ky = 0; mouse.down = false; keys.Space = false;
+    return true;
+  }
+  function closeSkills() {
+    if (!G.skillOpen) return false;
+    G.skillOpen = false; TG.H.hideSkills(); if (!G.paused) TG.A.pause(false);
+    return true;
+  }
+  // 11-18 다시 일어나기(요청 3): 쓰러진 채 reviveDown 초(3·2·1 카운트 — 안개는 움직이고 나는 안전·못 움직임) → 일어나며(arise 동작) hp 1·reviveGuard 초 보호
+  function reviveTick(dt) {
+    const p = P(), N = TG.C.NUM;
+    if (!(G.reviveT > 0)) return;
+    const before = Math.ceil(G.reviveT); G.reviveT -= dt; const after = Math.ceil(Math.max(0, G.reviveT));
+    p.noHurt = Math.max(p.noHurt, 0.2); p.inv = Math.max(p.inv, 0.2);
+    if (after !== before && after > 0) { TG.H.reviveCount(after); TG.A.countBeep(false); }
+    if (G.reviveT <= 0) {
+      G.reviveT = 0; p.setRest(false); p.hp = 1; p.inv = Math.max(p.inv, N.reviveGuard); p.noHurt = Math.max(p.noHurt, N.reviveGuard);
+      TG.H.reviveCount(null); G.revivedAt = G.time;
+      if (p.playSpecial && p.act && p.act.arise) p.playSpecial('arise');
+      TG.FX.text('일어나!', p.x, 4.4, p.z, 'cheer'); SSEL('cheer', '일어나! 아직 할 수 있어!', 2.4);
+      TG.FX.ring(p.x, p.z, { r0: 0.5, r1: 4.5, dur: 0.5, color: 0x8cf06a, width: 0.3, hdr: 1.3 });
+      for (let i = 0; i < 12; i++) TG.FX.emit(TG.FX.CELL.sparkle, p.x + TG.fra(-1, 1), 0.5 + TG.fra(0, 1.5), p.z + TG.fra(-1, 1), { vy: TG.fra(2, 5), life: 0.7, size: 0.5, size1: 0, color: [1.4, 2.5, 1.0] });
+      TG.A.syn('rescue'); p.glow = 0.8; p.kick(3);
+    }
   }
   function chooseCard(i) {
     const c = G.cardOpen; if (!c) return;
@@ -915,8 +961,10 @@
       keys[e.code] = true;
       const num = { Digit1: 0, Digit2: 1, Digit3: 2, Numpad1: 0, Numpad2: 1, Numpad3: 2 }[e.code];
       if (num != null && !G.paused) { if (G.cardOpen) G.inCard = num; else if (G.phase === 'shelter') G.inPick = num; }
+      if (e.code === 'KeyR' && !G.paused && G.cardOpen) G.inReroll = true; // 11-18 다시 뽑기(PC: R)
       if (e.code === 'Space') e.preventDefault(); // Space = 누르고 있는 동안 소리(keys.Space)
       if ((e.code === 'KeyE' || e.code === 'KeyQ' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') && !e.repeat) pressBig();
+      if ((e.code === 'Escape' || e.code === 'KeyP') && G.skillOpen) { closeSkills(); return; } // 11-18 내 리믹스 카드 창은 ESC 로 닫힘
       if (e.code === 'Escape' || e.code === 'KeyP') togglePause();
       if (e.code === 'Enter' && G.phase === 'title') { startIntro(); }
     });
@@ -1004,6 +1052,7 @@
     document.querySelectorAll('[data-cam]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1); G.settings.cam = b.dataset.cam; applySettings(); saveSet(); }));
     click('optLefty', () => { G.settings.lefty = !G.settings.lefty; applySettings(); saveSet(); });
     // 주인공·보조 고르기 (타이틀, 11-16)
+    TG.H.onFace = () => { TG.A.unlock(); openSkills(); }; // 11-18 얼굴 칸 → 내 리믹스 카드
     document.querySelectorAll('[data-hero]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); if (G.phase === 'title') setHeroNow(b.dataset.hero, TG.assistId); }));
     document.querySelectorAll('[data-assist]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); if (G.phase === 'title') setHeroNow(TG.heroId, b.dataset.assist); }));
     // (11-16 밤) 쎄니 「준비 중」 자리는 3D 가 들어와 없어짐 — data-soon 버튼·「곧 만나요!」 처리 삭제
@@ -1209,7 +1258,7 @@
       // 앞서 보기: 층·쉼터 1, 보스전 0.35(보스를 안 놓치게), 보스 등장·결과·폭 덮임 0(천천히 가운데로)
       const cm = CAM_MODE[G.settings.cam] != null ? CAM_MODE[G.settings.cam] : 1;
       const lk = cm * (G.phase === 'boss' ? LEAD.BOSS : (G.phase === 'floor' || G.phase === 'shelter') ? 1 : 0);
-      leadStep(cam, G.paused || G.cardOpen || G.freeze > 0 ? 0 : dt, p.vx, p.vz, p.MAXSPD * (p.spdMul || 1), lk, p.airborne); // 멈춤·카드·히트 스톱 동안은 그대로, 점프 중엔 방향 고정
+      leadStep(cam, G.paused || G.cardOpen || G.freeze > 0 || G.skillOpen ? 0 : dt, p.vx, p.vz, p.MAXSPD * (p.spdMul || 1), lk, p.airborne); // 멈춤·카드·히트 스톱 동안은 그대로, 점프 중엔 방향 고정
       const ff = lk > 0 && G.phase !== 'boss' ? 1 / 6 : 0; // 카메라가 뒤따라오며 생기는 늦음(빠르기 ÷ 따라가기 6)을 미리 더해 앞섬이 그대로 보이게
       tx = p.rx + cam.lx + p.vx * ff;
       tz = p.rz + cam.lz + p.vz * ff - dist * 0.045; // SEFO 는 화면 중앙보다 조금 아래 (11-13: 0.08→0.045 — 위 벽·빈 곳을 줄이고 발밑·앞 바닥을 더 보이게, 거리에 비례 → 장면마다 같은 자리)
@@ -1314,7 +1363,7 @@
     last = now;
     TG.R.trackFrame(rdt);
     TG.R.renderer.info.reset();
-    if (!G.paused && !TG.H.portrait) {
+    if (!G.paused && !TG.H.portrait && !G.skillOpen) { // 11-18 내 리믹스 카드 창 동안 규칙 걸음 멈춤
       const k = api.simK || 1;
       acc += rdt * k;
       let n = 0; const maxN = 5 * k;
@@ -1328,12 +1377,14 @@
   // 규칙 계산 한 걸음. 카드 고르는 중·히트 스톱 중에는 시간이 흐르지 않음
   function simTick() {
     if (G.cardOpen) {
-      let c = -1;
+      let c = null; // 11-18: −1 = 다시 뽑기, 0~2 = 고름, null = 기다림
       if (G.replay) c = G.replay.cards[G.cardN] != null ? G.replay.cards[G.cardN] : 0;
+      else if (G.inReroll) { G.inReroll = false; c = -1; }
       else if (G.inCard >= 0) c = G.inCard;
       else if (G.bot && (G.fast || performance.now() - G.cardAt > 900)) c = botCard();
       else if (G.fast) c = 0;
-      if (c < 0) return;
+      if (c == null) return;
+      if (c === -1) { if (!doReroll() && G.replay) chooseCard(0); return; } // 재현 기록의 −1 은 같은 상태라 늘 성공(못 하면 첫 장)
       chooseCard(c);
       return;
     }
@@ -1398,6 +1449,7 @@
       if (inp.big && !bigSound() && G.realT - (G.denyT || -9) > 0.4) { // 못 쓸 때도 반응: 버튼 흔들림 + 짧은 소리 + 한마디
         G.denyT = G.realT; TG.H.bigDeny(G.gauge < 100 ? '아직!' : '잠깐!'); TG.A.ui(0.55);
       }
+      reviveTick(dt); // 11-18 다시 일어나기 카운트(쓰러진 채)
       TG.C.sim(dt, p, G);
       TG.WV.zones(dt, G); // 11-17 쎄니 물감 구역(느려짐·도트) — 안개 움직임 전에, 카드가 되돌린 slowK 에 곱함
       updateHints(dt, input);
@@ -1494,7 +1546,7 @@
   // ── 그리기 (화면 주사율). al = 걸음 사이 보간 비율 ──
   function draw(rdt, al) {
     const p = P();
-    const vis = G.paused || G.freeze > 0 ? 0 : rdt; // 히트 스톱 동안은 그림도 멈춤
+    const vis = G.paused || G.freeze > 0 || G.skillOpen ? 0 : rdt; // 히트 스톱·내 리믹스 카드 창 동안은 그림도 멈춤
     G.drawT += vis;
     const play = isPlay();
     { // 조준 부채꼴: 「소리」를 누르는 동안 쏘는 쪽에 또렷하게, PC 는 안 눌러도 마우스 쪽에 옅게
@@ -1588,6 +1640,7 @@
         danceMusicAt: G.danceMusicAt == null ? null : +G.danceMusicAt.toFixed(2), danceVoiceAt: G.danceVoiceAt == null ? null : +G.danceVoiceAt.toFixed(2), danceBoomAt: G.danceBoomAt == null ? null : +G.danceBoomAt.toFixed(2),
         headSpin: +(TG.PL.headSpin || 0).toFixed(3), bodySpin: !!TG.PL.spin, hurtBy: Object.assign({}, G.hurtBy || {}), cardMax: Object.fromEntries(TG.C.DEFS.map((d) => [d.id, TG.C.maxOf(d.id)])),
         remix: TG.C.state ? TG.C.state() : null, rank: !!G.rankMode, bossShoutT: F.boss ? +(F.boss.shoutT || 0).toFixed(2) : 0, // 11-18 리믹스 카드 상태
+        rerollLeft: G.rerollLeft, rerollN: G.rerollN || 0, skillOpen: !!G.skillOpen, skillOpenN: G.skillOpenN || 0, reviveT: +(G.reviveT || 0).toFixed(2), resting: !!p.resting, rerollBtn: TG.H.rerollBtn ? { text: TG.H.rerollBtn.textContent, off: TG.H.rerollBtn.classList.contains('off') } : null, skillRows: TG.H.skList ? TG.H.skList.querySelectorAll('.skRow').length : 0,
       };
     },
     spawn(kind, n, near) {
@@ -1626,6 +1679,8 @@
     input(o) { G.testIn = o || null; },
     avoid() { const a = bossAvoid(P()); return { x: a.x, z: a.z, only: a.only }; },
     card(i) { G.inCard = i | 0; },
+    reroll() { return G.replay ? false : doReroll(); }, // 11-18 다시 뽑기 버튼과 같은 규칙(시험용: 바로 — 빠른 모드 run 은 카드가 열리면 첫 장을 바로 고르므로)
+    skills(on) { return on === false ? closeSkills() : openSkills(); }, // 11-18 얼굴 칸 누르기와 같은 길
     rest(i) { G.inPick = i | 0; },
     give(id, n) { for (let i = 0; i < (n || 1); i++) TG.C.apply(id); },
     set(k, v) { if (k === 'lives') P().hp = v; else if (k === 'floorSlow') TG.WV.MIST.floorSlow = !!v; else if (k === 'gauge') { G.gaugeLock = 0; G.gauge = v; } else if (k === 'notes') { for (let i = 0; i < v; i++) G.onPick({ x: P().x, y: 1, z: P().z }); } else G[k] = v; },
