@@ -311,6 +311,7 @@ body.touch #shelter .sc .k, body.touch #cards .k { display: none; }
 .card canvas { width: calc(104px * var(--s)); height: calc(104px * var(--s)); margin-top: calc(8px * var(--s)); }
 .card .ctag { font-size: calc(12px * var(--s)); height: calc(15px * var(--s)); color: #7a3c00; letter-spacing: 1px; }
 .card .cname { font-size: calc(21px * var(--s)); white-space: nowrap; }
+.card .cname.long { font-size: calc(17px * var(--s)); letter-spacing: -0.5px; } /* 11-18 긴 카드 이름(6글자 이상) */
 .card .pips { display: flex; gap: 4px; margin-top: 2px; }
 .card .pips i { width: calc(13px * var(--s)); height: calc(13px * var(--s)); border-radius: 50%; border: 2px solid var(--ink); background: #cfc3b0; }
 .card .pips i.on { background: #ffc21f; }

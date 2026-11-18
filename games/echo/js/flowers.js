@@ -43,7 +43,8 @@
       const f = L[i]; f.t += dt;
       if (f.t >= f.life) { L.splice(i, 1); i--; continue; }
       if (!play || P.resting || P.airborne || f.t < 0.25) continue;
-      const rr = f.big ? 1.15 : 0.95;
+      const pk = TG.C && TG.C.pathK ? TG.C.pathK() : 1; // 11-18 베리 「꽃길 넓게」: 꽃 자국 폭 +20/40/60%
+      const rr = (f.big ? 1.15 : 0.95) * pk;
       if ((P.x - f.x) ** 2 + (P.z - f.z) ** 2 > rr * rr) continue;
       L.splice(i, 1); i--;
       FL.stepped++;
@@ -54,6 +55,7 @@
         for (let k = 0; k < 4; k++) FX.emit(FX.CELL.flower, f.x, 0.4, f.z, { vx: TG.fra(-1.5, 1.5), vy: TG.fra(2, 4), vz: TG.fra(-1.5, 1.5), life: 0.5, size: 0.4, size1: 0.1, color: [2.3, 1.1, 1.6], grav: 6, pop: true, vrot: TG.fra(-4, 4), rot: 0 });
         TG.A.play('sfx_pick', { rate: 1.3 + FL.petal * 0.08, gain: 0.35 });
         if (FL.petal >= NEED) { FL.petal = 0; heal(P, G, 1, 4, '꽃 네 송이! 조금 회복!'); }
+        else if (TG.C && TG.C.pathHeal && TG.C.pathHeal(P)) { FL.healed++; FX.text('꽃길 회복!', P.x, 4.0, P.z, 'heal'); FX.ring(P.x, P.z, { r0: 0.4, r1: 2.4, dur: 0.4, color: 0xff9ccb, width: 0.22 }); TG.A.syn('rescue'); } // 11-18 꽃길 넓게 2단부터: 밟으면 회복 1칸(10~12초에 1번)
         else FX.text('꽃 ' + FL.petal + '/' + NEED, P.x, 3.2, P.z, 'word');
       }
     }
@@ -75,7 +77,7 @@
       const f = L[i];
       const k = Math.min(1, f.t / 0.3), e = TG.easeOutBack(k);
       const fade = Math.min(1, (f.life - f.t) / 1.0);
-      const s = (f.big ? 1.45 : 0.72) * e * fade * (1 + Math.sin(t * 3 + f.rot) * 0.05);
+      const s = (f.big ? 1.45 : 0.72) * (TG.C && TG.C.pathK ? TG.C.pathK() : 1) * e * fade * (1 + Math.sin(t * 3 + f.rot) * 0.05); // 꽃길 넓게: 그림도 넓게
       dummy.position.set(f.x, f.big ? 0.08 + Math.sin(t * 4 + f.rot) * 0.03 : 0.06, f.z);
       dummy.rotation.set(0, f.rot + Math.sin(t * 1.3 + f.rot) * 0.08, 0);
       dummy.scale.set(s, 1, s);

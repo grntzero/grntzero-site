@@ -117,10 +117,10 @@
     AS.cheerT++;
     const FX = TG.FX;
     if (AS.def.cheer === 'star') {
-      if (AS.cheerT % CHEER.star.every === 0) { AS.fastT = CHEER.star.ticks; AS.cheerOn = true; FX.text('빠르게!', AS.x, 3.0, AS.z, 'cheer'); FX.ring(AS.x, AS.z, { r0: 0.4, r1: 3.2, dur: 0.5, color: 0xc9a6ff, width: 0.25 }); TG.A.syn('charge', { level: 1 }); }
+      if (AS.cheerT % CHEER.star.every === 0) { AS.fastT = Math.round(CHEER.star.ticks * (TG.C && TG.C.cheerK ? TG.C.cheerK() : 1)); AS.cheerOn = true; /* 11-18 「친구 응원 더」: 빠르게 응원이 +25/50/75% 더 오래 */ FX.text('빠르게!', AS.x, 3.0, AS.z, 'cheer'); FX.ring(AS.x, AS.z, { r0: 0.4, r1: 3.2, dur: 0.5, color: 0xc9a6ff, width: 0.25 }); TG.A.syn('charge', { level: 1 }); }
       if (AS.fastT === 1) AS.cheerOn = false;
     } else if (AS.def.cheer === 'flower' && TG.FL) {
-      if (AS.cheerT % CHEER.flower.every === 0) { const a = TG.sr() * 6.283; if (TG.FL.add(P.x + Math.cos(a) * 1.6, P.z + Math.sin(a) * 1.6, true)) { AS.drops++; FX.text('회복 조각!', AS.x, 3.0, AS.z, 'heal'); TG.A.pick(); } }
+      if (AS.cheerT % Math.round(CHEER.flower.every / (TG.C && TG.C.cheerK ? TG.C.cheerK() : 1)) === 0) { /* 11-18 「친구 응원 더」: 회복 조각이 +25/50/75% 더 자주 */ const a = TG.sr() * 6.283; if (TG.FL.add(P.x + Math.cos(a) * 1.6, P.z + Math.sin(a) * 1.6, true)) { AS.drops++; FX.text('회복 조각!', AS.x, 3.0, AS.z, 'heal'); TG.A.pick(); } }
       if (AS.walked - AS.trailAt >= 2.0 && AS.speed > 1.5) { AS.trailAt = AS.walked; TG.FL.add(AS.x, AS.z, false); }
     }
     // 기본 소리: 사거리 안 가장 가까운 안개 쪽으로 (작게)

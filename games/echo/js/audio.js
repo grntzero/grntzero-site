@@ -163,6 +163,16 @@
     tone(ctx, out, t, 'sine', f * 1.6, f * 0.6, 0.09, 0.004, o.big ? 0.22 : 0.13, 0.1);
     return 0.15;
   };
+  SYN.shout = function (ctx, out, t, o) { // 11-18 세포 확성기 짧은 외침 「야!」: 톱니파 모음 스윕(아~ → 야!) + 밴드패스 포먼트, 0.16초. 사람 목소리 녹음 X(합성)
+    const level = (o && o.level) || 0;
+    const osc = ctx.createOscillator(); osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200 + level * 20, t); osc.frequency.exponentialRampToValueAtTime(330 + level * 40, t + 0.05); osc.frequency.exponentialRampToValueAtTime(240 + level * 20, t + 0.16);
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 2.2;
+    bp.frequency.setValueAtTime(600, t); bp.frequency.exponentialRampToValueAtTime(1500, t + 0.05); bp.frequency.exponentialRampToValueAtTime(900, t + 0.16);
+    const g = ctx.createGain(); env(g, t, 0.006, 0.42 + level * 0.08, 0.14);
+    osc.connect(bp); bp.connect(g); g.connect(out); osc.start(t); osc.stop(t + 0.22);
+    return 0.22;
+  };
   SYN.hitSmall = function (ctx, out, t, o) { // 맞힘 톡
     tone(ctx, out, t, 'square', 900 * (o.jit || 1), 300, 0.05, 0.002, 0.07, 0.05);
     return 0.08;

@@ -18,7 +18,7 @@
     sefo: {
       id: 'sefo', name: '세포', model: 'sefo', height: 3.0, kid: false, // 11-16 밤 v0: 머리가 커 headScale 0.82, 키 2.87→3.0(월드 약 3.3, 전과 같은 눈높이)
       color: 0xe5352b, colorCss: '#e5352b', xray: 0xf0483c, aim: 0xff6a4a, charge: [0xff8a5b, 0xe5352b, 0xffd966],
-      prop: 'megaglb', propNode: 'sefo_mega_grip', badge: null, headScale: 0.82, faceCam: [2.6, 4.3, 2.3], // 확성기·등 34 는 GLB 안(코드 확성기 'mega'·등번호 판 끔)
+      prop: 'megaglb', propNode: 'sefo_mega_grip', propScale: 1.0, badge: null, headScale: 0.82, faceCam: [2.6, 4.3, 2.3], // 확성기·등 34 는 GLB 안(코드 확성기 'mega'·등번호 판 끔). 11-18 대표: 확성기가 안 보임 → GLB 확성기(길이 0.40m, 몸 대비 작음)를 1.55배 + 평타 때 입에 대고 내미는 동작(player.js shotPose sefo)·입구 빨간 소리 링(wave.js launch)·짧은 외침(audio.js SYN.shout)
       shot: 'wave', shotName: '소리 방울', style: { in: 0xff8a5b, out: 0xe5352b, edge: [0.62, 0.08, 0.08], cell: 'note', spark: [2.5, 1.2, 0.8] },
       big: 'dance', bigSay: '세포체조!', ult: 'ult_sefo', bigChargeK: 0.85, // 11-17 3차: 체조가 층 전체 → 큰 소리 충전 0.85배(밸런스 s2 — 0.75 는 자동 모드 세포 보스전 100→109s 로 느려져 모쉬 −20%, game.js addGauge)
     },

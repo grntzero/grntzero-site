@@ -323,6 +323,7 @@
     poseAx.copy(ax).applyQuaternion(poseQ.invert()).normalize();
     b.quaternion.premultiply(poseQ.setFromAxisAngle(poseAx, ang));
   }
+  const MEGA_POSE = [-1.6, -0.2, 1.3], MEGA_OFF = { ahead: 0.25, up: 0.25, tilt: 0.35 }; // 11-18 세포 확성기 자세(위팔·팔꿈치·안쪽 라디안: 오른손을 얼굴 앞 오른쪽으로 뻗음, 이 리그 팔로는 머리 앞 0.37 이 최대) + 확성기 자리 보정(손에서 앞 0.25·위 0.25, 위로 0.35rad 기울여 입 대는 쪽이 입 높이에) — 그런트 검수 11-18(나팔이 뒤를 봄·얼굴 가림)
   function shotPose(dt) {
     const B = PL.bones; if (!B) return;
     if (B.Head && PL.headP0) B.Head.position.copy(PL.headP0); // 머리 자리 되돌림(아래 내밀기 전)
@@ -339,6 +340,15 @@
       rotW(B.Spine02, right, -0.2 * wind - 0.15 * hit);  // 가슴 펴기
       rotW(B.RightArm, right, -2.2 * k); rotW(B.RightForeArm, right, -1.8 * k); rotW(B.RightArm, fwd, 0.6 * k); // 오른손 → 입 앞(호각)
       rotW(B.LeftArm, right, -2.2 * k); rotW(B.LeftArm, fwd, -0.3 * k);                                   // 왼팔 → 앞으로 쭉(「올려놔!」)
+    } else if (id === 'sefo') { // 11-18 대표: 확성기로 소리 지르는 느낌 — 오른손(확성기)을 입 앞으로 올려 앞으로 내밀고, 고개를 살짝 젖힘·몸은 앞으로 쏠림. 0.07초에 올리고 0.3초까지 들고 0.45초에 제자리
+      const up = r < 0.07 ? r / 0.07 : r < 0.3 ? 1 : r < 0.45 ? 1 - (r - 0.3) / 0.15 : 0, push = r < 0.07 ? 0 : r < 0.16 ? (r - 0.07) / 0.09 : r < 0.36 ? 1 - (r - 0.16) / 0.2 : 0;
+      PL.shotPoseK = up;
+      const MP = PL.__pose || MEGA_POSE; // [위팔 올림, 팔꿈치, 안쪽] — 시험용 덮어쓰기(__pose) 없으면 기본값
+      rotW(B.RightArm, right, MP[0] * up); rotW(B.RightForeArm, right, MP[1] * up + 0.3 * push); rotW(B.RightArm, fwd, MP[2] * up); // 오른손 → 입 앞(확성기), 내지를 때 팔꿈치 살짝 펴며 앞으로
+      PL.megaUp = up; PL.megaPush = push;
+      rotW(B.Head, right, -0.28 * up - 0.12 * push);  // 고개 살짝 젖혀 외침
+      rotW(B.Spine01, right, 0.22 * push);            // 몸통 앞으로 쏠림
+      rotW(B.LeftArm, right, -0.6 * push);            // 왼팔도 살짝 앞으로(힘)
     } else if (id === 'moshee') {
       const back = r < 0.07 ? r / 0.07 : 0;
       const out = r < 0.07 ? 0 : r < 0.17 ? TG.easeOutBack((r - 0.07) / 0.1) : r < 0.36 ? 1 - (r - 0.17) / 0.19 : 0;
@@ -355,7 +365,7 @@
 
   // ── 그리기 (화면 주사율): 걸음 사이를 보간, 애니·스쿼시·번쩍·링 ──
   let drawT = 0;
-  const megaV = new T.Vector3(), spinQ = new T.Quaternion(), spinAx = new T.Vector3();
+  const megaV = new T.Vector3(), spinQ = new T.Quaternion(), spinAx = new T.Vector3(), megaQ = new T.Quaternion(), megaQ2 = new T.Quaternion(), megaF = new T.Vector3(), megaU = new T.Vector3(), megaX = new T.Vector3(), megaZ = new T.Vector3(), megaM = new T.Matrix4(), megaM2 = new T.Matrix4(), megaP = new T.Vector3(), megaSc = new T.Vector3();
   PL.draw = function (dt, alpha) {
     drawT += dt;
     const t = drawT;
@@ -451,10 +461,34 @@
     // 딸기 막대(베리)·호루라기(허조교)·붐박스(MOSHEE): 뼈에 붙어 몸을 따라감. 소리 낼 때 톡 커졌다 돌아옴
     if (PL.wand) {
       const fire = PL.recoil >= 0 ? Math.sin(Math.min(1, PL.recoil / 0.36) * Math.PI) : 0;
-      PL.wand.scale.copy(PL.wandS0).multiplyScalar(1 + fire * (PL.hero.prop === 'boombox' ? 0.15 : 0.25));
+      PL.wand.scale.copy(PL.wandS0).multiplyScalar(1 + fire * (PL.hero.prop === 'boombox' ? 0.15 : PL.hero.prop === 'megaglb' ? 0.35 : 0.25)); // 11-18 세포 확성기는 소리 낼 때 조금 더 커짐
     }
     faceUpdate(dt); // MOSHEE 큐브 표정 (다른 주인공은 아무 일 없음)
     if (B.Head) { PL.root.updateMatrixWorld(true); B.Head.getWorldPosition(PL.headW || (PL.headW = new T.Vector3())); } // 11-17 머리 세계 위치(모쉬 빔이 머리에서 나옴, wave.js beamDraw)
+    if (PL.wand && PL.hero.id === 'sefo') { // 11-18 확성기 방향: 들어 올린 동안(megaUp)은 나팔 입구가 보는 쪽(yaw)·살짝 위를 향하게 — 손만 따라가면 나팔이 하늘·뒤를 봄. 내려놓으면 원래 각도(자동 행렬)로
+      //  확성기 GLB 로컬 축(꼭짓점 단면 + 얼굴 쪽 카메라 캡처로 확인, 그런트 검수 11-18: +X 로 두었더니 나팔이 등 쪽): 나팔 입구 = −X(넓은 쪽, z 반지름 0.7), 입 대는 곳 = +X, 손잡이 = −Y. 손 뼈 사슬에 배율이 섞여 쿼터니언 분해가 틀어지므로(처음 시안) 행렬로: 로컬 행렬 = 부모세계⁻¹ × 원하는 세계
+      if (!PL.wandQ0) PL.wandQ0 = PL.wand.quaternion.clone();
+      const up = PL.megaUp || 0;
+      if (up > 0.001) {
+        PL.wand.parent.updateWorldMatrix(true, false);
+        megaM.compose(PL.wand.position, PL.wandQ0, PL.wand.scale).premultiply(PL.wand.parent.matrixWorld); // 자연(손 따라가는) 세계 행렬
+        megaM.decompose(megaP, megaQ, megaSc);                                                                 // 자리·배율은 자연 그대로(회전만 바꿈)
+        const tilt = MEGA_OFF.tilt + 0.1 * (PL.megaPush || 0);
+        megaF.set(Math.sin(PL.yaw) * Math.cos(tilt), Math.sin(tilt), Math.cos(PL.yaw) * Math.cos(tilt));      // 나팔 방향(세계)
+        megaU.set(0, 1, 0).addScaledVector(megaF, -megaF.y).normalize();                                          // 위(나팔 축에 수직)
+        megaX.copy(megaF).negate(); megaZ.crossVectors(megaX, megaU);                                              // 로컬 X = −나팔 방향(입구가 −X), Z = X × Y
+        megaM2.makeBasis(megaX, megaU, megaZ); megaQ2.setFromRotationMatrix(megaM2);
+        megaQ.slerp(megaQ2, up);
+        megaP.addScaledVector(megaF, MEGA_OFF.ahead * up); megaP.y += MEGA_OFF.up * up;                              // 손에서 조금 앞·위로(입 대는 쪽이 입 높이에 — 손이 손잡이 아래를 쥔 모양)
+        megaM.compose(megaP, megaQ, megaSc);                                                                     // 원하는 세계 행렬
+        megaM2.copy(PL.wand.parent.matrixWorld).invert().multiply(megaM);                                        // 부모 공간 로컬 행렬
+        PL.wand.matrixAutoUpdate = false; PL.wand.matrix.copy(megaM2);
+      } else if (!PL.wand.matrixAutoUpdate) { PL.wand.matrixAutoUpdate = true; PL.wand.quaternion.copy(PL.wandQ0); }
+      PL.root.updateMatrixWorld(true);
+      // 확성기 입구 세계 위치(그림 전용 — wave.js launch 가 파동 높이·빨간 소리 링 자리로 씀. 판정은 그대로): 입구 = 소품 노드 로컬 (−0.145, 0.10, 0)(메시 x −0.95×0.2106 + 0.055)
+      PL.megaMouth = PL.wand.localToWorld((PL.megaMouth || new T.Vector3()).set(-0.145, 0.10, 0));
+      PL.megaDir = (PL.megaDir || new T.Vector3()).copy(PL.wand.localToWorld(megaF.set(-1, 0, 0))).sub(PL.wand.localToWorld(megaU.set(0, 0, 0))).normalize();
+    } else PL.megaMouth = null;
 
     // 번쩍 (닿음·무적 깜빡임)
     // 닿음 번쩍은 0.1초(밝기 +30% + 테두리 빛), 무적 시간은 투명도 깜빡임, 보호 시간은 발밑 링만 깜빡 → 몸 색(검정·빨강·34)은 늘 그대로
@@ -505,7 +539,7 @@
     const keep = (g) => g.traverse((o) => { if (o.isMesh && !o.userData.isOutline) { o.castShadow = true; o.renderOrder = 9; PL.mats.push(o.material); } else if (o.userData.isOutline) { o.renderOrder = 1; PL.outlines = PL.outlines || []; PL.outlines.push(o); } });
     if (PL.hero.propNode) { // 베리 딸기 막대·세포 확성기(v0)·쎄니 소리굽쇠·MOSHEE 붐박스(RightHand 자식)·허조교 호루라기(Spine 자식)는 GLB 안 노드 (tools/build_hero.py) — 찾아서 소리 낼 때 톡 커지게만
       PL.model.traverse((o) => { if (o.name === PL.hero.propNode) PL.wand = o; });
-      if (PL.wand) PL.wandS0 = PL.wand.scale.clone();
+      if (PL.wand) { PL.wandS0 = PL.wand.scale.clone(); if (PL.hero.propScale) { PL.wandS0.multiplyScalar(PL.hero.propScale); PL.wand.scale.copy(PL.wandS0); } } // 11-18 propScale: 세포 확성기 1.55배(GLB 확성기가 몸 대비 작아 들고 있는 느낌이 안 났음)
     }
     if (B.RightHand && PL.hero.prop === 'mega') { // 몸통에 달고 매 프레임 손 위치로 옮김 → 늘 앞을 향해 위에서도 원뿔로 보임 (단위: 월드)
       const g = new T.Group();

@@ -160,6 +160,14 @@
     const o = { range: B.range * k, speed: B.speed * (1 + m.size * 0.05), half: Math.min(1.25, B.half * (1 + (k - 1) * 0.8)), dmg: B.dmg, h: B.h * (1 + m.size * 0.1), band: B.band * k, cd: B.cd * [1, 0.88, 0.78, 0.7][m.fast], sizeLv: m.size };
     if (st && st.bolt) { o.range = B.range * BOLT.rangeK * k; o.cd = o.cd * BOLT.cdK; o.dmg = B.dmg + BOLT.dmgAdd[level]; o.bossDmg = B.dmg * BOLT.bossK; o.r = BOLT.r + m.size * 0.08; o.bounce = m.bounce || 0; o.pierce = m.pierce || 0; } // bounce = 튕기는 횟수(1단 1번 → 2명 … 4단 4번 → 5명)
     if (st && st.shout) { o.range = B.range * SHOUT.rangeK * k; o.cd = o.cd * SHOUT.cdK; o.dmg = B.dmg + SHOUT.dmgAdd[level]; o.bossDmg = B.dmg * SHOUT.bossK; o.stun = SHOUT.stun; o.splash = SHOUT.splash * k; }
+    // 11-18 리믹스 카드 28종(cards.js C.NUM) — 전용 카드 수치. 전용은 그 주인공일 때만 0 이 아님(cards.js hlv)
+    { const N = TG.C && TG.C.NUM, C = TG.C; if (N) {
+      if (st && st.bolt && m.thick) { o.r = o.r * N.thickK[m.thick]; o.thick = N.thickN[m.thick]; if (m.thick >= 3) { o.dmg *= N.thickDmg3; o.bossDmg *= N.thickDmg3; } } // 굵은 픽셀빔: 폭 1.5/2/2.5배(같이 닿은 안개 1/2/3 더), 3단 세기 +10%
+      if (st && st.shout) { o.stun = SHOUT.stun + N.stunAdd[m.stun || 0]; o.bossStun = m.stun ? o.stun * N.stunBossK : 0; o.splash *= N.lineK[m.line || 0]; if ((m.whistle2 || 0) >= 3) o.cd *= N.whistleCd3; o.whistle2 = m.whistle2 || 0; } // 올려놔!·줄 맞춰!·호루라기 두 번
+      if (TG.heroId === 'sefo') { o.dmg *= C.beatK(); o.range *= C.runRangeK(); o.echo = m.echo || 0; } // 34 박자(세기)·세포런(범위)·확성기 메아리
+      if (TG.heroId === 'berri') { const sk = N.shakaK[m.shaka || 0]; o.range *= sk; o.speed *= sk; o.drops = N.dropsN[m.drops || 0]; o.dropsBig = (m.drops || 0) >= 3; } // 마라카스 샤카·방울 두 개
+      if (TG.heroId === 'sseni') o.stars = N.starsN[m.stars || 0]; // 별 더 많이
+    } }
     return o;
   };
   // 11-17 기본 소리 개편 수치(초안 — 밸런스 측정으로 맞춤, 기록.md 3절)
@@ -196,22 +204,33 @@
       if (level >= 2) { TG.FX.shake(0.1 + level * 0.04); TG.FX.punch(0.012 * level); }
       return;
     }
-    for (let i = 0; i < n; i++) WV.pending.push({ t: 0.05, dir: dir + (i / n) * Math.PI * 2, level });
+    const S0 = WV.stat(level), N = TG.C && TG.C.NUM;
+    for (let i = 0; i < n; i++) {
+      const d0 = dir + (i / n) * Math.PI * 2;
+      WV.pending.push({ t: 0.05, dir: d0, level });
+      if (N && S0.drops > 1) for (let j = 1; j < S0.drops; j++) { const side = j % 2 ? 1 : -1, k = Math.ceil(j / 2), big = S0.dropsBig && j === 1; WV.pending.push({ t: 0.05 + j * 0.03, dir: d0 + side * N.dropsSpread * k, level, drop: true, rangeK: N.dropsRange, big, dmgK: big ? N.dropsBigK : N.dropsK }); } // 11-18 베리 「방울 두 개」: 곁 방울 = 작은 방울(범위 75%·세기 0.5), 3단은 한 방울이 조금 큼(0.75)
+      if (N && S0.whistle2) WV.pending.push({ t: 0.05 + N.whistleAt, dir: d0, level, w2: true, dmgK: N.whistleK[S0.whistle2], noStun: S0.whistle2 < 3 }); // 11-18 허조교 「호루라기 두 번」: 0.15초 뒤 2번째 고함 50/75/100%, 3단만 멈춤까지
+    }
     if (st.flowers) { TG.A.play('sfx_pop', { rate: 1.5 + level * 0.1 + TG.fra(-0.05, 0.05), gain: 0.4 + level * 0.1 }); TG.A.play('sfx_wave', { rate: 1.2 + level * 0.08, gain: 0.4 + level * 0.1 }); } // 베리: 퐁 + 파동 높게
     else if (st.shout) { TG.A.play('sfx_wave', { rate: 0.95 + level * 0.1, gain: 0.5 + level * 0.1 }); TG.A.play('sfx_bonk', { rate: 1.6, gain: 0.25 }); } // 허조교: 낮고 굵은 고함 파형 + 툭 (11-17 3차 대표: 연속 「삐삐삐」 호각 삑(countBeep) 뺌 — 고함 동작은 그대로)
     else if (st.beep) { TG.A.countBeep(true); TG.A.play('sfx_wave', { rate: 1.7 + level * 0.12, gain: 0.35 + level * 0.1 }); } // (옛 허조교) 출발 삑 + 파동 샘플 높게
     else if (st.pixel) { TG.A.play('sfx_pick', { rate: 1.9 + level * 0.1, gain: 0.28 }); TG.A.play('sfx_wave', { rate: 1.3 + level * 0.1, gain: 0.3 + level * 0.08 }); } // (옛 모쉬) 삐빅 + 파동
     else if (st.stars) { TG.A.play('sfx_pick', { rate: 1.5 + level * 0.1 + TG.fra(-0.05, 0.05), gain: 0.3 }); TG.A.play('sfx_wave', { rate: 1.45 + level * 0.08, gain: 0.35 + level * 0.1 }); } // 쎄니: 반짝 + 파동 높게
-    else TG.A.wave(level);
+    else { TG.A.wave(level); if (TG.heroId === 'sefo') TG.A.syn('shout', { level }); } // 11-18 세포: 파동 소리 + 짧은 외침(확성기로 「야!」 느낌, 합성)
     if (level >= 2) { TG.FX.shake(0.12 + level * 0.05); TG.FX.punch(0.015 * level); }
   };
 
-  function launch(dir, level) {
+  function launch(dir, level, o) {
     const w = WV.pool.find((q) => !q.on); if (!w) return;
-    const P = TG.PL, L = WV.stat(level), st = style();
+    o = o || {};
+    const P = TG.PL, st = style();
+    let L = WV.stat(level);
+    if (o.rangeK) L = Object.assign({}, L, { range: L.range * o.rangeK }); // 11-18 베리 곁 방울: 범위 75%
     const ox = P.x + Math.sin(dir) * 0.45, oz = P.z + Math.cos(dir) * 0.45;
-    Object.assign(w, { on: true, id: id++, x: ox, z: oz, dir, level, L, t: 0, r: 0.5, pr: 0.5, fade: 1, hit: new Set(), done: false, st, flowered: false });
-    w.g.visible = true; w.g.position.set(ox, 1.6 + (level * 0.12), oz); w.g.rotation.y = dir;
+    Object.assign(w, { on: true, id: id++, x: ox, z: oz, dir, level, L, t: 0, r: 0.5, pr: 0.5, fade: 1, hit: new Set(), done: false, st, flowered: false, dmgK: o.dmgK || 1, noStun: !!o.noStun, drop: !!o.drop, big: !!o.big, w2: !!o.w2, isEcho: false, echoed: false });
+    if (o.w2) TG.C.whistle2N++; if (o.drop) TG.C.dropWaves++;
+    const mm = TG.heroId === 'sefo' && P.megaMouth && !o.isEcho ? P.megaMouth : null; // 11-18 세포: 확성기 입구(player.js PL.megaMouth, 그림 전용)에서 소리가 나가는 느낌 — 파동 높이·입 앞 반짝·빨간 소리 링. 판정 자리(ox·oz)는 그대로
+    w.g.visible = true; w.g.position.set(ox, mm ? Math.max(1.2, mm.y - 0.35) : 1.6 + (level * 0.12), oz); w.g.rotation.y = dir;
     w.parts.forEach((m) => {
       m.geometry = WV.geos[level][L.sizeLv];
       const U = m.material.uniforms;
@@ -219,14 +238,48 @@
       U.uIn.value.set(st.in); U.uOut.value.set(st.out); U.uEdge.value.setRGB(st.edge[0], st.edge[1], st.edge[2]);
     });
     // 입 앞 반짝 + 주인공마다 다른 알갱이(음표·꽃·픽셀 점)
-    const mx = P.x + Math.sin(dir) * 1.2, mz = P.z + Math.cos(dir) * 1.2, FX = TG.FX, cell = FX.CELL[st.cell] != null ? FX.CELL[st.cell] : FX.CELL.note;
+    const FX = TG.FX, cell = FX.CELL[st.cell] != null ? FX.CELL[st.cell] : FX.CELL.note;
+    const mx = mm ? mm.x + Math.sin(dir) * 0.25 : P.x + Math.sin(dir) * 1.2, mz = mm ? mm.z + Math.cos(dir) * 0.25 : P.z + Math.cos(dir) * 1.2, my = mm ? mm.y : 1.15;
+    if (mm && !o.drop) { // 11-18 확성기 입구에서 뿜어지는 빨간 소리 링 3겹(앞으로 퍼지며 커짐) + 입구 번쩍
+      for (let i = 0; i < 3; i++) FX.emit(FX.CELL.ring, mm.x + Math.sin(dir) * (0.15 + i * 0.3), mm.y, mm.z + Math.cos(dir) * (0.15 + i * 0.3), { vx: Math.sin(dir) * 6, vz: Math.cos(dir) * 6, life: 0.22 + i * 0.05, size: 0.5 + level * 0.1, size1: 1.7 + i * 0.5 + level * 0.3, color: [2.5, 0.55, 0.45], alpha: 0.95 - i * 0.2, drag: 2 });
+      FX.emit(FX.CELL.glow, mm.x, mm.y, mm.z, { life: 0.1, size: 0.9 + level * 0.3, size1: 1.6, color: [2.5, 0.9, 0.6], alpha: 0.55 });
+    }
     const c1 = st.spark, c2 = [c1[0] * 0.96, c1[1] * 0.9, c1[2] * 0.9];
     const sk = st.shout ? 0.5 : 1; // 11-17 3차 허조교: 고함 범위 1/2 → 입 앞 반짝·알갱이도 절반
-    FX.emit(FX.CELL.glow, mx, 1.15, mz, { life: 0.12, size: (1.2 + level * 0.4) * sk, size1: (1.8 + level * 0.5) * sk, color: [c1[0] * 0.75, c1[1] * 0.75, c1[2] * 0.75], alpha: 0.4 });
+    FX.emit(FX.CELL.glow, mx, my, mz, { life: 0.12, size: (1.2 + level * 0.4) * sk, size1: (1.8 + level * 0.5) * sk, color: [c1[0] * 0.75, c1[1] * 0.75, c1[2] * 0.75], alpha: 0.4 });
     for (let i = 0; i < Math.round((3 + level * 2) * sk); i++) {
       const a = dir + TG.fra(-0.6, 0.6), sp = TG.fra(4, 8);
-      FX.emit(i % 2 ? cell : FX.CELL.sparkle, mx, 1.2, mz, { vx: Math.sin(a) * sp, vy: TG.fra(1, 3), vz: Math.cos(a) * sp, life: 0.4, size: 0.35 + level * 0.06, size1: 0.1, color: i % 2 ? c2 : [2.4, 2.0, 1.4], drag: 4, rot: 0 });
+      FX.emit(i % 2 ? cell : FX.CELL.sparkle, mx, my + 0.05, mz, { vx: Math.sin(a) * sp, vy: TG.fra(1, 3), vz: Math.cos(a) * sp, life: 0.4, size: 0.35 + level * 0.06, size1: 0.1, color: i % 2 ? c2 : [2.4, 2.0, 1.4], drag: 4, rot: 0 });
     }
+  }
+
+  // 11-18 세포 「확성기 메아리」: 파동이 끝(사거리)에 닿으면 거기서 뒤돌아 돌아옴(세기 50/75/100%). 원래 파동이 맞힌 안개는 다시 안 맞힘(hit 복사 — 좁은 방 이득 제한)
+  function launchEcho(src) {
+    const w = WV.pool.find((q) => !q.on); if (!w) return;
+    const k = TG.C.NUM.echoK[src.L.echo || 0]; if (!k) return;
+    const fx = src.x + Math.sin(src.dir) * src.r, fz = src.z + Math.cos(src.dir) * src.r, dir = src.dir + Math.PI;
+    const L = Object.assign({}, src.L, { range: Math.max(2.0, src.r - 0.5), echo: 0 });
+    Object.assign(w, { on: true, id: id++, x: fx, z: fz, dir, level: src.level, L, t: 0, r: 0.5, pr: 0.5, fade: 1, hit: new Set(src.hit), done: false, st: src.st, flowered: true, dmgK: k * (src.dmgK || 1), noStun: false, drop: false, big: false, w2: false, isEcho: true, echoed: true });
+    TG.C.echoWaves++;
+    w.g.visible = true; w.g.position.set(fx, 1.6 + (src.level * 0.12), fz); w.g.rotation.y = dir;
+    w.parts.forEach((m) => { m.geometry = WV.geos[src.level][L.sizeLv]; const U = m.material.uniforms; U.uGold.value = src.level === 3 ? 1 : 0; U.uA.value = 0; U.uPix.value = 0; U.uIn.value.set(0xffd8b0); U.uOut.value.set(src.st.out); U.uEdge.value.setRGB(src.st.edge[0], src.st.edge[1], src.st.edge[2]); });
+    const FX = TG.FX; FX.ring(fx, fz, { r0: 0.3, r1: 1.8, dur: 0.25, color: 0xff8a5b, width: 0.18, alpha: 0.8, hdr: 1.2 });
+    for (let i = 0; i < 5; i++) FX.emit(FX.CELL.note, fx, 1.3, fz, { vx: Math.sin(dir + TG.fra(-0.5, 0.5)) * 4, vy: TG.fra(1, 3), vz: Math.cos(dir + TG.fra(-0.5, 0.5)) * 4, life: 0.4, size: 0.35, size1: 0.1, color: [2.5, 1.4, 0.8], drag: 4, rot: 0 });
+    TG.A.play('sfx_wave', { rate: 1.3 + src.level * 0.1, gain: 0.25 }); FX.text('메아리!', fx, 2.8, fz, 'echo');
+  }
+  // 11-18 쎄니 「별 더 많이」: 퍼플팝이 처음 안개를 맞히면 별 조각 1/2/3개가 가까운(4.0 안) 다른 안개로 날아가 작은 안개 하나씩 더 퐁(세기 1)
+  function starBurst(w, u, G) {
+    const F = TG.F, FX = TG.FX, n = w.L.stars, R2 = TG.C.NUM.starsR ** 2;
+    const cand = [];
+    for (const v of F.list) { if (v.state !== 'live' || v.kind === 'cocoon' || v.spawnT < 0.3 || w.hit.has(v.id)) continue; const d = (v.x - u.x) ** 2 + (v.z - u.z) ** 2; if (d <= R2) cand.push([d, v.id, v]); }
+    cand.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    for (let i = 0; i < Math.min(n, cand.length); i++) {
+      const v = cand[i][2]; w.hit.add(v.id);
+      const x0 = u.x, z0 = u.z, ux = v.x, uz = v.z;
+      for (let k = 0; k < 3; k++) FX.emit(FX.CELL.star, x0, 1.3, z0, { vx: (ux - x0) * 3, vy: TG.fra(1, 2.5), vz: (uz - z0) * 3, life: 0.3, size: 0.45, size1: 0.15, color: [1.8, 1.2, 2.6], rot: TG.fra(0, 3), vrot: 8, drag: 1 });
+      G.after(4 + i * 2, () => { if (v.state === 'live') { TG.C.starHits++; G.hitUnit(v, 1 * (w.dmgK || 1), x0, z0, true, 0, [1.8, 1.2, 2.6]); FX.emit(FX.CELL.star, v.x, v.y + 1.2 * v.scale, v.z, { vy: 2, life: 0.35, size: 0.6, size1: 0, color: [2.2, 1.6, 2.6], rot: 0, vrot: 6 }); } });
+    }
+    if (cand.length) TG.A.play('sfx_pick', { rate: 2.2, gain: 0.25 });
   }
 
   // ── 모쉬 기본 「푸슝 빔」: 곧은 빛 한 발 → 처음 닿은 안개 하나(또는 보스) 피해. 카드 「튕기는 빔」이면 가까운 다른 안개로 튕김, 「지나는 빔」이면 뚫고 계속 ──
@@ -271,6 +324,12 @@
         const hx = hitU ? hitU.x : bs.x, hz = hitU ? hitU.z : bs.z, spark = [0.8, 2.2, 2.5];
         if (hitU) { b.hit.add(hitU.id); G.hitUnit(hitU, L.dmg, b.px, b.pz, false, b.level, spark); }
         else { b.hit.add('boss'); G.hitBoss(L.bossDmg, b.x, b.z, false, b.level); }
+        if (hitU && L.thick) { // 11-18 굵은 픽셀빔: 굵은 빔 폭(L.r) 안에 나란히 선 안개 1/2/3마리 더 — 맞은 자리에서 빔 길이 방향 −1.0~+2.2(보이는 광선 안) · 옆으로 안개 반지름+빔 폭 안, 빔 가까운 순
+          const more = [], sx = Math.sin(b.dir), sz = Math.cos(b.dir);
+          for (const u of F.list) { if (u === hitU || u.state !== 'live' || b.hit.has(u.id) || u.spawnT < 0.3 || u.kind === 'cocoon') continue; const dx = u.x - hx, dz = u.z - hz, along = dx * sx + dz * sz, perp = Math.abs(dx * sz - dz * sx); if (along < -1.0 || along > 2.2 || perp > u.r * u.scale + L.r) continue; more.push([perp, u.id, u]); }
+          more.sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+          for (let k = 0; k < Math.min(L.thick, more.length); k++) { const u = more[k][2]; b.hit.add(u.id); TG.C.thickHits++; G.hitUnit(u, L.dmg, b.px, b.pz, true, b.level, spark); FX.emit(FX.CELL.dot, u.x, b.y0, u.z, { life: 0.2, size: 0.5, size1: 0, color: [1.2, 2.4, 2.5], rot: 0 }); }
+        }
         WV.boltHits++;
         FX.emit(FX.CELL.glow, hx, b.y0, hz, { life: 0.12, size: 1.0, size1: 2.2, color: [0.9, 2.2, 2.5], alpha: 0.6 }); // 3차: 맞은 자리 섬광(빔 높이에)
         // 튕김: 아직 안 맞은 가장 가까운 안개(보스 포함)로 방향을 꺾음
@@ -307,8 +366,9 @@
   // ── 허조교 기본 「올려놔!」: 고함 파형이 처음 닿은 안개 하나 → 피해 + stun 초 멈춤, 둘레(splash) 안개는 피해 없이 같이 멈춤(스턴 스플래시). 파형은 거기서 끝남 ──
   function shoutHit(w, u, G) {
     const L = w.L, F = TG.F, FX = TG.FX;
-    G.hitUnit(u, L.dmg, w.x, w.z, false, w.level, [2.0, 2.2, 1.0]);
+    G.hitUnit(u, L.dmg * (w.dmgK || 1), w.x, w.z, false, w.level, [2.0, 2.2, 1.0]);
     let n = 0;
+    if (w.noStun) { WV.shoutHits++; w.done = true; return; } // 11-18 호루라기 두 번 1·2단: 2번째 고함은 세기만(멈춤 X)
     for (const v of F.list) {
       if (v.state !== 'live' || v.kind === 'cocoon' || v.spawnT < 0.3) continue;
       const d = Math.hypot(v.x - u.x, v.z - u.z);
@@ -376,7 +436,7 @@
   WV.mistStart = function (x, z, R, o) {
     o = o || {};
     if (WV.mists.length >= 3) WV.mists.shift();
-    const m = { x, z, R, t: 0, dur: o.dur != null ? o.dur : MIST.dur, stainDur: o.stainDur != null ? o.stainDur : MIST.stainDur, dotT: 0.25, bossT: 0.25, boss: o.boss !== false, dots: 0, id: id++ };
+    const m = { x, z, R, t: 0, dur: o.dur != null ? o.dur : MIST.dur, stainDur: (o.stainDur != null ? o.stainDur : MIST.stainDur) + (TG.C && TG.C.stainAdd ? TG.C.stainAdd() : 0), dotT: 0.25, bossT: 0.25, boss: o.boss !== false, dots: 0, id: id++ }; // 11-18 「물감 오래」 +1/2/3초
     WV.mists.push(m);
     return m;
   };
@@ -390,13 +450,15 @@
       if (stain && !MIST.floorSlow) continue;
       const k = live ? MIST.slow : MIST.stainSlow, R2 = m.R * m.R;
       let dot = false;
-      if (live) { m.dotT -= dt; if (m.dotT <= 0) { m.dotT += MIST.dot; dot = true; } }
+      const bk = TG.C && TG.C.brightK ? TG.C.brightK() : 1; // 11-18 「밝게 반짝」: 물감 구역 안 퐁(도트) 속도 +30/60/90%
+      if (live) { m.dotT -= dt; if (m.dotT <= 0) { m.dotT += MIST.dot / bk; dot = true; } }
       for (const u of F.list) {
         if (u.state !== 'live' || u.kind === 'cocoon') continue;
         if ((u.x - m.x) ** 2 + (u.z - m.z) ** 2 > R2) continue;
         u.slowK *= k;
         if (live) {
           u.mistT = 0.12; // 보라 물듦 표시
+          if (bk > 1 && TG.fr() < 0.08 * (bk - 1)) FX.emit(FX.CELL.sparkle, u.x + TG.fra(-0.4, 0.4), u.y + TG.fra(0.8, 1.6) * u.scale, u.z, { vy: 1.5, life: 0.3, size: 0.4, size1: 0, color: [2.4, 2.2, 2.6] }); // 밝게 반짝: 환하게
           if (dot && u.spawnT >= 0.3) { // 도트: 제자리에서(밀려 나가지 않게 — 구역 밖으로 밀리면 도트가 끊김). 도트로 퐁 나면 게이지 안 참(큰 소리 몫) — 살아 나간 안개는 평타로 터뜨리면 다시 참(검토 ①: 매 걸음 byBig 을 찍으면 영구히 막혔음)
             m.dots++; WV.mistDots++; const was = u.byBig; u.byBig = true; const r = G.hitUnit(u, MIST.dmg, u.x, u.z, true, 0, [1.8, 1.2, 2.6]); if (r !== 'pop' && r !== 'convert') u.byBig = was;
           }
@@ -428,7 +490,7 @@
   WV.update = function (dt, G) {
     for (let i = 0; i < WV.pending.length; i++) {
       const p = WV.pending[i]; p.t -= dt;
-      if (p.t <= 0) { if (p.bolt) launchBolt(p.dir, p.level); else launch(p.dir, p.level); WV.pending.splice(i, 1); i--; }
+      if (p.t <= 0) { if (p.bolt) launchBolt(p.dir, p.level); else launch(p.dir, p.level, p); WV.pending.splice(i, 1); i--; }
     }
     beamUpdate(dt, G);
     boltUpdate(dt, G);
@@ -438,7 +500,7 @@
       const L = w.L;
       w.t += dt; w.pr = w.r;
       w.r = 0.5 + L.speed * w.t * (1 - Math.min(0.35, w.t * 0.3));
-      if (w.r >= L.range) { w.done = true; }
+      if (w.r >= L.range) { w.done = true; if (!w.echoed && L.echo && !w.isEcho) { w.echoed = true; launchEcho(w); } } // 11-18 확성기 메아리
       if (w.done) {
         if (!w.flowered) { // 베리: 파동이 끝난 자리에 작은 꽃 자국(밟으면 회복, js/flowers.js). 상자·벽 자리면 조금 안쪽에
           w.flowered = true;
@@ -456,14 +518,16 @@
         if (ang > L.half + Math.atan2(ur, Math.max(d, 0.5))) continue;
         w.hit.add(u.id);
         if (w.st && w.st.shout) { shoutHit(w, u, G); break; } // 허조교 고함: 처음 하나만 + 둘레 멈춤, 파형은 거기서 끝
-        G.hitUnit(u, L.dmg, w.x, w.z, false, w.level, w.st && w.st.spark ? [w.st.spark[0] * 0.9, w.st.spark[1] * 0.9, w.st.spark[2] * 0.9] : undefined);
+        const r = G.hitUnit(u, L.dmg * (w.dmgK || 1), w.x, w.z, false, w.level, w.st && w.st.spark ? [w.st.spark[0] * 0.9, w.st.spark[1] * 0.9, w.st.spark[2] * 0.9] : undefined);
+        if ((r === 'pop' || r === 'convert') && TG.heroId === 'sefo') TG.C.onWavePop(w); // 11-18 34 박자
+        if (L.stars && w.hit.size === 1 && !w.isEcho) starBurst(w, u, G); // 11-18 별 더 많이(처음 맞힌 때 1번)
       }
       const b = F.boss;
       if (b && b.state === 'fight' && !w.hit.has('boss') && !w.done) {
         const dx = b.x - w.x, dz = b.z - w.z, d = Math.hypot(dx, dz), br = b.r * b.scale;
         if (Math.abs(d - w.r) < L.band * 0.5 + br) {
           const ang = Math.abs(TG.angDiff(w.dir, Math.atan2(dx, dz)));
-          if (ang < L.half + Math.atan2(br, Math.max(d, 0.5))) { w.hit.add('boss'); G.hitBoss(L.bossDmg != null ? L.bossDmg : L.dmg, w.x + Math.sin(w.dir) * w.r, w.z + Math.cos(w.dir) * w.r, false, w.level); if (w.st && w.st.shout) { WV.shoutHits++; w.done = true; } }
+          if (ang < L.half + Math.atan2(br, Math.max(d, 0.5))) { w.hit.add('boss'); G.hitBoss((L.bossDmg != null ? L.bossDmg : L.dmg) * (w.dmgK || 1), w.x + Math.sin(w.dir) * w.r, w.z + Math.cos(w.dir) * w.r, false, w.level); if (w.st && w.st.shout) { WV.shoutHits++; w.done = true; if (L.bossStun && !w.noStun && !(b.shoutCd > 0)) { TG.C.bossStuns++; b.shoutT = L.bossStun; b.shoutCd = TG.C.NUM.stunBossEvery; } } } // 11-18 올려놔! 카드: 보스 절반 멈춤, 2.5초에 1번
         }
       }
     }
@@ -481,7 +545,7 @@
       const shout = !!st.shout; // 11-17 3차 허조교(대표: 범위 1/2): 소리 모양도 절반 — 높이 0.28배(2차 0.55 의 1/2), 호 사이 0.55(1.05 의 1/2), 호 2줄(3번째 투명)·2번째 옅게. 몸동작(player.js shotPose)이 주인공. 판정(L.band·half)은 그대로
       w.parts.forEach((m, k) => {
         const rr = Math.max(0.3, r - k * (shout ? 0.55 : 1.05)); // 호 사이를 띄워 「)))」 로 읽히게
-        const hh = L.h * 0.58 * grow * (1 - k * 0.2) * (shout ? 0.28 : 1);
+        const hh = L.h * 0.58 * grow * (1 - k * 0.2) * (shout ? 0.28 : 1) * (w.drop ? (w.big ? 1.0 : 0.72) : 1) * (w.isEcho ? 0.85 : 1); // 11-18 베리 곁 방울은 조금 작게(3단 한 방울은 그대로), 메아리는 조금 낮게
         m.scale.set(rr, hh, rr);
         m.material.uniforms.uA.value = (shout ? [1, 0.6, 0][k] : 1 - k * 0.22) * w.fade * (w.t < 0.04 ? w.t / 0.04 : 1);
       });

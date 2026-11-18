@@ -369,7 +369,7 @@
       const b = document.createElement('button'); b.className = 'card'; b.style.setProperty('--cc', d.col);
       const cv = document.createElement('canvas'); cv.width = cv.height = 320; C.icon(id, cv); b.appendChild(cv);
       const tag = document.createElement('div'); tag.className = 'ctag'; tag.textContent = d.tag ? 'with ' + d.tag : ''; b.appendChild(tag);
-      const nm = document.createElement('div'); nm.className = 'cname'; nm.textContent = d.name; b.appendChild(nm);
+      const nm = document.createElement('div'); nm.className = 'cname' + (d.name.replace(/\s/g, '').length >= 6 ? ' long' : ''); nm.textContent = d.name; b.appendChild(nm); // 11-18: 긴 이름(호루라기 두 번·마라카스 샤카·다시 일어나기)은 글자 조금 작게
       const pp = document.createElement('div'); pp.className = 'pips';
       for (let k = 0; k < C.maxOf(id); k++) { const p = document.createElement('i'); if (k < lv) p.className = 'on'; else if (k === lv) p.className = 'new'; pp.appendChild(p); }
       b.appendChild(pp);

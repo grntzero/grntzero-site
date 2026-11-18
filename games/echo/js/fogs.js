@@ -380,8 +380,8 @@
       u.vx += (dx / d) * 3; u.vz += (dz / d) * 3;
       return 'bounce';
     }
-    u.hp -= dmg; u.flash = 1; u.sqT = 0.13;
-    const kb = u.kind === 'clump' ? 2.5 : u.kind === 'tick' ? 3 : 5;
+    u.hp -= dmg; if (!(u.flashT > 0)) { u.flash = 1; u.flashT = 0.34; } u.sqT = 0.13; // 11-18 타격감: 흰 번쩍(0.05초 꽉 → 0.06초 사라짐, fogs draw fl)은 한 안개에 0.34초에 1번만(깜빡임 초당 3회 이하), 찌그러짐은 매번
+    const kb = u.kind === 'clump' ? 2.5 : u.kind === 'tick' ? 3 : 5; // 11-18 타격감: 넉백 1.25배를 재 봤으나 자동 모드 쎄니가 보스전에서 1/3 만 깸(+25%) → 원래 값(1.0) 유지. 밀림 느낌은 찌그러짐·번쩍·히트 스톱으로(기록.md)
     u.vx += (dx / d) * kb; u.vz += (dz / d) * kb;
     if (u.hp <= 0) {
       if (u.kind === 'tick') { u.state = 'dance'; u.danceT = 0; u.hp = 0; return 'convert'; }
@@ -437,7 +437,7 @@
       const u = list[i];
       u.px = u.x; u.pz = u.z; u.py = u.y;
       u.spawnT += dt;
-      u.flash = Math.max(0, u.flash - dt * 9);
+      u.flash = Math.max(0, u.flash - dt * 9); if (u.flashT > 0) u.flashT -= dt;
       u.sqT = Math.max(0, u.sqT - dt);
       u.poyCd = Math.max(0, u.poyCd - dt);
       if (u.state === 'dying') { // 눌렸다(0.06초) → 부풀며 터짐
@@ -945,14 +945,14 @@
       else if (u.kind === 'bubble') s *= 0.87 + 0.27 * hsh(u.id, 1); // 꾸밈용 크기 ±13% (판정 반지름은 그대로)
       if (u.paint > 0 && u.paintD) s *= Math.max(0.35, 1 - 0.65 * TG.clamp((u.paintK || 0) / u.paintD, 0, 1)); // 퍼플팡팡: 물든 동안 65% 까지 작아짐(그림만, 판정 그대로)
       let sx = 1, sy = 1;
-      if (u.sqT > 0) { const q = Math.sin((u.sqT / 0.13) * Math.PI); sx = 1 + q * 0.4; sy = 1 - q * 0.38; }
+      if (u.sqT > 0) { const q = Math.sin((u.sqT / 0.13) * Math.PI); sx = 1 + q * 0.5; sy = 1 - q * 0.46; } // 11-18 타격감: 찌그러짐 0.4/0.38 → 0.5/0.46
       if (u.kind !== 'tick') { const w = Math.sin(t * 3.1 + u.ph) * 0.04; sx += w; sy -= w; }
       if (u.state === 'dying') { // 눌렸다 → 부풀며 터짐
         const q = u.dieT / 0.12;
         if (q < 0.5) { sx *= 1 + 0.16 * (q / 0.5); sy *= 1 - 0.3 * (q / 0.5); } else { const e = (q - 0.5) / 0.5; sx *= 1.16 + 0.06 * e; sy *= 0.7 + 0.45 * e; } // 작게 부풂(최대 약 1.2배)
       }
       if (u.kind === 'tick' && u.state === 'leave') s *= Math.max(0.01, 1 - u.dieT / 0.6);
-      const fl = u.state === 'dying' ? (u.dieT < 0.05 ? 0.6 : 0.35) : u.flash * 0.7;
+      const fl = u.state === 'dying' ? (u.dieT < 0.05 ? 0.6 : 0.35) : u.flash > 0.5 ? 0.95 : u.flash * 0.9; // 11-18 타격감: 맞은 직후 0.055초는 거의 흰색(0.95), 그 뒤 0.055초에 사라짐(flash 1 → 0, 9/s)
       if (u.kind === 'tick') {
         tmpE.set(0, u.yaw, u.state === 'live' ? Math.sin(F.tickBeat / 0.5 * Math.PI) * 0.12 : 0, 'YXZ');
         tmpQ.setFromEuler(tmpE);

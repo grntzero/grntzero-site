@@ -25,7 +25,7 @@
     { budget: 120, cap: 28, iv: [1.15, 0.8], grp: [4, 7], clump: 5, echo: 0, tick: 0, spd: 1.65, split: 2, cocoonAt: 0.45, title: '2층 · 안개 뭉치가 굴러와요!', sub: '터지면 둘로 나뉘어요' },
     { budget: 150, cap: 36, iv: [1.0, 0.7], grp: [5, 8], clump: 6, echo: 4, tick: 8, spd: 1.85, split: 3, cocoonAt: 0.45, title: '3층 · 메아리 안개 등장!', sub: '한 번은 통! 튕겨요. 두 번째에 퐁' },
   ];
-  const REC_V = 6;                  // 입력 기록 판 번호(11-17 3차: 고함 둘레 2.0·보스 0.95·세포체조 층 전체·보스 16·충전 0.85 → 6. 11-16 오후 밸런스 개편 → 4, 11-17 필살기·평타 개편(세포체조 길이·모쉬/허조교 평타·쎄니 구역) → 5: v4 이하는 재생 안 함)
+  const REC_V = 7;                  // 입력 기록 판 번호(11-18 리믹스 카드 28종·전용 최대 1장 뽑기 → 7. 11-17 3차: 고함 둘레 2.0·보스 0.95·세포체조 층 전체·보스 16·충전 0.85 → 6. 11-16 오후 밸런스 개편 → 4, 11-17 필살기·평타 개편(세포체조 길이·모쉬/허조교 평타·쎄니 구역) → 5: v4 이하는 재생 안 함)
   const XP0 = 10, XP_STEP = 24;      // 레벨업 필요 음표: XP0 + XP_STEP × (레벨 − 1)
   const REST_HEAL = 2;              // 쉼터 「소리 회복」: 2칸 (전에는 가득)
   const AIM_N = 256;                // 조준 방향 기록 단위(한 바퀴 256칸)
@@ -142,6 +142,7 @@
   function resetRun(keepFx) {
     G.tick = 0; G.time = 0; G.realT = 0; G.gauge = 0; G.combo = 0; G.comboT = 0; G.maxCombo = 0; G.notes = 0; G.popped = 0; G.rescued = 0; G.bossStarted = false;
     G.floor = 1; G.fogPop = 0; G.floorDone = false; G.cocoonDone = false; G.level = 1; G.xp = 0; G.xpNeed = XP0; G.pendingCards = 0; G.cardOpen = null; G.cardN = 0; G.revived = false;
+    G.rankMode = !!(TG.Q && TG.Q.rank); // 11-18 순위(끝까지) 모드 깃발(?rank=1, 끝까지 모드 만들 때 여기서 켬) — 「다시 일어나기」 카드 안 나옴
     G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.lined = 0; G.hintT = 0; G.hurts = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
     G.gaugeLock = 0; G.hintStage = 0; G.moved = 0; G.afters.length = 0; G.inBig = false; G.inPick = -1; G.inCard = -1; G.botW = 0; G.botStuck = 0; G.botSideT = 0; G.botSideS = 1; G.botLx = 0; G.botLz = 0; G.botCocT = 0; G.machSlow = false; G.camFocusK = 0.45;
     G.autoTicks = 0; G.playTicks = 0; G.autoShots = 0; G.autoOn = false;
@@ -405,11 +406,13 @@
     }
     if (!quiet) {
       if (lv >= 2) FX.hitstop(lv === 3 ? 50 : 34);
-      else if (G.hsCd <= 0) { FX.hitstop(17); G.hsCd = 0.12; }
+      else if (G.hsCd <= 0) { FX.hitstop(34); G.hsCd = 0.12; } // 11-18 타격감: 기본 맞힘 히트 스톱 17 → 34ms(2프레임, 0.12초에 1번). 그림·실제 시간만 멈추고 규칙 걸음(G.tick·G.time)은 그대로(simTick freeze → step 건너뜀, api.run 은 걸음 수로 셈)
+      P().kick(1.4); // 11-18 타격감: 맞힌 순간 주인공 몸이 톡(반동 확인)
+      TG.A.play('sfx_pop', { rate: 2.1 + lv * 0.15 + TG.fra(-0.08, 0.08), gain: 0.16 }); // 11-18 타격감: 맞을 때 작은 퐁 한 겹 더(hitSmall 톡 위에)
     }
     FX.hitSeq(u.x, y, u.z, lv, tint);
     if ((!quiet || big) && r !== 'convert') vib(big ? 'hit3' : lv >= 3 ? 'hit3' : lv >= 2 ? 'hit2' : 'hit'); // 바뀌는 순간은 아래 처치 진동만
-    if (!big && (u.maxHp > 1 || lv >= 2)) FX.dmg('u' + u.id, Math.round(dmg * 120), u.x, y + 1.0, u.z, lv);
+    if (!big) FX.dmg('u' + u.id, Math.round(dmg * 120), u.x, y + 1.0, u.z, lv); // 11-18 타격감: 숫자 팝을 모든 맞힘에(전엔 체력 많은 안개·2단 이상만)
     addCombo();
     if (!quiet) TG.A.hitSmall();
     if (lv === 3 && !quiet) FX.shake(0.2);
@@ -435,7 +438,7 @@
     FX.dmg('boss', Math.round(dmg * 120), b.x, 4.6 * b.scale + 0.6, b.z, lv);
     addCombo();
     if (!quiet && r !== 'phase' && r !== 'dead') vib(lv >= 2 ? 'hit2' : 'hit'); // 단계·마지막 명중은 아래 큰 진동만
-    if (!quiet) { TG.A.hitSmall(); if (G.hsCd <= 0) { FX.hitstop(lv >= 2 ? 34 : 17); G.hsCd = 0.12; } }
+    if (!quiet) { TG.A.hitSmall(); if (G.hsCd <= 0) { FX.hitstop(lv >= 2 ? 50 : 34); G.hsCd = 0.12; P().kick(1.4); } } // 11-18 타격감: 보스 맞힘도 34/50ms + 반동
     if (r === 'phase') {
       FX.hitstop(100); FX.shake(0.55); FX.punch(0.06); TG.R.bloomPulse = 0.12; vib('bossPhase');
       FX.popBurst(b.x, 2.5, b.z, 2.0, [1.3, 1.26, 1.16]); FX.ring(b.x, b.z, { r0: 1, r1: 8, dur: 0.5, color: 0xfff3d6, width: 0.1, alpha: 0.7, hdr: 1.1 });
@@ -461,6 +464,7 @@
     if (big) { FX.hitstop(50); FX.shake(0.22); FX.punch(0.025); FX.text('퐁!', u.x, y + 1.6, u.z, 'pop'); }
     else if (u.byBig && G.combo > 0 && G.combo % 10 === 0) FX.text('퐁!', u.x, y + 1.2, u.z, 'pop');
     G.popped++;
+    if (!u.byBig && !big && G.hsCd <= 0) { FX.hitstop(34); G.hsCd = 0.1; } // 11-18 타격감: 평타로 퐁 날 때도 34ms(큰 소리 연쇄 퐁은 X — 화면이 끊기지 않게)
     if (!u.byBig) addGauge(big ? 8 : u.kind === 'echo' ? 6 : 4);
     G.lastPopT = G.time; G.arrowU = null; // 11-16 남은 안개 화살표: 터뜨리면 시계 다시
     TG.F.dropNotes(u.x, u.z, big ? 3 : u.kind === 'echo' ? 2 : 1, 1, !!u.byBig);
@@ -489,16 +493,25 @@
     FX.text('뽀잉!', p.x, 3.6, p.z, 'boing');
     for (let i = 0; i < 5; i++) FX.emit(FX.CELL.star, p.x, 1.6, p.z, { vx: TG.fra(-3, 3), vy: TG.fra(2, 5), vz: TG.fra(-3, 3), life: 0.45, size: 0.4, size1: 0.1, color: [2.2, 2.2, 2.2], grav: 8, pop: true });
     G.combo = 0; G.hurts++;
+    if (p.hp <= 0 && TG.C.tryRevive && TG.C.tryRevive(p)) { // 11-18 「다시 일어나기」 카드: 1번만 소리 크기 1칸으로 버팀(순위 모드엔 카드가 안 나옴)
+      G.revived = true;
+      FX.text('일어나!', p.x, 4.4, p.z, 'cheer'); SSEL('cheer', '일어나! 아직 할 수 있어!', 2.4);
+      FX.ring(p.x, p.z, { r0: 0.5, r1: 4.5, dur: 0.5, color: 0x8cf06a, width: 0.3, hdr: 1.3 });
+      for (let i = 0; i < 12; i++) FX.emit(FX.CELL.sparkle, p.x + TG.fra(-1, 1), 0.5 + TG.fra(0, 1.5), p.z + TG.fra(-1, 1), { vy: TG.fra(2, 5), life: 0.7, size: 0.5, size1: 0, color: [1.4, 2.5, 1.0] });
+      TG.A.syn('rescue'); p.glow = 0.8; p.kick(3);
+      return;
+    }
     if (p.hp <= 0) toCovered();
     else if (p.hp === 1 && p.maxHp > 1) SSEL('surprise', '앗, 한 칸 남았어! 조심조심~', 2.4);
   };
   G.onPick = function (n) {
-    G.notes++;
+    const nk = TG.C && TG.C.noteK ? TG.C.noteK() : 1; // 11-18 「음표 두 배」: 뽑은 뒤 10/15/20초 음표 가치 2배(음표 수·게이지·레벨 음표)
+    G.notes += nk; if (nk > 1) TG.C.noteX2N++;
     TG.A.pick();
-    TG.FX.emit(TG.FX.CELL.glow, n.x, n.y, n.z, { life: 0.15, size: 0.8, size1: 1.4, color: [2.0, 1.7, 0.6], alpha: 0.45 });
-    if (!n.noGauge) addGauge(1.5);
+    TG.FX.emit(TG.FX.CELL.glow, n.x, n.y, n.z, { life: 0.15, size: 0.8 * nk, size1: 1.4 * nk, color: nk > 1 ? [2.4, 2.0, 0.5] : [2.0, 1.7, 0.6], alpha: 0.45 });
+    if (!n.noGauge) addGauge(1.5 * nk);
     // 음표 → 소리 게이지(레벨)
-    G.xp++;
+    G.xp += nk;
     if (G.xp >= G.xpNeed) { G.xp -= G.xpNeed; G.level++; G.xpNeed = XP0 + XP_STEP * (G.level - 1); G.pendingCards++; }
   };
   // 안개 고치가 풀림: 주민 「고마워요!」 + 음표
@@ -1574,6 +1587,7 @@
         slowed: F.list.filter((u) => u.state === 'live' && u.slowK < 0.999).map((u) => +u.slowK.toFixed(3)),
         danceMusicAt: G.danceMusicAt == null ? null : +G.danceMusicAt.toFixed(2), danceVoiceAt: G.danceVoiceAt == null ? null : +G.danceVoiceAt.toFixed(2), danceBoomAt: G.danceBoomAt == null ? null : +G.danceBoomAt.toFixed(2),
         headSpin: +(TG.PL.headSpin || 0).toFixed(3), bodySpin: !!TG.PL.spin, hurtBy: Object.assign({}, G.hurtBy || {}), cardMax: Object.fromEntries(TG.C.DEFS.map((d) => [d.id, TG.C.maxOf(d.id)])),
+        remix: TG.C.state ? TG.C.state() : null, rank: !!G.rankMode, bossShoutT: F.boss ? +(F.boss.shoutT || 0).toFixed(2) : 0, // 11-18 리믹스 카드 상태
       };
     },
     spawn(kind, n, near) {
