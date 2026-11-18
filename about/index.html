@@ -73,6 +73,8 @@ footer{padding:40px 0 60px;text-align:center;color:var(--mut);font-size:12px}
 .logo{display:block;width:120px;margin:0 auto 10px}.logo img{width:120px;height:auto;display:block;margin:0 auto}
 .fl a{color:var(--cream);text-decoration:underline;text-underline-offset:3px}.fl{margin:0 0 8px}
 .pdfb{display:inline-block;margin-top:20px;border:1px solid var(--gold);color:var(--gold2);padding:12px 20px;font-size:14.5px;font-weight:600;text-decoration:none}.pdfb:hover{background:var(--gold);color:var(--ink)}
+.pdfs{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:20px}.pdfs .pdfb{margin-top:0}
+@media(max-width:620px){.pdfs{flex-wrap:nowrap;gap:8px}.pdfs .pdfb{flex:1 1 0;text-align:center;padding:12px 8px;font-size:13.5px}}
 </style>
 </head>
 <body>
@@ -84,7 +86,7 @@ footer{padding:40px 0 60px;text-align:center;color:var(--mut);font-size:12px}
 <p class="sub">무대는 사람 아티스트가, 운영은 AI 직원 <em>110명</em>이</p>
 <p class="real">아티스트와 무대는 100% 사람입니다. AI가 만든 가수가 아니에요.</p>
 <p class="lead">그런트제로는 사람 대표 1명과 AI 직원 110명이 한 팀으로 일하는 DJ·공연 아티스트 전속 기획사입니다. 접수·견적·계약부터 정산, 영상·SNS, 아티스트 케어까지 각자 맡은 자리에서 24시간 움직이고, 중요한 결정과 책임은 언제나 사람 대표가 집니다.</p>
-<a class="pdfb" href="/doc/grunt-zero-company-profile.pdf" target="_blank" rel="noopener">그런트제로 회사소개서 받기 (PDF) ↓</a>
+<div class="pdfs"><a class="pdfb" href="/doc/grunt-zero-company-profile.pdf" target="_blank" rel="noopener">회사소개서 PDF 가로형 ↓</a><a class="pdfb" href="/doc/grunt-zero-company-profile-portrait.pdf" target="_blank" rel="noopener">회사소개서 PDF 세로형 ↓</a></div>
 </header>
 <h2>Organization</h2>
 <div id="chart">

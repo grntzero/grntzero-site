@@ -92,6 +92,10 @@ h2{font-family:var(--f-head);font-weight:800;font-size:clamp(25px,3.6vw,36px);le
 .hero-lead{font-size:clamp(16.5px,2vw,19px);font-weight:600;margin:20px 0 0;max-width:34ch;color:var(--ink-2)}
 .hero-body{color:var(--mute);margin:12px 0 0;max-width:46ch;font-size:15.5px}
 .cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.pdf2{display:inline-flex;flex-wrap:wrap;gap:10px}
+@media(max-width:620px){.pdf2{display:flex;width:100%;gap:8px}.pdf2 .btn{flex:1 1 0;justify-content:center;text-align:center;padding:13px 8px;font-size:14px}}
+.ch .pick{display:flex;gap:8px;margin-top:10px}.ch .pick a{flex:1 1 0;text-align:center;padding:12px 10px;border-radius:999px;background:var(--violet);border:1px solid var(--violet);color:#fff;font-family:var(--f-head);font-size:15px;font-weight:800}.ch .pick a:hover{background:var(--violet-2);border-color:var(--violet-2)}
+.ch .pdfc{padding:18px 20px;border-radius:14px;background:var(--card);border:1px solid var(--line-2)}
 .hero-img{position:relative;margin:0;border:1px solid var(--line-2);border-radius:20px;overflow:hidden;background:var(--card);box-shadow:0 14px 40px -24px rgba(60,40,120,.45)}
 .hero-img img{width:100%;height:auto}
 .hot{position:absolute;display:block;border-radius:14px;transition:background .16s,box-shadow .16s;-webkit-tap-highlight-color:transparent}
@@ -415,7 +419,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
         <div class="cta-row">
           <a class="btn" href="#contact">공연 문의하기</a>
           <a class="btn ghost" href="#artists">아티스트 보기</a>
-          <a class="btn ghost" href="doc/sefo-kids-club-brochure.pdf" target="_blank" rel="noopener">어린이클럽 소개서 받기 (PDF)</a>
+          <span class="pdf2"><a class="btn ghost" href="doc/sefo-kids-club-brochure.pdf" target="_blank" rel="noopener">소개서 PDF 가로형 ↓</a><a class="btn ghost" href="doc/sefo-kids-club-brochure-portrait.pdf" target="_blank" rel="noopener">소개서 PDF 세로형 ↓</a></span>
         </div>
       </div>
       <div>
@@ -653,7 +657,7 @@ footer small{display:block;margin-top:26px;font-family:var(--f-mono);font-size:1
       <div class="ch">
         <a href="tel:18008790"><div class="k">Tel</div><div class="v">1800-8790</div></a>
         <a href="mailto:grnt@grntzero.com"><div class="k">Email</div><div class="v">grnt@grntzero.com</div></a>
-        <a href="doc/sefo-kids-club-brochure.pdf" target="_blank" rel="noopener"><div class="k">Brochure · PDF 17p</div><div class="v">어린이클럽 소개서 받기 ↓</div></a>
+        <div class="pdfc"><div class="k">Brochure · PDF 18p</div><div class="v">어린이클럽 소개서 받기</div><div class="pick"><a href="doc/sefo-kids-club-brochure.pdf" target="_blank" rel="noopener">가로형 ↓</a><a href="doc/sefo-kids-club-brochure-portrait.pdf" target="_blank" rel="noopener">세로형 ↓</a></div></div>
       </div>
     </div>
     <form id="ask" novalidate>
