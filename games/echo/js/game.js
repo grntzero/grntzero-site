@@ -977,7 +977,7 @@
     const btnSnd = document.getElementById('btnSnd');
     window.addEventListener('pointerdown', (e) => {
       const tgt = e.target;
-      if (tgt.closest && tgt.closest('button, input, .panel')) return;
+      if (tgt.closest && tgt.closest('button, input, .panel, #face')) return; // 11-18 얼굴 칸은 스틱 안 잡음
       if (!isPlay() || G.paused || G.cardOpen) return;
       if (tgt.closest && tgt.closest('#btnBig')) { pressBig(); btnBig.classList.add('press'); setTimeout(() => btnBig.classList.remove('press'), 140); return; }
       if (e.pointerType === 'mouse') { // PC: 왼쪽 = 누르는 동안 소리, 오른쪽 = 큰 소리

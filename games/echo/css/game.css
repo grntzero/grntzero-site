@@ -304,7 +304,7 @@ body.touch #shelter .sc .k, body.touch #cards .k { display: none; }
 #rerollBtn.reroll { margin-top: calc(4px * var(--s)); padding: calc(7px * var(--s)) calc(18px * var(--s)); font-size: calc(16px * var(--s)); } /* 11-18 다시 뽑기(한 판 2번) */
 #rerollBtn.off { opacity: 0.45; filter: grayscale(1); pointer-events: none; }
 /* 11-18 얼굴 칸 → 내 리믹스 카드 목록(게임 멈춤) */
-#face { cursor: pointer; }
+#face { cursor: pointer; pointer-events: auto; touch-action: manipulation; } /* 11-18 #ui 가 pointer-events:none 이라 눌러도 안 닿던 것 고침 */
 #skills { z-index: 30; }
 #skills .panel.skPanel { max-height: 88vh; max-height: 88dvh; overflow-y: auto; width: min(92vw, calc(560px * var(--s))); padding: calc(10px * var(--s)) calc(12px * var(--s)) calc(12px * var(--s)); }
 #skHero { font-size: calc(13px * var(--s)); color: #ffd23f; margin: 0 0 calc(6px * var(--s)); text-align: center; line-height: 1.35; }
