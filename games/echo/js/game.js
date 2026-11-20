@@ -38,6 +38,11 @@
   const REST = [{ id: 'heal', name: '소리 회복', icon: 'heal' }, { id: 'shield', name: '보호 방울', icon: 'shield' }, { id: 'notes', name: '음표 선물', icon: 'notes' }];
   // 비서 쎌(진행자) 대사 [표정, 말] — 그림·글만, 규칙 계산과 무관
   const GRUNT_REST = [null, ['smile', '잘했어! 하나 골라 봐~'], ['ok', '마지막 층이야. 숨 고르고 가자!']];
+  // 11-19 톱니골 광장 = 공통 출발지, 첫 공통 던전 「방송 파이프 굴」 = 튜토리얼(누구로 해도 같음). 지금 판은 이 던전 하나 — 광장 지도·다른 던전은 계획(세계관 정본 1·2장)
+  const DUNGEON = { id: 'pipe', name: '방송 파이프 굴', tut: '연습 던전 · 움직이기 · 줍기 · 큰 소리', again: '톱니골 광장 첫 던전' };
+  const TUT_KEY = 'ez_tut_pipe';
+  const tutDone = () => { try { return localStorage.getItem(TUT_KEY) === '1'; } catch (e) { return false; } };
+  G.tutDone = tutDone;
   const SSEL = (face, text, dur, delay) => { try { TG.H.gruntSay(text, dur || 2.6, face, delay); } catch (e) { /* 무시 */ } };
 
   // ── 저장된 설정 ──
@@ -164,6 +169,7 @@
     TG.H.show(TG.H.title, true); TG.H.show(TG.H.hud, false); TG.H.show(TG.H.result, false); TG.H.show(TG.H.pause, false);
     TG.A.bgm('bgm_win', 0.6, true);
     G.paused = false;
+    TG.H.hubRefresh(tutDone(), !!G.backFromRun); G.backFromRun = false;
     TG.H.sselTitleStart();
   }
 
@@ -181,6 +187,7 @@
     TG.A.stopBgm(0.4);
     const mh = TG.AR.manholeMeshes[0];
     G.lid = { mesh: mh, t: 0, y0: mh.position.y };
+    G.dunBanner = false; // 11-19 광장에서 첫 던전으로 출발 — 이름 띠는 updateIntro 0.25초에
   }
   // 놀이 시작: 여기서부터 규칙 계산이 기록·재생 대상 (처음 상태를 늘 똑같이 맞춤)
   function startPlay(skipIntro) {
@@ -197,6 +204,7 @@
     else if (TG.Q.seed != null) first = true;
     else { try { first = !localStorage.getItem('tg_slice_boss'); } catch (e) { first = true; } }
     G.firstBoss = first;
+    G.tutRun = !rp && !G.bot && !tutDone(); // 11-19 첫 판 = 튜토리얼(안내는 매 판 같고, 첫 판엔 다 배우면 쎌 칭찬 + 결과에 광장 안내)
     if (rp) TG.Q.god = !!rp.god;
     TG.simSeed(G.seed);
     G.rec = { v: REC_V, seed: G.seed, first: first ? 1 : 0, god: TG.Q.god ? 1 : 0, hero: TG.heroId, assist: TG.assistId, ticks: [], cards: [] }; // v3(11-16): hero·assist 칸 — 재생 때 같은 주인공·보조로. v4(11-16 오후): 기본 소리 파형 통일·큰 소리 4종 새 규칙 — v3 이하 기록은 규칙이 달라 재생 안 함(api.replay)
@@ -208,6 +216,7 @@
   function updateIntro(dt) {
     G.introT += dt;
     const t = G.introT, L = G.lid;
+    if (!G.dunBanner && t >= 0.25) { G.dunBanner = true; TG.H.showBanner(DUNGEON.name, tutDone() ? DUNGEON.again : DUNGEON.tut, 'gold', 1.6); }
     // 맨홀 뚜껑이 들썩 → 튀어오름
     if (t < 0.9) {
       const k = Math.sin(t * 40) * 0.04 * (t > 0.3 ? 1 : 0);
@@ -1042,9 +1051,9 @@
     GZView.initHud(() => ({ pr: TG.R.pr, fps: TG.R.fps, w: TG.R.renderer.domElement.width, h: TG.R.renderer.domElement.height, extra: 'MSAA ' + TG.R.composer.renderTarget1.samples }));
     click('pauseBtn', () => togglePause());
     click('resumeBtn', () => setPause(false));
-    click('homeBtn', () => { setPause(false); toTitle(); });
+    click('homeBtn', () => { setPause(false); G.backFromRun = true; toTitle(); }); // 11-19 「광장으로」
     click('againBtn', () => { TG.H.show(TG.H.result, false); startIntro(); });
-    click('resHomeBtn', () => { TG.H.show(TG.H.result, false); toTitle(); }); // 11-16 대표: 결과 창 「처음으로」
+    click('resHomeBtn', () => { TG.H.show(TG.H.result, false); G.backFromRun = true; toTitle(); }); // 11-16 대표: 결과 창 두 번째 버튼(11-19 「처음으로」 → 「광장으로」, 광장 복귀)
     click('optShake', () => { G.settings.shake = G.settings.shake === false; applySettings(); saveSet(); });
     click('optFs', (e) => { e.preventDefault(); e.stopPropagation(); GZView.toggle('menu'); });   // 11-14: 멈춤 창에서 전체화면 켜기/끄기(안 되는 브라우저는 「홈 화면에 추가」 안내)
     click('optVibe', () => { if (HZ) { HZ.toggle(); if (HZ.on) HZ.play('toggle', [30], 9); } applySettings(); });
@@ -1539,7 +1548,7 @@
       else H.hintSet(null);
     } else if (G.hintStage === 4) {
       if (G.gauge >= 100) H.hintSet(TG.isTouch ? '「' + TG.hero.bigSay + '」 버튼을 눌러요!' : 'E 키로 큰 소리 「' + TG.hero.bigSay + '」!');
-      else if (G.gaugeLock > 0) { G.hintStage = 5; H.hintSet(null); }
+      else if (G.gaugeLock > 0) { G.hintStage = 5; H.hintSet(null); if (G.tutRun) SSEL('cheer', '좋아! 움직이기·줍기·큰 소리 다 배웠어!', 2.8, 1.2); }
     }
   }
 
@@ -1595,7 +1604,8 @@
     if (!clear) { TG.A.stopBgm(0.3); G.after(8, () => TG.A.bgm('bgm_win', 0.1, false)); p.setRest(true); }
     else { TG.A.bgm('bgm_win', 0.25, false); p.stopSpecial(); p.playSpecial('victory'); }
     G.result = { clear, time: G.time, fogs: G.popped, combo: G.maxCombo, notes: G.notes, stars, tick: G.tick, hash: G.hash, level: G.level, rescued: G.rescued, floor: G.floor, boss: !!G.bossStarted, hurts: G.hurts, cards: G.cardN,
-      atk: G.autoTicks <= 0 ? 'manual' : G.autoTicks >= G.playTicks ? 'auto' : 'mixed', autoShots: G.autoShots };
+      atk: G.autoTicks <= 0 ? 'manual' : G.autoTicks >= G.playTicks ? 'auto' : 'mixed', autoShots: G.autoShots, dungeon: DUNGEON.id, tut: !!G.tutRun };
+    if (G.tutRun && (clear || G.hintStage >= 5)) { try { localStorage.setItem(TUT_KEY, '1'); } catch (e) { /* 무시 */ } } // 끝까지 깼거나 큰 소리까지 배웠으면 튜토리얼 끝
     TG.H.showResult(G.result);
   }
 
@@ -1631,6 +1641,7 @@
         hero: TG.heroId, assist: TG.assistId, petal: TG.FL.petal || 0, flowers: TG.FL.count(), healed: TG.FL.healed || 0, waveFlowers: TG.WV.flowers || 0, as: TG.AS.state(),
         danceN: G.danceN || 0, dancePops: G.dancePops || 0, dancing: F.list.filter((u) => u.state === 'live' && u.dance > 0).length, flyN: G.flyN || 0, flying: F.list.filter((u) => u.state === 'live' && !!u.fly).length,
         beamOn: !!(TG.WV.beam && TG.WV.beam.on), beamT: TG.WV.beam ? +TG.WV.beam.t.toFixed(2) : 0, beamPops: TG.WV.beamPops || 0, arrow: G.arrowU ? { id: G.arrowU.id, x: +G.arrowU.x.toFixed(2), z: +G.arrowU.z.toFixed(2) } : null, arrowShown: !!G.arrowShown, sinceLastPop: +(G.time - (G.lastPopT || 0)).toFixed(2),
+        hub: { dungeon: DUNGEON.id, name: DUNGEON.name, tutDone: tutDone(), tutRun: !!G.tutRun, tag: (document.getElementById('hubTag') || {}).textContent || '' }, // 11-19 광장·튜토리얼
         heroWait: G.heroWait || null, face: TG.PL.faceState ? TG.PL.faceState() : null,
         // 11-17 개편 상태: 푸슝 빔·고함 멈춤·물감 구역·세포체조 시각
         bolts: TG.WV.bolts.length, boltHits: TG.WV.boltHits || 0, boltChains: TG.WV.boltChains || 0, boltPierces: TG.WV.boltPierces || 0,
@@ -1668,6 +1679,7 @@
       if (name === 'rest' || name === 'fail') { ensurePlay(); G.time = Math.max(G.time, 74); G.popped = Math.max(G.popped, 41); G.notes = Math.max(G.notes, 30); G.maxCombo = Math.max(G.maxCombo, 12); return finish(false); }
     },
     bot(on) { G.bot = on !== false; },
+    tutReset() { try { localStorage.removeItem(TUT_KEY); } catch (e) { /* 무시 */ } return tutDone(); }, // 11-19 시험: 튜토리얼 처음부터
     // 시험: 주인공·보조 바꾸기 (타이틀 버튼과 같은 길). hero('berri','sseni')
     hero(h, a) { if (h) setHeroNow(h, a == null ? TG.assistId : a); return { hero: TG.heroId, assist: TG.assistId }; },
     god(on) { TG.Q.god = on !== false; },

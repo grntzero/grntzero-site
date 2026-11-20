@@ -51,6 +51,12 @@
     im.dataset.face = face;
     if (pop) { im.classList.remove('pop'); void im.offsetWidth; im.classList.add('pop'); }
   };
+  // 11-19 타이틀 = 톱니골 광장(모두의 출발지). tut = 튜토리얼(방송 파이프 굴) 끝냈나, back = 던전에서 막 돌아옴
+  let hubTut = false, hubBack = false;
+  H.hubRefresh = function (tut, back) {
+    hubTut = !!tut; hubBack = !!back;
+    const t = $('hubTag'); if (t) t.textContent = tut ? '톱니골 광장 · 다른 던전 길은 곧 열려요!' : '톱니골 광장 · 첫 던전 「방송 파이프 굴」에서 연습해요!';
+  };
   // 타이틀: 쎌이 손 흔들며 차례로 안내 (타이틀이 보이는 동안만 돎)
   let titleTO = null, titleI = 0, titleSaid = {};
   H.sselTitleStart = function () {
@@ -60,7 +66,8 @@
       if (H.title && !H.title.classList.contains('hide')) {
         const auto = document.body.classList.contains('atkAuto'), touch = document.body.classList.contains('touch');
         const lines = [
-          ['front', '안녕! 난 쎌이야. 내가 안내할게!'],
+          hubBack ? ['cheer', '어서 와! 여기는 톱니골 광장이야!'] : ['front', '안녕! 난 쎌이야. 내가 안내할게!'],
+          hubTut ? ['ok', '다른 던전 길은 곧 열려! 오늘도 파이프 굴로 가 볼까?'] : ['wink', '여긴 톱니골 광장! 첫 던전 「방송 파이프 굴」에서 연습하자!'],
           ['smile', touch ? '왼쪽 엄지로 슝슝 움직여 봐!' : 'WASD로 슝슝 움직여 봐!'],
           auto ? ['ok', '소리 방울은 저절로! 넌 음표만 주워~'] : ['wink', touch ? '「소리」 꾹! 끌면 그쪽으로 나가지!' : '마우스 꾹! 가리키는 쪽으로 나가지!'],
           ['cheer', '준비됐지? 「시작」 눌러 봐!'],
@@ -338,6 +345,7 @@
           const n = r.stars | 0, L = { 3: ['wink', '별 세 개! 역시 내 친구지~'], 2: ['ok', '보스까지 갔잖아! 거의 다 왔어!'], 1: ['smile', '한 번 더 해 볼까? 금방 늘 거야!'] }[n] || ['smile', '한 번 더 해 볼까?'];
           if (H.result.classList.contains('hide')) return;
           tx.textContent = L[1]; H.sselFace(box, L[0], true); H.sselVoice(L[1]);
+          if (r.tut) H.resTO = setTimeout(() => { if (H.result.classList.contains('hide')) return; tx.textContent = '연습 끝! 「광장으로」 눌러서 톱니골 광장에 가 보자!'; H.sselFace(box, 'smile', true); }, 2600); // 11-19 튜토리얼 판
         }, 2600);
       } }
     st.forEach((e, i) => setTimeout(() => { e.classList.add('show'); if (i < r.stars) { e.classList.add('on'); TG.A.play('sfx_pick', { rate: 1 + i * 0.25, gain: 0.8 }); } }, 380 + i * 280));
