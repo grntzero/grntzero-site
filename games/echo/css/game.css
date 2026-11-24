@@ -81,6 +81,10 @@ button { font: inherit; cursor: pointer; pointer-events: auto; }
 #bossGhost { background: #fff; transition: width 0.45s 0.2s; }
 #bossFill { background: linear-gradient(#b7b0e0, #8a82bf 55%, #625a96); box-shadow: inset 0 3px 0 rgba(255,255,255,0.4); transition: width 0.1s; }
 #bossTrack .btick { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--ink); }
+/* 11-24 귀여운 보스(쎄니·베리) 물감/꽃 게이지: 보라·분홍으로 차오름 */
+#bossBar.cute #bossFill { background: linear-gradient(#e4d2ff, #c39bff 55%, #a46bff); }
+#bossBar.cute.tree #bossFill { background: linear-gradient(#ffd6e8, #ff9ccb 55%, #ff7fb6); }
+#bossBar.cute #bossGhost { background: #fff3f8; }
 
 #combo { position: absolute; right: calc(24px * var(--s)); top: 36%; text-align: center; transform-origin: 50% 50%; }
 #comboN { font-size: calc(37px * var(--s)); line-height: 1; color: #ffd23f; }

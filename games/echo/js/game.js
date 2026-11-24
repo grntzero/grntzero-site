@@ -41,7 +41,7 @@
   // 11-19 톱니골 광장 = 공통 출발지, 첫 공통 던전 「방송 파이프 굴」 = 튜토리얼(누구로 해도 같음). 지금 판은 이 던전 하나 — 광장 지도·다른 던전은 계획(세계관 정본 1·2장)
   // 11-24 던전·난이도(js/dungeons.js): DUNGEON = 지금 판의 던전표 줄, LV = 단계(1~10), LK = 단계 배율. 첫 판(튜토리얼 전)은 「방송 파이프 굴」 1단계 고정(정본 1장 던전 고르기 흐름)
   let DUNGEON = TG.DUNGEONS.pipe, LV = 1, LK = TG.levelK(1);
-  function setDungeon(id, lv) { DUNGEON = TG.DN.get(id); LV = Math.max(1, Math.min(TG.LEVEL_MAX, lv | 0 || 1)); LK = TG.levelK(LV); G.floors = FLOORS.map((f, i) => f && scaledFloor(f, i)); RULE = DUNGEON.rule || {}; TG.F.rule = RULE; } // 11-24 RULE = 던전 고유 규칙(허조교 줄 안개·벽 퐁 / 모쉬 거울·깜깜·보스 변형) — 기록 dun 으로 재생 때 같은 규칙
+  function setDungeon(id, lv) { DUNGEON = TG.DN.get(id); LV = Math.max(1, Math.min(TG.LEVEL_MAX, lv | 0 || 1)); LK = TG.levelK(LV); G.floors = FLOORS.map((f, i) => f && scaledFloor(f, i)); RULE = DUNGEON.rule || {}; TG.F.rule = RULE; if (TG.F.setLook) TG.F.setLook(DUNGEON.id); } // 11-24 RULE = 던전 고유 규칙(허조교 줄 안개·벽 퐁 / 모쉬 거울·깜깜·보스 변형) — 기록 dun 으로 재생 때 같은 규칙
   let RULE = {};
   // 층 숫자에 단계 배율: 수(num) → 게이지·동시 수, 빠르기(spd) → 이동, 간격(iv) → 나오는 간격. 글은 던전표 floors 로 바꿈
   function scaledFloor(f, i) { const o = Object.assign({}, f); o.budget = Math.round(f.budget * LK.num); o.cap = Math.round(f.cap * LK.num); o.iv = [f.iv[0] * LK.iv, f.iv[1] * LK.iv]; o.spd = f.spd * LK.spd; const t = DUNGEON.floors && DUNGEON.floors[i]; if (t) { o.title = t.title; o.sub = t.sub; } return o; }
@@ -56,6 +56,8 @@
     sefo: [[0, 'cheer'], [0.3, 'jump'], [0.57, 'jump'], [0.8, 'pose']], // 세포: 체조 마무리 포즈(두 손 머리 위 → 확성기 번쩍) + 제자리 점프 2번
     gunner: [[0, 'helmet'], [0.22, 'salute'], [0.62, 'jump'], [0.8, 'thumb']], // 11-24 허조교(v8 12쪽): 헬멧 고쳐 쓰고 경례(호루라기 삑 + 북 = music.end) → 제자리 점프 → 엄지 척(호루라기·구령만 — 정본 3장 안전 규칙)
     moshee: [[0, 'star'], [0.08, 'dj'], [0.82, 'pose']], // 11-24 모쉬(v8 12쪽): 큐브 화면 ^_^ → ★_★ 번쩍 → 양팔 들고 좌우 스텝(DJ 포즈, 자체 음원 드롭 자리 = music.end) → 마무리
+    sseni: [[0, 'spin'], [0.3, 'starhand'], [0.72, 'vee']], // 11-24 쎄니(v8 12쪽): 한 바퀴 빙글 → 별 손짓(손끝에서 보라 별 톡톡, 반짝 효과음 = music.end) → 브이(밝고 귀엽게)
+    berri: [[0, 'shake'], [0.42, 'jump'], [0.68, 'petals']], // 11-24 베리(v8 12쪽): 마라카스 샤카샤카 두 번(music.end) → 깡총 점프 → 꽃잎 날림 + 마무리 포즈
   };
   const tutDone = () => { try { return localStorage.getItem(TUT_KEY) === '1'; } catch (e) { return false; } };
   G.tutDone = tutDone;
@@ -128,6 +130,8 @@
       R.camera.position.set(0, 30, 34); R.camera.lookAt(0, 0, 0); R.camera.updateMatrixWorld(true);
       R.followShadow(0, 0);
       R.render(0);
+      if (F.bossObj && F.bossObj.mats) { const m0 = F.bossObj.mesh.material; for (const k of ['cloud', 'tree']) { F.bossObj.mesh.material = F.bossObj.mats[k]; R.render(0); } F.bossObj.mesh.material = m0; } // 11-24 귀여운 보스 재질 2벌도 미리 컴파일(첫 보스 등장 끊김 방지)
+      if (F.setLook && TG.LOOKS) { for (const id of TG.LOOKS.ids()) F.setLook(id); F.setLook('pipe'); } // 11-24 던전별 모양 지오메트리 전부 미리 만들어 둠(첫 입장 끊김 방지)
     } catch (e) { /* 예열 실패는 무시 */ }
     shown.forEach((o) => { o.visible = false; }); inst.forEach((o) => { o.count = 0; });
     try { FX.clear(); } catch (e) { /* 무시 */ }
@@ -169,7 +173,7 @@
     G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.lined = 0; G.hintT = 0; G.hurts = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
     G.gaugeLock = 0; G.hintStage = 0; G.moved = 0; G.afters.length = 0; G.inBig = false; G.inPick = -1; G.inCard = -1; G.botW = 0; G.botStuck = 0; G.botSideT = 0; G.botSideS = 1; G.botLx = 0; G.botLz = 0; G.botCocT = 0; G.machSlow = false; G.camFocusK = 0.45;
     G.autoTicks = 0; G.playTicks = 0; G.autoShots = 0; G.autoOn = false;
-    G.lastPopT = 0; G.arrowU = null; G.arrowSaid = false; G.danceN = 0; G.dancePops = 0; G.flyN = 0; G.beamN = 0; G.paintN = 0; G.danceMusicAt = G.danceVoiceAt = G.danceBoomAt = null; G.hurtBy = {}; // 11-16: 남은 안개 화살표·큰 소리 셈
+    G.lastPopT = 0; G.arrowU = null; G.arrowSaid = false; G.danceN = 0; G.dancePops = 0; G.flyN = 0; G.beamN = 0; G.paintN = 0; G.slowN = G.shrinkN = G.tileN = G.seedN = G.seedPops = G.nudgeN = G.decoN = G.cuStars = G.cuPetals = G.cuSpin = 0; G.decoWordT = null; G.slowSeq = 0; G.friendWord = null; G.danceMusicAt = G.danceVoiceAt = G.danceBoomAt = null; G.hurtBy = {}; // 11-16: 남은 안개 화살표·큰 소리 셈
     G.denyT = -9; G.shelterT = 0; G.shelterPick = -1; G.covT = 0; G.biT = 0; G.biStage = 0; G.lid = null; G.countAt = null; G.lastCount = -1;
     TG.F.reset(); TG.WV.reset(); if (!keepFx) TG.FX.clear(); TG.PL.reset(); TG.PL.setRest(false); TG.C.reset(); TG.FL.reset(); TG.AS.reset();
     TG.H.hideCards(); TG.H.hideShelter(); TG.H.gruntHide(); TG.H.hintSet(null);
@@ -208,18 +212,32 @@
     G.dunBanner = false; // 11-19 광장에서 첫 던전으로 출발 — 이름 띠는 updateIntro 0.25초에
   }
   // 광장에서 고른 던전·단계(js/dungeons.js DN.sel)로. 튜토리얼 전엔 「방송 파이프 굴」 1단계 고정
-  function pickFromHub() { if (!tutDone()) setDungeon('pipe', 1); else setDungeon(TG.DN.sel.dun, TG.DN.sel.lv); applyTheme(DUNGEON); }
+  function pickFromHub() { if (!tutDone()) setDungeon('pipe', 1); else setDungeon(TG.DN.sel.dun, TG.DN.sel.lv); applyTheme(DUNGEON, LV); }
   // 던전 테마(그림만): 하늘·빛·광장 고리 색. null = 기본(방송 파이프 굴 = 광장)
   const THEME0 = { bg: 0x9fd7f2, sky: 0xdcefff, ground: 0xd9a878, pulse: 0xff7a52 };
-  function applyTheme(d) {
+  // 11-24 단계 분위기(js/dungeons.js TG.LEVEL_LOOK): 던전 색 위에 단계 색을 mix 만큼 섞음 — 하늘·반구광·햇빛·멀리 안개·바닥 색조·안개/보스 색. 광장(null)은 늘 1단계(낮). 그림만
+  const tmpA = new THREE.Color(), tmpB = new THREE.Color();
+  const mixC = (hex, tint, k) => tmpA.set(hex).lerp(tmpB.set(tint), k);
+  function applyTheme(d, lv) {
     const t = Object.assign({}, THEME0, (d && d.theme) || {}), R = TG.R; if (!R || !R.scene) return;
-    try { R.scene.background.set(t.bg); R.renderer.setClearColor(t.bg); R.hemi.color.set(t.sky).multiplyScalar(0.84); R.hemi.groundColor.set(t.ground).multiplyScalar(0.8); if (TG.AR.pulse) TG.AR.pulse.material.color.set(t.pulse).multiplyScalar(1.3); } catch (e) { /* 무시 */ }
-    G.themeId = d ? d.id : null;
+    const L = (d && TG.LEVEL_LOOK && TG.LEVEL_LOOK[lv || 1]) || TG.LEVEL_LOOK[1], k = L.mix;
+    try {
+      const bg = mixC(t.bg, L.bg, k).clone();
+      R.scene.background.copy(bg); R.renderer.setClearColor(bg);
+      R.hemi.color.copy(mixC(t.sky, L.sky, k * 0.8)).multiplyScalar(0.84); R.hemi.groundColor.copy(mixC(t.ground, L.ground, k * 0.8)).multiplyScalar(0.8);
+      R.sun.color.set(L.sun); R.sun.intensity = 2.3 * L.sunK;
+      if (R.scene.fog) { R.scene.fog.color.copy(bg); R.scene.fog.near = 36 - 20 * L.fog; R.scene.fog.far = L.fog < 0.01 ? 500 : 220 - 220 * L.fog; }
+      if (TG.AR.floorMat) TG.AR.floorMat.color.copy(mixC(0xffffff, L.floor, k));
+      if (TG.AR.pulse) TG.AR.pulse.material.color.set(t.pulse).multiplyScalar(1.3);
+      if (TG.F.setLevelLook) TG.F.setLevelLook(d ? L : null);
+      if (!d && TG.F.setLook) TG.F.setLook('pipe'); // 광장으로 돌아오면 모양도 기존 안개로
+    } catch (e) { /* 무시 */ }
+    G.themeId = d ? d.id : null; G.lvLook = d ? L.n : 1; G.lvHemiK = d ? L.hemiK : 1;
   }
   // 놀이 시작: 여기서부터 규칙 계산이 기록·재생 대상 (처음 상태를 늘 똑같이 맞춤)
   function startPlay(skipIntro) {
     { const rp0 = G.replay; if (rp0) { const rh = rp0.hero || 'sefo', ra = rp0.assist || 'none'; if (rh !== TG.heroId || ra !== TG.assistId) setHeroNow(rh, ra, true); } } // 기록에 적힌 주인공·보조로 (옛 기록 v2 = SEFO·없음)
-    { const rp0 = G.replay; if (rp0) setDungeon(rp0.dun || 'pipe', rp0.lv || 1); else if (skipIntro) pickFromHub(); } // 기록엔 던전·단계가 적힘(없는 옛 기록 = 파이프 굴 1단계)
+    { const rp0 = G.replay; if (rp0) { setDungeon(rp0.dun || 'pipe', rp0.lv || 1); applyTheme(DUNGEON, LV); } else if (skipIntro) pickFromHub(); } // 기록엔 던전·단계가 적힘(없는 옛 기록 = 파이프 굴 1단계)
     resetRun(!skipIntro);
     if (skipIntro) showHud();
     const p = P();
@@ -317,6 +335,10 @@
       u.spawnT = -i * 0.08;
       if (line) { u.line = true; u.spd = kind === 'bubble' ? 3.1 : u.spd; u.ph = 0; G.lineN = (G.lineN || 0) + 1; } // 줄은 같은 빠르기(앞뒤가 흩어지지 않게)
       if (RULE.mirror && kind === 'bubble') { G.mirrorSeq = (G.mirrorSeq || 0) + 1; if (G.mirrorSeq % RULE.mirror === 0) { u.mirror = true; G.mirrorN = (G.mirrorN || 0) + 1; } } // 11-24 모쉬 「거울 안개」: 3마리 중 1마리(차례 — 시드·기록과 무관한 고정 순서)
+      if (RULE.slowpoke && kind === 'bubble') { G.slowSeq = (G.slowSeq || 0) + 1; if (G.slowSeq % RULE.slowpoke === 0) { u.slow = true; u.scale = 1.5; u.hp = u.maxHp = 3; u.spd *= 0.55; G.slowN = (G.slowN || 0) + 1; } } // 11-24 쎄니 「느림보 안개」: 3마리 중 1마리 — 크고(1.5) 느리고(×0.55) 튼튼함 3, 맞을수록 작아짐(hitUnit)
+    }
+    if (RULE.seed && kind === 'bubble' && n >= 2 && F_count('seed') < 4) { // 11-24 베리 「씨앗 안개」: 무리마다 1마리(작음 0.7·튼튼함 1, 열매 위에 콩콩 — 그림) — 퐁 하면 열매 익음 + 꽃 자국(onPop)
+      const u = TG.F.spawn('bubble', x + Math.cos(0.8) * 1.6, z + Math.sin(0.8) * 1.6, { small: true }); if (u) { u.spawnT = -0.2; u.seed = true; u.scale = 0.7; u.spd = 2.6; G.seedN = (G.seedN || 0) + 1; }
     }
     if (RULE.dark && kind === 'bubble' && G.floor >= 2 && F_count('dark') < 2 && n >= 3) { // 11-24 모쉬 「깜깜 안개」: 2층부터 무리마다 1마리 더(크고 튼튼함 2) — 살아 있으면 불이 어두워지고(그림만) 퐁 하면 불 켜짐
       const u = TG.F.spawn('bubble', x + Math.sin(la + 1.57) * 1.4, z + Math.cos(la + 1.57) * 1.4); if (u) { u.spawnT = -0.3; u.dark = true; u.hp = u.maxHp = 2; u.scale = 1.25; u.spd = 2.2; G.darkN = (G.darkN || 0) + 1; }
@@ -431,9 +453,12 @@
     FX.ring(b.x, b.z, { r0: 1, r1: 10, dur: 0.6, color: 0xfff3d6, width: 0.1, hdr: 1.1, alpha: 0.7 });
     FX.ring(b.x, b.z, { r0: 1, r1: 7, dur: 0.5, color: 0xdcd8cc, width: 0.1, delay: 0.1, hdr: 1.0, alpha: 0.4 });
     FX.dust(b.x, b.z, 16, 2.4);
-    TG.A.play('sfx_big', { rate: 0.6, gain: TG.hero.kid ? 0.55 : 0.9 }); if (!TG.hero.kid) TG.A.boom(); // 아이로 하면 큰 효과음 줄임 (놀람 방지)
-    TG.H.showBanner(DUNGEON.bossName || '큰 침묵 안개', DUNGEON.bossSub || '노래를 꽁꽁 숨긴 안개예요', 'boss name', 2.2);
-    SSEL('surprise', RULE.boss && RULE.boss.var === 'drill' ? '헉, 헬멧 쓴 큰 안개야! 구령에 맞춰 굴러와!' : RULE.boss && RULE.boss.var === 'dark' ? '헉, 큐브가 꺼졌어! 불을 켜 주자!' : '헉, 엄청 큰 안개야! 같이 해 보자!', 3.0);
+    const cute = !!(RULE.boss && RULE.boss.cute); // 11-24 귀여운 보스(쎄니·베리): 무섭지 않게 — 작은 소리·작은 흔들림·꼬마 쎌이 「꾸며 주자!」
+    if (cute) { FX.trauma = Math.min(FX.trauma || 0, 0.3); TG.A.play('sfx_big', { rate: 0.95, gain: 0.4 }); }
+    else { TG.A.play('sfx_big', { rate: 0.6, gain: TG.hero.kid ? 0.55 : 0.9 }); if (!TG.hero.kid) TG.A.boom(); } // 아이로 하면 큰 효과음 줄임 (놀람 방지)
+    TG.H.showBanner(DUNGEON.bossName || '큰 침묵 안개', DUNGEON.bossSub || '노래를 꽁꽁 숨긴 안개예요', cute ? 'gold name' : 'boss name', 2.2);
+    if (cute) SSEL('smile', RULE.boss.var === 'tree' ? '큰 나무가 잠들었어요! 꽃으로 깨워 주자!' : '먹구름이 삐졌어요! 물감으로 꾸며 주자!', 3.0);
+    else SSEL('surprise', RULE.boss && RULE.boss.var === 'drill' ? '헉, 헬멧 쓴 큰 안개야! 구령에 맞춰 굴러와!' : RULE.boss && RULE.boss.var === 'dark' ? '헉, 큐브가 꺼졌어! 불을 켜 주자!' : '헉, 엄청 큰 안개야! 같이 해 보자!', 3.0);
     G.camZoom = 0.74; G.camFocusK = kidK(0.85); // 잠깐 줌 (아이 주인공은 보스만 — 아이는 원경, 기획서 ④ 안전 3)
     G.after(84, () => { if (G.phase === 'bossIntro') { G.phase = 'boss'; G.camZoom = 1.12; G.camFocusK = 0.45; G.hemiT = 1.35; } });
   };
@@ -462,8 +487,9 @@
     }
     FX.hitSeq(u.x, y, u.z, lv, tint);
     if ((!quiet || big) && r !== 'convert') vib(big ? 'hit3' : lv >= 3 ? 'hit3' : lv >= 2 ? 'hit2' : 'hit'); // 바뀌는 순간은 아래 처치 진동만
-    if (!big) FX.dmg('u' + u.id, Math.round(dmg * 120), u.x, y + 1.0, u.z, lv); // 11-18 타격감: 숫자 팝을 모든 맞힘에(전엔 체력 많은 안개·2단 이상만)
+    if (!big && !(RULE.boss && RULE.boss.cute && G.phase === 'boss')) FX.dmg('u' + u.id, Math.round(dmg * 120), u.x, y + 1.0, u.z, lv); // 11-18 타격감: 숫자 팝을 모든 맞힘에(전엔 체력 많은 안개·2단 이상만). 11-24 귀여운 보스전 동안은 숫자 X(보스 위에 숫자가 겹쳐 「맞히는」 느낌 — 꾸미기 분위기)
     addCombo();
+    if (u.slow && r === 'hit' && u.scale > 0.95) { u.scale = Math.max(0.95, u.scale - 0.25); G.shrinkN = (G.shrinkN || 0) + 1; FX.text('작아졌다!', u.x, y + 1.8, u.z, 'word'); FX.ring(u.x, u.z, { r0: 1.6, r1: 0.5, dur: 0.3, color: 0xc39bff, width: 0.2 }); } // 11-24 쎄니 「느림보 안개」: 물감(소리)에 맞을수록 작아짐 1.5 → 1.25 → 1.0 (판정 반지름도 scale 을 따라 같이 줄음)
     if (u.mirror && !mirrorBusy && RULE.mirror && dmg < 50) { // 11-24 모쉬 「거울 안개(되받기)」: 맞힌 소리가 거울에 튕겨 가까운 다른 안개(RULE.mirrorR 안) 하나를 같이 맞힘 — 튕김 체인(규칙: 자리만 봄, 난수 X). 거울→거울로 또 튕기진 않음
       let best = null, bd = (RULE.mirrorR || 6) ** 2;
       for (const v of TG.F.list) { if (v === u || v.state !== 'live' || v.kind === 'cocoon' || v.kind === 'tick' || v.spawnT < 0.3) continue; const q = (v.x - u.x) ** 2 + (v.z - u.z) ** 2; if (q < bd) { bd = q; best = v; } }
@@ -494,21 +520,25 @@
     if (!r) return;
     const b = TG.F.boss, FX = TG.FX;
     const lv = dmg >= 5 ? 3 : dmg >= 3 ? 2 : dmg >= 2 ? 1 : 0;
-    FX.hitSeq(x, 2.4 + TG.fra(-0.5, 0.8), z, Math.min(lv, 1), [1.4, 1.34, 1.22], [1.2, 1.17, 1.08]); // 옅은 크림빛, 작게 (보라가 화면에 쌓이지 않게)
-    FX.dmg('boss', Math.round(dmg * 120), b.x, 4.6 * b.scale + 0.6, b.z, lv);
+    const cute = !!b.cute, cc = cute ? (b.variant === 'tree' ? [2.3, 1.0, 1.5] : [1.6, 1.1, 2.5]) : null; // 11-24 귀여운 보스: 숫자 대신 물감·꽃 방울(「물감 톡!」·「꽃 톡!」 글은 0.5초에 한 번)
+    FX.hitSeq(x, 2.4 + TG.fra(-0.5, 0.8), z, Math.min(lv, 1), cute ? cc : [1.4, 1.34, 1.22], cute ? cc : [1.2, 1.17, 1.08]); // 옅은 크림빛, 작게 (보라가 화면에 쌓이지 않게)
+    if (cute) { for (let i = 0; i < 3; i++) FX.emit(b.variant === 'tree' ? FX.CELL.flower : FX.CELL.sparkle, x + TG.fra(-0.6, 0.6), 2.2 + TG.fra(0, 1.2), z + TG.fra(-0.6, 0.6), { vy: TG.fra(1, 2.5), life: 0.5, size: 0.5, size1: 0.1, color: cc, rot: 0, vrot: 4, pop: true }); G.decoN = (G.decoN || 0) + 1;
+      if (G.decoWordT == null || G.time - G.decoWordT >= 0.5) { G.decoWordT = G.time; FX.text(RULE.boss.word || '톡!', b.x, 4.6 * b.scale + 0.6 + (b.floatY || 0), b.z, 'word'); } }
+    else FX.dmg('boss', Math.round(dmg * 120), b.x, 4.6 * b.scale + 0.6, b.z, lv);
     addCombo();
     if (!quiet && r !== 'phase' && r !== 'dead') vib(lv >= 2 ? 'hit2' : 'hit'); // 단계·마지막 명중은 아래 큰 진동만
     if (!quiet) { TG.A.hitSmall(); if (G.hsCd <= 0) { FX.hitstop(lv >= 2 ? 50 : 34); G.hsCd = 0.12; P().kick(1.4); } } // 11-18 타격감: 보스 맞힘도 34/50ms + 반동
     if (r === 'phase') {
       FX.hitstop(100); FX.shake(0.55); FX.punch(0.06); TG.R.bloomPulse = 0.12; vib('bossPhase');
       FX.popBurst(b.x, 2.5, b.z, 2.0, [1.3, 1.26, 1.16]); FX.ring(b.x, b.z, { r0: 1, r1: 8, dur: 0.5, color: 0xfff3d6, width: 0.1, alpha: 0.7, hdr: 1.1 });
-      FX.text('작아졌어요!', b.x, 5, b.z, 'word');
-      SSEL('cheer', '작아졌다! 그대로 계속 가!', 2.4);
+      if (cute) { FX.text(b.variant === 'tree' ? '꽃이 피었어요!' : '보라로 물들었어요!', b.x, 5 + (b.floatY || 0), b.z, 'cheer'); SSEL('cheer', b.variant === 'tree' ? '나무가 꿈틀! 조금 더 꾸며 주자!' : '먹구름이 살짝 웃었어! 더 꾸며 주자!', 2.4); } // 귀여운 보스: 작아지는 게 아니라 예뻐지는 중
+      else { FX.text('작아졌어요!', b.x, 5, b.z, 'word'); SSEL('cheer', '작아졌다! 그대로 계속 가!', 2.4); }
       TG.A.syn('bossPhase'); TG.A.pop(0, true);
       TG.F.dropNotes(b.x, b.z, 8, 1.6);
     } else if (r === 'dead') {
       // 마지막 명중 → 0.4초 멈춤 → (fogs.js) 크게 부풂 → 큰 퐁
-      FX.hitstop(400); FX.shake(0.5); TG.A.duck(0.2, 2.2); TG.A.stopBgm(0.5); vib('bossLast');
+      if (cute) { FX.hitstop(120); FX.shake(0.2); TG.H.showBanner(RULE.boss.friendWord || '친구가 됐어요!', RULE.boss.friendSub || '', 'gold', 1.6); G.friendWord = RULE.boss.friendWord || '친구가 됐어요!'; } else { FX.hitstop(400); FX.shake(0.5); } // 귀여운 보스: 마지막 꾸미기는 살짝만 + 「친구가 됐어요!」 띠(확대 연출 말풍선과 안 겹치게 여기서 먼저)
+      TG.A.duck(0.2, 2.2); TG.A.stopBgm(0.5); vib('bossLast');
       P().noHurt = 9;
     }
   };
@@ -524,6 +554,7 @@
     if (big) { FX.hitstop(50); FX.shake(0.22); FX.punch(0.025); FX.text('퐁!', u.x, y + 1.6, u.z, 'pop'); }
     else if (u.byBig && G.combo > 0 && G.combo % 10 === 0) FX.text('퐁!', u.x, y + 1.2, u.z, 'pop');
     G.popped++;
+    if (u.seed) { G.seedPops = (G.seedPops || 0) + 1; FX.text('열매 익었다!', u.x, y + 1.7, u.z, 'cheer'); for (let i = 0; i < 5; i++) FX.emit(FX.CELL.heart, u.x, y + 0.4, u.z, { vx: TG.fra(-2, 2), vy: TG.fra(3, 5.5), vz: TG.fra(-2, 2), life: 0.8, size: 0.5, size1: 0.2, color: [2.4, 0.7, 0.8], grav: 7, rot: 0, pop: true }); TG.FL.add(u.x, u.z, false); TG.A.play('sfx_pick', { rate: 1.6, gain: 0.5 }); } // 11-24 베리 「씨앗 안개」 퐁 → 열매 익음 + 꽃 자국(밟으면 조금 회복 — 응원 「버티게」)
     if (u.dark) { G.darkPops = (G.darkPops || 0) + 1; FX.text('불 켜졌다!', u.x, y + 1.9, u.z, 'cheer'); FX.ring(u.x, u.z, { r0: 0.5, r1: 6, dur: 0.6, color: 0x9ff4ff, width: 0.25, hdr: 1.3, alpha: 0.8 }); TG.R.bloomPulse = Math.max(TG.R.bloomPulse || 0, 0.3); TG.A.play('sfx_pick', { rate: 1.3, gain: 0.5 }); } // 11-24 모쉬 깜깜 안개 퐁 → 불 켜짐(그림)
     if (!u.byBig && !big && G.hsCd <= 0) { FX.hitstop(34); G.hsCd = 0.1; } // 11-18 타격감: 평타로 퐁 날 때도 34ms(큰 소리 연쇄 퐁은 X — 화면이 끊기지 않게)
     if (!u.byBig) addGauge(big ? 8 : u.kind === 'echo' ? 6 : 4);
@@ -586,8 +617,28 @@
     TG.A.syn('rescue');
     TG.F.dropNotes(u.x, u.z, 6, 1.3);
   };
+  G.bossName = () => DUNGEON.bossName || '큰 침묵 안개'; // 11-24 HUD 게이지 이름(귀여운 보스)
+  G.onNudge = function (b) { G.nudgeN = (G.nudgeN || 0) + 1; }; // 11-24 귀여운 보스에 닿음(살짝 밀림) 셈 — 시험용
   G.onBossPop = function (b) {
     const FX = TG.FX;
+    if (b.friend) { // 11-24 귀여운 보스(쎄니·베리, v8 11쪽): 퐁 대신 「친구가 됐어요!」 — 먹구름은 웃는 구름 + 미러볼 반짝, 큰 나무는 기지개 + 열매 전부 익음. 큰 폭발·큰 흔들림 X, 보스는 남아서 같이 춤
+      const tree = b.variant === 'tree', cfg = RULE.boss || {};
+      FX.hitstop(60); FX.shake(0.25); TG.R.bloomPulse = 0.5; vib('bossPhase'); G.friendN = (G.friendN || 0) + 1;
+      TG.A.play('sfx_big', { gain: 0.5, rate: 1.25 }); TG.A.syn('rescue'); TG.A.play('sfx_pick', { rate: 1.4, gain: 0.8 });
+      SSEL('cheer', tree ? '열매가 전부 익었다! 고마워, 큰 나무!' : '먹구름이 웃었다! 미러볼 반짝!', 3.0);
+      const by = 2.4 + (b.floatY || 0);
+      for (let i = 0; i < 3; i++) FX.ring(b.x, b.z, { r0: 1, r1: 12 + i * 3, dur: 0.8 + i * 0.15, color: tree ? [0xff9ccb, 0xffe36b, 0xcdebb0][i] : [0xc39bff, 0xffffff, 0xff9ccb][i], width: 0.14, delay: i * 0.12 });
+      if (tree) { for (let i = 0; i < 40; i++) { const a = (i / 40) * 6.283 + TG.fr() * 0.3, r = TG.fra(1.5, 4.2); FX.emit(i % 2 ? FX.CELL.heart : FX.CELL.flower, b.x + Math.cos(a) * r, by + TG.fra(0.5, 3.2), b.z + Math.sin(a) * r, { vx: Math.cos(a) * 1.2, vy: TG.fra(-0.5, 1.5), vz: Math.sin(a) * 1.2, life: TG.fra(1.4, 2.2), size: TG.fra(0.6, 0.9), size1: 0.5, color: i % 2 ? [2.4, 0.7, 0.8] : [2.3, 1.2, 1.6], grav: 1.5, drag: 0.8, vrot: TG.fra(-2, 2), rot: 0, pop: true }); } } // 열매 톡톡 익음
+      else { for (let i = 0; i < 60; i++) { const a = TG.fr() * 6.283, r = TG.fra(0.5, 6); FX.emit(i % 3 ? FX.CELL.sparkle : FX.CELL.star, b.x + Math.cos(a) * r, by + TG.fra(-1, 3), b.z + Math.sin(a) * r, { vy: TG.fra(0.5, 2.5), life: TG.fra(0.8, 1.6), size: 0.6, size1: 0, color: i % 2 ? [2.4, 2.3, 2.5] : [1.9, 1.3, 2.7], rot: 0, vrot: 5 }); } } // 미러볼 켜짐 반짝
+      TG.F.list.forEach((u, i) => { if (u.kind === 'tick') { if (u.state === 'live') { u.state = 'dance'; u.danceT = 0; } return; } if (u.state === 'live' && u.kind !== 'cocoon') { u.byBig = true; G.after(6 + i * 2, () => { if (u.state === 'live') { u.state = 'dying'; u.dieT = 0; } }); } });
+      TG.F.zone.on = false;
+      TG.F.dropNotes(b.x, b.z, 16, 2, true);
+      G.phase = 'bossEnd'; G.endT = 0; G.clear = true;
+      G.hemiT = 1.5;
+      startCloseup();
+      try { localStorage.setItem('tg_slice_boss', '1'); } catch (e) { /* 무시 */ }
+      return;
+    }
     FX.hitstop(130); FX.shake(0.9); FX.punch(0.09); TG.R.bloomPulse = 0.4; vib('bossPop');
     TG.A.play('sfx_bossend', { gain: 1 }); TG.A.boom();
     FX.popBurst(b.x, 2.4, b.z, 4);
@@ -636,6 +687,13 @@
     else if (name === 'thumb') { idleHold(p, true); p.cuPose = { name: 'thumb', t: 0, dur: 9 }; TG.H.say('엄지 척!', (G.cu ? G.cu.dur : 3) * 0.25 + 0.2); TG.R.bloomPulse = 0.25; confetti(p, 10); }
     else if (name === 'star') { if (p.face) p.face('stareyes', (G.cu ? G.cu.dur : 3) + 0.5); if (p.faceFlash) p.faceFlash(1.2); TG.R.bloomPulse = 0.3; }
     else if (name === 'dj') { idleHold(p, true); p.cuPose = { name: 'dj', t: 0, dur: 9 }; TG.H.say('DJ 모쉬!', (G.cu ? G.cu.dur : 3) * 0.74 + 0.2); confetti(p, 14); }
+    // 11-24 쎄니·베리 확대 동작(어린이 — 밝고 귀엽게, 뼈 덧칠 player.js cuPose)
+    else if (name === 'spin') { if (G.cu) G.cu.spin = { t: 0, dur: Math.max(0.4, G.cu.dur * 0.28) }; TG.H.say('빙글~', (G.cu ? G.cu.dur : 3) * 0.3 + 0.1); for (let i = 0; i < 10; i++) FX.emit(FX.CELL.star, p.x + TG.fra(-1, 1), 1.2 + TG.fra(0, 1.5), p.z + TG.fra(-1, 1), { vy: TG.fra(1.5, 3), life: 0.6, size: 0.45, size1: 0.1, color: [1.8, 1.2, 2.6], rot: 0, vrot: 5, pop: true }); }
+    else if (name === 'starhand') { idleHold(p, true); p.cuPose = { name: 'starhand', t: 0, dur: (G.cu ? G.cu.dur : 3) * 0.42 }; TG.H.say('별빛 톡톡!', (G.cu ? G.cu.dur : 3) * 0.42 + 0.2); G.cuStarT = 0; }
+    else if (name === 'vee') { idleHold(p, true); p.cuPose = { name: 'vee', t: 0, dur: 9 }; TG.H.say('브이!', (G.cu ? G.cu.dur : 3) * 0.28 + 0.6); TG.R.bloomPulse = 0.25; confetti(p, 12); }
+    else if (name === 'shake') { idleHold(p, true); p.cuPose = { name: 'shake', t: 0, dur: (G.cu ? G.cu.dur : 3) * 0.4 }; TG.H.say('샤카샤카!', (G.cu ? G.cu.dur : 3) * 0.4 + 0.6); confetti(p, 10); }
+    else if (name === 'petals') { p.cuPose = null; idleHold(p, false); if (!p.playSpecial('victory')) { p.act.cheer.reset(); p.act.cheer.setEffectiveWeight(1); p.act.cheer.play(); p.cheerT = 0; } TG.H.say('꽃잎 날려라~', (G.cu ? G.cu.dur : 3) * 0.32 + 0.6); TG.R.bloomPulse = 0.25;
+      for (let i = 0; i < 26; i++) { FX.emit(i % 3 ? FX.CELL.flower : FX.CELL.heart, p.x + TG.fra(-2.2, 2.2), 3.2 + TG.fra(0, 2.4), p.z + TG.fra(-1.5, 1.5), { vx: TG.fra(-0.8, 0.8), vy: TG.fra(-1.2, -0.3), vz: TG.fra(-0.5, 0.5), life: TG.fra(1.2, 2.0), size: TG.fra(0.5, 0.8), size1: 0.3, color: [[2.3, 1.0, 1.5], [2.4, 1.6, 1.9], [2.0, 1.2, 2.2]][i % 3], grav: 0.6, drag: 1.5, vrot: TG.fra(-3, 3), rot: TG.fra(-0.5, 0.5), pop: true }); G.cuPetals = (G.cuPetals || 0) + 1; } }
   }
   // 11-24 덧칠 동작(경례·DJ 등) 동안 기본 idle 클립을 0초에 멈춤 — 허조교·모쉬 idle 클립이 몸을 좌우로 크게 돌려(두리번) 얼굴이 카메라를 등질 때가 있었음(캡처로 확인). 끝나면 다시 돎
   function idleHold(p, on) { const a = p.act && p.act.idle; if (!a) return; if (on) { a.time = 0; a.paused = true; } else a.paused = false; }
@@ -643,7 +701,12 @@
   function updateCloseup(dt) {
     const c = G.cu, p = P(); if (!c) return;
     c.t += dt; p.noHurt = 9;
+    if (c.spin) { // 11-24 쎄니 「한 바퀴 빙글」: yaw 를 한 바퀴 돌림(그림만)
+      c.spin.t += dt; const k = Math.min(1, c.spin.t / c.spin.dur), e = k * k * (3 - 2 * k); c.yaw = 0.35 + 6.2832 * e; p.yaw = c.yaw; G.cuSpin = e;
+      if (k >= 1) { c.spin = null; c.yaw = 0.35; p.yaw = 0.35; }
+    }
     p.tyaw = c.yaw; p.faceLock = 0.3; // 카메라 쪽을 봄(yaw 0 = 카메라 정면, player.js 288)
+    if (p.cuPose && p.cuPose.name === 'starhand') { G.cuStarT = (G.cuStarT || 0) + dt; if (G.cuStarT >= 0.09) { G.cuStarT = 0; G.cuStars = (G.cuStars || 0) + 1; const hx = p.x + Math.sin(p.yaw) * 0.55 + Math.cos(p.yaw) * 0.45, hz = p.z + Math.cos(p.yaw) * 0.55 - Math.sin(p.yaw) * 0.45; TG.FX.emit(TG.FX.CELL.star, hx, 1.75 + TG.fra(-0.1, 0.1), hz, { vx: TG.fra(-1.2, 1.2), vy: TG.fra(1.2, 2.6), vz: TG.fra(-0.6, 0.6), life: 0.55, size: 0.42, size1: 0.05, color: [1.9, 1.3, 2.7], rot: 0, vrot: 6, pop: true }); } } // 11-24 쎄니 「별 손짓」: 손끝에서 보라 별 톡톡(그림만)
     while (c.done < c.steps.length && c.steps[c.done][0] * c.dur <= c.t) { closeupStep(c.steps[c.done][1]); c.done++; }
     if (p.cuPose) { p.cuPose.t += dt; if (p.cuPose.t >= p.cuPose.dur) { p.cuPose = null; idleHold(p, false); } }
     if (c.skip || c.t >= c.dur + 0.25) { endCloseup(); finish(true); }
@@ -1673,7 +1736,12 @@
       G.darkK = TG.damp(G.darkK || 0, Math.min(1, nd * 0.5 + bd * 0.6), 2.5, rdt);
       if (G.darkK < 0.002 && (G.darkK0 || 0) < 0.002) G.darkK = 0; G.darkK0 = G.darkK;
     }
-    TG.R.hemi.intensity = TG.damp(TG.R.hemi.intensity, (G.hemiT || 1.35) * (1 - 0.42 * (G.darkK || 0)), 2.5, rdt);
+    TG.R.hemi.intensity = TG.damp(TG.R.hemi.intensity, (G.hemiT || 1.35) * (1 - 0.42 * (G.darkK || 0)) * (G.lvHemiK || 1), 2.5, rdt); // 11-24 단계 분위기 배율(밤 0.9 까지만)
+    if (RULE.tiles && isPlay() && !G.paused && G.phase !== 'shelter') { // 11-24 쎄니 「리듬 타일」(그림만): 걸으면 발밑 타일이 박자 색으로 켜짐
+      G.tileT = (G.tileT || 0) + vis; if (p.speed > 0.6 && G.tileT >= 0.22) { G.tileT = 0; G.tileN = (G.tileN || 0) + 1; TG.FX.ring(p.x, p.z, { r0: 0.3, r1: 1.5, dur: 0.38, color: [0xc39bff, 0x8ff4ff, 0xff9ccb, 0xfff0a8][G.tileN % 4], width: 0.22, hdr: 1.1, alpha: 0.8 }); }
+    }
+    if (RULE.seed && isPlay() && !G.paused) for (const u of TG.F.list) if (u.seed && u.state === 'live' && TG.fr() < 0.2) TG.FX.emit(TG.FX.CELL.heart, u.x + TG.fra(-0.3, 0.3), 0.25, u.z + TG.fra(-0.3, 0.3), { vy: 0.2, life: 0.35, size: 0.38, size1: 0.3, color: [2.3, 0.6, 0.7], rot: 0, alpha: 0.9 }); // 11-24 베리 「씨앗 안개」: 열매 위에 앉아 있음(그림만)
+    { const b = TG.F.boss; if (b && b.cute && b.variant === 'tree' && b.state === 'fight' && b.phase === 0 && !G.paused) { G.zzT = (G.zzT || 0) + vis; if (G.zzT >= 1.3) { G.zzT = 0; G.zzN = (G.zzN || 0) + 1; TG.FX.text('zZ…', b.x + 2.2 * b.scale, 5.2 * b.scale + 0.8, b.z, 'word'); } } } // 11-24 베리 「잠꾸러기 큰 나무」: 아직 자는 동안(1단계) zZ 표시(그림·글만)
     if (DUNGEON.beat && isPlay() && !G.paused) { // 11-24 허조교 「구령 박자」(그림·글만): 박마다 줄 안개 위 반짝, 4박마다 「하나! 둘!」 구령 글
       const bt = 60 / DUNGEON.beat.bpm; G.beatT = (G.beatT || 0) + vis;
       if (G.beatT >= bt) { G.beatT -= bt; G.beatN = (G.beatN || 0) + 1; let first = null; for (const u of TG.F.list) if (u.state === 'live' && u.line) { if (!first) first = u; TG.FX.emit(TG.FX.CELL.sparkle, u.x, u.y + 1.5 * u.scale, u.z, { vy: 1.6, life: 0.25, size: 0.4, size1: 0, color: [2.4, 2.4, 1.2] }); }
@@ -1745,6 +1813,7 @@
         hero: TG.heroId, assist: TG.assistId, petal: TG.FL.petal || 0, flowers: TG.FL.count(), healed: TG.FL.healed || 0, waveFlowers: TG.WV.flowers || 0, as: TG.AS.state(),
         danceN: G.danceN || 0, dancePops: G.dancePops || 0, dancing: F.list.filter((u) => u.state === 'live' && u.dance > 0).length, flyN: G.flyN || 0, flying: F.list.filter((u) => u.state === 'live' && !!u.fly).length,
         beamOn: !!(TG.WV.beam && TG.WV.beam.on), beamT: TG.WV.beam ? +TG.WV.beam.t.toFixed(2) : 0, beamPops: TG.WV.beamPops || 0, arrow: G.arrowU ? { id: G.arrowU.id, x: +G.arrowU.x.toFixed(2), z: +G.arrowU.z.toFixed(2) } : null, arrowShown: !!G.arrowShown, sinceLastPop: +(G.time - (G.lastPopT || 0)).toFixed(2),
+        look: { id: F.lookId || null, name: F.lookName || null, lv: G.lvLook || 1, mood: (TG.LEVEL_LOOK && TG.LEVEL_LOOK[G.lvLook || 1] || {}).mood || null, bg: TG.R.scene.background.getHexString(), sun: TG.R.sun.color.getHexString(), sunK: +TG.R.sun.intensity.toFixed(2), fogFar: TG.R.scene.fog ? Math.round(TG.R.scene.fog.far) : null, floor: TG.AR.floorMat ? TG.AR.floorMat.color.getHexString() : null, mon: F.bubbleMesh ? F.bubbleMesh.material.color.getHexString() : null, glowK: F.lv ? F.lv.glowK : 0, boss: F.bossObj ? F.bossObj.mat.color.getHexString() : null, bossGeo: F.bossObj ? F.bossObj.mesh.geometry.uuid : null, bubbleGeo: F.bubbleMesh ? F.bubbleMesh.geometry.uuid : null, partsSpin: F.bossObj ? F.bossObj.partsSpin !== false : null, hemiK: G.lvHemiK || 1 }, // 11-24 던전별 모양·단계 색
         hub: { dungeon: DUNGEON.id, name: DUNGEON.name, tutDone: tutDone(), tutRun: !!G.tutRun, tag: (document.getElementById('hubTag') || {}).textContent || '', lv: LV, lvName: TG.LEVELS[LV].name, k: Object.assign({}, LK), sel: Object.assign({}, TG.DN.sel), cleared: TG.DN.cleared(DUNGEON.id), theme: G.themeId }, // 11-19 광장·튜토리얼 / 11-24 던전·단계
         floorCfg: { budget: FL(G.floor).budget, cap: FL(G.floor).cap, spd: +FL(G.floor).spd.toFixed(3), iv: FL(G.floor).iv.map((v) => +v.toFixed(3)) }, fogHp: F.list.filter((u) => u.state === 'live' && u.kind === 'bubble').map((u) => u.maxHp).slice(0, 5),
         cu: G.cu ? { t: +G.cu.t.toFixed(2), dur: G.cu.dur, skip: G.cu.skip, done: G.cu.done, home: G.cu.home } : null, camDist: +cam.dist.toFixed(2), bgm: TG.A.bgmName, tempLoops: Object.assign({}, TG.A.tempUsed || {}), skipShown: !!(TG.H.cuSkipBtn && !TG.H.cuSkipBtn.classList.contains('hide')), // 11-24 확대 연출·음악
@@ -1752,6 +1821,9 @@
         // 11-24 허조교·모쉬 던전 규칙 상태
         rule: Object.assign({}, RULE, { boss: RULE.boss ? RULE.boss.var : null }), beta: TG.beta(), lineN: G.lineN || 0, lines: F.list.filter((u) => u.state === 'live' && u.line).length, wallPops: F.wallPops || 0, mirrorN: G.mirrorN || 0, mirrors: F.list.filter((u) => u.state === 'live' && u.mirror).length, mirrorChains: G.mirrorChains || 0,
         darkN: G.darkN || 0, darks: F.list.filter((u) => u.state === 'live' && u.dark).length, darkPops: G.darkPops || 0, darkK: +(G.darkK || 0).toFixed(3), hemi: +TG.R.hemi.intensity.toFixed(3), callN: G.callN || 0, beatN: G.beatN || 0, cuPose: p.cuPose ? { name: p.cuPose.name, t: +p.cuPose.t.toFixed(2) } : null, cuPoseK: +(TG.PL.cuPoseK || 0).toFixed(3), bossVar: F.boss ? (F.boss.variant || null) : null, bossOrder: F.boss && F.boss.order ? F.boss.order.length : 0,
+        // 11-24 쎄니·베리 던전 상태(귀여운 보스·느림보·타일·씨앗·확대 동작)
+        bossCute: !!(F.boss && F.boss.cute), bossGauge: F.boss && F.boss.cute ? +(1 - F.boss.hp / F.boss.maxHp).toFixed(3) : null, bossGaugeWord: F.boss ? (F.boss.gauge || null) : null, friend: !!(F.boss && F.boss.friend), friendN: G.friendN || 0, friendWord: G.friendWord || null, nudgeN: G.nudgeN || 0, decoN: G.decoN || 0, bossVisible: !!(F.bossObj && F.bossObj.group.visible), bossMat: F.bossObj && F.bossObj.mesh ? (F.bossObj.mesh.material === F.bossObj.mats.cloud ? 'cloud' : F.bossObj.mesh.material === F.bossObj.mats.tree ? 'tree' : 'def') : null,
+        slowN: G.slowN || 0, slows: F.list.filter((u) => u.state === 'live' && u.slow).map((u) => +u.scale.toFixed(2)), shrinkN: G.shrinkN || 0, tileN: G.tileN || 0, seedN: G.seedN || 0, seeds: F.list.filter((u) => u.state === 'live' && u.seed).length, seedPops: G.seedPops || 0, cuSpin: +(G.cuSpin || 0).toFixed(3), cuStars: G.cuStars || 0, cuPetals: G.cuPetals || 0,
         // 11-17 개편 상태: 푸슝 빔·고함 멈춤·물감 구역·세포체조 시각
         bolts: TG.WV.bolts.length, boltHits: TG.WV.boltHits || 0, boltChains: TG.WV.boltChains || 0, boltPierces: TG.WV.boltPierces || 0,
         shoutHits: TG.WV.shoutHits || 0, shoutStuns: TG.WV.shoutStuns || 0, stunned: F.list.filter((u) => u.state === 'live' && u.stun > 0).length,

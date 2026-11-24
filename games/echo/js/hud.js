@@ -248,7 +248,11 @@
     H.progGear.style.left = (TG.clamp(gk, 0, 1) * 100).toFixed(1) + '%';
     // 보스 막대
     H.show(H.bossBar, !!(b && b.state !== 'gather' && !b.popped));
-    if (b) { const w = ((b.hp / b.maxHp) * 100).toFixed(1) + '%'; H.bossFill.style.width = w; H.bossGhost.style.width = w; }
+    if (b) { // 11-24 귀여운 보스(쎄니·베리): 막대가 「물감/꽃 게이지」 — 꾸며 줄수록 차오름(체력·HP 말 X). 보통 보스는 남은 양이 줄어듦
+      const cute = !!b.cute, k = cute ? 1 - b.hp / b.maxHp : b.hp / b.maxHp, w = (k * 100).toFixed(1) + '%'; H.bossFill.style.width = w; H.bossGhost.style.width = w;
+      const nm = cute ? (b.gauge || '꾸미기') + ' 게이지' : '큰 침묵 안개'; // 이름은 띠로 보였으니 짧게(진행 톱니 아이콘과 안 겹치게)
+      if (H.bossNameShown !== nm) { H.bossNameShown = nm; const e = H.bossBar.querySelector('.bname'); if (e) e.textContent = nm; H.bossBar.classList.toggle('cute', cute); H.bossBar.classList.toggle('tree', cute && b.variant === 'tree'); }
+    }
     // 연속
     if (G.combo >= 3) {
       H.show(H.combo, true);

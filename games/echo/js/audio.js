@@ -27,9 +27,14 @@
     bgm_dome_sefo: { bpm: 126, bars: 8, make: domeSefoLoop }, // 세포 「메아리 체조 돔」 — 밝은 체조 시간(C 장조, 어린이 전체이용가)
     bgm_camp_gunner: { bpm: 116, bars: 8, make: campGunnerLoop }, // 11-24 허조교 「연병장 지하」 — 씩씩한 행진·구령 느낌(F 장조, 북·스네어 행진·황동 화음·구령 스탭). 대표 〈Boot Camp〉 오면 assets/audio/bgm_camp_gunner.mp3 만
     bgm_mirror_moshee: { bpm: 128, bars: 8, make: mirrorMosheeLoop }, // 11-24 모쉬 「거울 네온 미로」 — 네온 클럽·일렉 느낌(A 단조 파스텔, 쿵쿵 네 박·엇박 햇·아르페지오·패드). 대표 「moshi moshi」 오면 assets/audio/bgm_mirror_moshee.mp3 만
+    bgm_hall_sseni: { bpm: 124, bars: 8, make: hallSseniLoop }, // 11-24 쎄니 「별빛 댄스홀」 — 반짝반짝 별빛 댄스(D 장조, 종소리 아르페지오·통통 베이스·박수). AI 음악팀 신곡 오면 assets/audio/bgm_hall_sseni.mp3 만
+    bgm_orchard_berri: { bpm: 108, bars: 8, make: orchardBerriLoop }, // 11-24 베리 「베리 과수원」 — 상큼한 과수원(G 장조, 우쿨렐레 느낌 플럭·마림바 가락·셰이커). 신곡 오면 assets/audio/bgm_orchard_berri.mp3 만
+    bgm_boss_cute: { bpm: 132, bars: 8, make: bossCuteLoop }, // 11-24 귀여운 보스(쎄니·베리 공통) — 밝은 보스 음악(C 장조, 신나는 네 박·밝은 화음·높은 종소리, 무섭지 않게). 곡 오면 assets/audio/bgm_boss_cute.mp3 만
     // 한 번 소리(sfx: true, sec 길이 — 크기는 sfx_bonk 최대치에 맞춤): 확대 연출 끝 효과음 자리(던전표 music.end)
     sfx_whistle_gunner: { sfx: true, sec: 1.1, make: whistleDrumSfx }, // 허조교: 호루라기 삑 + 북 한 번
     sfx_drop_moshee: { sfx: true, sec: 1.3, make: dropMosheeSfx }, // 모쉬: 자체 음원 드롭 1초 자리(저음 쿵 + 올라가는 반짝 + 화음 스탭)
+    sfx_twinkle_sseni: { sfx: true, sec: 1.1, make: twinkleSseniSfx }, // 11-24 쎄니: 반짝 효과음(올라가는 종소리)
+    sfx_maraca_berri: { sfx: true, sec: 1.0, make: maracaBerriSfx }, // 11-24 베리: 마라카스 샤카샤카 두 번 + 톡
   };
   A.fillTempLoops = function () {
     const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext; if (!AC) return;
@@ -158,6 +163,88 @@
     [57, 60, 64].forEach((n, k) => add(0.46, 0.3, NOTE(n + 12), 0.2, 4, (k - 1) * 0.5, 6)); // Am 스탭
     [60, 64, 67].forEach((n, k) => add(0.78, 0.4, NOTE(n + 12), 0.2, 4, (k - 1) * 0.5, 5)); // C 스탭
     hat(0.6, 0.15); hat(0.78, 0.15); hat(0.95, 0.12);
+  }
+
+  // 11-24 쎄니 「별빛 댄스홀」 임시 루프(124 BPM·D 장조·8마디 ≈ 15.5초): 쿵·짝 + 반짝 종소리 아르페지오(D·G·Bm·A) + 통통 베이스 + 밝은 가락. 어린이 전체이용가 — 센 소리 X
+  function hallSseniLoop(l, r, sr, bpm, bars) {
+    const beat = 60 / bpm, K = synthKit(l, r, sr, 31), NOTE = K.NOTE, add = K.add, kick = K.kick, hat = K.hat, clap = K.clap;
+    const CH = [[62, 66, 69], [67, 71, 74], [59, 62, 66], [57, 61, 64], [62, 66, 69], [67, 71, 74], [57, 61, 64], [62, 66, 69]]; // D · G · Bm · A · D · G · A · D
+    const BASS = [38, 43, 35, 33, 38, 43, 33, 38];
+    const MEL = [ // 8분음표, 0 = 쉼 — 별빛 댄스 가락(D 장조, 통통 튀게)
+      74, 0, 78, 0, 81, 78, 74, 0,  79, 0, 78, 76, 74, 0, 0, 0,
+      71, 0, 74, 0, 78, 74, 71, 0,  73, 0, 76, 73, 69, 0, 0, 0,
+      74, 74, 78, 0, 81, 0, 86, 0,  83, 81, 79, 78, 76, 0, 0, 0,
+      73, 0, 76, 0, 81, 0, 85, 0,  86, 0, 83, 0, 86, 0, 0, 0];
+    for (let b = 0; b < bars; b++) {
+      const t0 = b * 4 * beat, ch = CH[b % CH.length];
+      for (let q = 0; q < 4; q++) {
+        const t = t0 + q * beat;
+        kick(t, 0.75); if (q === 1 || q === 3) clap(t, 0.26);
+        hat(t + beat / 2, 0.14); hat(t + beat * 0.75, 0.07);
+        add(t, beat * 0.4, NOTE(BASS[b % 8]), 0.48, 2, 0, 6); add(t + beat / 2, beat * 0.3, NOTE(BASS[b % 8] + 12), 0.26, 2, 0, 9); // 통통 베이스(옥타브)
+        for (let s2 = 0; s2 < 4; s2++) { const n = ch[(q + s2) % 3] + 24; add(t + s2 * beat / 4, beat * 0.3, NOTE(n), 0.13, 0, Math.sin((q * 4 + s2) * 1.7) * 0.6, 12); add(t + s2 * beat / 4, beat * 0.15, NOTE(n + 12), 0.04, 0, 0, 20); } // 반짝 종소리 아르페지오(글로켄)
+        if (q === 0 || q === 2) ch.forEach((n, k) => add(t, beat * 0.9, NOTE(n), 0.12, 1, (k - 1) * 0.45, 4)); // 밝은 화음 1·3박
+      }
+      for (let e = 0; e < 8; e++) { const m = MEL[(b * 8 + e) % MEL.length]; if (m) { const t = t0 + e * beat / 2; add(t, beat * 0.5, NOTE(m), 0.3, 1, 0.1, 5); add(t, beat * 0.3, NOTE(m + 12), 0.07, 0, -0.1, 10); } }
+    }
+  }
+  // 11-24 베리 「베리 과수원」 임시 루프(108 BPM·G 장조·8마디 ≈ 17.8초): 둥·셰이커 + 우쿨렐레 느낌 엇박 플럭(G·C·Em·D) + 마림바 가락 + 포근한 베이스. 상큼·포근하게(센 소리 X)
+  function orchardBerriLoop(l, r, sr, bpm, bars) {
+    const beat = 60 / bpm, K = synthKit(l, r, sr, 41), NOTE = K.NOTE, add = K.add, kick = K.kick, hat = K.hat;
+    const CH = [[67, 71, 74], [72, 76, 79], [64, 67, 71], [62, 66, 69], [67, 71, 74], [72, 76, 79], [62, 66, 69], [67, 71, 74]]; // G · C · Em · D · G · C · D · G
+    const BASS = [43, 48, 40, 38, 43, 48, 38, 43];
+    const MEL = [ // 8분음표, 0 = 쉼 — 열매 익는 과수원 가락(G 장조, 마림바)
+      79, 0, 78, 79, 83, 0, 0, 0,  81, 0, 79, 81, 84, 0, 0, 0,
+      83, 0, 81, 79, 76, 0, 79, 0,  78, 0, 81, 0, 79, 0, 0, 0,
+      79, 79, 0, 78, 79, 0, 83, 0,  84, 0, 83, 81, 79, 0, 0, 0,
+      76, 0, 79, 0, 81, 0, 83, 0,  86, 0, 83, 0, 79, 0, 0, 0];
+    for (let b = 0; b < bars; b++) {
+      const t0 = b * 4 * beat, ch = CH[b % CH.length];
+      for (let q = 0; q < 4; q++) {
+        const t = t0 + q * beat;
+        if (q === 0 || q === 2) kick(t, 0.6); else add(t, 0.07, 0, 0.14, 3, 0.2, 60); // 둥(1·3박) · 셰이커(2·4박)
+        hat(t + beat / 2, 0.09); add(t + beat * 0.75, 0.05, 0, 0.06, 3, -0.2, 70); // 셰이커 8분·16분
+        add(t, beat * 0.5, NOTE(BASS[b % 8]), 0.42, 1, 0, 4); // 포근한 베이스
+        ch.forEach((n, k) => add(t + beat / 2, beat * 0.35, NOTE(n + 12), 0.14, 1, (k - 1) * 0.5, 9)); // 우쿨렐레 느낌 엇박 플럭
+        if (q === 0) ch.forEach((n, k) => add(t, beat * 3.5, NOTE(n), 0.05, 0, (k - 1) * 0.6, 0.8)); // 패드(길게·작게)
+      }
+      for (let e = 0; e < 8; e++) { const m = MEL[(b * 8 + e) % MEL.length]; if (m) { const t = t0 + e * beat / 2; add(t, beat * 0.45, NOTE(m), 0.28, 0, 0.1, 7); add(t, beat * 0.25, NOTE(m + 24), 0.06, 0, -0.1, 14); add(t, beat * 0.1, NOTE(m + 36), 0.03, 0, 0, 30); } } // 마림바(기음 + 배음 두 겹)
+    }
+  }
+  // 11-24 귀여운 보스 임시 루프(쎄니·베리 공통, 132 BPM·C 장조·8마디 ≈ 14.5초): 신나는 네 박 쿵·짝 + 밝은 화음 스탭(C·G·Am·F) + 높은 종소리 가락 — 「밝은 보스 음악」(v8 11쪽), 낮게 으르렁 X
+  function bossCuteLoop(l, r, sr, bpm, bars) {
+    const beat = 60 / bpm, K = synthKit(l, r, sr, 53), NOTE = K.NOTE, add = K.add, kick = K.kick, hat = K.hat, clap = K.clap;
+    const CH = [[60, 64, 67], [67, 71, 74], [57, 60, 64], [65, 69, 72], [60, 64, 67], [67, 71, 74], [65, 69, 72], [67, 71, 74]]; // C · G · Am · F · C · G · F · G
+    const BASS = [48, 43, 45, 41, 48, 43, 41, 43];
+    const MEL = [ // 8분음표 — 밝고 씩씩한 종소리 가락
+      84, 0, 84, 86, 88, 0, 86, 84,  83, 0, 83, 84, 86, 0, 0, 0,
+      81, 0, 84, 0, 88, 0, 84, 0,  86, 0, 84, 83, 81, 0, 0, 0,
+      84, 0, 84, 86, 88, 0, 91, 0,  89, 88, 86, 84, 83, 0, 0, 0,
+      81, 0, 84, 0, 89, 0, 88, 0,  86, 0, 84, 0, 86, 0, 0, 0];
+    for (let b = 0; b < bars; b++) {
+      const t0 = b * 4 * beat, ch = CH[b % CH.length];
+      for (let q = 0; q < 4; q++) {
+        const t = t0 + q * beat;
+        kick(t, 0.85); if (q === 1 || q === 3) clap(t, 0.3);
+        hat(t + beat / 2, 0.15); hat(t + beat * 0.25, 0.07); hat(t + beat * 0.75, 0.09);
+        add(t, beat * 0.3, NOTE(BASS[b % 8]), 0.5, 2, 0, 8); add(t + beat / 2, beat * 0.3, NOTE(BASS[b % 8]), 0.4, 2, 0, 8); // 쿵쿵 베이스(8분)
+        ch.forEach((n, k) => add(t + beat / 2, beat * 0.3, NOTE(n + 12), 0.15, 1, (k - 1) * 0.5, 9)); // 밝은 화음 스탭(엇박)
+      }
+      for (let e = 0; e < 8; e++) { const m = MEL[(b * 8 + e) % MEL.length]; if (m) { const t = t0 + e * beat / 2; add(t, beat * 0.45, NOTE(m), 0.26, 1, 0.1, 6); add(t, beat * 0.25, NOTE(m - 12), 0.1, 0, -0.1, 7); } }
+    }
+  }
+  // 11-24 쎄니 확대 연출 끝: 반짝 효과음(올라가는 종소리 D5·F#5·A5·D6 + 반짝 잔향 + 작은 글리산도)
+  function twinkleSseniSfx(l, r, sr) {
+    const K = synthKit(l, r, sr, 13), NOTE = K.NOTE, add = K.add;
+    [74, 78, 81, 86].forEach((n, i) => { add(0.02 + i * 0.11, 0.5, NOTE(n), 0.42, 0, (i - 1.5) * 0.3, 6); add(0.02 + i * 0.11, 0.25, NOTE(n + 12), 0.12, 0, 0, 12); });
+    for (let i = 0; i < 10; i++) add(0.46 + i * 0.045, 0.12, NOTE(86 + (i % 3) * 3), 0.1, 0, (i % 2 ? 0.5 : -0.5), 18); // 반짝 잔향
+    add(0.5, 0.45, NOTE(90), 0.18, 0, 0, 5, NOTE(98)); // 작은 글리산도(위로)
+  }
+  // 11-24 베리 확대 연출 끝: 마라카스 샤카샤카 두 번(잡음 짧게 4번) + 톡(나무 소리)
+  function maracaBerriSfx(l, r, sr) {
+    const K = synthKit(l, r, sr, 17), add = K.add;
+    [0.02, 0.15, 0.36, 0.49].forEach((t, i) => { add(t, 0.09, 0, i % 2 ? 0.4 : 0.55, 3, i < 2 ? -0.3 : 0.3, 38); add(t + 0.01, 0.05, 0, 0.2, 3, 0, 60); }); // 샤카·샤카 ×2
+    add(0.78, 0.12, 980, 0.6, 0, 0, 34, 620); add(0.78, 0.06, 0, 0.25, 3, 0, 70); // 톡(나무)
   }
 
   function makeComp(ctx) {

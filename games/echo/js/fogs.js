@@ -51,6 +51,7 @@
       flat: '(1.0 - smoothstep(0.014, 0.03, abs(ep.y - ' + MYa + '))) * (1.0 - smoothstep(0.06, 0.075, abs(ep.x)))',
       pout: '(1.0 - smoothstep(0.016, 0.032, abs(ep.y - ' + MYp + ' + ep.x * ep.x * 4.0))) * (1.0 - smoothstep(0.085, 0.1, abs(ep.x)))',
       wavy: '(1.0 - smoothstep(0.014, 0.03, abs(ep.y - ' + MYa + ' - sin(ep.x * 50.0) * 0.02))) * (1.0 - smoothstep(0.1, 0.115, abs(ep.x)))',
+      smile: '(1.0 - smoothstep(0.016, 0.032, abs(ep.y - ' + f3(EY - S * 1.35) + ' - ep.x * ep.x * 4.0))) * (1.0 - smoothstep(0.095, 0.11, abs(ep.x)))', // 11-24 귀여운 보스(쎄니·베리): 웃는 입(삐진 입을 뒤집은 U)
     };
     Object.keys(MOUTH).forEach((k) => { if (any((f) => f.mouth === k)) L.push('  dark = max(dark, ' + MOUTH[k] + ' * front * (' + sum((f) => (f.mouth === k ? 1 : 0)) + '));'); });
     if (any((f) => f.sweat)) L.push('  { vec2 sq = vec2(ep.x - ' + f3(SEP * 2.15) + ', (ep.y - ' + f3(EY + S * 2.0) + ') * 0.72); float sl = length(sq) - max(0.0, sq.y) * 0.45; float son = (' + sum((f) => (f.sweat ? 1 : 0)) + ') * front;', // 당황 땀방울 (하늘색 물방울)
@@ -66,7 +67,8 @@
   // 색조 3단(같은 보라빛 회색 안에서 기본·푸른 기·분홍 기) — 떼가 한 덩어리로 안 보이게
   // 11-16 밤: vVar.x 3 = 쎄니 「퍼플팡팡!」에 물든 보라(진한 보라로 — 게임 바닥·다른 안개와 구분)
   // 11-24 모쉬 거울 미로: vVar.x 4 = 거울 안개(밝은 시안·유리) · 5 = 깜깜 안개(어둑한 남보라)
-  const TINT = 'diffuseColor.rgb *= vVar.x < 0.5 ? vec3(1.0) : (vVar.x < 1.5 ? vec3(0.86, 0.95, 1.13) : (vVar.x < 2.5 ? vec3(1.12, 0.92, 1.0) : (vVar.x < 3.5 ? vec3(1.05, 0.55, 1.75) : (vVar.x < 4.5 ? vec3(0.78, 1.42, 1.55) : vec3(0.42, 0.40, 0.62)))));\n';
+  const TINT = 'diffuseColor.rgb *= vVar.x < 0.5 ? vec3(1.0) : (vVar.x < 1.5 ? vec3(0.86, 0.95, 1.13) : (vVar.x < 2.5 ? vec3(1.12, 0.92, 1.0) : (vVar.x < 3.5 ? vec3(1.05, 0.55, 1.75) : (vVar.x < 4.5 ? vec3(0.78, 1.42, 1.55) : (vVar.x < 5.5 ? vec3(0.42, 0.40, 0.62) : (vVar.x < 6.5 ? vec3(1.1, 0.96, 1.3) : vec3(0.92, 1.22, 0.82)))))));\n';
+  // 11-24 쎄니·베리: vVar.x 6 = 느림보 안개(연보라 큰 안개) · 7 = 씨앗 안개(연두)
   function fogMat(o) {
     const m = TG.R.toon({
       color: o.color, rim: o.rim != null ? o.rim : 0.3, spec: o.spec != null ? o.spec : 0, inst: o.inst, key: o.key, flashCol: o.flashCol || 'vec3(0.9, 0.84, 1.12)', gain: o.gain, sat: o.sat,
@@ -80,6 +82,8 @@
         ' outgoingLight = mix(outgoingLight, vec3(1.12, 1.12, 1.16), vEyeW);\n outgoingLight = mix(outgoingLight, vec3(0.05, 0.04, 0.09), vEyeK);\n outgoingLight = mix(outgoingLight, vec3(1.9), vEyeHL);\n',
     });
     if (o.uni) { const base = m.onBeforeCompile; m.onBeforeCompile = function (sh) { base(sh); Object.assign(sh.uniforms, o.uni); }; }
+    m.vertexColors = true; // 11-24 던전별 모양(js/looks.js): 부품 색은 정점 색(몸 색 × 정점 색) — 모든 안개 지오메트리에 color 속성이 있음
+    m.userData.base = o.color; // 몸 색(단계 색을 곱할 때 기준)
     return m;
   }
   // 꾸밈용 난수: 개체 id 해시 (규칙용 TG.sr 과 무관 → 재생 결과에 영향 없음)
@@ -107,18 +111,19 @@
 
   F.init = function (scene) {
     const R = TG.R, M = TG.M;
-    // 안개 방울: 통통한 몸 하나 + 작은 솜 뭉치 몇 개 (구름 실루엣), 얼굴은 셰이더
-    const bg = blob([[0, 0.02, 0, 0.66, 12, 0.93], [0.5, -0.2, -0.06, 0.34], [-0.5, -0.2, -0.06, 0.34], [0.14, 0.5, -0.12, 0.31], [-0.22, 0.44, -0.14, 0.27], [0, -0.06, -0.6, 0.3]]);
+    // 안개 방울: 통통한 몸 하나 + 작은 솜 뭉치 몇 개 (구름 실루엣), 얼굴은 셰이더. 11-24: 모양은 js/looks.js 표(던전마다 다름) — 시작은 파이프 굴(기존 모양), F.setLook 이 바꿔 끼움
+    const LKB = (id, kind, base) => TG.LOOKS.build(id, kind, base);
+    const bg = LKB('pipe', 'bubble');
     const bmat = fogMat({ color: 0x9c98b8, inst: true, key: 'bubble', gy0: -0.55, gy1: 0.55, cx: '0.0', cy: '0.02', cz: '0.0', sep: 0.29, ey: 0.15, size: 0.2, sel: 'vVar.y', faces: [{ mouth: 'o' }, { lid: 0.3, mouth: 'flat' }, { brow: true, mouth: 'pout' }] }); // 표정: 동그란 입(놀람)·졸림·심술
     F.bubbleMesh = new T.InstancedMesh(bg, bmat, CAP.bubble);
     F.bubbleFlash = instAttr(bg, CAP.bubble); F.bubbleLook = lookAttr(bg, CAP.bubble); F.bubbleVar = varAttr(bg, CAP.bubble);
     // 메아리 안개 (3층): 매끈한 물방울 몸 + 머리 위 작은 방울 둘, 파란 기운 + 표면에 번지는 리플
-    const eg = blob([[0, 0.02, 0, 0.68, 14, 0.96], [0.42, -0.34, -0.05, 0.3], [-0.42, -0.34, -0.05, 0.3], [0, 0.72, -0.05, 0.2], [0.05, 1.0, -0.05, 0.11]]);
+    const eg = LKB('pipe', 'echo');
     const emat = fogMat({ color: 0x6f94e4, inst: true, key: 'echo', rim: 0.5, spec: 0.35, ripple: true, gy0: -0.55, gy1: 0.55, cx: '0.0', cy: '0.02', cz: '0.0', sep: 0.29, ey: 0.15, size: 0.2, mouth: 'o' });
     F.echoMesh = new T.InstancedMesh(eg, emat, CAP.echo);
     F.echoFlash = instAttr(eg, CAP.echo); F.echoLook = lookAttr(eg, CAP.echo); F.echoVar = varAttr(eg, CAP.echo);
     // 안개 뭉치: 큰 몸 + 솜 뭉치 여럿 (솜사탕), 졸린 눈
-    const cg = blob([[0, 0.82, 0.06, 0.86, 14, 0.95], [0.78, 0.6, -0.1, 0.56], [-0.78, 0.6, -0.1, 0.56], [0.42, 1.42, -0.18, 0.5], [-0.4, 1.38, -0.15, 0.52], [0, 1.6, -0.3, 0.42], [0, 0.45, -0.62, 0.6]]);
+    const cg = LKB('pipe', 'clump');
     const cmat = fogMat({ color: 0x8c88ac, inst: true, key: 'clump', gy0: '0.0', gy1: '1.6', cx: '0.0', cy: '0.82', cz: '0.06', sep: 0.3, ey: 0.14, size: 0.2, sel: 'vVar.y', faces: [{ lid: 0.3, mouth: 'flat' }, { lid: 0.42, mouth: 'o' }, { brow: true, mouth: 'flat' }] }); // 표정: 졸림·하품·심술
     F.clumpMesh = new T.InstancedMesh(cg, cmat, CAP.clump);
     F.clumpFlash = instAttr(cg, CAP.clump); F.clumpLook = lookAttr(cg, CAP.clump); F.clumpVar = varAttr(cg, CAP.clump);
@@ -161,28 +166,27 @@
     F.shadowMesh.count = 0; F.shadowMesh.frustumCulled = false; F.shadowMesh.renderOrder = 2; F.shadowMesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
     scene.add(F.shadowMesh);
     // 보스 (포도송이 모양 그대로): 큰 눈 + 삐친 눈썹 + 볼 + 삐죽 입
-    const bparts = [[0, 1.55, 0.1, 1.5], [1.35, 1.2, -0.2, 1.0], [-1.35, 1.2, -0.2, 1.0], [0.85, 2.5, -0.3, 0.95], [-0.85, 2.45, -0.3, 0.98], [0, 2.85, -0.5, 0.9], [1.75, 0.55, 0.15, 0.62], [-1.75, 0.55, 0.15, 0.62], [0, 0.55, -1.0, 1.0], [1.0, 0.5, 0.9, 0.55], [-1.0, 0.5, 0.9, 0.55]];
-    const bgeo = blob(bparts.map(([x, y, z, r], i) => [x * 1.3, y * 1.3, z * 1.3, r * 1.3, i === 0 ? 24 : 14]));
+    const bgeo = LKB('pipe', 'boss', 0x77729a); // 11-24 보스 몸도 던전마다 다름(js/looks.js) — 세포 체조 공·허조교 헬멧·모쉬 큐브·쎄니 먹구름·베리 나무
     const bossMood = { value: 0 };
     const bossMat = fogMat({ color: 0x77729a, key: 'boss', rim: 0.35, spec: 0, flashCol: 'vec3(0.74, 0.71, 0.92)', gy0: '0.0', gy1: '3.9', cx: '0.0', cy: '2.015', cz: '0.13', sep: 0.27, ey: 0.1, size: 0.205,
       // 단계별 표정(맞을수록 기가 꺾임): 심술 → 당황(땀방울) → 지쳐 울상. 무섭지 않게
       sel: 'uMood', fUni: ' uniform float uMood;', uni: { uMood: bossMood },
       faces: [{ brow: true, mouth: 'pout' }, { brow: 'worry', mouth: 'o', sweat: true }, { brow: 'worry', lid: 0.26, mouth: 'wavy', sweat: true }] });
+    // 11-24 귀여운 보스(쎄니 「삐진 먹구름」·베리 「잠꾸러기 큰 나무」, 계획 v8 11쪽): 같은 포도송이 모양·같은 규칙 틀, 재질(표정 3벌)만 바꿔 끼움 — 새 3D 없음(크레딧 0)
+    //  먹구름: 삐짐(눈썹↘·삐죽) → 놀람(물감 맞음) → 웃음(친구) / 큰 나무: 쿨쿨(눈 감김) → 하품(반쯤 뜸) → 웃음. 무서운 얼굴 X
+    const bossMatCloud = fogMat({ color: 0x8e8ca8, key: 'bosscloud', rim: 0.45, spec: 0, flashCol: 'vec3(0.92, 0.82, 1.05)', gy0: '0.0', gy1: '3.9', cx: '0.0', cy: '2.015', cz: '0.13', sep: 0.27, ey: 0.1, size: 0.205,
+      sel: 'uMood', fUni: ' uniform float uMood;', uni: { uMood: bossMood }, faces: [{ brow: true, mouth: 'pout' }, { mouth: 'o' }, { mouth: 'smile' }] });
+    const bossMatTree = fogMat({ color: 0x8fb86a, key: 'bosstree', rim: 0.4, spec: 0, flashCol: 'vec3(1.0, 0.86, 0.92)', gy0: '0.0', gy1: '3.9', cx: '0.0', cy: '2.9', cz: '0.1', sep: 0.27, ey: 0.1, size: 0.205, // 11-24 얼굴 중심 = 나무 수관 가운데(looks.js bossC)
+      sel: 'uMood', fUni: ' uniform float uMood;', uni: { uMood: bossMood }, faces: [{ lid: 0.78, mouth: 'flat' }, { lid: 0.3, mouth: 'o' }, { mouth: 'smile' }] });
     const boss = new T.Mesh(bgeo, bossMat);
     boss.castShadow = true;
     const bg2 = new T.Group(); bg2.add(boss); bg2.visible = false; scene.add(bg2);
     R.addOutline(boss, 1.35); // 다른 안개와 같은 두께
     // 고유 부품(겉모습만, 판정과 무관): 몸 둘레 회색 구슬 고리(조였다 풀렸다) + 머리 위 황동 태엽 — 정점 색 한 메시(드로콜 +2)
-    const paint = (g, hex) => { const c = new T.Color(hex), n = g.getAttribute('position').count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) { a[i * 3] = c.r; a[i * 3 + 1] = c.g; a[i * 3 + 2] = c.b; } g.setAttribute('color', new T.BufferAttribute(a, 3)); return g; };
-    const pg = [];
-    for (let i = 0; i < 16; i++) { const a = (i / 16) * 6.283, g = new T.SphereGeometry(i % 2 ? 0.26 : 0.36, 8, 6); g.scale(1, 0.84, 1); g.translate(Math.cos(a) * 3.12, 1.0, Math.sin(a) * 3.12); pg.push(paint(g, i % 2 ? 0x8f8ca2 : 0xbcb9cc)); }
-    pg.push(paint((() => { const g = new T.TorusGeometry(3.12, 0.13, 6, 40); g.rotateX(Math.PI / 2); g.translate(0, 1.0, 0); return g; })(), 0x7b7890)); // 구슬을 잇는 띠
-    pg.push(paint((() => { const g = new T.CylinderGeometry(0.17, 0.17, 1.3, 8); g.translate(0, 4.95, 0); return g; })(), 0xd9a92e));
-    pg.push(paint((() => { const g = new T.CylinderGeometry(0.34, 0.4, 0.22, 10); g.translate(0, 4.55, 0); return g; })(), 0xb8862a));
-    [-0.5, 0.5].forEach((x) => pg.push(paint((() => { const g = new T.TorusGeometry(0.44, 0.15, 6, 14); g.translate(x, 6.0, 0); return g; })(), 0xe0ae2c)));
+    // 11-24 부품도 던전마다(js/looks.js parts): 파이프 굴 = 구슬 고리 + 태엽 / 세포 공 고리 / 허조교 타이어 고리 / 모쉬 큐브 고리 / 쎄니 미러볼 / 베리 줄기·뿌리·열매(돌지 않음)
     const partsMat = R.toon({ color: 0xffffff, rim: 0.5, spec: 0.4, key: 'bossparts', flashCol: 'vec3(0.95, 0.93, 1.02)' });
     partsMat.vertexColors = true;
-    const parts = new T.Mesh(T.BufferGeometryUtils.mergeGeometries(pg), partsMat);
+    const parts = new T.Mesh(LKB('pipe', 'parts'), partsMat);
     const pgr = new T.Group(); pgr.add(parts); bg2.add(pgr);
     R.addOutline(parts, 1.35);
     // 음표를 가둔 방울 3개 = 남은 단계 수. 단계가 넘어갈 때마다 하나씩 퐁 터져 음표가 풀려남 (껍질 1 드로콜, 속 음표는 음표 메시 인스턴스에 얹음)
@@ -211,13 +215,40 @@
       transparent: true, depthWrite: false,
     }));
     band.visible = false; band.renderOrder = 4; band.frustumCulled = false; band.position.y = 0.09; scene.add(band);
-    F.bossObj = { group: bg2, mesh: boss, mat: bossMat, mood: bossMood, pgr, partsMat, shells, beads, band, spin: 0, bubS: [0, 0, 0], bubOn: [true, true, true], cap: [new T.Vector3(), new T.Vector3(), new T.Vector3()] };
+    F.bossObj = { group: bg2, mesh: boss, mat: bossMat, mats: { def: bossMat, cloud: bossMatCloud, tree: bossMatTree }, mood: bossMood, pgr, parts, partsMat, partsSpin: true, shells, beads, band, spin: 0, bubS: [0, 0, 0], bubOn: [true, true, true], cap: [new T.Vector3(), new T.Vector3(), new T.Vector3()] };
+    F.lookId = 'pipe'; F.setLevelLook(null);
     // 회색 고리 (좁혀 오는 구역)
     F.zone = makeZone(scene);
     initTele(scene);
     initCocoons(scene);
     F.tickBeat = 0;
   };
+
+  // ── 11-24 던전별 모양·단계 색 (그림만) ──
+  // F.setLook(id): 안개 방울·뭉치·메아리·보스 몸·부품 지오메트리를 던전 모양(js/looks.js)으로 바꿔 끼움. 인스턴스 속성(aFlash·aLook·aVar)은 같은 객체를 새 지오메트리에 다시 붙임(드로콜·메시 수 그대로)
+  const lookCache = {};
+  const swapGeo = (mesh, geo, attrs) => { if (mesh.geometry === geo) return; if (attrs) for (const k in attrs) geo.setAttribute(k, attrs[k]); mesh.geometry = geo; const o = mesh.userData.outline; if (o) o.geometry = geo; };
+  F.setLook = function (id) {
+    if (!TG.LOOKS || !F.bubbleMesh) return F.lookId;
+    const L = TG.LOOKS.get(id); id = L === TG.LOOKS.pipe ? 'pipe' : id;
+    const d = TG.DUNGEONS && TG.DUNGEONS[id], tint = d && d.rule && d.rule.boss && d.rule.boss.tint ? d.rule.boss.tint : 0x77729a;
+    const c = lookCache[id] || (lookCache[id] = { bubble: TG.LOOKS.build(id, 'bubble'), echo: TG.LOOKS.build(id, 'echo'), clump: TG.LOOKS.build(id, 'clump'), boss: TG.LOOKS.build(id, 'boss', tint), parts: TG.LOOKS.build(id, 'parts') });
+    swapGeo(F.bubbleMesh, c.bubble, { aFlash: F.bubbleFlash, aLook: F.bubbleLook, aVar: F.bubbleVar });
+    swapGeo(F.echoMesh, c.echo, { aFlash: F.echoFlash, aLook: F.echoLook, aVar: F.echoVar });
+    swapGeo(F.clumpMesh, c.clump, { aFlash: F.clumpFlash, aLook: F.clumpLook, aVar: F.clumpVar });
+    const o = F.bossObj; swapGeo(o.mesh, c.boss); swapGeo(o.parts, c.parts); o.partsSpin = L.spin !== false;
+    F.lookId = id; F.lookName = L.name;
+    return id;
+  };
+  // F.setLevelLook(L): 난이도 단계 색(js/dungeons.js TG.LEVEL_LOOK 한 줄) — 안개·보스 재질 색에 곱하고(mon) 밤 단계는 살짝 빛남(glow). null = 1단계(낮)
+  F.lv = { mon: new T.Color(1, 1, 1), glow: new T.Color(0, 0, 0), glowK: 0, n: 1 };
+  F.setLevelLook = function (L) {
+    F.lv.mon.set(L && L.mon != null ? L.mon : 0xffffff); F.lv.glow.set(L && L.glow != null ? L.glow : 0x000000); F.lv.glowK = L && L.glowK ? L.glowK : 0; F.lv.n = L ? L.n : 1;
+    const ms = [F.bubbleMesh && F.bubbleMesh.material, F.echoMesh && F.echoMesh.material, F.clumpMesh && F.clumpMesh.material].filter(Boolean);
+    for (const m of ms) { m.color.set(m.userData.base).multiply(F.lv.mon); m.emissive.copy(F.lv.glow); m.emissiveIntensity = F.lv.glowK; }
+    if (F.bossObj) { const o = F.bossObj; for (const k in o.mats) { o.mats[k].emissive.copy(F.lv.glow); o.mats[k].emissiveIntensity = F.lv.glowK * 0.7; } if (F.boss) F.bossTint(F.boss.friend ? (F.boss.cfg && F.boss.cfg.friendTint) || 0xf2e8ff : F.boss.tint); else o.mat.color.set(0x77729a).multiply(F.lv.mon); }
+  };
+  F.bossTint = function (hex) { try { F.bossObj.mat.color.set(hex == null ? 0x77729a : hex).multiply(F.lv.mon); } catch (e) { /* 재질 없음 */ } };
 
   // 안개 고치: 반투명 안개 껍질 속에 작은 주민 실루엣(흰 눈만 깜빡). 풀리면 제 색으로 폴짝
   const cocoons = [];
@@ -405,7 +436,8 @@
   F.startBoss = function (first) {
     const b = (F.boss = { x: 0, z: 1.0, y: 0.3, px: 0, pz: 1.0, py: 0.3, state: 'gather', t: 0, hp: BOSS_HP, maxHp: BOSS_HP, phase: 0, scale: 0.03, tscale: 1, flash: 0, sq: 0, spawnT: 2.5, inv: 0, r: 3.0, deadT: 0, ringSpd: 0.7, patT: 2.6, patN: 0, seq: 0, pat: null, drops: [], stun: 0, spdK: first ? 0.7 : 1, slowK: 1, yaw: 0 });
     { const v = F.rule && F.rule.boss; b.variant = v ? v.var : null; b.order = v && v.order ? v.order : null; b.rainLine = !!(v && v.rainLine); b.sqY = v && v.sqY ? v.sqY : 1; // 11-24 던전 보스 변형(허조교 구령·모쉬 어둠): 행동 순서·안개 비 모양·색·찌그러짐(기록 dun 으로 재생 때 같음)
-      try { F.bossObj.mat.color.set(v && v.tint ? v.tint : 0x77729a); } catch (e) { /* 재질 없음 */ } }
+      b.cute = !!(v && v.cute); b.gauge = v && v.gauge ? v.gauge : null; b.floatY = v && v.floatY ? v.floatY : 0; b.friend = false; b.pushCd = 0; b.cfg = v || null; // 11-24 귀여운 보스(쎄니·베리): 닿아도 안 아픔(살짝 밀림만)·끝나면 사라지지 않고 친구가 돼 같이 춤
+      b.tint = v && v.tint ? v.tint : 0x77729a; try { const o = F.bossObj, m = (o.mats && b.variant && o.mats[b.variant]) || (o.mats ? o.mats.def : o.mat); if (o.mesh.material !== m) o.mesh.material = m; o.mat = m; } catch (e) { /* 재질 없음 */ } F.bossTint(b.tint); } // 11-24 색 = 던전 tint × 단계 색(F.lv.mon)
     F.bossObj.group.visible = true;
     F.bossObj.group.position.set(b.x, b.y, b.z);
     F.bossObj.group.scale.setScalar(0.03);
@@ -658,6 +690,16 @@
   const BOSS_ORDER = [['roll', 'rain'], ['squeeze', 'roll', 'slam', 'rain'], ['rolls', 'combo', 'slam', 'rain']];
   const BOSS_GAP = [2.2, 1.8, 1.5]; // 행동 사이 쉬는 시간(초, 첫 판은 /0.7)
   const RBX = 17, RBZ = 11.5;       // 굴러다닐 수 있는 범위
+  // 11-24 귀여운 보스(쎄니·베리): 닿으면 아프지 않고 살짝 밀림만(먹구름 「작은 비」·큰 나무 「하품 바람」) — 소리 크기 안 줄음, 0.8초에 한 번
+  function bossNudge(b, P, G, dx, dz, d) {
+    if (b.pushCd > 0 || P.resting) return;
+    b.pushCd = 0.8; b.nudges = (b.nudges || 0) + 1;
+    P.kx = (dx / d) * 6; P.kz = (dz / d) * 6; P.kick(-3);
+    TG.FX.text(b.variant === 'tree' ? '하품 바람 후~' : '주르륵~', P.x, 3.4, P.z, 'word');
+    TG.FX.ring(P.x, P.z, { r0: 0.4, r1: 2.2, dur: 0.35, color: b.variant === 'tree' ? 0xcdebb0 : 0xd9c6ff, width: 0.2 });
+    TG.A.play('sfx_bonk', { gain: 0.2, rate: 1.5 });
+    if (G.onNudge) G.onNudge(b);
+  }
   function bossCancel(b) { // 하던 행동·예고를 모두 거둠
     b.pat = null; b.drops.length = 0; b.roll = 0; b.wob = 0;
     teles.forEach((q) => { q.on = false; q.m.visible = false; });
@@ -701,6 +743,7 @@
       if (b.phase >= 1) spots.push([P.x + P.vx * 0.7, P.z + P.vz * 0.7]);
       if (b.rainLine) { const la = Math.atan2(P.x - b.x, P.z - b.z); while (spots.length < n) { const k = spots.length - 1; spots.push([P.x + Math.sin(la) * k * 2.6 + TG.srr(-0.4, 0.4), P.z + Math.cos(la) * k * 2.6 + TG.srr(-0.4, 0.4)]); } TG.FX.text('줄 맞춰 비!', b.x, 5.6 * b.scale + 0.6, b.z, 'word'); } // 11-24 허조교 구령 변형: 안개 비가 행진 줄처럼 한 줄로(난수 호출 수는 같음 — TG.sr 2번)
       else while (spots.length < n) { const a = TG.sr() * 6.28, r = TG.srr(2.5, 5); spots.push([P.x + Math.cos(a) * r, P.z + Math.sin(a) * r]); }
+      if (b.cute) TG.FX.text(b.variant === 'tree' ? '잎이 우수수!' : '작은 비 주르륵!', b.x, 5.6 * b.scale + 0.6, b.z, 'word'); // 11-24 귀여운 보스: 비·잎(안개 방울이 내려앉음, 닿아도 살짝 밀기만)
       spots.forEach(([x, z], i) => bossDrop(b, TG.clamp(x, -18, 18), TG.clamp(z, -12, 12), pre + i * 0.12, i < 3));
       b.pat = { type: 'rain', t: 0, end: pre + n * 0.12 + 0.3 };
       b.sq = 0.2;
@@ -723,6 +766,7 @@
   function updateBoss(dt, t, P, G) {
     const b = F.boss; if (!b) return;
     b.px = b.x; b.pz = b.z; b.py = b.y;
+    if (b.friend) { b.friendT += dt; b.y = 0.3 + Math.abs(Math.sin(b.friendT * 5.2)) * 0.55; b.wob = Math.sin(b.friendT * 5.2) * 0.1; b.scale = b.tscale; return; } // 11-24 귀여운 보스 친구 상태: 제자리에서 깡총 춤(그림 높이·기울기만, 판정 없음)
     b.t += dt; b.flash = Math.max(0, b.flash - dt * 7); b.sq = Math.max(0, b.sq - dt); b.inv = Math.max(0, b.inv - dt);
     const K = b.spdK * b.slowK; // 첫 판 70% · 째깍 원판 안에서 느려짐
     if (b.state === 'gather') {
@@ -791,7 +835,7 @@
             pt.done = true; b.sq = 0.24;
             TG.FX.shake(0.4); TG.FX.dust(b.x, b.z, 16, 2.2); TG.FX.ring(b.x, b.z, { r0: hr * 0.6, r1: hr + 2.2, dur: 0.4, color: 0xe6eaf4, width: 0.25 });
             TG.A.play('sfx_bonk', { gain: 0.6, rate: 0.7 });
-            if (!hold && Math.hypot(P.x - b.x, P.z - b.z) < hr) { const h = P.hurt(b.x, b.z); if (h) G.onHurt(b, h); }
+            if (!hold && Math.hypot(P.x - b.x, P.z - b.z) < hr) { if (b.cute) bossNudge(b, P, G, P.x - b.x, P.z - b.z, Math.hypot(P.x - b.x, P.z - b.z) || 1); else { const h = P.hurt(b.x, b.z); if (h) G.onHurt(b, h); } }
             const a0 = TG.sr() * 6.283;
             for (let i = 0; i < 3; i++) { // 작은 안개 부르기
               const a = a0 + i * 2.094, u = F.spawn('bubble', b.x + Math.cos(a) * (hr + 0.4), b.z + Math.sin(a) * (hr + 0.4), { vx: Math.cos(a) * 5, vz: Math.sin(a) * 5, small: true });
@@ -812,7 +856,7 @@
           if (!hold && Math.abs(pd - pt.r) < 0.8 && pd > 0.5) {
             const pa = Math.atan2(px, pz);
             let open = false; for (const g of pt.gaps) if (Math.abs(TG.angDiff(g, pa)) < pt.hw) open = true;
-            if (!open) { const h = P.hurt(pt.cx + px * 0.5, pt.cz + pz * 0.5); if (h) G.onHurt(b, h); }
+            if (!open && !b.cute) { const h = P.hurt(pt.cx + px * 0.5, pt.cz + pz * 0.5); if (h) G.onHurt(b, h); }
           }
           while (pt.rain && pt.rain.length && pt.t >= pt.rain[0]) { pt.rain.shift(); bossDrop(b, TG.clamp(P.x, -17, 17), TG.clamp(P.z, -11.5, 11.5), 0.85 / b.spdK, false); } // 3단계 조합: 틈에서 기다리면 안개 비
           if (k >= 1) { b.pat = null; b.sq = 0.2; TG.FX.popBurst(b.x, 1.2, b.z, 1.0); }
@@ -825,11 +869,12 @@
         if (q.spawn) { const u = F.spawn('bubble', q.x, q.z, { small: true }); if (u) { u.spawnT = 0.3; u.y = 7; u.scale = 1; } }
         TG.FX.ring(q.x, q.z, { r0: 0.5, r1: 2.6, dur: 0.4, color: 0xe6eaf4, width: 0.22 });
         TG.FX.popBurst(q.x, 1.0, q.z, 1.2);
-        if (Math.hypot(P.x - q.x, P.z - q.z) < DROP_R) { const h = P.hurt(q.x, q.z); if (h) G.onHurt(b, h); }
+        if (Math.hypot(P.x - q.x, P.z - q.z) < DROP_R) { if (b.cute) bossNudge(b, P, G, P.x - q.x, P.z - q.z, Math.hypot(P.x - q.x, P.z - q.z) || 1); else { const h = P.hurt(q.x, q.z); if (h) G.onHurt(b, h); } } // 귀여운 보스의 비·잎은 살짝 밀기만(안개 방울은 그대로 나옴 — 바닥 안개만 아프게, v8 11쪽)
         TG.FX.shake(0.08); TG.A.play('sfx_pop', { rate: 0.7, gain: 0.6 });
         b.drops.splice(i, 1); i--;
       }
-      if (!hold && b.y < 1.6 && d < hr) { const h = P.hurt(b.x, b.z); if (h) G.onHurt(b, h); }
+      if (!hold && b.y < 1.6 && d < hr) { if (b.cute) bossNudge(b, P, G, dx, dz, d); else { const h = P.hurt(b.x, b.z); if (h) G.onHurt(b, h); } }
+      if (b.pushCd > 0) b.pushCd -= dt;
       // 안개 방울 뿜기
       if (!hold && b.stun <= 0) b.spawnT -= dt * K;
       if (b.spawnT <= 0 && b.y < 1.6) {
@@ -845,6 +890,14 @@
       }
       // 고리 좁히기
       if (!hold) F.zone.R = Math.max(8.5, F.zone.R - dt * 0.25 * (b.phase === 0 ? 0.7 : b.ringSpd) * b.spdK);
+    } else if (b.state === 'dying' && b.cute) { // 11-24 귀여운 보스: 마지막 「꾸미기」 → 0.75초 기지개·흔들흔들 → 친구가 됨(사라지지 않고 웃는 얼굴로 남아 같이 춤, G.onBossPop 이 끝 연출)
+      b.deadT += dt;
+      const k = Math.min(1, b.deadT / 0.75);
+      b.scale = b.tscale * (1 + 0.18 * Math.sin(k * Math.PI));
+      b.wob = Math.sin(b.deadT * 18) * 0.08 * (1 - k);
+      b.flash = 0.25 * (1 - k);
+      b.y = 0.3 + Math.sin(k * Math.PI) * 0.6;
+      if (k >= 1 && !b.popped) { b.popped = true; b.friend = true; b.friendT = 0; F.bossTint(b.cfg && b.cfg.friendTint ? b.cfg.friendTint : 0xf2e8ff); G.onBossPop(b); }
     } else if (b.state === 'dying') {
       // 마지막 명중 → (0.4초 멈춤은 히트 스톱) → 크게 부풂 → 큰 퐁
       b.deadT += dt;
@@ -882,10 +935,10 @@
     // 보스
     const b = F.boss, o = F.bossObj;
     if (b) {
-      if (b.popped) o.group.visible = false;
+      if (b.popped && !b.friend) o.group.visible = false;
       const br = 1 + Math.sin(t * 1.3) * 0.035;
       const sq = b.sq > 0 ? Math.sin((b.sq / 0.12) * Math.PI) * 0.12 : 0;
-      o.group.position.set(L(b.px, b.x, al), L(b.py, b.y, al), L(b.pz, b.z, al));
+      o.group.position.set(L(b.px, b.x, al), L(b.py, b.y, al) + (b.floatY || 0) * Math.min(1, b.scale), L(b.pz, b.z, al)); // 11-24 먹구름은 미러볼 위에 둥둥(floatY, 그림만)
       o.group.scale.set(b.scale * (br + sq) * (b.sqY && b.sqY < 1 ? 1.06 : 1), b.scale * (br - sq * 1.2) * (b.sqY || 1), b.scale * (br + sq) * (b.sqY && b.sqY < 1 ? 1.06 : 1)); // 11-24 허조교 변형: 찌그러진 헬멧처럼 납작(그림만)
       o.group.rotation.y = TG.damp(o.group.rotation.y, Math.atan2(P.rx - b.x, P.rz - b.z) * 0.6, 3, dt);
       o.group.rotation.x = b.roll ? Math.sin(b.roll) * 0.25 : TG.damp(o.group.rotation.x, 0, 6, dt);
@@ -893,12 +946,12 @@
       const fl = Math.max(Math.max(0, b.flash - 0.3) * 0.5, b.state === 'fight' && b.inv > 0 ? 0.22 + 0.16 * Math.sin(t * 22) : 0); // 맞을 때는 0.1초·밝기만 살짝 / // 단계 전환 멈칫 동안은 깜빡깜빡(안 맞는 때)
       o.mat.userData.flash.value = fl; // 밝은 보라로 약하게 (SEFO를 덮지 않게)
       // 단계 겉모습 (규칙 값 b.phase 를 읽기만 함): 표정 · 고리 조임 빠르기 · 남은 음표 방울 수
-      const ph = b.state === 'dying' ? 2 : Math.min(2, b.phase);
+      const ph = b.state === 'dying' || b.friend ? 2 : Math.min(2, b.phase); // 귀여운 보스: 친구가 되면 웃는 얼굴(2)
       o.mood.value = ph;
       o.partsMat.userData.flash.value = fl;
       o.spin += dt * (0.6 + ph * 0.45);
       const tight = 1 - 0.08 * (0.5 + 0.5 * Math.sin(t * (1.5 + ph * 0.9)));
-      o.pgr.rotation.y = o.spin; o.pgr.scale.set(tight, 1, tight);
+      o.pgr.rotation.y = o.partsSpin === false ? 0 : o.spin; o.pgr.scale.set(tight, 1, tight); // 11-24 베리 나무 줄기·열매는 돌지 않음(looks.js spin:false)
       o.group.updateMatrixWorld(true);
       const remain = b.state === 'dying' ? 0 : 3 - ph;
       for (let i = 0; i < 3; i++) {
@@ -983,7 +1036,7 @@
       tmpM.compose(tmpP.set(ux, uy, uz), tmpQ, tmpS.set(s * sx, s * sy, s * sx));
       const lkx = TG.clamp(Math.sin(la) * 1.5, -1, 1), lky = TG.clamp(-Math.cos(la), -0.25, 1) * 0.8 - 0.1, ph = (u.id * 0.371) % 1;
       const put = (mesh, flash, look, i, w) => { mesh.setMatrixAt(i, tmpM); flash.array[i] = fl; const a = look.array; a[i * 4] = lkx; a[i * 4 + 1] = lky; a[i * 4 + 2] = ph; a[i * 4 + 3] = w; };
-      const vary = (attr, i) => { const fv = hsh(u.id, 3); attr.array[i * 2] = u.paint > 0 || u.mistT > 0 ? 3 : u.mirror ? 4 : u.dark ? 5 : Math.floor(hsh(u.id, 2) * 3); attr.array[i * 2 + 1] = u.dark ? 1 : fv < 0.5 ? 0 : fv < 0.8 ? 1 : 2; }; // 색조 3단(+물든 보라 3) · 표정 3종 (id 해시)
+      const vary = (attr, i) => { const fv = hsh(u.id, 3); attr.array[i * 2] = u.paint > 0 || u.mistT > 0 ? 3 : u.mirror ? 4 : u.dark ? 5 : u.slow ? 6 : u.seed ? 7 : Math.floor(hsh(u.id, 2) * 3); attr.array[i * 2 + 1] = u.dark ? 1 : fv < 0.5 ? 0 : fv < 0.8 ? 1 : 2; }; // 색조 3단(+물든 보라 3) · 표정 3종 (id 해시)
       if (u.kind === 'bubble') { vary(F.bubbleVar, nb); put(F.bubbleMesh, F.bubbleFlash, F.bubbleLook, nb, 0); nb++; pushShadow(ux, uz, 1.6 * s); }
       else if (u.kind === 'echo') { put(F.echoMesh, F.echoFlash, F.echoLook, ne, u.shield ? 1 : 0); ne++; pushShadow(ux, uz, 1.8 * s); }
       else { vary(F.clumpVar, nc); put(F.clumpMesh, F.clumpFlash, F.clumpLook, nc, 0); nc++; pushShadow(ux, uz, 3.0 * s); }

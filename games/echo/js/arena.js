@@ -307,6 +307,7 @@
     // 먼 쪽 타일은 평균색으로 섞어 체크 대비를 낮춤 (무아레 ↓)
     const floorMat = R.toon({ map: tt, rim: 0, fColor: '{ float fd = smoothstep(17.0, 44.0, length(vViewPosition)); diffuseColor.rgb = mix(diffuseColor.rgb, ' + TILE_FAR + ', fd * 0.62); }\n' });
     const floor = new T.Mesh(new T.PlaneGeometry(W, D, 10, 7), floorMat);
+    AR.floorMat = floorMat; // 11-24 단계 분위기: game.js applyTheme 가 바닥 색조를 곱함(그림만)
     floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
     const decoMat = R.toon({ map: floorDecoTex(), rim: 0 }); decoMat.transparent = true; decoMat.depthWrite = false; decoMat.polygonOffset = true; decoMat.polygonOffsetFactor = -1; decoMat.polygonOffsetUnits = -1;
     const deco = new T.Mesh(new T.PlaneGeometry(W, D, 10, 7), decoMat);

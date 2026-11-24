@@ -177,6 +177,7 @@
 
     const scene = (R.scene = new T.Scene());
     scene.background = new T.Color(0x9fd7f2);
+    scene.fog = new T.Fog(0x9fd7f2, 60, 500); // 11-24 단계 분위기(맵 안개): game.js applyTheme 가 색·거리를 정함. 처음부터 켜 둬 셰이더가 USE_FOG 로 한 번에 컴파일(나중에 켜면 전부 다시 컴파일)
     const cam = (R.camera = new T.PerspectiveCamera(38, 16 / 9, 0.5, 160));
     scene.add(cam);
 

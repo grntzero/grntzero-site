@@ -325,6 +325,7 @@
   }
   // 11-24 확대 연출 동작(그림만): PL.cuPose = { name, t, dur } 를 game.js closeupStep 이 켬. k = 부드럽게 들어가고(0.18초) 끝에서 빠짐
   //  helmet = 오른손을 헬멧(머리 위)으로 올려 톡톡 고쳐 쓰기 · salute = 경례(오른손 눈썹 옆, 손바닥 아래, 가슴 펴고 턱 들기) · thumb = 엄지 척(오른팔 앞으로 뻗어 주먹 위) · dj = 양팔 들고 좌우 스텝(몸 좌우 흔들·고개 끄덕)
+  //  11-24 쎄니·베리: starhand = 별 손짓(오른팔 앞·위, 손끝 톡톡) · vee = 브이(오른손 볼 옆, 고개 갸웃) · shake = 마라카스 샤카샤카(오른팔 앞에서 좌우 빠르게, 두 번 묶음)
   function cuPose(dt) {
     const c = PL.cuPose, B = PL.bones; PL.cuPoseK = 0; if (!c || !B) return;
     const t = c.t || 0, inK = Math.min(1, t / 0.18), outK = c.dur > 8 ? 1 : Math.min(1, Math.max(0, (c.dur - t) / 0.15)), k = inK * outK * (TG.G && TG.G.cu ? 1 : 0); PL.cuPoseK = k; if (k <= 0) return;
@@ -347,6 +348,19 @@
       rotW(B.RightArm, fwd, -2.05 * k); rotW(B.LeftArm, fwd, 2.05 * k); rotW(B.RightArm, right, -0.5 * k); rotW(B.LeftArm, right, -0.5 * k); // 똑바로 위(±2.4)면 큐브 뒤에 가려 손이 안 보임 → 비스듬히 위·앞으로 rotW(B.RightForeArm, right, -(0.4 + 0.3 * sw) * k); rotW(B.LeftForeArm, right, -(0.4 - 0.3 * sw) * k);
       rotW(B.Spine01, fwd, 0.14 * sw * k); rotW(B.Spine02, fwd, -0.06 * sw * k); rotW(B.Spine02, up, 0.18 * sw * k); // 몸통만 좌우 흔들·살짝 돌기(Hips 는 뿌리 뼈라 덧칠하면 몸 전체가 돌아가 보임 — 캡처로 확인, 안 씀)
       rotW(B.Head, right, (0.08 - 0.14 * bob) * k); rotW(B.Head, fwd, 0.1 * sw * k);
+    } else if (c.name === 'starhand') { // 11-24 쎄니 「별 손짓」: 오른팔을 앞·위로 뻗어 손끝 톡톡(아래팔 작게 까딱) + 고개 살짝 갸웃 — 손끝 별은 game.js updateCloseup 이 뿌림
+      const tap = Math.sin(t * 13) * 0.18;
+      rotW(B.RightArm, right, -1.15 * k); rotW(B.RightArm, fwd, -0.25 * k); rotW(B.RightForeArm, right, -(1.1 + tap) * k);
+      rotW(B.Head, fwd, 0.14 * k); rotW(B.Spine02, right, -0.08 * k);
+    } else if (c.name === 'vee') { // 11-24 쎄니 「브이」: 오른손을 볼 옆으로(위팔 right −1.3·fwd −0.2, 아래팔 right −2.1 — 스크래치 pose.py 로 3벌 비교, fwd + 는 이 리그에서 손이 머리 뒤로 숨음) + 고개 갸웃·살짝 숙임(귀엽게)
+      const bob = Math.sin(t * 8) * 0.05;
+      rotW(B.RightArm, right, -1.3 * k); rotW(B.RightArm, fwd, -0.2 * k); rotW(B.RightForeArm, right, (-2.1 + bob) * k);
+      rotW(B.Head, fwd, 0.22 * k); rotW(B.Head, right, 0.06 * k); rotW(B.Spine02, fwd, 0.06 * k);
+    } else if (c.name === 'shake') { // 11-24 베리 「마라카스 샤카샤카」: 오른팔(막대 쥔 손)을 앞으로 들고 좌우로 빠르게 흔듦(두 번 묶음) + 왼팔도 같이 + 어깨 들썩
+      const sh = Math.sin(t * 22) * 0.28, grp = (Math.sin(t * 5.5) > 0 ? 1 : 0.35);
+      rotW(B.RightArm, right, -0.75 * k); rotW(B.RightArm, fwd, (-0.2 + sh * grp) * k); rotW(B.RightForeArm, right, -1.5 * k); rotW(B.RightForeArm, fwd, sh * grp * 0.6 * k);
+      rotW(B.LeftArm, right, -0.55 * k); rotW(B.LeftArm, fwd, (0.25 - sh * grp * 0.5) * k); rotW(B.LeftForeArm, right, -1.2 * k);
+      rotW(B.Spine02, up, sh * 0.12 * grp * k); rotW(B.Head, fwd, -sh * 0.08 * grp * k); rotW(B.Head, right, 0.05 * k);
     }
   }
   const poseAx2 = new T.Vector3();
