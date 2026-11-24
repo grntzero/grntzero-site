@@ -129,7 +129,9 @@
       FX.update(0.05, null);
       R.camera.position.set(0, 30, 34); R.camera.lookAt(0, 0, 0); R.camera.updateMatrixWorld(true);
       R.followShadow(0, 0);
+      const mapId0 = TG.AR.mapId; TG.AR.mapId = null; // 11-24 던전 맵 6개(그룹·인스턴스)도 한 번에 그려 셰이더·텍스처 미리 올림
       R.render(0);
+      TG.AR.mapId = mapId0;
       if (F.bossObj && F.bossObj.mats) { const m0 = F.bossObj.mesh.material; for (const k of ['cloud', 'tree']) { F.bossObj.mesh.material = F.bossObj.mats[k]; R.render(0); } F.bossObj.mesh.material = m0; } // 11-24 귀여운 보스 재질 2벌도 미리 컴파일(첫 보스 등장 끊김 방지)
       if (F.setLook && TG.LOOKS) { for (const id of TG.LOOKS.ids()) F.setLook(id); F.setLook('pipe'); } // 11-24 던전별 모양 지오메트리 전부 미리 만들어 둠(첫 입장 끊김 방지)
     } catch (e) { /* 예열 실패는 무시 */ }
@@ -227,6 +229,7 @@
       R.hemi.color.copy(mixC(t.sky, L.sky, k * 0.8)).multiplyScalar(0.84); R.hemi.groundColor.copy(mixC(t.ground, L.ground, k * 0.8)).multiplyScalar(0.8);
       R.sun.color.set(L.sun); R.sun.intensity = 2.3 * L.sunK;
       if (R.scene.fog) { R.scene.fog.color.copy(bg); R.scene.fog.near = 36 - 20 * L.fog; R.scene.fog.far = L.fog < 0.01 ? 500 : 220 - 220 * L.fog; }
+      if (TG.AR.setMap) TG.AR.setMap(d ? d.id : 'pipe'); // 11-24 던전별 맵(바닥·벽·소품·배경) 바꿔 끼움 — 광장(null)은 박동탑 광장
       if (TG.AR.floorMat) TG.AR.floorMat.color.copy(mixC(0xffffff, L.floor, k));
       if (TG.AR.pulse) TG.AR.pulse.material.color.set(t.pulse).multiplyScalar(1.3);
       if (TG.F.setLevelLook) TG.F.setLevelLook(d ? L : null);
@@ -1776,6 +1779,8 @@
     if (clear && !G.replay && !G.bot && !G.tutRun && TG.DN.hasLevels(DUNGEON.id)) { // 11-24 단계 도장(베타 깃발이면 연습 던전도 단계 있음): 깬 최고 단계 저장 → 다음 단계 열림, 첫 클리어 상자(글만 — 톱니 지갑은 다음 일)
       const ci = TG.DN.markClear(DUNGEON.id, LV); G.clearInfo = ci;
       G.result.stamp = { first: ci.first, next: ci.next, nextName: ci.next ? TG.LEVELS[ci.next].name : null, box: ci.boxNew ? TG.LEVELS[LV].box : null, gear: TG.LEVELS[LV].gear };
+      // 11-24 톱니 지갑(js/wallet.js): 깬 판 톱니 + 첫 클리어 상자를 실제로 지급(기기 저장). 하루 8판까지 100%, 그 뒤 30% + 쎌 휴식 안내(v8 ㉝). 끝까지 모드(?rank=1)는 순위 보상(서버 몫 12/3)이라 여기선 안 줌 [대표 확인]
+      if (TG.W && !G.rankMode) G.result.gear = TG.W.payout({ lv: LV, dun: DUNGEON.id, box: ci.boxNew });
     }
     if (G.tutRun && (clear || G.hintStage >= 5)) { try { localStorage.setItem(TUT_KEY, '1'); } catch (e) { /* 무시 */ } } // 끝까지 깼거나 큰 소리까지 배웠으면 튜토리얼 끝
     TG.H.showResult(G.result);
@@ -1813,7 +1818,7 @@
         hero: TG.heroId, assist: TG.assistId, petal: TG.FL.petal || 0, flowers: TG.FL.count(), healed: TG.FL.healed || 0, waveFlowers: TG.WV.flowers || 0, as: TG.AS.state(),
         danceN: G.danceN || 0, dancePops: G.dancePops || 0, dancing: F.list.filter((u) => u.state === 'live' && u.dance > 0).length, flyN: G.flyN || 0, flying: F.list.filter((u) => u.state === 'live' && !!u.fly).length,
         beamOn: !!(TG.WV.beam && TG.WV.beam.on), beamT: TG.WV.beam ? +TG.WV.beam.t.toFixed(2) : 0, beamPops: TG.WV.beamPops || 0, arrow: G.arrowU ? { id: G.arrowU.id, x: +G.arrowU.x.toFixed(2), z: +G.arrowU.z.toFixed(2) } : null, arrowShown: !!G.arrowShown, sinceLastPop: +(G.time - (G.lastPopT || 0)).toFixed(2),
-        look: { id: F.lookId || null, name: F.lookName || null, lv: G.lvLook || 1, mood: (TG.LEVEL_LOOK && TG.LEVEL_LOOK[G.lvLook || 1] || {}).mood || null, bg: TG.R.scene.background.getHexString(), sun: TG.R.sun.color.getHexString(), sunK: +TG.R.sun.intensity.toFixed(2), fogFar: TG.R.scene.fog ? Math.round(TG.R.scene.fog.far) : null, floor: TG.AR.floorMat ? TG.AR.floorMat.color.getHexString() : null, mon: F.bubbleMesh ? F.bubbleMesh.material.color.getHexString() : null, glowK: F.lv ? F.lv.glowK : 0, boss: F.bossObj ? F.bossObj.mat.color.getHexString() : null, bossGeo: F.bossObj ? F.bossObj.mesh.geometry.uuid : null, bubbleGeo: F.bubbleMesh ? F.bubbleMesh.geometry.uuid : null, partsSpin: F.bossObj ? F.bossObj.partsSpin !== false : null, hemiK: G.lvHemiK || 1 }, // 11-24 던전별 모양·단계 색
+        look: { id: F.lookId || null, name: F.lookName || null, map: TG.AR.mapId, mapVis: Object.keys(TG.AR.maps || {}).filter((k) => TG.AR.maps[k].group.visible), floorTex: TG.AR.floorMat && TG.AR.floorMat.map ? TG.AR.floorMat.map.uuid : null, mapMeshes: TG.AR.map ? TG.AR.map.group.children.length : 0, mapVerts: TG.AR.map ? TG.AR.map.verts || 0 : 0, lv: G.lvLook || 1, mood: (TG.LEVEL_LOOK && TG.LEVEL_LOOK[G.lvLook || 1] || {}).mood || null, bg: TG.R.scene.background.getHexString(), sun: TG.R.sun.color.getHexString(), sunK: +TG.R.sun.intensity.toFixed(2), fogFar: TG.R.scene.fog ? Math.round(TG.R.scene.fog.far) : null, floor: TG.AR.floorMat ? TG.AR.floorMat.color.getHexString() : null, mon: F.bubbleMesh ? F.bubbleMesh.material.color.getHexString() : null, glowK: F.lv ? F.lv.glowK : 0, boss: F.bossObj ? F.bossObj.mat.color.getHexString() : null, bossGeo: F.bossObj ? F.bossObj.mesh.geometry.uuid : null, bubbleGeo: F.bubbleMesh ? F.bubbleMesh.geometry.uuid : null, partsSpin: F.bossObj ? F.bossObj.partsSpin !== false : null, hemiK: G.lvHemiK || 1 }, // 11-24 던전별 모양·단계 색
         hub: { dungeon: DUNGEON.id, name: DUNGEON.name, tutDone: tutDone(), tutRun: !!G.tutRun, tag: (document.getElementById('hubTag') || {}).textContent || '', lv: LV, lvName: TG.LEVELS[LV].name, k: Object.assign({}, LK), sel: Object.assign({}, TG.DN.sel), cleared: TG.DN.cleared(DUNGEON.id), theme: G.themeId }, // 11-19 광장·튜토리얼 / 11-24 던전·단계
         floorCfg: { budget: FL(G.floor).budget, cap: FL(G.floor).cap, spd: +FL(G.floor).spd.toFixed(3), iv: FL(G.floor).iv.map((v) => +v.toFixed(3)) }, fogHp: F.list.filter((u) => u.state === 'live' && u.kind === 'bubble').map((u) => u.maxHp).slice(0, 5),
         cu: G.cu ? { t: +G.cu.t.toFixed(2), dur: G.cu.dur, skip: G.cu.skip, done: G.cu.done, home: G.cu.home } : null, camDist: +cam.dist.toFixed(2), bgm: TG.A.bgmName, tempLoops: Object.assign({}, TG.A.tempUsed || {}), skipShown: !!(TG.H.cuSkipBtn && !TG.H.cuSkipBtn.classList.contains('hide')), // 11-24 확대 연출·음악
@@ -1831,6 +1836,7 @@
         slowed: F.list.filter((u) => u.state === 'live' && u.slowK < 0.999).map((u) => +u.slowK.toFixed(3)),
         danceMusicAt: G.danceMusicAt == null ? null : +G.danceMusicAt.toFixed(2), danceVoiceAt: G.danceVoiceAt == null ? null : +G.danceVoiceAt.toFixed(2), danceBoomAt: G.danceBoomAt == null ? null : +G.danceBoomAt.toFixed(2),
         headSpin: +(TG.PL.headSpin || 0).toFixed(3), bodySpin: !!TG.PL.spin, hurtBy: Object.assign({}, G.hurtBy || {}), cardMax: Object.fromEntries(TG.C.DEFS.map((d) => [d.id, TG.C.maxOf(d.id)])),
+        wallet: TG.W ? TG.W.snap() : null, walShown: !!(TG.H.walPick && !TG.H.walPick.classList.contains('hide')), // 11-24 톱니 지갑
         remix: TG.C.state ? TG.C.state() : null, rank: !!G.rankMode, bossShoutT: F.boss ? +(F.boss.shoutT || 0).toFixed(2) : 0, // 11-18 리믹스 카드 상태
         rerollLeft: G.rerollLeft, rerollN: G.rerollN || 0, skillOpen: !!G.skillOpen, skillOpenN: G.skillOpenN || 0, reviveT: +(G.reviveT || 0).toFixed(2), resting: !!p.resting, rerollBtn: TG.H.rerollBtn ? { text: TG.H.rerollBtn.textContent, off: TG.H.rerollBtn.classList.contains('off') } : null, skillRows: TG.H.skList ? TG.H.skList.querySelectorAll('.skRow').length : 0,
       };
@@ -1864,6 +1870,10 @@
     tutSet() { try { localStorage.setItem(TUT_KEY, '1'); } catch (e) { /* 무시 */ } return tutDone(); }, // 11-24 시험: 튜토리얼 끝난 상태로
     dungeon(id, lv) { const ok = TG.DN.select(id, lv); if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return { ok, sel: Object.assign({}, TG.DN.sel) }; }, // 11-24 던전·단계 고르기(광장 버튼과 같은 길)
     lvReset(id) { TG.DN.reset(id || DUNGEON.id); return TG.DN.cleared(id || DUNGEON.id); },
+    wallet() { return TG.W ? TG.W.snap() : null; }, // 11-24 톱니 지갑 상태(저장값)
+    walletReset() { return TG.W ? TG.W.reset() : null; }, // 11-24 시험: 지갑 비우기(ez_w1_wallet)
+    walletDay(d) { if (TG.W) { TG.W._today = d || null; } return TG.W ? TG.W.today() : null; }, // 11-24 시험: 「오늘」 날짜 덮어쓰기(null 이면 기기 날짜)
+    walletMerge(g) { const ok = TG.W ? TG.W.merge(g) : false; if (TG.H.walRender && TG.H.walPick && !TG.H.walPick.classList.contains('hide')) TG.H.walRender(); return ok; },
     beta(on) { if (on != null) TG.BETA_OPEN_ALL = !!on; if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return TG.beta(); }, // 11-24 베타 깃발(모든 단계 열림) 켜고 끄기 — 시험용
     skipCloseup() { G.skipCloseup(); },
     // 시험: 주인공·보조 바꾸기 (타이틀 버튼과 같은 길). hero('berri','sseni')

@@ -9,10 +9,14 @@
     ['hud', 'lives', 'lvTag', 'xpFill', 'noteN', 'progGear', 'map', 'bossBar', 'bossFill', 'bossGhost', 'combo', 'comboN', 'overPips',
       'speech', 'zoneVig', 'stick', 'stickKnob', 'stickBase', 'keyHint', 'btnBig', 'btnSnd', 'bigArc', 'banner', 'count', 'title', 'pause', 'result', 'rotate', 'loading', 'lfill',
       'resTitle', 'stars', 'rTime', 'rFog', 'rCombo', 'rNote', 'hint', 'grunt', 'gruntTxt', 'shelter', 'cards', 'cardRow', 'rerollBtn', 'skills', 'skHero', 'skList', 'skClose', 'face',
-      'dunRow', 'dunBtn', 'dunPick', 'dunList', 'lvRow', 'lvInfo', 'dunGo', 'cuSkipBtn', 'rStamp'].forEach((k) => (H[k] = $(k))); // 11-24 던전 고르기·확대 건너뛰기·단계 도장
+      'dunRow', 'dunBtn', 'dunPick', 'dunList', 'lvRow', 'lvInfo', 'dunGo', 'cuSkipBtn', 'rStamp',
+      'walRow', 'walBtn', 'walPick', 'walList', 'walClose', 'walLvN', 'walDay', 'walNote', 'rGear'].forEach((k) => (H[k] = $(k))); // 11-24 던전 고르기·확대 건너뛰기·단계 도장 · 톱니 지갑
     H.dunBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.dunOpen(); });
     H.dunGo.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.dunClose(); });
     H.dunPick.addEventListener('click', (e) => { if (e.target === H.dunPick) H.dunClose(); });
+    H.walBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.walOpen(); }); // 11-24 톱니 지갑
+    H.walClose.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.walClose_(); });
+    H.walPick.addEventListener('click', (e) => { if (e.target === H.walPick) H.walClose_(); });
     H.cuSkipBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(0.8); if (TG.G && TG.G.skipCloseup) TG.G.skipCloseup(); });
     H.rerollBtn.addEventListener('click', (e) => { e.stopPropagation(); if (H.onReroll) H.onReroll(); }); // 11-18 다시 뽑기
     H.skClose.addEventListener('click', (e) => { e.stopPropagation(); if (H.onSkillsClose) H.onSkillsClose(); });
@@ -65,6 +69,7 @@
     hubNext = DN.hasLevels(d.id) ? d.name + ' · ' + DN.levelName(DN.sel.lv, d.id) : d.name;
     const t = $('hubTag'); if (t) t.textContent = tut ? '톱니골 광장 · 다음 던전: ' + hubNext : '톱니골 광장 · 첫 던전 「방송 파이프 굴」에서 연습해요!';
     if (H.dunRow) { H.show(H.dunRow, tut); H.dunBtn.querySelector('span').textContent = hubNext; H.dunBtn.style.setProperty('--dc', d.color || '#e5352b'); }
+    if (H.walRow && TG.W) { H.show(H.walRow, tut); H.walBtn.querySelector('span').textContent = '지갑 · 레벨 ' + TG.W.data.lvl + ' · 톱니 ' + TG.W.total(); } // 11-24 톱니 지갑 줄(연습 뒤에만)
     void L;
   };
   H.dunOpen = function () {
@@ -99,6 +104,31 @@
       H.lvInfo.textContent = (TG.beta() ? '베타 · 모든 단계 열림 · ' : '') + DN.levelName(DN.sel.lv, cur) + ' · ' + L.note + ' · 이쯤이면 편해요 ' + '★'.repeat(stars) + '☆'.repeat(5 - stars) + ' (Lv ' + L.lv + '+)' + ' · 깨면 ' + L.gear;
     }
     H.dunGo.querySelector('span').textContent = (lvs ? d.name + ' · ' + DN.levelName(DN.sel.lv, cur) : d.name) + ' 가기';
+  };
+  // 11-24 톱니 지갑(js/wallet.js): 톱니 레벨 숫자 크게(v8 13-4 「화면엔 톱니 레벨만 숫자 크게」) · 오늘 판 수(8판 상한) · 6등급 칸 · 합치기 5→1 · 보호자 한 줄(v8 「하루 톱니 주머니 상한」)
+  H.walOpen = function () {
+    if (!H.title || H.title.classList.contains('hide') || !TG.W) return false;
+    H.walRender(); H.show(H.walPick, true); return true;
+  };
+  H.walClose_ = function () { H.show(H.walPick, false); H.hubRefresh(hubTut, hubBack); };
+  H.walRender = function () {
+    const W = TG.W; if (!W) return;
+    H.walLvN.textContent = W.data.lvl;
+    const runs = W.runsToday(), over = runs >= W.DAY_FULL;
+    H.walDay.textContent = over ? '오늘 ' + runs + '판째 · 쉬는 시간 · 톱니 30%' : '오늘 ' + runs + ' / ' + W.DAY_FULL + '판';
+    H.walDay.classList.toggle('over', over);
+    H.walList.innerHTML = '';
+    for (let g = 1; g <= W.GRADE_MAX; g++) {
+      const G = W.GRADES[g], n = W.data.g[g], row = document.createElement('div'); row.className = 'walRow' + (n > 0 ? '' : ' zero'); row.dataset.g = g;
+      row.innerHTML = W.icon(g, 34) + '<span class="wtx"><b></b><small></small></span><b class="wn"></b>';
+      row.querySelector('.wtx b').textContent = G.name; row.querySelector('.wtx small').textContent = '레벨 ' + G.lv; row.querySelector('.wn').textContent = '×' + n;
+      if (g < W.GRADE_MAX) { const b = document.createElement('button'); b.type = 'button'; b.className = 'wmerge' + (W.canMerge(g) ? '' : ' off'); b.dataset.merge = g; b.disabled = !W.canMerge(g);
+        b.innerHTML = '<span class="ol">' + W.MERGE_N + '개→1</span>'; b.title = W.GRADES[g].name + ' ' + W.MERGE_N + '개를 ' + W.GRADES[g + 1].name + ' 1개로';
+        b.addEventListener('click', (e) => { e.stopPropagation(); if (W.merge(g)) { TG.A.ui(1.3); H.walRender(); const nr = H.walList.querySelector('.walRow[data-g="' + (g + 1) + '"] .gIco'); if (nr) { nr.classList.remove('pop'); void nr.getBoundingClientRect(); nr.classList.add('pop'); } } });
+        row.appendChild(b); }
+      H.walList.appendChild(row);
+    }
+    H.walNote.textContent = '레벨 올리기는 곧 열려요 · 보호자께: 하루 ' + W.DAY_FULL + '판까지 톱니 100%, 그 뒤엔 30% — 쎌이 쉬는 시간을 안내해요';
   };
   H.cuSkip = function (on) { if (H.cuSkipBtn) H.show(H.cuSkipBtn, !!on); };
   // 타이틀: 쎌이 손 흔들며 차례로 안내 (타이틀이 보이는 동안만 돎)
@@ -304,16 +334,55 @@
     if ((H.mapTick = (H.mapTick + 1) % 3) === 0) drawMap(G);
   };
 
+  // 11-24 던전별 미니맵 바탕(그린트 검수): 맵 바닥 색·모양에 맞춤 — 광장 체크 / 돔 원형 코트 / 지하 복도 벽 / 거울 미로 네온 격자·벽 / 댄스홀 보라 타일 / 과수원 초록·흙길. 점·고리·주인공은 공통
+  const MAPBG = {
+    pipe(c, X, Z, sx, sz, W, Hh) {
+      c.fillStyle = '#efdcb8'; c.fillRect(0, 0, W, Hh);
+      c.fillStyle = 'rgba(217,84,63,0.35)';
+      for (let i = 0; i < 20; i++) for (let j = 0; j < 14; j++) if ((i + j) % 2 === 0) c.fillRect(X(-20 + i * 2), Z(-14 + j * 2), 2 * sx + 0.5, 2 * sz + 0.5);
+      c.strokeStyle = '#c9a23a'; c.lineWidth = 4; c.strokeRect(X(-20), Z(-14), 40 * sx, 28 * sz);
+    },
+    sefo_dome(c, X, Z, sx, sz, W, Hh) { // 크림 매트 + 빨간 코트 선(테두리·가운데 원·가운데 선) + 파란 매트 2장, 둥근 돔 테두리
+      c.fillStyle = '#f1e6cf'; c.fillRect(0, 0, W, Hh);
+      c.fillStyle = 'rgba(90,167,217,0.5)'; [-15.5, 15.5].forEach((x) => c.fillRect(X(x - 2.2), Z(-3.6), 4.4 * sx, 7.2 * sz));
+      c.strokeStyle = 'rgba(217,84,63,0.85)'; c.lineWidth = 2; c.strokeRect(X(-18.2), Z(-12.2), 36.4 * sx, 24.4 * sz);
+      c.beginPath(); c.arc(X(0), Z(1), 5.2 * sx, 0, 6.3); c.stroke(); c.beginPath(); c.moveTo(X(-18.2), Z(1)); c.lineTo(X(-5.2), Z(1)); c.moveTo(X(5.2), Z(1)); c.lineTo(X(18.2), Z(1)); c.stroke();
+      c.strokeStyle = '#d9543f'; c.lineWidth = 5; c.beginPath(); c.roundRect ? c.roundRect(X(-20), Z(-14), 40 * sx, 28 * sz, 14) : c.rect(X(-20), Z(-14), 40 * sx, 28 * sz); c.stroke();
+    },
+    gunner_camp(c, X, Z, sx, sz, W, Hh) { // 콘크리트 + 노란 차선 + 두꺼운 벽(북·동·서)·남쪽 철망
+      c.fillStyle = '#a6a593'; c.fillRect(0, 0, W, Hh);
+      c.strokeStyle = 'rgba(70,65,50,0.25)'; c.lineWidth = 1; for (let i = 1; i < 5; i++) { c.beginPath(); c.moveTo(X(-20 + i * 8), Z(-14)); c.lineTo(X(-20 + i * 8), Z(14)); c.stroke(); } for (let j = 1; j < 4; j++) { c.beginPath(); c.moveTo(X(-20), Z(-14 + j * 7)); c.lineTo(X(20), Z(-14 + j * 7)); c.stroke(); }
+      c.strokeStyle = 'rgba(232,200,74,0.9)'; c.lineWidth = 2; c.setLineDash([6, 4]); c.beginPath(); c.moveTo(X(-18), Z(1)); c.lineTo(X(18), Z(1)); c.stroke(); c.setLineDash([]);
+      c.strokeStyle = '#5f6240'; c.lineWidth = 8; c.beginPath(); c.moveTo(X(-20), Z(14)); c.lineTo(X(-20), Z(-14)); c.lineTo(X(20), Z(-14)); c.lineTo(X(20), Z(14)); c.stroke();
+      c.strokeStyle = '#6a6f7a'; c.lineWidth = 3; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(X(-20), Z(14)); c.lineTo(X(20), Z(14)); c.stroke(); c.setLineDash([]);
+    },
+    moshee_mirror(c, X, Z, sx, sz, W, Hh) { // 남색 + 네온 격자(시안·분홍) + 연보라 거울 벽
+      c.fillStyle = '#3a3864'; c.fillRect(0, 0, W, Hh);
+      c.lineWidth = 1; for (let i = 0; i <= 10; i++) { c.strokeStyle = i % 2 ? 'rgba(255,166,230,0.7)' : 'rgba(127,242,255,0.8)'; c.beginPath(); c.moveTo(X(-20 + i * 4), Z(-14)); c.lineTo(X(-20 + i * 4), Z(14)); c.stroke(); } for (let j = 0; j <= 7; j++) { c.strokeStyle = j % 2 ? 'rgba(255,166,230,0.7)' : 'rgba(127,242,255,0.8)'; c.beginPath(); c.moveTo(X(-20), Z(-14 + j * 4)); c.lineTo(X(20), Z(-14 + j * 4)); c.stroke(); }
+      c.strokeStyle = 'rgba(127,242,255,0.8)'; c.lineWidth = 2; c.beginPath(); c.arc(X(0), Z(-5.2), 5 * sx, 0, 6.3); c.stroke();
+      c.strokeStyle = '#d2daf6'; c.lineWidth = 5; c.strokeRect(X(-20), Z(-14), 40 * sx, 28 * sz);
+    },
+    sseni_hall(c, X, Z, sx, sz, W, Hh) { // 보라 체크 타일(켜진 타일 조금) + 금 테
+      c.fillStyle = '#8a5fe0'; c.fillRect(0, 0, W, Hh);
+      for (let i = 0; i < 20; i++) for (let j = 0; j < 14; j++) { const k = (i * 7 + j * 13) % 17; c.fillStyle = (i + j) % 2 ? '#b28cff' : k === 3 ? '#ff9ccb' : k === 9 ? '#8ff4ff' : k === 14 ? '#fff0a8' : '#8a5fe0'; c.fillRect(X(-20 + i * 2), Z(-14 + j * 2), 2 * sx + 0.5, 2 * sz + 0.5); }
+      c.fillStyle = 'rgba(255,244,176,0.5)'; c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i / 10) * 6.283, r = (i % 2 ? 2.2 : 5) * sx; c.lineTo(X(0) + Math.cos(a) * r, Z(1) + Math.sin(a) * r); } c.closePath(); c.fill();
+      c.strokeStyle = '#e0ae2c'; c.lineWidth = 5; c.strokeRect(X(-20), Z(-14), 40 * sx, 28 * sz);
+    },
+    berri_orchard(c, X, Z, sx, sz, W, Hh) { // 초록 잔디 + 밝은 띠(내리막) + 흙길 + 나무 울타리
+      c.fillStyle = '#8fc06b'; c.fillRect(0, 0, W, Hh);
+      c.fillStyle = 'rgba(255,255,230,0.18)'; c.fillRect(0, Z(-14), W, 5 * sz); c.fillStyle = 'rgba(255,255,230,0.09)'; c.fillRect(0, Z(-7), W, 5 * sz); c.fillStyle = 'rgba(40,80,30,0.14)'; c.fillRect(0, Z(9), W, 5 * sz);
+      c.strokeStyle = '#9a7250'; c.lineWidth = 2.4 * sx; c.lineCap = 'round'; c.beginPath(); c.moveTo(X(0), Z(14)); c.quadraticCurveTo(X(-3), Z(8), X(0.5), Z(4.5)); c.quadraticCurveTo(X(3), Z(1.5), X(0), Z(-0.9)); c.stroke(); c.lineCap = 'butt';
+      c.fillStyle = 'rgba(255,156,203,0.45)'; [[-15, -10], [15, -10], [-15.5, 10], [15.5, 10]].forEach(([x, z]) => { c.beginPath(); c.arc(X(x), Z(z), 3 * sx, 0, 6.3); c.fill(); });
+      c.strokeStyle = '#b88a58'; c.lineWidth = 4; c.setLineDash([5, 3]); c.strokeRect(X(-20), Z(-14), 40 * sx, 28 * sz); c.setLineDash([]);
+    },
+  };
+  H.mapStyle = 'pipe';
   function drawMap(G) {
     const c = H.mapCtx, W = 220, Hh = 154; // 화질(갤럭시탭): 캔버스는 화소 2배(440×308), 그리는 좌표는 그대로
     c.setTransform(H.map.width / W, 0, 0, H.map.height / Hh, 0, 0);
     const AR = TG.AR, sx = W / (AR.W + 2), sz = Hh / (AR.D + 2);
     const X = (x) => W / 2 + x * sx, Z = (z) => Hh / 2 + z * sz;
-    c.fillStyle = '#efdcb8'; c.fillRect(0, 0, W, Hh);
-    // 체크 무늬
-    c.fillStyle = 'rgba(217,84,63,0.35)';
-    for (let i = 0; i < 20; i++) for (let j = 0; j < 14; j++) if ((i + j) % 2 === 0) c.fillRect(X(-20 + i * 2), Z(-14 + j * 2), 2 * sx + 0.5, 2 * sz + 0.5);
-    c.strokeStyle = '#c9a23a'; c.lineWidth = 4; c.strokeRect(X(-20), Z(-14), 40 * sx, 28 * sz);
+    { const id = (AR.mapId && MAPBG[AR.mapId]) ? AR.mapId : 'pipe'; H.mapStyle = id; MAPBG[id](c, X, Z, sx, sz, W, Hh); } // 11-24 던전별 미니맵 바탕(그림만)
     // 회색 고리
     const zn = TG.F.zone;
     if (zn.on) {
@@ -377,8 +446,14 @@
     H.resTitle.textContent = r.clear ? '노래를 되찾았어요!' : '다음에 다시!\n모은 건 그대로예요'; // 긴 제목은 두 줄 (패널 밖으로 안 나가게)
     if (H.rStamp) { // 11-24 단계 도장: 던전 · 단계 깸 → 다음 단계 열림 · 첫 클리어 상자(글)
       const st = r.stamp; H.show(H.rStamp, !!(r.clear && r.lv && !r.tut && (r.dungeon !== 'pipe' || !!st))); // 베타 깃발이면 연습 던전 도장도
-      if (r.clear && st) H.rStamp.textContent = r.dungeonName + ' · ' + r.lvName + ' 도장!' + (st.first && st.nextName ? ' 다음 「' + st.nextName + '」 열림' : st.first ? ' 금 도장!' : '') + (st.box ? '\n첫 클리어 상자: ' + st.box : '');
+      if (r.clear && st) H.rStamp.textContent = r.dungeonName + ' · ' + r.lvName + ' 도장!' + (st.first && st.nextName ? ' 다음 「' + st.nextName + '」 열림' : st.first ? ' 금 도장!' : '') + (st.box && !r.gear ? '\n첫 클리어 상자: ' + st.box : ''); // 11-24 지갑 지급이 있으면 상자 내용은 아래 「받은 톱니」 줄에(아이콘) — 두 번 안 적음
       else if (r.clear) H.rStamp.textContent = r.dungeonName + ' · ' + r.lvName + ' 도장!';
+    }
+    if (H.rGear) { // 11-24 받은 톱니(js/wallet.js payout): 판 톱니(+덤) · 첫 클리어 상자 · 오늘 판 수(8판 뒤 30%)
+      const pg = r.clear && r.gear; H.show(H.rGear, !!pg); document.body.classList.toggle('hasGear', !!pg);
+      if (pg) { const W = TG.W; let h = '<div class="gl"><span class="gk">받은 톱니</span>' + W.html(pg.run) + (pg.crumb ? '<span class="gw crumb">+ 덤 ' + W.icon(1, 18) + '<b>×' + pg.crumb + '</b></span>' : '') + (pg.over ? '<span class="gtag">30%</span>' : '') + '<span class="gday' + (pg.over ? ' over' : '') + '">' + (pg.over ? '오늘 ' + pg.runs + '판째' : '오늘 ' + pg.runs + ' / ' + pg.full + '판') + '</span></div>';
+        if (pg.box) h += '<div class="gl"><span class="gk">첫 클리어 상자</span>' + W.html(pg.box) + (pg.card ? '<span class="gtag tagCard">카드 1 · 곧</span>' : '') + (pg.gold ? '<span class="gtag tagGold">금 도장</span>' : '') + '</div>';
+        H.rGear.innerHTML = h; }
     }
     H.rTime.textContent = TG.fmtTime(r.time);
     H.rFog.textContent = r.fogs;
@@ -396,7 +471,8 @@
         H.sselFace(box, r.clear ? 'cheer' : 'bow', true);
         H.sselVoice(tx.textContent);
         H.resTO = setTimeout(() => {
-          const n = r.stars | 0, L = { 3: ['wink', '별 세 개! 역시 내 친구지~'], 2: ['ok', '보스까지 갔잖아! 거의 다 왔어!'], 1: ['smile', '한 번 더 해 볼까? 금방 늘 거야!'] }[n] || ['smile', '한 번 더 해 볼까?'];
+          let L = { 3: ['wink', '별 세 개! 역시 내 친구지~'], 2: ['ok', '보스까지 갔잖아! 거의 다 왔어!'], 1: ['smile', '한 번 더 해 볼까? 금방 늘 거야!'] }[r.stars | 0] || ['smile', '한 번 더 해 볼까?'];
+          if (r.clear && r.gear && r.gear.rest) L = ['ok', r.gear.rest]; // 11-24 하루 8판 뒤 쎌 휴식 안내(v8 ㉝) — 별 칭찬 대신
           if (H.result.classList.contains('hide')) return;
           tx.textContent = L[1]; H.sselFace(box, L[0], true); H.sselVoice(L[1]);
           if (r.tut) H.resTO = setTimeout(() => { if (H.result.classList.contains('hide')) return; tx.textContent = '연습 끝! 「광장으로」 눌러서 톱니골 광장에 가 보자!'; H.sselFace(box, 'smile', true); }, 2600); // 11-19 튜토리얼 판

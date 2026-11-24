@@ -435,8 +435,8 @@ body:not(.atkAuto) .autoOnly { display: none !important; }
 #btnSnd .lbl .autoTag { display: inline-block; margin-left: calc(3px * var(--s)); padding: 0 calc(5px * var(--s)); border-radius: 99px; background: #ffd23f; color: #1b1424; font-size: calc(11px * var(--s)); text-shadow: none; vertical-align: middle; }
 
 /* 11-24 던전 고르기(광장)·단계 10칸·확대 연출 건너뛰기·단계 도장 */
-#dunRow .atkB { --dc: #e5352b; padding-left: calc(22px * var(--s)); position: relative; max-width: calc(230px * var(--s)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#dunRow .atkB::before { content: ""; position: absolute; left: calc(8px * var(--s)); top: 50%; width: calc(9px * var(--s)); height: calc(9px * var(--s)); border-radius: 50%; background: var(--dc); border: 2px solid var(--ink); transform: translateY(-50%); }
+#dunRow .atkB#dunBtn { --dc: #e5352b; padding-left: calc(22px * var(--s)); position: relative; max-width: calc(230px * var(--s)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#dunRow .atkB#dunBtn::before { content: ""; position: absolute; left: calc(8px * var(--s)); top: 50%; width: calc(9px * var(--s)); height: calc(9px * var(--s)); border-radius: 50%; background: var(--dc); border: 2px solid var(--ink); transform: translateY(-50%); }
 #dunPick { z-index: 21; }
 #dunPick .dunPanel { width: min(94vw, calc(640px * var(--s))); max-height: 92vh; max-height: 92dvh; overflow-y: auto; padding-top: calc(10px * var(--s)); }
 #dunPick .ptitle { margin-top: calc(6px * var(--s)); margin-bottom: calc(4px * var(--s)); }
@@ -465,3 +465,51 @@ body:not(.atkAuto) .autoOnly { display: none !important; }
 #cuSkipBtn { position: absolute; right: max(env(safe-area-inset-right, 0px), 2.5vw); top: calc(max(env(safe-area-inset-top, 0px), 8px) + 6px); z-index: 12; font-size: calc(16px * var(--s)); padding: calc(5px * var(--s)) calc(14px * var(--s)); }
 body.closeup #hpBox, body.closeup #prog, body.closeup #topRight, body.closeup #bossBar, body.closeup #btnBig, body.closeup #btnSnd, body.closeup #stick, body.closeup #hint, body.closeup #keyHint, body.closeup #combo, body.closeup #overPips, body.closeup .mhp, body.closeup #fogArrow { opacity: 0 !important; pointer-events: none; }
 #rStamp { font-size: calc(14px * var(--s)); color: #fff; background: linear-gradient(90deg, #ff8a6a, #e5352b 60%, #b8241b); border: 2px solid var(--ink); border-radius: 12px; padding: calc(3px * var(--s)) calc(10px * var(--s)); margin: 0 auto calc(4px * var(--s)); max-width: calc(360px * var(--s)); white-space: pre-line; word-break: keep-all; line-height: 1.2; }
+
+/* 11-24 톱니 지갑(js/wallet.js): 광장 「지갑」 줄 · 지갑 패널(레벨 숫자 크게·6등급 칸·합치기) · 결과 「받은 톱니」 */
+#walRow { display: inline-flex; margin-left: calc(4px * var(--s)); }
+#walRow .atkB { white-space: nowrap; background: linear-gradient(#ffe39a, #c9a23a 60%, #9a7a1e); color: #fff; font-size: calc(14px * var(--s)); padding: calc(4px * var(--s)) calc(8px * var(--s)); }
+#dunRow .atkB#dunBtn { max-width: calc(190px * var(--s)); }
+#walPick { z-index: 21; }
+#walPick .walPanel { width: min(94vw, calc(600px * var(--s))); max-height: 92vh; max-height: 92dvh; overflow-y: auto; padding-top: calc(10px * var(--s)); padding-bottom: calc(12px * var(--s)); }
+#walPick .ptitle { margin-top: calc(6px * var(--s)); margin-bottom: calc(2px * var(--s)); }
+#walTop { display: flex; align-items: center; justify-content: center; gap: calc(14px * var(--s)); margin-bottom: calc(4px * var(--s)); }
+#walTop .walLv { display: flex; align-items: baseline; gap: calc(6px * var(--s)); }
+#walTop .walLv small { font-size: calc(14px * var(--s)); }
+#walTop .walLv b { font-size: calc(40px * var(--s)); line-height: 1; color: #ffd23f; }
+#walTop .walDay { font-size: calc(13px * var(--s)); background: rgba(201,162,58,0.22); border: 2px solid rgba(27,20,36,0.25); border-radius: 12px; padding: calc(3px * var(--s)) calc(10px * var(--s)); white-space: nowrap; }
+#walTop .walDay.over { background: #ffe9a8; }
+#walList { display: grid; grid-template-columns: 1fr 1fr; gap: calc(4px * var(--s)) calc(10px * var(--s)); }
+.walRow { display: flex; align-items: center; gap: calc(6px * var(--s)); background: #fff; border: 3px solid var(--ink); border-radius: calc(12px * var(--s)); padding: calc(3px * var(--s)) calc(6px * var(--s)) calc(3px * var(--s)) calc(4px * var(--s)); box-shadow: 0 3px 0 var(--ink); min-width: 0; }
+.walRow.zero { opacity: 0.72; }
+.walRow .gIco { flex: none; width: calc(34px * var(--s)); height: calc(34px * var(--s)); }
+.walRow .wtx { display: flex; flex-direction: column; min-width: 0; flex: 1; line-height: 1.1; word-break: keep-all; }
+.walRow .wtx b { font-size: calc(13px * var(--s)); white-space: normal; line-height: 1.05; }
+.walRow .wtx small { font-size: calc(10px * var(--s)); opacity: 0.7; white-space: nowrap; }
+.walRow .wn { flex: none; font-size: calc(17px * var(--s)); color: #e5352b; min-width: calc(36px * var(--s)); text-align: right; }
+.walRow .wmerge { flex: none; font: inherit; color: var(--ink); border: 3px solid var(--ink); background: linear-gradient(#ffe778, var(--yel) 55%, #f0b400); border-radius: calc(12px * var(--s)); padding: calc(3px * var(--s)) calc(6px * var(--s)); box-shadow: 0 3px 0 var(--ink); font-size: calc(12px * var(--s)); white-space: nowrap; line-height: 1.1; }
+.walRow .wmerge:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.walRow .wmerge.off { background: #e6e0ea; color: #9a90a8; box-shadow: 0 2px 0 rgba(27,20,36,0.5); cursor: default; }
+.walRow .wmerge.off .ol { color: #d6cfdd; }
+.walNote { margin-top: calc(6px * var(--s)); font-size: calc(11px * var(--s)); text-align: center; word-break: keep-all; opacity: 0.85; line-height: 1.25; }
+#walPick .btns { margin-top: calc(6px * var(--s)); }
+.gIco.pop { animation: sselPop 0.55s cubic-bezier(.2,1.6,.4,1); }
+/* 결과 「받은 톱니」 */
+#rGear { display: flex; flex-direction: column; gap: calc(3px * var(--s)); margin: 0 auto calc(4px * var(--s)); width: calc(340px * var(--s)); max-width: 100%; font-size: calc(12px * var(--s)); }
+#rGear .gl { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: calc(3px * var(--s)) calc(8px * var(--s)); background: rgba(201,162,58,0.22); border: 2px solid rgba(27,20,36,0.25); border-radius: 12px; padding: calc(2px * var(--s)) calc(10px * var(--s)); line-height: 1.2; }
+#rGear .gk { opacity: 0.8; font-size: calc(12px * var(--s)); white-space: nowrap; }
+#rGear .gday { margin-left: auto; font-size: calc(12px * var(--s)); white-space: nowrap; padding-left: calc(6px * var(--s)); border-left: 2px solid rgba(27,20,36,0.2); }
+#rGear .gday.over { color: #b8241b; }
+body.hasGear #result .stats { margin: calc(4px * var(--s)) 0 calc(8px * var(--s)); }
+body.hasGear #stars { margin: calc(2px * var(--s)) 0 calc(4px * var(--s)); }
+body.hasGear #stars .st { width: calc(48px * var(--s)); height: calc(48px * var(--s)); }
+body.hasGear #result .srow { padding: calc(3px * var(--s)) calc(12px * var(--s)); }
+body.hasGear #result #rStamp { margin-bottom: calc(3px * var(--s)); }
+.gw { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.gw .gIco { width: calc(22px * var(--s)); height: calc(22px * var(--s)); flex: none; }
+.gw b { color: #e5352b; }
+.gw.crumb { opacity: 0.85; font-size: calc(12px * var(--s)); }
+.gw.crumb .gIco { width: calc(18px * var(--s)); height: calc(18px * var(--s)); }
+.gtag { display: inline-block; padding: 0 calc(7px * var(--s)); border-radius: 99px; background: #ffd23f; color: var(--ink); font-size: calc(11px * var(--s)); white-space: nowrap; }
+.gtag.tagCard { background: #e6dcff; }
+.gtag.tagGold { background: linear-gradient(#ffe39a, #c9a23a); }

@@ -1,5 +1,7 @@
 /* 톱니골 던전 — 아레나 「박동탑 광장」: 촘촘한 체크 바닥(원형 돌길·테두리 타일·황동 레일·바닥 톱니), 황동 파이프 울타리·난간, 박동탑(시계 바늘·맥박·가릴 때 반투명), 엄폐물(상자·스피커+톱니 기둥), 증기 분출구, 벽면 톱니, 가로등, 마을 배경
-   성능: 단색 소품은 정점 색으로 한 덩이(가까운 것/먼 것), GLB 소품은 인스턴스 + 화면 밖 인스턴스 빼기(AR.cull) */
+   성능: 단색 소품은 정점 색으로 한 덩이(가까운 것/먼 것), GLB 소품은 인스턴스 + 화면 밖 인스턴스 빼기(AR.cull)
+   11-24 던전별 맵(대표 「맵이 다 똑같지?」): 광장(파이프 굴)은 이 파일, 5인 던전 맵은 js/maps.js — 맵마다 그룹(AR.maps[id].group)을 미리 만들어 두고 AR.setMap(id) 가 보이기만 바꿔 끼움(예열 때 전부 한 번 그려 셰이더 컴파일).
+   규칙 쪽(AR.colliders·AR.bx/bz·AR.push·AR.blocked·맨홀 자리·탑 자리)은 모든 맵이 같음 — 엄폐물 자리는 그대로 두고 「모양·바닥·벽·배경」만 바꿈(기록 재생·test_balance 그대로). */
 (function () {
   'use strict';
   const TG = window.TG, T = THREE;
@@ -8,6 +10,7 @@
   AR.W = W; AR.D = D;
   AR.bx = W / 2 - 0.9; AR.bz = D / 2 - 0.9; // 움직일 수 있는 범위
   AR.colliders = [];
+  AR.maps = {}; AR.mapId = 'pipe'; AR.map = null; // 11-24 던전별 맵 그룹
   AR.towerPos = new T.Vector3(0, 0, -5.2);
   AR.manholes = [[0, 6.2], [-10.5, 1.5], [10.5, -1.5], [-3, -12], [4, 12.2]];
   AR.vents = [[-16.8, -10.8], [16.8, -10.8], [-16.8, 11], [16.8, 11]]; // 구석 분출구 (턱 있음 → 충돌)
@@ -25,6 +28,10 @@
   const INNER = [CRATES[4], CRATES[5], CRATES[6], CRATES[7], CRATES[8], SPEAKERS[3], SPEAKERS[4], SPEAKERS[5]]; // 톱니 기둥을 붙일 안쪽 엄폐물
   // 낮은 황동 파이프 난간 (엄폐물 옆에 붙여 한 덩이로): [첫 기둥 x, z, 방향 dx, dz] 기둥 3개·간격 1.2
   const BARS = [[-9.0, -2.0, -1, 0], [7.6, 3.0, 0, 1], [-5.2, 7.6, 1, 0]];
+  const PLANTERS = [[-17.6, -6], [17.6, 6], [-17.6, 6.5], [17.6, -6.5], [-9, 12.5], [9, 12.5], [-9, -12.5], [9, -12.5]]; // 가장자리 화분(충돌 0.7)
+  const LAMPS = [[-14, -13.3, 0], [-5, -13.3, 0], [5, -13.3, 0], [14, -13.3, 0], [-19.3, -6.5, Math.PI / 2], [-19.3, 6.5, Math.PI / 2], [19.3, -6.5, -Math.PI / 2], [19.3, 6.5, -Math.PI / 2]]; // 가로등(충돌 0.6)
+  // 11-24 충돌 자리표(모든 맵 공통 — js/maps.js 가 같은 자리에 다른 모양의 소품을 세움). r = 충돌 반지름(그림은 이 안에)
+  AR.SPOTS = { crates: CRATES, speakers: SPEAKERS, bars: BARS, planters: PLANTERS, lamps: LAMPS, vents: AR.vents, vents2: AR.vents2, tower: AR.towerPos, R: { crate: 1.0, speaker: 1.05, bar: 0.42, planter: 0.7, lamp: 0.6, vent: 0.9, tower: 4.3 } };
 
   // ── 텍스처 ──
   const TS = 2 / 3; // 타일 한 칸 (SEFO 발 폭의 약 1.2배) — 작고 촘촘하게
@@ -201,6 +208,7 @@
   };
   const lists = { near: [], far: [], roof: [] };
   const colCache = {};
+  // key = PAL 이름 또는 hex 숫자(11-24 던전 맵용). 'win' 과 { hex, k } 는 밝게(은은한 불빛·네온)
   function add(key, geo, x, y, z, ry, sx, sy, sz, rx, rz, grp) {
     const g = geo.index ? geo.toNonIndexed() : geo.clone();
     const textured = key === 'roof';
@@ -208,14 +216,33 @@
     const m = new T.Matrix4().compose(new T.Vector3(x || 0, y || 0, z || 0), new T.Quaternion().setFromEuler(new T.Euler(rx || 0, ry || 0, rz || 0, 'YXZ')), new T.Vector3(sx || 1, sy || sx || 1, sz || sx || 1));
     g.applyMatrix4(m);
     if (textured) { lists.roof.push(g); return; }
-    const c = colCache[key] || (colCache[key] = new T.Color(PAL[key]));
-    const k = key === 'win' ? 1.7 : 1; // 창문은 밝게(은은한 불빛)
+    let hex = key, k = key === 'win' ? 1.7 : 1; // 창문은 밝게(은은한 불빛)
+    if (typeof key === 'object') { hex = key.hex; k = key.k || 1; } else if (typeof key === 'string') hex = PAL[key];
+    const c = colCache[hex] || (colCache[hex] = new T.Color(hex));
     const n = g.getAttribute('position').count, arr = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) { arr[i * 3] = c.r * k; arr[i * 3 + 1] = c.g * k; arr[i * 3 + 2] = c.b * k; }
     g.setAttribute('color', new T.BufferAttribute(arr, 3));
     lists[grp || 'near'].push(g);
   }
   const addFar = (key, geo, x, y, z, ry, sx, sy, sz, rx, rz) => add(key, geo, x, y, z, ry, sx, sy, sz, rx, rz, 'far');
+  // 모아 둔 조각(near·far·roof)을 메시 3개로 합쳐 parent 에 넣고 비움. 돌려줌: { near, far, roof }(없으면 null)
+  function mergeLists(parent, roofMat, o) {
+    const R = TG.R, out = { near: null, far: null, roof: null };
+    const fm = flatMat();
+    [['near', fm, true], ['far', fm, false], ['roof', roofMat, false]].forEach(([key, mat, shadow]) => {
+      if (!lists[key].length || !mat) return;
+      const geo = T.BufferGeometryUtils.mergeGeometries(lists[key], false);
+      if (!geo) return;
+      geo.computeBoundingSphere();
+      const m = new T.Mesh(geo, mat);
+      m.castShadow = shadow && !(o && o.noShadow); m.receiveShadow = true;
+      parent.add(m); R.addOutline(m, (o && o.outline) || 0.9);
+      out[key] = m;
+    });
+    lists.near.length = lists.far.length = lists.roof.length = 0;
+    return out;
+  }
+  const flatMat = () => { const m = TG.R.toon({ color: 0xffffff, rim: 0.28, sat: 0.92 }); m.vertexColors = true; return m; };
   function prism() { // 삼각 지붕 (밑변 0, 꼭대기 1, z 폭 ±1, x 길이 1)
     let g = new T.CylinderGeometry(1, 1, 1, 3, 1);
     g.rotateZ(Math.PI / 2); g.rotateX(-Math.PI / 2); g.translate(0, 0.5, 0);
@@ -265,9 +292,9 @@
     o = o || {};
     const im = new T.InstancedMesh(src.geo, src.mat, list.length);
     im.castShadow = o.shadow !== false; im.receiveShadow = true; im.frustumCulled = false;
-    TG.R.scene.add(im); TG.R.addOutline(im, o.outline || 0.8);
+    (o.parent || TG.R.scene).add(im); TG.R.addOutline(im, o.outline || 0.8);
     const rad = src.geo.boundingSphere.radius, cy = src.geo.boundingSphere.center.y;
-    const e = { im, mats: [], ctr: [], rad: [], key: '', margin: o.margin != null ? o.margin : 2.5 };
+    const e = { im, mats: [], ctr: [], rad: [], key: '', margin: o.margin != null ? o.margin : 2.5, map: o.map || null }; // map = 이 맵일 때만 그림(11-24)
     list.forEach((p) => {
       const sc = p[3] || 1;
       e.mats.push(new T.Matrix4().compose(tmpP.set(p[0], p[4] || 0, p[1]), tmpQ.setFromEuler(tmpE.set(0, p[2], 0)), tmpS.set(sc, sc, sc)));
@@ -281,6 +308,7 @@
     cam.updateMatrixWorld();
     frustum.setFromProjectionMatrix(pm.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse));
     for (const e of culled) {
+      if (AR.mapId && e.map && e.map !== AR.mapId) { if (e.im.visible) { e.im.visible = e.im.userData.outline.visible = false; e.key = ''; } continue; } // 다른 맵의 소품은 안 그림
       let n = 0, key = '';
       for (let i = 0; i < e.mats.length; i++) {
         sphere.center.copy(e.ctr[i]); sphere.radius = e.rad[i] + e.margin;
@@ -299,7 +327,9 @@
     const R = TG.R;
     const box = new T.BoxGeometry(1, 1, 1), cyl = new T.CylinderGeometry(1, 1, 1, 8), cylBig = new T.CylinderGeometry(1, 1, 1, 36), sph = new T.SphereGeometry(1, 9, 6), ico = new T.IcosahedronGeometry(1, 1);
     const roof = prism();
-    const flatMat = () => { const m = R.toon({ color: 0xffffff, rim: 0.28, sat: 0.92 }); m.vertexColors = true; return m; };
+    // 11-24 광장(파이프 굴) 맵 그룹 — 맨홀·맥박 고리는 모든 맵 공통(scene), 나머지는 gp
+    const gp = new T.Group(); gp.name = 'map_pipe'; scene.add(gp);
+    AR.maps.pipe = { id: 'pipe', group: gp, floorMat: null, center: null, beatObj: null, ambient: null };
 
     // 바닥: 되풀이 타일 + 덧그림(원형 돌길·테두리)
     const tt = tileTex(); tt.repeat.set(W / TS / 8, D / TS / 8);
@@ -307,17 +337,17 @@
     // 먼 쪽 타일은 평균색으로 섞어 체크 대비를 낮춤 (무아레 ↓)
     const floorMat = R.toon({ map: tt, rim: 0, fColor: '{ float fd = smoothstep(17.0, 44.0, length(vViewPosition)); diffuseColor.rgb = mix(diffuseColor.rgb, ' + TILE_FAR + ', fd * 0.62); }\n' });
     const floor = new T.Mesh(new T.PlaneGeometry(W, D, 10, 7), floorMat);
-    AR.floorMat = floorMat; // 11-24 단계 분위기: game.js applyTheme 가 바닥 색조를 곱함(그림만)
-    floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+    AR.floorMat = floorMat; AR.maps.pipe.floorMat = floorMat; // 11-24 단계 분위기: game.js applyTheme 가 바닥 색조를 곱함(그림만). 던전 맵은 AR.setMap 이 그 맵의 바닥 재질로 바꿈
+    floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; gp.add(floor);
     const decoMat = R.toon({ map: floorDecoTex(), rim: 0 }); decoMat.transparent = true; decoMat.depthWrite = false; decoMat.polygonOffset = true; decoMat.polygonOffsetFactor = -1; decoMat.polygonOffsetUnits = -1;
     const deco = new T.Mesh(new T.PlaneGeometry(W, D, 10, 7), decoMat);
-    deco.rotation.x = -Math.PI / 2; deco.position.y = 0.004; deco.receiveShadow = true; deco.renderOrder = 1; scene.add(deco);
+    deco.rotation.x = -Math.PI / 2; deco.position.y = 0.004; deco.receiveShadow = true; deco.renderOrder = 1; gp.add(deco);
     const ct = cobbleTex(); ct.repeat.set(30, 24);
     const walk = new T.Mesh(new T.PlaneGeometry(76, 60, 8, 6), R.toon({ map: ct, rim: 0 }));
-    walk.rotation.x = -Math.PI / 2; walk.position.y = -0.03; walk.receiveShadow = true; scene.add(walk);
+    walk.rotation.x = -Math.PI / 2; walk.position.y = -0.03; walk.receiveShadow = true; gp.add(walk);
     const gt = grassTex(); gt.repeat.set(40, 40);
     const grass = new T.Mesh(new T.PlaneGeometry(240, 240, 12, 12), R.toon({ map: gt, rim: 0 }));
-    grass.rotation.x = -Math.PI / 2; grass.position.y = -0.08; scene.add(grass);
+    grass.rotation.x = -Math.PI / 2; grass.position.y = -0.08; gp.add(grass);
 
     // 맨홀(첫 번째는 시작 연출 때 움직임 → 따로) · 증기 분출구
     const disc = new T.CircleGeometry(1, 48); disc.rotateX(-Math.PI / 2);
@@ -325,10 +355,10 @@
     AR.manholeMeshes = [];
     { const [x, z] = AR.manholes[0]; const m = new T.Mesh(disc, mhMat); m.position.set(x, 0.015, z); m.scale.setScalar(1.05); m.receiveShadow = true; scene.add(m); AR.manholeMeshes.push(m); }
     // pts: [x, z, (y), (크기)] — 줄마다 높이·크기를 따로 줄 수 있음
-    const flatInst = (geo, mat, pts, y, sc) => { const im = new T.InstancedMesh(geo, mat, pts.length); pts.forEach((q, i) => { const k = q[3] || sc; tmpM.compose(tmpP.set(q[0], q[2] != null ? q[2] : y, q[1]), tmpQ.identity(), tmpS.set(k, 1, k)); im.setMatrixAt(i, tmpM); }); im.receiveShadow = true; im.frustumCulled = false; scene.add(im); return im; };
+    const flatInst = (geo, mat, pts, y, sc, parent) => { const im = new T.InstancedMesh(geo, mat, pts.length); pts.forEach((q, i) => { const k = q[3] || sc; tmpM.compose(tmpP.set(q[0], q[2] != null ? q[2] : y, q[1]), tmpQ.identity(), tmpS.set(k, 1, k)); im.setMatrixAt(i, tmpM); }); im.receiveShadow = true; im.frustumCulled = false; (parent || scene).add(im); return im; };
     flatInst(disc, mhMat, AR.manholes.slice(1), 0.015, 1.05);
     // 분출구: 구석 4(턱 위) + 안쪽 4(바닥에 붙음) 를 한 묶음으로
-    flatInst(disc, R.toon({ map: ventTex(), rim: 0 }), AR.vents.concat(AR.vents2.map(([x, z]) => [x, z, 0.014, 0.95])), 0.145, 1.15);
+    flatInst(disc, R.toon({ map: ventTex(), rim: 0 }), AR.vents.concat(AR.vents2.map(([x, z]) => [x, z, 0.014, 0.95])), 0.145, 1.15, gp);
     AR.vents.forEach(([x, z]) => {
       add('brass', cyl, x, 0.06, z, 0, 1.3, 0.14, 1.3);
       add('copper', new T.TorusGeometry(1.25, 0.12, 5, 16), x, 0.14, z, 0, 1, 1, 1, Math.PI / 2);
@@ -342,7 +372,7 @@
     fgMat.transparent = true; fgMat.depthWrite = false; fgMat.polygonOffset = true; fgMat.polygonOffsetFactor = -2; fgMat.polygonOffsetUnits = -2; // 바닥 덧그림(홈) 바로 다음, 접지 그림자·링보다 먼저 그림
     const fgBig = new T.InstancedMesh(flatGearGeo(FG.N, 0.86), fgMat, AR.floorGears.length);
     const fgSmall = new T.InstancedMesh(flatGearGeo(FG.n, 0.77), fgMat, AR.floorGears.length);
-    [fgBig, fgSmall].forEach((m) => { m.receiveShadow = true; m.castShadow = false; m.frustumCulled = false; m.renderOrder = 1.5; scene.add(m); });
+    [fgBig, fgSmall].forEach((m) => { m.receiveShadow = true; m.castShadow = false; m.frustumCulled = false; m.renderOrder = 1.5; gp.add(m); });
     AR.fgMesh = [fgBig, fgSmall];
 
     // 낮은 황동 파이프 난간 (엄폐): 기둥 3 + 가로 파이프 2줄
@@ -433,7 +463,7 @@
     [[-31, -18, 1.5], [31, -18, 1.5], [-22.5, 17.5, 1.3], [22.5, 17.5, 1.3], [-34, 6, 1.6], [34, 6, 1.6], [-12.5, -19.5, 1.1], [12.5, -19.5, 1.1], [-3.5, -20, 1.0], [3.5, -20, 1.0]].forEach((t) => tree(t[0], t[1], t[2]));
     for (let x = -26; x <= 26; x += 3.2) { const z = 17.4 + Math.sin(x) * 0.4; addFar(x % 2 ? 'leaf' : 'leaf2', ico, x, 0.5, z, x, 1.0, 0.65, 0.9); }
     // 광장 가장자리 화분 (낮게)
-    [[-17.6, -6], [17.6, 6], [-17.6, 6.5], [17.6, -6.5], [-9, 12.5], [9, 12.5], [-9, -12.5], [9, -12.5]].forEach(([x, z], i) => {
+    PLANTERS.forEach(([x, z], i) => {
       add('copper', cyl, x, 0.4, z, 0, 0.5, 0.8, 0.5); add('brass', new T.TorusGeometry(0.5, 0.07, 5, 12), x, 0.8, z, 0, 1, 1, 1, Math.PI / 2);
       add(i % 2 ? 'leaf' : 'leaf2', ico, x, 1.15, z, i, 0.66, 0.5, 0.66);
       add(i % 2 ? 'flowerR' : 'flowerY', sph, x + 0.26, 1.52, z + 0.18, 0, 0.15);
@@ -455,23 +485,12 @@
       [22.45, 1.75, 1.2, -Math.PI / 2, 1.5, -0.35], [22.45, 1.4, -1.35, -Math.PI / 2, 1.05, 0.5]].forEach(([x, y, z, ry, sc, sp]) => AR.gears.push({ x, y, z, ry, s: sc, sp }));
 
     // 정적 묶음 → 가까운 것(그림자 O)·먼 것(그림자 X)·지붕
-    AR.static = [];
-    const fm = flatMat();
-    [['near', fm, true], ['far', fm, false], ['roof', R.toon({ map: roofTex(), color: 0xffffff, rim: 0.3, sat: 0.9 }), false]].forEach(([key, mat, shadow]) => {
-      const geo = T.BufferGeometryUtils.mergeGeometries(lists[key], false);
-      if (!geo) return;
-      geo.computeBoundingSphere();
-      const m = new T.Mesh(geo, mat);
-      m.castShadow = shadow; m.receiveShadow = true;
-      scene.add(m); R.addOutline(m, 0.9);
-      AR.static.push(m);
-    });
-    lists.near.length = lists.far.length = lists.roof.length = 0;
+    { const st = mergeLists(gp, R.toon({ map: roofTex(), color: 0xffffff, rim: 0.3, sat: 0.9 })); AR.static = [st.near, st.far, st.roof].filter((m) => m); }
 
     // 톱니 (인스턴스, 보이는 것만 돌림)
     const gg = gearGeo(1, 0.82, 10, 0.26); gg.computeBoundingSphere();
     AR.gearT = 0;
-    const gm = inst({ geo: gg, mat: R.toon({ color: 0xb39445, rim: 0.4, spec: 0.3, sat: 0.9 }) }, AR.gears.map((g) => [g.x, g.z, g.ry, g.s, g.y]), { shadow: false, outline: 0.9, margin: 0.5 });
+    const gm = inst({ geo: gg, mat: R.toon({ color: 0xb39445, rim: 0.4, spec: 0.3, sat: 0.9 }) }, AR.gears.map((g) => [g.x, g.z, g.ry, g.s, g.y]), { shadow: false, outline: 0.9, margin: 0.5, parent: gp, map: 'pipe' });
     AR.gearMesh = gm;
     culled[culled.length - 1].dyn = (i, out) => {
       const g = AR.gears[i];
@@ -483,7 +502,7 @@
     const M = TG.M;
     const tower = (AR.tower = new T.Mesh(M.tower.geo, M.tower.mat));
     tower.position.copy(tp); tower.position.y = 0.42; tower.castShadow = tower.receiveShadow = true;
-    scene.add(tower);
+    gp.add(tower);
     const tol = R.addOutline(tower, 1.15);
     const tsrc = R.outlineMat(1.15, 0.0007); // 캐릭터와 같은 두께. 깊이 밀기는 작게 — 큰 모델은 선이 제 몸 뒤로 숨어 끊겼음
     tol.material = tsrc.clone(); tol.material.onBeforeCompile = tsrc.onBeforeCompile; tol.material.customProgramCacheKey = tsrc.customProgramCacheKey; // 탑만 따로 반투명하게 하려고 복제
@@ -502,21 +521,37 @@
       (k === 's' ? shops : homes).push([-27.5, z, Math.PI / 2 + (i % 2 ? 0.08 : -0.08), sc]);
       (k === 's' ? homes : shops).push([27.5, z, -Math.PI / 2 + (i % 2 ? -0.08 : 0.08), sc * 0.97]);
     });
-    if (M.shop) AR.shopMesh = inst(M.shop, shops, { shadow: false, margin: 0.5 });
-    if (M.house) AR.houseMesh = inst(M.house, homes, { shadow: false, margin: 0.5 });
+    if (M.shop) AR.shopMesh = inst(M.shop, shops, { shadow: false, margin: 0.5, parent: gp, map: 'pipe' });
+    if (M.house) AR.houseMesh = inst(M.house, homes, { shadow: false, margin: 0.5, parent: gp, map: 'pipe' });
     AR.houses = shops.concat(homes);
     // 가로등 (울타리 따라)
-    const lamps = [[-14, -13.3, 0], [-5, -13.3, 0], [5, -13.3, 0], [14, -13.3, 0], [-19.3, -6.5, Math.PI / 2], [-19.3, 6.5, Math.PI / 2], [19.3, -6.5, -Math.PI / 2], [19.3, 6.5, -Math.PI / 2]];
-    if (M.lamp) AR.lampMesh = inst(M.lamp, lamps.map((l) => [l[0], l[1], l[2], 1]));
+    const lamps = LAMPS;
+    if (M.lamp) AR.lampMesh = inst(M.lamp, lamps.map((l) => [l[0], l[1], l[2], 1]), { parent: gp, map: 'pipe' });
     lamps.forEach(([x, z]) => { AR.lamps.push([x, z]); AR.colliders.push({ x, z, r: 0.6 }); });
     // 장애물(엄폐): 가장자리 + 안쪽 고리 모양으로 (시작점·보스 자리 둘레는 비움). 충돌·미니맵은 예전과 같은 등록 방식
     const crates = CRATES, speakers = SPEAKERS;
-    AR.crateMesh = inst(M.crate, crates);
-    AR.speakerMesh = inst(M.speaker, speakers);
+    AR.crateMesh = inst(M.crate, crates, { parent: gp, map: 'pipe' });
+    AR.speakerMesh = inst(M.speaker, speakers, { parent: gp, map: 'pipe' });
     crates.forEach((p) => AR.colliders.push({ x: p[0], z: p[1], r: 1.0, kind: 'crate' }));
     speakers.forEach((p) => AR.colliders.push({ x: p[0], z: p[1], r: 1.05, kind: 'speaker' }));
     AR.speakers = speakers;
     AR.towerSteamT = 2;
+    // 광장 가운데 = 박동탑: 뒤로 가면 반투명(center), 박자에 들썩(beatObj)
+    AR.maps.pipe.center = { mats: [tower.material, tol.material, AR.handMat], objs: [tower, tol] };
+    AR.maps.pipe.beatObj = [tower, tol];
+    // 11-24 던전별 맵(js/maps.js 가 AR.mapBuilders 에 넣음) — 전부 미리 만들어 숨겨 둠
+    AR.kit = { add, addFar, mergeLists, inst, flatMat, prism, gearGeo, flatInst, geos: { box, cyl, cylBig, sph, ico, disc, knob }, PAL, W, D, fx: W / 2 + cw / 2, fz: D / 2 + cw / 2, cw, ch, lists, tmp: { tmpM, tmpQ, tmpE, tmpS, tmpP } };
+    (AR.mapBuilders || []).forEach((fn) => { try { fn(scene, AR); } catch (e) { console.error('맵 만들기 실패', e); } });
+    AR.setMap('pipe');
+  };
+  // 던전 맵 바꿔 끼우기(그림만): 그룹 보이기·바닥 재질·가운데 소품. 없는 id = 광장
+  AR.setMap = function (id) {
+    if (!AR.maps[id]) id = 'pipe';
+    AR.mapId = id;
+    for (const k in AR.maps) AR.maps[k].group.visible = k === id;
+    const m = (AR.map = AR.maps[id]);
+    if (m.floorMat) AR.floorMat = m.floorMat;
+    return id;
   };
 
   // 박동탑 시계 바늘 (탑 메시의 자식 → 박자에 같이 들썩)
@@ -543,7 +578,8 @@
 
   // 박동탑이 박자에 맞춰 살짝 들썩 + 받침 둘레 맥박 고리
   AR.beat = function (k) {
-    if (AR.tower) { const s = 1 + 0.02 * k; AR.tower.scale.set(1 + 0.01 * k, s, 1 + 0.01 * k); AR.tower.userData.outline.scale.copy(AR.tower.scale); }
+    const bo = AR.map && AR.map.beatObj; // 11-24 맵마다 가운데 소품(박동탑·단상·타이어 탑·수정·무대·큰 나무)이 들썩
+    if (bo) { const s = 1 + 0.02 * k; bo[0].scale.set(1 + 0.01 * k, s, 1 + 0.01 * k); bo[1].scale.copy(bo[0].scale); }
     if (AR.pulse) { AR.pulse.material.opacity = 0.3 * k; const s = 1.07 - 0.07 * k; AR.pulse.scale.set(s, s, 1); AR.pulse.visible = k > 0.02; }
   };
 
@@ -566,29 +602,29 @@
     AR.updateGears(t);
     // 시계 바늘: 분침은 눈에 보일 만큼 천천히, 시침은 더 천천히
     if (AR.handM) { AR.handM.rotation.z = -t * 0.35; AR.handH.rotation.z = -t * 0.35 / 12 - 1.0; }
-    // SEFO가 탑 뒤로 가면 탑을 반투명하게 (가리지 않게)
-    const P = TG.PL, tp = AR.towerPos;
-    if (AR.tower && P && P.root) {
+    // SEFO가 가운데 큰 소품(박동탑·던전 맵의 단상 등) 뒤로 가면 반투명하게 (가리지 않게) — 11-24 맵마다 center(재질 목록)
+    const P = TG.PL, tp = AR.towerPos, C = AR.map && AR.map.center;
+    if (C && P && P.root) {
       const dz = tp.z - P.rz, dx = Math.abs(P.rx - tp.x);
       const behind = P.root.visible && dz > 1.2 && dz < 12 && dx < 5.2 + dz * 0.12;
-      AR.towerFade = TG.damp(AR.towerFade, behind ? 0.3 : 1, 7, dt || 0.016);
-      const f = AR.towerFade, on = f < 0.985;
-      const tm = AR.tower.material, om = AR.tower.userData.outline.material;
-      if (tm.transparent !== on) { tm.transparent = on; om.transparent = on; AR.handMat.transparent = on; tm.needsUpdate = om.needsUpdate = AR.handMat.needsUpdate = true; }
-      tm.opacity = om.opacity = AR.handMat.opacity = on ? f : 1;
-      AR.tower.renderOrder = AR.tower.userData.outline.renderOrder = on ? 30 : 0; // 반투명일 땐 맨 나중에 (뒤쪽 링·이펙트가 먼저 그려지게)
+      C.fade = TG.damp(C.fade != null ? C.fade : 1, behind ? 0.3 : 1, 7, dt || 0.016);
+      const f = C.fade, on = f < 0.985;
+      for (const m of C.mats) { if (m.transparent !== on) { m.transparent = on; m.needsUpdate = true; } m.opacity = on ? f : 1; }
+      for (const o of C.objs) o.renderOrder = on ? 30 : 0; // 반투명일 땐 맨 나중에 (뒤쪽 링·이펙트가 먼저 그려지게)
+      if (AR.mapId === 'pipe') AR.towerFade = f;
     }
-    AR.towerSteamT -= dt;
-    if (AR.towerSteamT <= 0) { AR.towerSteamT = TG.rr(3, 5); TG.FX.steam(AR.towerPos.x + 0.6, AR.towerPos.z - 0.4, 8.9, 1.1); }
-    // 증기 분출구: 가끔 짧게 「칙」
-    AR.ventT.forEach((v, i) => {
-      AR.ventT[i] -= dt;
-      if (AR.ventT[i] <= 0) {
-        AR.ventT[i] = TG.rr(4, 8);
-        const [x, z, k] = AR.ventAll[i];
-        TG.FX.steam(x, z, 0.2, k);
-        if (player) { const d = Math.hypot(player.x - x, player.z - z); if (d < 16) TG.A.play('sfx_steam', { gain: (i > 3 ? 0.22 : 0.35) * (1 - d / 16), pan: TG.clamp((x - player.x) / 12, -1, 1) }); }
-      }
-    });
+    if (AR.mapId === 'pipe') { // 광장만: 탑 꼭대기 김·증기 분출구 「칙」
+      AR.towerSteamT -= dt;
+      if (AR.towerSteamT <= 0) { AR.towerSteamT = TG.rr(3, 5); TG.FX.steam(AR.towerPos.x + 0.6, AR.towerPos.z - 0.4, 8.9, 1.1); }
+      AR.ventT.forEach((v, i) => {
+        AR.ventT[i] -= dt;
+        if (AR.ventT[i] <= 0) {
+          AR.ventT[i] = TG.rr(4, 8);
+          const [x, z, k] = AR.ventAll[i];
+          TG.FX.steam(x, z, 0.2, k);
+          if (player) { const d = Math.hypot(player.x - x, player.z - z); if (d < 16) TG.A.play('sfx_steam', { gain: (i > 3 ? 0.22 : 0.35) * (1 - d / 16), pan: TG.clamp((x - player.x) / 12, -1, 1) }); }
+        }
+      });
+    } else if (AR.map && AR.map.ambient) AR.map.ambient(dt, t, player); // 던전 맵 꾸밈(그림만 — 규칙 난수 X)
   };
 })();
