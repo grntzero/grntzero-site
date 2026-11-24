@@ -39,8 +39,24 @@
   // 비서 쎌(진행자) 대사 [표정, 말] — 그림·글만, 규칙 계산과 무관
   const GRUNT_REST = [null, ['smile', '잘했어! 하나 골라 봐~'], ['ok', '마지막 층이야. 숨 고르고 가자!']];
   // 11-19 톱니골 광장 = 공통 출발지, 첫 공통 던전 「방송 파이프 굴」 = 튜토리얼(누구로 해도 같음). 지금 판은 이 던전 하나 — 광장 지도·다른 던전은 계획(세계관 정본 1·2장)
-  const DUNGEON = { id: 'pipe', name: '방송 파이프 굴', tut: '연습 던전 · 움직이기 · 줍기 · 큰 소리', again: '톱니골 광장 첫 던전' };
+  // 11-24 던전·난이도(js/dungeons.js): DUNGEON = 지금 판의 던전표 줄, LV = 단계(1~10), LK = 단계 배율. 첫 판(튜토리얼 전)은 「방송 파이프 굴」 1단계 고정(정본 1장 던전 고르기 흐름)
+  let DUNGEON = TG.DUNGEONS.pipe, LV = 1, LK = TG.levelK(1);
+  function setDungeon(id, lv) { DUNGEON = TG.DN.get(id); LV = Math.max(1, Math.min(TG.LEVEL_MAX, lv | 0 || 1)); LK = TG.levelK(LV); G.floors = FLOORS.map((f, i) => f && scaledFloor(f, i)); RULE = DUNGEON.rule || {}; TG.F.rule = RULE; } // 11-24 RULE = 던전 고유 규칙(허조교 줄 안개·벽 퐁 / 모쉬 거울·깜깜·보스 변형) — 기록 dun 으로 재생 때 같은 규칙
+  let RULE = {};
+  // 층 숫자에 단계 배율: 수(num) → 게이지·동시 수, 빠르기(spd) → 이동, 간격(iv) → 나오는 간격. 글은 던전표 floors 로 바꿈
+  function scaledFloor(f, i) { const o = Object.assign({}, f); o.budget = Math.round(f.budget * LK.num); o.cap = Math.round(f.cap * LK.num); o.iv = [f.iv[0] * LK.iv, f.iv[1] * LK.iv]; o.spd = f.spd * LK.spd; const t = DUNGEON.floors && DUNGEON.floors[i]; if (t) { o.title = t.title; o.sub = t.sub; } return o; }
+  const FL = (n) => (G.floors || FLOORS)[n];
   const TUT_KEY = 'ez_tut_pipe';
+  // 11-24 던전 끝 확대 연출(계획 v8 12쪽): 카메라 + 캐릭터 동작 틀. 일반 약 3초 · 끝까지 모드 1.5초 + 건너뛰기(대표 11-20). 걸음은 길이 비율(0~1)
+  //  동작: cheer = 두 팔 번쩍(「야호!」) · jump = 제자리 점프(착지 반짝) · pose = 마무리 포즈(victory 클립, 확성기 번쩍)
+  //  다른 캐릭터는 그 던전 날에 CHEER.<id> 한 줄만 더함(없으면 def). 홈 던전이면 쎌이 옆에서 같이(말풍선), 아니면 주인 주민이 손 흔듦
+  const CU_DUR = { normal: 3.0, rank: 1.5 };
+  const CHEER = {
+    def: [[0, 'cheer'], [0.42, 'jump'], [0.78, 'pose']],
+    sefo: [[0, 'cheer'], [0.3, 'jump'], [0.57, 'jump'], [0.8, 'pose']], // 세포: 체조 마무리 포즈(두 손 머리 위 → 확성기 번쩍) + 제자리 점프 2번
+    gunner: [[0, 'helmet'], [0.22, 'salute'], [0.62, 'jump'], [0.8, 'thumb']], // 11-24 허조교(v8 12쪽): 헬멧 고쳐 쓰고 경례(호루라기 삑 + 북 = music.end) → 제자리 점프 → 엄지 척(호루라기·구령만 — 정본 3장 안전 규칙)
+    moshee: [[0, 'star'], [0.08, 'dj'], [0.82, 'pose']], // 11-24 모쉬(v8 12쪽): 큐브 화면 ^_^ → ★_★ 번쩍 → 양팔 들고 좌우 스텝(DJ 포즈, 자체 음원 드롭 자리 = music.end) → 마무리
+  };
   const tutDone = () => { try { return localStorage.getItem(TUT_KEY) === '1'; } catch (e) { return false; } };
   G.tutDone = tutDone;
   const SSEL = (face, text, dur, delay) => { try { TG.H.gruntSay(text, dur || 2.6, face, delay); } catch (e) { /* 무시 */ } };
@@ -158,7 +174,7 @@
     TG.F.reset(); TG.WV.reset(); if (!keepFx) TG.FX.clear(); TG.PL.reset(); TG.PL.setRest(false); TG.C.reset(); TG.FL.reset(); TG.AS.reset();
     TG.H.hideCards(); TG.H.hideShelter(); TG.H.gruntHide(); TG.H.hintSet(null);
     TG.PL.stillLv = 0; TG.PL.idleT = 0; G.result = null;
-    G.hemiT = 1.35; G.camZoom = 1;
+    G.hemiT = 1.35; G.camZoom = 1; G.cu = null; G.clearInfo = null; if (!G.floors) G.floors = FLOORS.map((f, i) => f && scaledFloor(f, i));
     cam.lx = cam.lz = cam.vlx = cam.vlz = cam.gx = cam.gz = cam.hold = cam.cT = cam.m = cam.mT = 0;
   }
 
@@ -169,6 +185,7 @@
     TG.H.show(TG.H.title, true); TG.H.show(TG.H.hud, false); TG.H.show(TG.H.result, false); TG.H.show(TG.H.pause, false);
     TG.A.bgm('bgm_win', 0.6, true);
     G.paused = false;
+    applyTheme(null);
     TG.H.hubRefresh(tutDone(), !!G.backFromRun); G.backFromRun = false;
     TG.H.sselTitleStart();
   }
@@ -180,6 +197,7 @@
   // 시작 연출: 맨홀 덜컹 → SEFO 튀어나와 착지 → 출발!
   function startIntro() {
     if (G.heroWait) return; // 주인공 모델을 받는 중이면 잠깐(버튼도 잠김)
+    pickFromHub();
     resetRun();
     showHud();
     G.phase = 'intro'; G.introT = 0; G.replay = null;
@@ -189,9 +207,19 @@
     G.lid = { mesh: mh, t: 0, y0: mh.position.y };
     G.dunBanner = false; // 11-19 광장에서 첫 던전으로 출발 — 이름 띠는 updateIntro 0.25초에
   }
+  // 광장에서 고른 던전·단계(js/dungeons.js DN.sel)로. 튜토리얼 전엔 「방송 파이프 굴」 1단계 고정
+  function pickFromHub() { if (!tutDone()) setDungeon('pipe', 1); else setDungeon(TG.DN.sel.dun, TG.DN.sel.lv); applyTheme(DUNGEON); }
+  // 던전 테마(그림만): 하늘·빛·광장 고리 색. null = 기본(방송 파이프 굴 = 광장)
+  const THEME0 = { bg: 0x9fd7f2, sky: 0xdcefff, ground: 0xd9a878, pulse: 0xff7a52 };
+  function applyTheme(d) {
+    const t = Object.assign({}, THEME0, (d && d.theme) || {}), R = TG.R; if (!R || !R.scene) return;
+    try { R.scene.background.set(t.bg); R.renderer.setClearColor(t.bg); R.hemi.color.set(t.sky).multiplyScalar(0.84); R.hemi.groundColor.set(t.ground).multiplyScalar(0.8); if (TG.AR.pulse) TG.AR.pulse.material.color.set(t.pulse).multiplyScalar(1.3); } catch (e) { /* 무시 */ }
+    G.themeId = d ? d.id : null;
+  }
   // 놀이 시작: 여기서부터 규칙 계산이 기록·재생 대상 (처음 상태를 늘 똑같이 맞춤)
   function startPlay(skipIntro) {
     { const rp0 = G.replay; if (rp0) { const rh = rp0.hero || 'sefo', ra = rp0.assist || 'none'; if (rh !== TG.heroId || ra !== TG.assistId) setHeroNow(rh, ra, true); } } // 기록에 적힌 주인공·보조로 (옛 기록 v2 = SEFO·없음)
+    { const rp0 = G.replay; if (rp0) setDungeon(rp0.dun || 'pipe', rp0.lv || 1); else if (skipIntro) pickFromHub(); } // 기록엔 던전·단계가 적힘(없는 옛 기록 = 파이프 굴 1단계)
     resetRun(!skipIntro);
     if (skipIntro) showHud();
     const p = P();
@@ -207,16 +235,16 @@
     G.tutRun = !rp && !G.bot && !tutDone(); // 11-19 첫 판 = 튜토리얼(안내는 매 판 같고, 첫 판엔 다 배우면 쎌 칭찬 + 결과에 광장 안내)
     if (rp) TG.Q.god = !!rp.god;
     TG.simSeed(G.seed);
-    G.rec = { v: REC_V, seed: G.seed, first: first ? 1 : 0, god: TG.Q.god ? 1 : 0, hero: TG.heroId, assist: TG.assistId, ticks: [], cards: [] }; // v3(11-16): hero·assist 칸 — 재생 때 같은 주인공·보조로. v4(11-16 오후): 기본 소리 파형 통일·큰 소리 4종 새 규칙 — v3 이하 기록은 규칙이 달라 재생 안 함(api.replay)
+    G.rec = { v: REC_V, seed: G.seed, first: first ? 1 : 0, god: TG.Q.god ? 1 : 0, hero: TG.heroId, assist: TG.assistId, dun: DUNGEON.id, lv: LV, ticks: [], cards: [] }; // 11-24 dun·lv: 던전·단계(규칙 배율) — 없으면 파이프 굴 1단계라 v7 그대로 // v3(11-16): hero·assist 칸 — 재생 때 같은 주인공·보조로. v4(11-16 오후): 기본 소리 파형 통일·큰 소리 4종 새 규칙 — v3 이하 기록은 규칙이 달라 재생 안 함(api.replay)
     G.rpI = 0; G.rpN = 0; G.replayDone = false;
-    TG.A.bgm('bgm_battle', 0.8);
+    TG.A.bgm(DUNGEON.music.floor || 'bgm_battle', 0.8); // 던전별 음악 자리(js/dungeons.js music.floor)
     startFloor(1);
   }
 
   function updateIntro(dt) {
     G.introT += dt;
     const t = G.introT, L = G.lid;
-    if (!G.dunBanner && t >= 0.25) { G.dunBanner = true; TG.H.showBanner(DUNGEON.name, tutDone() ? DUNGEON.again : DUNGEON.tut, 'gold', 1.6); }
+    if (!G.dunBanner && t >= 0.25) { G.dunBanner = true; TG.H.showBanner(DUNGEON.name, DUNGEON.tut ? (tutDone() ? (LV > 1 ? TG.LEVELS[LV].say + ' · ' : '') + DUNGEON.again : DUNGEON.tag) : TG.LEVELS[LV].say + ' · ' + DUNGEON.tag, 'gold', 1.6); }
     // 맨홀 뚜껑이 들썩 → 튀어오름
     if (t < 0.9) {
       const k = Math.sin(t * 40) * 0.04 * (t > 0.3 ? 1 : 0);
@@ -246,7 +274,7 @@
 
   // ── 층 진행 (안개 게이지) ──
   function startFloor(n) {
-    const f = FLOORS[n];
+    const f = FL(n);
     G.phase = 'floor'; G.floor = n; G.fogPop = 0; G.floorDone = false; G.cocoonDone = false;
     G.spawnT = 1.0; G.clumpT = 3; G.echoT = 2.5; G.tickT = 6;
     G.hemiT = 1.35; G.camZoom = 1;
@@ -261,7 +289,7 @@
   }
   G.fogLeft = function () {
     if (G.phase === 'shelter' || G.floorDone) return 0;
-    return Math.max(0, 1 - G.fogPop / FLOORS[G.floor].budget);
+    return Math.max(0, 1 - G.fogPop / FL(G.floor).budget);
   };
   function spawnPoint(minD) {
     const p = P();
@@ -278,17 +306,26 @@
   }
   function spawnGroup(kind, n) {
     const [x, z] = spawnPoint(kind === 'clump' ? 9 : 8);
-    TG.FX.ring(x, z, { r0: 0.3, r1: 2.2, dur: 0.5, color: kind === 'echo' ? 0x9fc4ff : 0xc9c2ea, width: 0.25 });
+    TG.FX.ring(x, z, { r0: 0.3, r1: 2.2, dur: 0.5, color: kind === 'echo' ? 0x9fc4ff : RULE.mirror ? 0x9ff4ff : 0xc9c2ea, width: 0.25 });
     TG.FX.popBurst(x, 0.6, z, 0.6);
+    // 11-24 허조교 「줄 안개」(RULE.line): 한 무리가 안쪽(주인공 쪽)을 향해 한 줄로 서서 같은 빠르기로 행진(fogs.js u.line — 구령 박자 걸음·벽에 밀리면 퐁은 RULE.wallPop)
+    const line = RULE.line && kind !== 'clump' && n > 1, la = line ? Math.atan2(P().x - x, P().z - z) : 0;
     for (let i = 0; i < n; i++) {
       const a = (i / n) * 6.28, r = n > 1 ? 0.9 : 0;
-      const u = TG.F.spawn(kind, x + Math.cos(a) * r, z + Math.sin(a) * r);
-      if (u) u.spawnT = -i * 0.08;
+      const u = line ? TG.F.spawn(kind, x - Math.sin(la) * i * 1.15, z - Math.cos(la) * i * 1.15) : TG.F.spawn(kind, x + Math.cos(a) * r, z + Math.sin(a) * r);
+      if (!u) continue;
+      u.spawnT = -i * 0.08;
+      if (line) { u.line = true; u.spd = kind === 'bubble' ? 3.1 : u.spd; u.ph = 0; G.lineN = (G.lineN || 0) + 1; } // 줄은 같은 빠르기(앞뒤가 흩어지지 않게)
+      if (RULE.mirror && kind === 'bubble') { G.mirrorSeq = (G.mirrorSeq || 0) + 1; if (G.mirrorSeq % RULE.mirror === 0) { u.mirror = true; G.mirrorN = (G.mirrorN || 0) + 1; } } // 11-24 모쉬 「거울 안개」: 3마리 중 1마리(차례 — 시드·기록과 무관한 고정 순서)
+    }
+    if (RULE.dark && kind === 'bubble' && G.floor >= 2 && F_count('dark') < 2 && n >= 3) { // 11-24 모쉬 「깜깜 안개」: 2층부터 무리마다 1마리 더(크고 튼튼함 2) — 살아 있으면 불이 어두워지고(그림만) 퐁 하면 불 켜짐
+      const u = TG.F.spawn('bubble', x + Math.sin(la + 1.57) * 1.4, z + Math.cos(la + 1.57) * 1.4); if (u) { u.spawnT = -0.3; u.dark = true; u.hp = u.maxHp = 2; u.scale = 1.25; u.spd = 2.2; G.darkN = (G.darkN || 0) + 1; }
     }
   }
+  const F_count = (flag) => { let n = 0; for (const u of TG.F.list) if (u.state === 'live' && u[flag]) n++; return n; };
   function updateSpawns(dt) {
     if (G.floorDone || G.bench) return;
-    const f = FLOORS[G.floor], F = TG.F;
+    const f = FL(G.floor), F = TG.F;
     const live = F.liveVal(), k = Math.min(1, G.fogPop / f.budget);
     const left = f.budget - G.fogPop - live; // 아직 안 나온 양
     const room = left > 0 && live < f.cap;
@@ -317,7 +354,7 @@
   function fogGain(u) {
     if (G.phase !== 'floor' || G.floorDone || !u.val || G.bench) return;
     G.fogPop += u.val;
-    if (G.fogPop >= FLOORS[G.floor].budget) floorClear();
+    if (G.fogPop >= FL(G.floor).budget) floorClear();
   }
   function floorClear() {
     if (G.floorDone) return;
@@ -379,13 +416,14 @@
     const p = P();
     if (G.biStage === 0 && G.biT >= 0.9) {
       G.biStage = 1;
-      const b = TG.F.startBoss(G.firstBoss);
-      TG.A.bgm('bgm_boss', 1.6); TG.A.duck(0.5, 1.6);
+      const b = TG.F.startBoss(G.firstBoss); scaleBoss(b);
+      TG.A.bgm(DUNGEON.music.boss || 'bgm_boss', 1.6); TG.A.duck(0.5, 1.6);
       G.camFocusK = kidK(0.75);
       TG.FX.ring(b.x, b.z, { r0: 11, r1: 1.5, dur: 1.5, color: 0xdcd8cc, width: 0.12, alpha: 0.4, hdr: 1.0 });
     }
     if (G.biStage >= 1 && TG.F.boss) { const b = TG.F.boss; p.tyaw = Math.atan2(b.x - p.x, b.z - p.z); p.faceLock = 0.3; }
   }
+  function scaleBoss(b) { b.hp = b.maxHp = Math.round(b.maxHp * LK.hp); b.spdK *= LK.boss; } // 11-24 단계 배율(보스 튼튼함·빠르기)
   G.onBossLand = function () {
     const b = TG.F.boss, FX = TG.FX;
     G.machSlow = false; G.biStage = 2;
@@ -394,14 +432,15 @@
     FX.ring(b.x, b.z, { r0: 1, r1: 7, dur: 0.5, color: 0xdcd8cc, width: 0.1, delay: 0.1, hdr: 1.0, alpha: 0.4 });
     FX.dust(b.x, b.z, 16, 2.4);
     TG.A.play('sfx_big', { rate: 0.6, gain: TG.hero.kid ? 0.55 : 0.9 }); if (!TG.hero.kid) TG.A.boom(); // 아이로 하면 큰 효과음 줄임 (놀람 방지)
-    TG.H.showBanner('큰 침묵 안개', '노래를 꽁꽁 숨긴 안개예요', 'boss name', 2.2);
-    SSEL('surprise', '헉, 엄청 큰 안개야! 같이 해 보자!', 3.0);
+    TG.H.showBanner(DUNGEON.bossName || '큰 침묵 안개', DUNGEON.bossSub || '노래를 꽁꽁 숨긴 안개예요', 'boss name', 2.2);
+    SSEL('surprise', RULE.boss && RULE.boss.var === 'drill' ? '헉, 헬멧 쓴 큰 안개야! 구령에 맞춰 굴러와!' : RULE.boss && RULE.boss.var === 'dark' ? '헉, 큐브가 꺼졌어! 불을 켜 주자!' : '헉, 엄청 큰 안개야! 같이 해 보자!', 3.0);
     G.camZoom = 0.74; G.camFocusK = kidK(0.85); // 잠깐 줌 (아이 주인공은 보스만 — 아이는 원경, 기획서 ④ 안전 3)
     G.after(84, () => { if (G.phase === 'bossIntro') { G.phase = 'boss'; G.camZoom = 1.12; G.camFocusK = 0.45; G.hemiT = 1.35; } });
   };
 
   // ── 명중 처리 (파동·친구 음표·큰 소리·함께하는 친구 공통). 대상은 안개·기계뿐 ──
   // 순서: 접촉 → 히트 스톱(보통 1걸음, 강한 것만 길게) → 흰 번쩍 → 거품 → 별 → 안개가 눌렸다 터짐 → 음표 방울
+  let mirrorBusy = false; // 거울 튕김이 또 튕기지 않게
   G.hitUnit = function (u, dmg, ox, oz, quiet, level, tint) {
     const big = dmg >= 50, lv = level || 0;
     const r = TG.F.damage(u, dmg, ox, oz, big);
@@ -425,6 +464,16 @@
     if ((!quiet || big) && r !== 'convert') vib(big ? 'hit3' : lv >= 3 ? 'hit3' : lv >= 2 ? 'hit2' : 'hit'); // 바뀌는 순간은 아래 처치 진동만
     if (!big) FX.dmg('u' + u.id, Math.round(dmg * 120), u.x, y + 1.0, u.z, lv); // 11-18 타격감: 숫자 팝을 모든 맞힘에(전엔 체력 많은 안개·2단 이상만)
     addCombo();
+    if (u.mirror && !mirrorBusy && RULE.mirror && dmg < 50) { // 11-24 모쉬 「거울 안개(되받기)」: 맞힌 소리가 거울에 튕겨 가까운 다른 안개(RULE.mirrorR 안) 하나를 같이 맞힘 — 튕김 체인(규칙: 자리만 봄, 난수 X). 거울→거울로 또 튕기진 않음
+      let best = null, bd = (RULE.mirrorR || 6) ** 2;
+      for (const v of TG.F.list) { if (v === u || v.state !== 'live' || v.kind === 'cocoon' || v.kind === 'tick' || v.spawnT < 0.3) continue; const q = (v.x - u.x) ** 2 + (v.z - u.z) ** 2; if (q < bd) { bd = q; best = v; } }
+      if (best) {
+        mirrorBusy = true; G.mirrorChains = (G.mirrorChains || 0) + 1;
+        FX.ring(u.x, u.z, { r0: 0.3, r1: 2.0, dur: 0.3, color: 0x9ff4ff, width: 0.2, hdr: 1.2 }); FX.text('튕!', u.x, y + 1.9, u.z, 'echo');
+        for (let i = 0; i < 6; i++) { const k = (i + 1) / 7; FX.emit(FX.CELL.sparkle, u.x + (best.x - u.x) * k, y + 0.8, u.z + (best.z - u.z) * k, { vy: 1.5, life: 0.3, size: 0.45, size1: 0, color: [0.9, 2.3, 2.5] }); }
+        try { G.hitUnit(best, dmg, u.x, u.z, true, lv, [0.9, 2.3, 2.5]); } finally { mirrorBusy = false; }
+      }
+    }
     if (!quiet) TG.A.hitSmall();
     if (lv === 3 && !quiet) FX.shake(0.2);
     if (r === 'convert') {
@@ -475,6 +524,7 @@
     if (big) { FX.hitstop(50); FX.shake(0.22); FX.punch(0.025); FX.text('퐁!', u.x, y + 1.6, u.z, 'pop'); }
     else if (u.byBig && G.combo > 0 && G.combo % 10 === 0) FX.text('퐁!', u.x, y + 1.2, u.z, 'pop');
     G.popped++;
+    if (u.dark) { G.darkPops = (G.darkPops || 0) + 1; FX.text('불 켜졌다!', u.x, y + 1.9, u.z, 'cheer'); FX.ring(u.x, u.z, { r0: 0.5, r1: 6, dur: 0.6, color: 0x9ff4ff, width: 0.25, hdr: 1.3, alpha: 0.8 }); TG.R.bloomPulse = Math.max(TG.R.bloomPulse || 0, 0.3); TG.A.play('sfx_pick', { rate: 1.3, gain: 0.5 }); } // 11-24 모쉬 깜깜 안개 퐁 → 불 켜짐(그림)
     if (!u.byBig && !big && G.hsCd <= 0) { FX.hitstop(34); G.hsCd = 0.1; } // 11-18 타격감: 평타로 퐁 날 때도 34ms(큰 소리 연쇄 퐁은 X — 화면이 끊기지 않게)
     if (!u.byBig) addGauge(big ? 8 : u.kind === 'echo' ? 6 : 4);
     G.lastPopT = G.time; G.arrowU = null; // 11-16 남은 안개 화살표: 터뜨리면 시계 다시
@@ -558,12 +608,48 @@
     TG.F.zone.on = false;
     TG.F.dropNotes(b.x, b.z, 16, 2, true);
     G.phase = 'bossEnd'; G.endT = 0; G.clear = true;
-    SSEL('cheer', '해냈다! 너 최고야!', 2.6);
-    G.camZoom = 0.9; G.hemiT = 1.5;
-    TG.A.bgm('bgm_win', 0.25, false); // 승리곡
-    G.after(36, () => TG.H.showBanner('노래를 되찾았어요!', '톱니골에 노래가 돌아와요', 'gold', 3.0));
+    G.hemiT = 1.5;
+    startCloseup();
     try { localStorage.setItem('tg_slice_boss', '1'); } catch (e) { /* 무시 */ }
   };
+
+  // ── 11-24 던전 끝 확대 연출(공통 틀): 카메라가 내 캐릭터로 다가감(updateCamera) + CHEER 걸음 + 쎌/주민 + 건너뛰기 → finish(true) ──
+  function startCloseup() {
+    const home = DUNGEON.owner === TG.heroId;
+    G.cu = { t: 0, dur: G.rankMode ? CU_DUR.rank : CU_DUR.normal, skip: false, steps: CHEER[TG.heroId] || CHEER.def, done: 0, home, yaw: 0.35 };
+    G.after(14, () => { TG.FX.trauma = 0; }); // 퐁 순간 흔들림만 두고 확대 중엔 카메라만 움직임(흔들림 0)
+    if (DUNGEON.music.end) G.after(12, () => { if (G.cu) TG.A.play(DUNGEON.music.end, { gain: 0.8 }); }); // 세포: 체조 음악 끝 2박(sfx_gym 토막)
+    else G.after(12, () => { if (G.cu) TG.A.bgm('bgm_win', 0.25, false); });
+    if (home) SSEL('cheer', (DUNGEON.owner === 'sseni' || DUNGEON.owner === 'berri' ? '꼬마 쎌도 ' : '쎌도 ') + '같이 춤! 야호!', G.cu.dur + 0.3); // 홈 던전: 쎌(아이 던전은 꼬마 쎌)이 옆에서 같이 춤
+    else SSEL('cheer', DUNGEON.owner ? DUNGEON.ownerName + ' 던전 주민들이 손을 흔들어!' : '해냈다! 너 최고야!', G.cu.dur + 0.3);
+    document.body.classList.add('closeup'); TG.H.cuSkip(true);
+    P().cuPose = null;
+  }
+  function closeupStep(name) {
+    const p = P(), FX = TG.FX;
+    if (name === 'cheer') { p.act.cheer.reset(); p.act.cheer.setEffectiveWeight(1); p.act.cheer.fadeIn(0.08); p.act.cheer.play(); p.cheerT = 0; p.cheerOut = false; TG.H.say('야호!', (G.cu ? G.cu.dur : 3) + 0.2); confetti(p, 14); } // 「야호!」는 머리 위 말풍선(화면 글, hud.js H.say) — 3D 글은 머리·확성기 뒤에 가려 안 보였음(검수 지적)
+    else if (name === 'jump') { p.bigJump(() => { FX.ring(p.x, p.z, { r0: 0.4, r1: 2.6, dur: 0.4, color: 0xfff3d6, width: 0.16 }); FX.dust(p.x, p.z, 8, 1.0); TG.A.play('sfx_bonk', { rate: 1.2, gain: 0.5 }); confetti(p, 8); }); }
+    else if (name === 'pose') { p.cuPose = null; idleHold(p, false); if (!p.playSpecial('victory')) { p.act.cheer.reset(); p.act.cheer.setEffectiveWeight(1); p.act.cheer.play(); p.cheerT = 0; } TG.R.bloomPulse = 0.25; confetti(p, 10); }
+    // 11-24 허조교·모쉬 확대 동작(뼈 덧칠 — player.js cuPose, 그림만). 끝 효과음은 던전표 music.end(startCloseup 12걸음 뒤)
+    else if (name === 'helmet') { idleHold(p, true); p.cuPose = { name: 'helmet', t: 0, dur: (G.cu ? G.cu.dur : 3) * 0.22 }; TG.H.say('헬멧 고쳐 쓰고…', 0.9); }
+    else if (name === 'salute') { idleHold(p, true); p.cuPose = { name: 'salute', t: 0, dur: (G.cu ? G.cu.dur : 3) * 0.4 }; TG.H.say('경례!', (G.cu ? G.cu.dur : 3) * 0.4 + 0.2); confetti(p, 12); TG.A.play('sfx_bonk', { rate: 1.6, gain: 0.3 }); }
+    else if (name === 'thumb') { idleHold(p, true); p.cuPose = { name: 'thumb', t: 0, dur: 9 }; TG.H.say('엄지 척!', (G.cu ? G.cu.dur : 3) * 0.25 + 0.2); TG.R.bloomPulse = 0.25; confetti(p, 10); }
+    else if (name === 'star') { if (p.face) p.face('stareyes', (G.cu ? G.cu.dur : 3) + 0.5); if (p.faceFlash) p.faceFlash(1.2); TG.R.bloomPulse = 0.3; }
+    else if (name === 'dj') { idleHold(p, true); p.cuPose = { name: 'dj', t: 0, dur: 9 }; TG.H.say('DJ 모쉬!', (G.cu ? G.cu.dur : 3) * 0.74 + 0.2); confetti(p, 14); }
+  }
+  // 11-24 덧칠 동작(경례·DJ 등) 동안 기본 idle 클립을 0초에 멈춤 — 허조교·모쉬 idle 클립이 몸을 좌우로 크게 돌려(두리번) 얼굴이 카메라를 등질 때가 있었음(캡처로 확인). 끝나면 다시 돎
+  function idleHold(p, on) { const a = p.act && p.act.idle; if (!a) return; if (on) { a.time = 0; a.paused = true; } else a.paused = false; }
+  function confetti(p, n) { const FX = TG.FX, cols = [[2.4, 0.6, 0.5], [2.4, 2.0, 0.6], [0.7, 1.9, 2.4], [1.9, 0.8, 2.2]]; for (let i = 0; i < n; i++) FX.emit([FX.CELL.note, FX.CELL.note2, FX.CELL.sparkle][i % 3], p.x + TG.fra(-1.2, 1.2), 1.2 + TG.fra(0, 2.2), p.z + TG.fra(-1.2, 1.2), { vy: TG.fra(2, 4), life: TG.fra(0.6, 1.1), size: 0.5, size1: 0.2, color: cols[i % 4], rot: 0, vrot: TG.fra(-3, 3), pop: true }); }
+  function updateCloseup(dt) {
+    const c = G.cu, p = P(); if (!c) return;
+    c.t += dt; p.noHurt = 9;
+    p.tyaw = c.yaw; p.faceLock = 0.3; // 카메라 쪽을 봄(yaw 0 = 카메라 정면, player.js 288)
+    while (c.done < c.steps.length && c.steps[c.done][0] * c.dur <= c.t) { closeupStep(c.steps[c.done][1]); c.done++; }
+    if (p.cuPose) { p.cuPose.t += dt; if (p.cuPose.t >= p.cuPose.dur) { p.cuPose = null; idleHold(p, false); } }
+    if (c.skip || c.t >= c.dur + 0.25) { endCloseup(); finish(true); }
+  }
+  function endCloseup() { G.cu = null; P().cuPose = null; idleHold(P(), false); document.body.classList.remove('closeup'); TG.H.cuSkip(false); }
+  G.skipCloseup = function () { if (G.cu) G.cu.skip = true; };
 
   function addCombo() {
     G.combo++; G.comboT = 1.2; if (G.combo > G.maxCombo) G.maxCombo = G.combo;
@@ -976,6 +1062,7 @@
       if ((e.code === 'Escape' || e.code === 'KeyP') && G.skillOpen) { closeSkills(); return; } // 11-18 내 리믹스 카드 창은 ESC 로 닫힘
       if (e.code === 'Escape' || e.code === 'KeyP') togglePause();
       if (e.code === 'Enter' && G.phase === 'title') { startIntro(); }
+      if ((e.code === 'Enter' || e.code === 'Space') && G.phase === 'bossEnd' && G.cu) G.skipCloseup(); // 11-24 확대 연출 건너뛰기
     });
     window.addEventListener('keyup', (e) => { keys[e.code] = false; });
     window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; mouse.down = false; fire.id = null; if (isPlay() && !G.bot) setPause(true); });
@@ -1289,12 +1376,14 @@
         bossCam = true;
       } else if (G.phase === 'bossIntro' && b && TG.F.bossObj.group.visible) { const kb = G.camFocusK; tx = TG.clamp(TG.lerp(p.rx, b.x, kb), -11.5, 11.5); tz = TG.clamp(TG.lerp(p.rz, b.z, kb) - 1, -9, 6.8); }
       else if (G.phase === 'bossIntro') { tx = TG.lerp(p.rx, 0, 0.5); tz = TG.lerp(p.rz, 1, 0.5) - 1; }
+      if (G.phase === 'bossEnd' && G.cu) { const h = TG.hero.height * 1.2; dist = 6.8; pitch = 0.2; yaw = G.cu.yaw; tx = p.rx; tz = p.rz; ty = h * 0.52; bossCam = false; } // 11-24 확대 연출: 카메라만 캐릭터 얼굴·몸으로(흔들림 0)
     }
     if (api.camOv) { const o = api.camOv; dist = o.dist; pitch = o.pitch; yaw = o.yaw; tx = p.rx; tz = p.rz; ty = o.ty; cam.dist = dist; cam.pitch = pitch; cam.yaw = yaw; cam.x = tx; cam.z = tz; cam.ty = ty; } // 시험: 가까이 보기
     if (G.titleSnap > 0 && G.phase === 'title') { G.titleSnap -= dt; cam.x = tx; cam.z = tz; cam.dist = dist; cam.pitch = pitch; cam.yaw = yaw; cam.ty = ty; }
-    const k = G.phase === 'title' ? 3 : G.phase === 'intro' ? 2.2 : bossCam ? 3.2 : 6;
+    const cu = G.phase === 'bossEnd' && G.cu, cuK = cu ? (G.cu.dur < 2 ? 7 : 4) : 0; // 확대: 일반 약 1초, 짧은판 0.5초 안에 다가감
+    const k = G.phase === 'title' ? 3 : G.phase === 'intro' ? 2.2 : cu ? cuK : bossCam ? 3.2 : 6;
     cam.x = TG.damp(cam.x, tx, k, dt); cam.z = TG.damp(cam.z, tz, k, dt);
-    cam.dist = TG.damp(cam.dist, dist, G.phase === 'intro' ? 2 : bossCam ? 2.2 : 3, dt); cam.pitch = TG.damp(cam.pitch, pitch, 2.5, dt); cam.yaw = TG.damp(cam.yaw, yaw, 2.5, dt);
+    cam.dist = TG.damp(cam.dist, dist, G.phase === 'intro' ? 2 : cu ? cuK * 0.8 : bossCam ? 2.2 : 3, dt); cam.pitch = TG.damp(cam.pitch, pitch, 2.5, dt); cam.yaw = TG.damp(cam.yaw, yaw, 2.5, dt);
     cam.ty = TG.damp(cam.ty || ty, ty, 3, dt);
     const sh = TG.FX.camUpdate(dt);
     const d = cam.dist * (1 - sh.zoom);
@@ -1468,8 +1557,8 @@
 
     p.sim(dt, input, play || G.phase === 'intro');
     { // 층 난이도: 새로 나온 안개의 이동 속도에 그 층 배율을 한 번 곱함 (보스전에 나오는 것은 그대로)
-      const fk = G.phase === 'floor' ? FLOORS[G.floor].spd : 1, L = TG.F.list;
-      for (let i = 0; i < L.length; i++) { const u = L[i]; if (!u.gk) { u.gk = 1; u.spd *= fk; u.gx = u.x; u.gz = u.z; u.gs = 1; } }
+      const fk = G.phase === 'floor' ? FL(G.floor).spd : LK.spd, L = TG.F.list;
+      for (let i = 0; i < L.length; i++) { const u = L[i]; if (!u.gk) { u.gk = 1; u.spd *= fk; u.gx = u.x; u.gz = u.z; u.gs = 1; if (LK.hp !== 1 && u.kind !== 'cocoon') { u.hp = u.maxHp = Math.max(1, Math.round(u.maxHp * LK.hp)); } } } // 11-24 단계 배율: 튼튼함(hp)·빠르기
       // 상자·난간에 끼어 2초 넘게 제자리인 안개는 옆으로 통 밀어 줌 (층이 안 끝나는 일 방지)
       if (G.tick % 120 === 0 && play) for (let i = 0; i < L.length; i++) {
         const u = L[i]; if (u.state !== 'live' || u.kind === 'cocoon' || u.kind === 'tick' || u.spawnT < 2) continue;
@@ -1487,8 +1576,8 @@
 
     if (G.phase === 'bossEnd') {
       G.endT += dt;
-      if (G.endT > 0.6 && !G.cheered) { G.cheered = true; p.bigJump(null); p.noHurt = 9; TG.H.say('노래가 돌아왔어요!', 2.2); }
-      if (G.endT > 3.9) finish(true);
+      if (G.cu) updateCloseup(dt);
+      else if (G.endT > 3.9) finish(true);
     }
     // 레벨업 카드: 놀이 중 안전할 때 열림
     if (G.pendingCards > 0 && (G.phase === 'floor' || G.phase === 'boss' || G.phase === 'shelter') && !p.airborne && !p.resting) openCard();
@@ -1579,7 +1668,17 @@
     TG.AR.beat(Math.max(0, Math.cos(G.arT * Math.PI * 2 / 0.5)) ** 4);
     TG.FX.crowd = TG.F.list.length; // 꾸밈 입자 상한(마릿수에 따라 줄임)
     TG.FX.update(vis, null);
-    TG.R.hemi.intensity = TG.damp(TG.R.hemi.intensity, G.hemiT || 1.35, 2.5, rdt);
+    { // 11-24 모쉬 「깜깜 안개」·보스 어둠 변형: 살아 있는 깜깜 안개 수 / 어둠 보스전 → 빛을 어둑하게(그림만, 규칙 X). 불 켜짐은 퐁 순간 bloomPulse
+      const nd = RULE.dark ? F_count('dark') : 0, bd = RULE.boss && RULE.boss.var === 'dark' && G.phase === 'boss' && TG.F.boss && TG.F.boss.stun <= 0 ? (RULE.boss.dim || 1) : 0;
+      G.darkK = TG.damp(G.darkK || 0, Math.min(1, nd * 0.5 + bd * 0.6), 2.5, rdt);
+      if (G.darkK < 0.002 && (G.darkK0 || 0) < 0.002) G.darkK = 0; G.darkK0 = G.darkK;
+    }
+    TG.R.hemi.intensity = TG.damp(TG.R.hemi.intensity, (G.hemiT || 1.35) * (1 - 0.42 * (G.darkK || 0)), 2.5, rdt);
+    if (DUNGEON.beat && isPlay() && !G.paused) { // 11-24 허조교 「구령 박자」(그림·글만): 박마다 줄 안개 위 반짝, 4박마다 「하나! 둘!」 구령 글
+      const bt = 60 / DUNGEON.beat.bpm; G.beatT = (G.beatT || 0) + vis;
+      if (G.beatT >= bt) { G.beatT -= bt; G.beatN = (G.beatN || 0) + 1; let first = null; for (const u of TG.F.list) if (u.state === 'live' && u.line) { if (!first) first = u; TG.FX.emit(TG.FX.CELL.sparkle, u.x, u.y + 1.5 * u.scale, u.z, { vy: 1.6, life: 0.25, size: 0.4, size1: 0, color: [2.4, 2.4, 1.2] }); }
+        if (first && G.beatN % 4 === 0 && DUNGEON.beat.call) { TG.FX.text(DUNGEON.beat.call[((G.beatN / 4) | 0) % DUNGEON.beat.call.length], first.x, first.y + 2.4 * first.scale, first.z, 'word'); G.callN = (G.callN || 0) + 1; } }
+    }
     if (TG.isTouch && TG.H.hud && !TG.H.hud.classList.contains('hide')) {
       const s = TG.H.s, R = 56 * s;
       if (stick.id == null) { const vp = TG.vp(); const ix = G.settings.lefty ? vp.w - 100 * s : 100 * s; TG.H.stickAt(ix, vp.h - 92 * s, 0, 0, false); }
@@ -1600,11 +1699,16 @@
     G.phase = 'result';
     const p = P();
     const stars = clear ? 3 : (G.bossStarted ? 2 : 1);
+    if (G.cu) endCloseup();
     TG.H.hintSet(null); TG.H.hideCards(); TG.H.hideShelter(); TG.H.gruntHide();
     if (!clear) { TG.A.stopBgm(0.3); G.after(8, () => TG.A.bgm('bgm_win', 0.1, false)); p.setRest(true); }
     else { TG.A.bgm('bgm_win', 0.25, false); p.stopSpecial(); p.playSpecial('victory'); }
     G.result = { clear, time: G.time, fogs: G.popped, combo: G.maxCombo, notes: G.notes, stars, tick: G.tick, hash: G.hash, level: G.level, rescued: G.rescued, floor: G.floor, boss: !!G.bossStarted, hurts: G.hurts, cards: G.cardN,
-      atk: G.autoTicks <= 0 ? 'manual' : G.autoTicks >= G.playTicks ? 'auto' : 'mixed', autoShots: G.autoShots, dungeon: DUNGEON.id, tut: !!G.tutRun };
+      atk: G.autoTicks <= 0 ? 'manual' : G.autoTicks >= G.playTicks ? 'auto' : 'mixed', autoShots: G.autoShots, dungeon: DUNGEON.id, dungeonName: DUNGEON.name, lv: LV, lvName: TG.LEVELS[LV].name, tut: !!G.tutRun, rank: !!G.rankMode };
+    if (clear && !G.replay && !G.bot && !G.tutRun && TG.DN.hasLevels(DUNGEON.id)) { // 11-24 단계 도장(베타 깃발이면 연습 던전도 단계 있음): 깬 최고 단계 저장 → 다음 단계 열림, 첫 클리어 상자(글만 — 톱니 지갑은 다음 일)
+      const ci = TG.DN.markClear(DUNGEON.id, LV); G.clearInfo = ci;
+      G.result.stamp = { first: ci.first, next: ci.next, nextName: ci.next ? TG.LEVELS[ci.next].name : null, box: ci.boxNew ? TG.LEVELS[LV].box : null, gear: TG.LEVELS[LV].gear };
+    }
     if (G.tutRun && (clear || G.hintStage >= 5)) { try { localStorage.setItem(TUT_KEY, '1'); } catch (e) { /* 무시 */ } } // 끝까지 깼거나 큰 소리까지 배웠으면 튜토리얼 끝
     TG.H.showResult(G.result);
   }
@@ -1641,8 +1745,13 @@
         hero: TG.heroId, assist: TG.assistId, petal: TG.FL.petal || 0, flowers: TG.FL.count(), healed: TG.FL.healed || 0, waveFlowers: TG.WV.flowers || 0, as: TG.AS.state(),
         danceN: G.danceN || 0, dancePops: G.dancePops || 0, dancing: F.list.filter((u) => u.state === 'live' && u.dance > 0).length, flyN: G.flyN || 0, flying: F.list.filter((u) => u.state === 'live' && !!u.fly).length,
         beamOn: !!(TG.WV.beam && TG.WV.beam.on), beamT: TG.WV.beam ? +TG.WV.beam.t.toFixed(2) : 0, beamPops: TG.WV.beamPops || 0, arrow: G.arrowU ? { id: G.arrowU.id, x: +G.arrowU.x.toFixed(2), z: +G.arrowU.z.toFixed(2) } : null, arrowShown: !!G.arrowShown, sinceLastPop: +(G.time - (G.lastPopT || 0)).toFixed(2),
-        hub: { dungeon: DUNGEON.id, name: DUNGEON.name, tutDone: tutDone(), tutRun: !!G.tutRun, tag: (document.getElementById('hubTag') || {}).textContent || '' }, // 11-19 광장·튜토리얼
+        hub: { dungeon: DUNGEON.id, name: DUNGEON.name, tutDone: tutDone(), tutRun: !!G.tutRun, tag: (document.getElementById('hubTag') || {}).textContent || '', lv: LV, lvName: TG.LEVELS[LV].name, k: Object.assign({}, LK), sel: Object.assign({}, TG.DN.sel), cleared: TG.DN.cleared(DUNGEON.id), theme: G.themeId }, // 11-19 광장·튜토리얼 / 11-24 던전·단계
+        floorCfg: { budget: FL(G.floor).budget, cap: FL(G.floor).cap, spd: +FL(G.floor).spd.toFixed(3), iv: FL(G.floor).iv.map((v) => +v.toFixed(3)) }, fogHp: F.list.filter((u) => u.state === 'live' && u.kind === 'bubble').map((u) => u.maxHp).slice(0, 5),
+        cu: G.cu ? { t: +G.cu.t.toFixed(2), dur: G.cu.dur, skip: G.cu.skip, done: G.cu.done, home: G.cu.home } : null, camDist: +cam.dist.toFixed(2), bgm: TG.A.bgmName, tempLoops: Object.assign({}, TG.A.tempUsed || {}), skipShown: !!(TG.H.cuSkipBtn && !TG.H.cuSkipBtn.classList.contains('hide')), // 11-24 확대 연출·음악
         heroWait: G.heroWait || null, face: TG.PL.faceState ? TG.PL.faceState() : null,
+        // 11-24 허조교·모쉬 던전 규칙 상태
+        rule: Object.assign({}, RULE, { boss: RULE.boss ? RULE.boss.var : null }), beta: TG.beta(), lineN: G.lineN || 0, lines: F.list.filter((u) => u.state === 'live' && u.line).length, wallPops: F.wallPops || 0, mirrorN: G.mirrorN || 0, mirrors: F.list.filter((u) => u.state === 'live' && u.mirror).length, mirrorChains: G.mirrorChains || 0,
+        darkN: G.darkN || 0, darks: F.list.filter((u) => u.state === 'live' && u.dark).length, darkPops: G.darkPops || 0, darkK: +(G.darkK || 0).toFixed(3), hemi: +TG.R.hemi.intensity.toFixed(3), callN: G.callN || 0, beatN: G.beatN || 0, cuPose: p.cuPose ? { name: p.cuPose.name, t: +p.cuPose.t.toFixed(2) } : null, cuPoseK: +(TG.PL.cuPoseK || 0).toFixed(3), bossVar: F.boss ? (F.boss.variant || null) : null, bossOrder: F.boss && F.boss.order ? F.boss.order.length : 0,
         // 11-17 개편 상태: 푸슝 빔·고함 멈춤·물감 구역·세포체조 시각
         bolts: TG.WV.bolts.length, boltHits: TG.WV.boltHits || 0, boltChains: TG.WV.boltChains || 0, boltPierces: TG.WV.boltPierces || 0,
         shoutHits: TG.WV.shoutHits || 0, shoutStuns: TG.WV.shoutStuns || 0, stunned: F.list.filter((u) => u.state === 'live' && u.stun > 0).length,
@@ -1672,7 +1781,7 @@
       if (name === 'cocoon') { ensurePlay(); const u = TG.F.spawn('cocoon', P().x + 3.4, P().z - 0.5, { slot: 1 }); if (u) u.spawnT = 0.5; return; }
       if (name === 'covered' || name === 'covered2') { ensurePlay(); TG.Q.god = false; P().hp = 0; return toCovered(); }
       if (name === 'boss') { ensurePlay(); TG.F.reset(); G.floor = 3; G.floorDone = true; return startBossIntro(); }
-      if (name === 'bossfight') { ensurePlay(); TG.F.reset(); G.floor = 3; G.floorDone = true; startBossIntro(); G.machSlow = false; const b = TG.F.startBoss(G.firstBoss); TG.A.bgm('bgm_boss', 0.5); b.y = 0.3; b.scale = 1; b.state = 'fight'; G.phase = 'boss'; G.camZoom = 1.12; G.camFocusK = 0.45; G.hemiT = 1.35; P().noHurt = 1; return; }
+      if (name === 'bossfight') { ensurePlay(); TG.F.reset(); G.floor = 3; G.floorDone = true; startBossIntro(); G.machSlow = false; const b = TG.F.startBoss(G.firstBoss); scaleBoss(b); TG.A.bgm(DUNGEON.music.boss || 'bgm_boss', 0.5); b.y = 0.3; b.scale = 1; b.state = 'fight'; G.phase = 'boss'; G.camZoom = 1.12; G.camFocusK = 0.45; G.hemiT = 1.35; P().noHurt = 1; return; }
       if (name === 'bossend') { api.jump('bossfight'); const b = TG.F.boss; b.hp = 1; G.hitBoss(5, b.x, b.z, false); return; }
       if (name === 'big') { ensurePlay(); G.gaugeLock = 0; G.gauge = 100; return bigSound(); }
       if (name === 'result') { ensurePlay(); G.time = Math.max(G.time, 236); G.popped = Math.max(G.popped, 212); G.maxCombo = Math.max(G.maxCombo, 38); G.notes = Math.max(G.notes, 180); return finish(true); }
@@ -1680,6 +1789,11 @@
     },
     bot(on) { G.bot = on !== false; },
     tutReset() { try { localStorage.removeItem(TUT_KEY); } catch (e) { /* 무시 */ } return tutDone(); }, // 11-19 시험: 튜토리얼 처음부터
+    tutSet() { try { localStorage.setItem(TUT_KEY, '1'); } catch (e) { /* 무시 */ } return tutDone(); }, // 11-24 시험: 튜토리얼 끝난 상태로
+    dungeon(id, lv) { const ok = TG.DN.select(id, lv); if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return { ok, sel: Object.assign({}, TG.DN.sel) }; }, // 11-24 던전·단계 고르기(광장 버튼과 같은 길)
+    lvReset(id) { TG.DN.reset(id || DUNGEON.id); return TG.DN.cleared(id || DUNGEON.id); },
+    beta(on) { if (on != null) TG.BETA_OPEN_ALL = !!on; if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return TG.beta(); }, // 11-24 베타 깃발(모든 단계 열림) 켜고 끄기 — 시험용
+    skipCloseup() { G.skipCloseup(); },
     // 시험: 주인공·보조 바꾸기 (타이틀 버튼과 같은 길). hero('berri','sseni')
     hero(h, a) { if (h) setHeroNow(h, a == null ? TG.assistId : a); return { hero: TG.heroId, assist: TG.assistId }; },
     god(on) { TG.Q.god = on !== false; },

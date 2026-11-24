@@ -114,6 +114,8 @@
     <div id="charPick">
       <div class="atkSeg" role="group" aria-label="주인공 고르기"><span class="atkL ol">주인공</span><button class="atkB" data-hero="sefo"><span class="ol">세포</span></button><button class="atkB gunner" data-hero="gunner"><span class="ol">허조교</span></button><button class="atkB moshee" data-hero="moshee"><span class="ol">모쉬</span></button><button class="atkB sseni" data-hero="sseni"><span class="ol">쎄니</span></button><button class="atkB berri" data-hero="berri"><span class="ol">베리</span></button></div>
       <div class="atkSeg" role="group" aria-label="함께 가는 친구 고르기"><span class="atkL ol">함께</span><button class="atkB" data-assist="none"><span class="ol">없음</span></button><button class="atkB sseni" data-assist="sseni"><span class="ol">쎄니</span></button><button class="atkB berri" data-assist="berri"><span class="ol">베리</span></button></div>
+      <!-- 11-24 던전 고르기(연습 뒤에만 보임): 지금 고른 던전·단계 → 누르면 창 -->
+      <div id="dunRow" class="atkSeg hide" role="group" aria-label="던전 고르기"><span class="atkL ol">던전</span><button id="dunBtn" class="atkB on" type="button"><span class="ol">방송 파이프 굴</span></button></div>
     </div>
     <div id="atkPick" class="atkSeg" role="group" aria-label="소리 방울 자동 또는 수동">
       <span class="atkL ol">소리 방울</span>
@@ -137,6 +139,19 @@
     </div>
   </div>
 
+  <!-- 11-24 던전 고르기 창(광장): 5인 던전 + 연습 던전, 단계 10칸 도장 -->
+  <div id="dunPick" class="screen dim hide">
+    <div class="panel dunPanel">
+      <div class="ptitle ol">던전 고르기</div>
+      <div id="dunList"></div>
+      <div id="lvRow" class="hide"></div>
+      <div id="lvInfo" class="hide"></div>
+      <div class="btns"><button id="dunGo" class="bub yel" type="button"><span class="ol">가기</span></button></div>
+    </div>
+  </div>
+  <!-- 11-24 던전 끝 확대 연출 건너뛰기(끝까지 모드 10분 지키기) -->
+  <button id="cuSkipBtn" class="bub sky hide" type="button"><span class="ol">건너뛰기 ▸</span></button>
+
   <!-- 멈춤·설정 -->
   <div id="pause" class="screen dim hide">
     <div class="panel">
@@ -159,6 +174,7 @@
     <div class="panel res">
       <div id="resTitle" class="ptitle ol">안개를 다 걷어냈어요!</div>
       <div id="rMode" class="hide">자동</div>
+      <div id="rStamp" class="ol hide"></div>
       <div id="stars"><i class="st"></i><i class="st"></i><i class="st"></i></div>
       <div class="stats">
         <div class="srow"><span>걸린 시간</span><b id="rTime">0:00</b></div>
@@ -201,6 +217,7 @@
 <script src="js/gzview.js"></script>
 <script src="js/util.js"></script>
 <script src="js/heroes.js"></script>
+<script src="js/dungeons.js"></script>
 <script src="js/render.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/assets.js"></script>

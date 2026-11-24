@@ -16,8 +16,149 @@
     try { off = new OfflineAudioContext(2, 44100, 44100); } catch (e) { return Promise.resolve(); }
     const names = Object.keys(window.TG_AUDIO);
     return Promise.all(names.map((n) => off.decodeAudioData(TG.b64ToBuf(window.TG_AUDIO[n])).then((b) => { A.buffers[n] = b; }).catch(() => {})))
-      .then(() => { A.ready = true; });
+      .then(() => { A.fillTempLoops(); A.ready = true; });
   };
+
+  // ── 11-24 던전 배경 음악 임시 루프(코드 합성) ──
+  // 던전표(js/dungeons.js music.floor)의 키가 TG_AUDIO 에 없을 때만 여기서 만들어 같은 키(A.buffers[키])에 넣음 → A.bgm(키)는 그대로.
+  // 대표 곡이 오면 assets/audio/<키>.mp3 를 넣고 tools/pack_assets.py → 이 합성은 자동으로 건너뜀(A.tempUsed 에 안 남음). 소리 크기는 bgm_battle 의 RMS 에 맞춤.
+  A.tempUsed = {};
+  A.TEMP_LOOPS = {
+    bgm_dome_sefo: { bpm: 126, bars: 8, make: domeSefoLoop }, // 세포 「메아리 체조 돔」 — 밝은 체조 시간(C 장조, 어린이 전체이용가)
+    bgm_camp_gunner: { bpm: 116, bars: 8, make: campGunnerLoop }, // 11-24 허조교 「연병장 지하」 — 씩씩한 행진·구령 느낌(F 장조, 북·스네어 행진·황동 화음·구령 스탭). 대표 〈Boot Camp〉 오면 assets/audio/bgm_camp_gunner.mp3 만
+    bgm_mirror_moshee: { bpm: 128, bars: 8, make: mirrorMosheeLoop }, // 11-24 모쉬 「거울 네온 미로」 — 네온 클럽·일렉 느낌(A 단조 파스텔, 쿵쿵 네 박·엇박 햇·아르페지오·패드). 대표 「moshi moshi」 오면 assets/audio/bgm_mirror_moshee.mp3 만
+    // 한 번 소리(sfx: true, sec 길이 — 크기는 sfx_bonk 최대치에 맞춤): 확대 연출 끝 효과음 자리(던전표 music.end)
+    sfx_whistle_gunner: { sfx: true, sec: 1.1, make: whistleDrumSfx }, // 허조교: 호루라기 삑 + 북 한 번
+    sfx_drop_moshee: { sfx: true, sec: 1.3, make: dropMosheeSfx }, // 모쉬: 자체 음원 드롭 1초 자리(저음 쿵 + 올라가는 반짝 + 화음 스탭)
+  };
+  A.fillTempLoops = function () {
+    const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext; if (!AC) return;
+    let target = 0.16; // 기준 RMS(bgm_battle 이 없을 때)
+    const ref = A.buffers.bgm_battle; if (ref) target = rmsOf(ref.getChannelData(0)) || target;
+    const refS = A.buffers.sfx_bonk, peakRef = refS ? peakOf(refS.getChannelData(0)) || 0.7 : 0.7; // 한 번 소리 기준 최대치
+    for (const name in A.TEMP_LOOPS) {
+      if (A.buffers[name]) continue; // 진짜 파일이 있으면 건너뜀
+      try {
+        const L = A.TEMP_LOOPS[name], sr = 44100, len = L.sfx ? Math.round(L.sec * sr) : Math.round((60 / L.bpm) * 4 * L.bars * sr);
+        const off = new AC(2, len, sr), buf = off.createBuffer(2, len, sr);
+        const l = buf.getChannelData(0), r = buf.getChannelData(1);
+        L.make(l, r, sr, L.bpm || 120, L.bars || 1);
+        if (L.sfx) { // 한 번 소리: 최대치만 기준 효과음에 맞춤(끝 0.05초 페이드)
+          const g = (peakRef * 0.95) / (peakOf(l) || 1), fd = Math.round(0.05 * sr);
+          for (let i = 0; i < len; i++) { const f = i > len - fd ? (len - i) / fd : 1; l[i] = Math.tanh(l[i] * g) * f; r[i] = Math.tanh(r[i] * g) * f; }
+          A.buffers[name] = buf; A.tempUsed[name] = { sfx: true, sec: +(len / sr).toFixed(2), peak: +peakOf(l).toFixed(2), ref: +peakRef.toFixed(2) };
+          continue;
+        }
+        // 크기 맞추기: RMS 를 기준에, 최대치 0.9 안
+        const g = Math.min(target / (rmsOf(l) || 1), 0.9 / (peakOf(l) || 1));
+        for (let i = 0; i < len; i++) { l[i] = Math.tanh(l[i] * g * 1.15); r[i] = Math.tanh(r[i] * g * 1.15); }
+        A.buffers[name] = buf; A.tempUsed[name] = { bpm: L.bpm, bars: L.bars, sec: +(len / sr).toFixed(2), rms: +(20 * Math.log10(rmsOf(l))).toFixed(1), ref: +(20 * Math.log10(target)).toFixed(1) };
+      } catch (e) { /* 합성 실패면 음악 없이(효과음은 그대로) */ }
+    }
+  };
+  function rmsOf(d) { let q = 0; for (let i = 0; i < d.length; i++) q += d[i] * d[i]; return Math.sqrt(q / Math.max(1, d.length)); }
+  function peakOf(d) { let m = 0; for (let i = 0; i < d.length; i++) { const v = Math.abs(d[i]); if (v > m) m = v; } return m; }
+  // 합성 도구(세포·허조교·모쉬 임시 루프·한 번 소리 공통). 전부 수식 — 난수는 잡음(shape 3)에만, 고정 시드(같은 소리)
+  function synthKit(l, r, sr, seed0) {
+    const N = l.length, NOTE = (n) => 440 * Math.pow(2, (n - 69) / 12);
+    let seed = seed0 || 7; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    const add = (t0, dur, f, amp, shape, pan, dec, slide) => { // shape: 0 사인 1 삼각 2 사각(순한) 3 잡음 4 톱니(순한). slide = 끝 진동수(있으면 f→slide 로 미끄러짐)
+      const i0 = Math.max(0, Math.round(t0 * sr)), n = Math.min(Math.round(dur * sr), N), pl = 0.5 - pan * 0.5, pr = 0.5 + pan * 0.5; let hp = 0, ph = 0;
+      for (let i = 0; i < n; i++) { const idx = (i0 + i) % N, t = i / sr, env = Math.min(1, t / 0.006) * Math.exp(-t * dec);
+        const fq = slide ? f + (slide - f) * (i / n) : f; ph += fq / sr;
+        let v; if (shape === 3) { const w = rnd() * 2 - 1; v = w - hp; hp = w * 0.7 + hp * 0.3; } else if (shape === 2) { const s = Math.sin(ph * 6.2832); v = Math.tanh(s * 3) * 0.6; } else if (shape === 1) { const x = ph - Math.floor(ph); v = 1 - 4 * Math.abs(x - 0.5); } else if (shape === 4) { const x = ph - Math.floor(ph); v = (2 * x - 1) * 0.7; } else v = Math.sin(ph * 6.2832);
+        v *= env * amp; l[idx] += v * pl; r[idx] += v * pr; }
+    };
+    const kick = (t, a) => { const i0 = Math.round(t * sr), g = a == null ? 0.9 : a; for (let i = 0; i < sr * 0.22; i++) { const tt = i / sr, v = Math.sin(6.2832 * (46 * tt + 120 / 28 * (1 - Math.exp(-tt * 28)))) * Math.exp(-tt * 11) * g; const idx = (i0 + i) % N; l[idx] += v; r[idx] += v; } };
+    const clap = (t, a) => add(t, 0.13, 0, a == null ? 0.32 : a, 3, 0, 26);
+    const hat = (t, a) => add(t, 0.05, 0, a, 3, 0.25, 70);
+    const snare = (t, a) => { add(t, 0.16, 0, (a == null ? 0.3 : a) * 0.8, 3, 0, 22); add(t, 0.12, 190, (a == null ? 0.3 : a) * 0.5, 0, 0, 30, 150); }; // 행진 스네어(잡음 + 낮은 북 울림)
+    const drum = (t, a) => { add(t, 0.4, 95, a == null ? 0.7 : a, 0, 0, 7, 70); add(t, 0.08, 0, (a == null ? 0.7 : a) * 0.3, 3, 0, 40); }; // 큰 북 둥
+    return { N, NOTE, rnd, add, kick, clap, hat, snare, drum };
+  }
+  // 세포 돔 임시 루프: 쿵·짝 드럼 + 통통 베이스 + 밝은 화음 스탭 + 체조 멜로디(8마디). 전부 수식(난수는 hat 잡음에만, 고정 시드)
+  function domeSefoLoop(l, r, sr, bpm, bars) {
+    const beat = 60 / bpm, K = synthKit(l, r, sr, 7), NOTE = K.NOTE, add = K.add, kick = K.kick, clap = K.clap, hat = K.hat;
+    // 코드 진행(8마디): C · F · G · C · Am · F · G · C  (밝은 체조 시간)
+    const CH = [[60, 64, 67], [65, 69, 72], [67, 71, 74], [60, 64, 67], [57, 60, 64], [65, 69, 72], [67, 71, 74], [60, 64, 67]];
+    const BASS = [48, 53, 55, 48, 45, 53, 55, 48];
+    // 멜로디(8분음표 단위, 0 = 쉼) — 「다 같이 손 머리 위로」 느낌의 단순한 체조 가락
+    const MEL = [
+      72, 74, 76, 72, 76, 0, 79, 0,  77, 76, 74, 77, 76, 0, 72, 0,
+      79, 79, 81, 79, 77, 76, 74, 0,  72, 74, 76, 74, 72, 0, 0, 0,
+      69, 72, 76, 72, 69, 0, 76, 0,  77, 76, 74, 72, 74, 0, 0, 0,
+      79, 79, 81, 83, 84, 0, 79, 0,  76, 79, 76, 74, 72, 0, 0, 0];
+    for (let b = 0; b < bars; b++) {
+      const t0 = b * 4 * beat, ch = CH[b % CH.length];
+      for (let q = 0; q < 4; q++) {
+        const t = t0 + q * beat;
+        kick(t); if (q === 1 || q === 3) clap(t);
+        hat(t, 0.11); hat(t + beat / 2, 0.17);
+        add(t, beat * 0.45, NOTE(BASS[b % 8]), 0.5, 2, 0, 5);              // 통통 베이스(박마다)
+        if (q === 1 || q === 3) add(t + beat * 0.5, beat * 0.3, NOTE(BASS[b % 8] + 7), 0.3, 2, 0, 8);
+        ch.forEach((n, k) => add(t + beat / 2, beat * 0.4, NOTE(n), 0.17, 1, (k - 1) * 0.5, 7)); // 화음 스탭(엇박)
+      }
+      for (let e = 0; e < 8; e++) { const m = MEL[(b * 8 + e) % MEL.length]; if (m) { const t = t0 + e * beat / 2; add(t, beat * 0.55, NOTE(m), 0.34, 1, 0.1, 4.5); add(t, beat * 0.3, NOTE(m + 12), 0.08, 0, -0.1, 9); } }
+    }
+  }
+  // 11-24 허조교 「연병장 지하」 임시 루프(116 BPM·F 장조·8마디 ≈ 16.55초): 행진 북(둥·탁 스네어 롤) + 황동 느낌 화음(F·C·Dm·Bb) + 구령 스탭(4박마다 두 음 「하나! 둘!」 느낌) + 씩씩한 가락. 총·사격 소리 X
+  function campGunnerLoop(l, r, sr, bpm, bars) {
+    const beat = 60 / bpm, K = synthKit(l, r, sr, 11), NOTE = K.NOTE, add = K.add, snare = K.snare, drum = K.drum, hat = K.hat;
+    const CH = [[65, 69, 72], [67, 72, 76], [62, 65, 69], [58, 62, 65], [65, 69, 72], [67, 72, 76], [60, 64, 67], [65, 69, 72]]; // F · C · Dm · Bb · F · C · C · F
+    const BASS = [41, 43, 38, 46, 41, 43, 36, 41];
+    const MEL = [ // 8분음표, 0 = 쉼 — 씩씩한 행진 가락(F 장조)
+      65, 0, 65, 67, 69, 0, 69, 0,  72, 0, 69, 0, 67, 65, 67, 0,
+      62, 0, 62, 65, 69, 0, 65, 0,  70, 0, 69, 67, 65, 0, 0, 0,
+      65, 0, 65, 67, 69, 0, 72, 0,  74, 0, 72, 0, 69, 67, 69, 0,
+      72, 72, 74, 76, 77, 0, 76, 0,  74, 72, 69, 67, 65, 0, 0, 0];
+    for (let b = 0; b < bars; b++) {
+      const t0 = b * 4 * beat, ch = CH[b % CH.length];
+      for (let q = 0; q < 4; q++) {
+        const t = t0 + q * beat;
+        if (q === 0 || q === 2) drum(t, q === 0 ? 0.75 : 0.5); // 둥 (1·3박)
+        snare(t + beat / 2, q === 1 || q === 3 ? 0.34 : 0.2); if (q === 3) { snare(t + beat * 0.75, 0.16); snare(t + beat * 0.875, 0.12); } // 탁 + 4박 뒤 짧은 롤(행진)
+        hat(t, 0.09); hat(t + beat / 2, 0.12);
+        add(t, beat * 0.5, NOTE(BASS[b % 8]), 0.5, 2, 0, 4); // 튜바 느낌 베이스
+        if (q === 0 || q === 2) ch.forEach((n, k) => add(t, beat * 0.9, NOTE(n), 0.14, 4, (k - 1) * 0.4, 3)); // 황동 화음(톱니파 순하게) 1·3박
+        if (b % 2 === 1 && q === 3) { add(t, beat * 0.22, NOTE(ch[0] + 12), 0.3, 2, -0.3, 12); add(t + beat / 2, beat * 0.22, NOTE(ch[0] + 12), 0.3, 2, 0.3, 12); } // 구령 스탭 「하나! 둘!」 느낌(짧은 두 음)
+      }
+      for (let e = 0; e < 8; e++) { const m = MEL[(b * 8 + e) % MEL.length]; if (m) { const t = t0 + e * beat / 2; add(t, beat * 0.5, NOTE(m), 0.3, 1, 0.1, 5); add(t, beat * 0.3, NOTE(m - 12), 0.1, 0, -0.1, 7); } }
+    }
+  }
+  // 11-24 모쉬 「거울 네온 미로」 임시 루프(128 BPM·A 단조 파스텔·8마디 = 15초): 네 박 쿵 + 엇박 햇 + 사이드체인 느낌 베이스 + 아르페지오 플럭(Am·F·C·G) + 부드러운 패드. 거슬리지 않게(센 쇳소리·급한 스윕 X)
+  function mirrorMosheeLoop(l, r, sr, bpm, bars) {
+    const beat = 60 / bpm, K = synthKit(l, r, sr, 23), NOTE = K.NOTE, add = K.add, kick = K.kick, hat = K.hat, clap = K.clap;
+    const CH = [[57, 60, 64], [53, 57, 60], [60, 64, 67], [55, 59, 62], [57, 60, 64], [53, 57, 60], [60, 64, 67], [55, 59, 62]]; // Am · F · C · G
+    const BASS = [45, 41, 48, 43, 45, 41, 48, 43];
+    const ARP = [0, 1, 2, 1, 0, 2, 1, 2]; // 16분음표 아르페지오 순서(화음 안)
+    for (let b = 0; b < bars; b++) {
+      const t0 = b * 4 * beat, ch = CH[b % CH.length];
+      for (let q = 0; q < 4; q++) {
+        const t = t0 + q * beat;
+        kick(t, 0.85); hat(t + beat / 2, 0.16); if (q === 1 || q === 3) clap(t, 0.2);
+        for (let s = 0; s < 2; s++) add(t + s * beat / 2 + beat * 0.08, beat * 0.4, NOTE(BASS[b % 8]), 0.46, 4, 0, 6); // 베이스(쿵 뒤에 살짝 — 사이드체인 느낌)
+        for (let s = 0; s < 4; s++) { const n = ch[ARP[(q * 4 + s) % 8]] + 12; add(t + s * beat / 4, beat * 0.22, NOTE(n), 0.2, 1, Math.sin((q * 4 + s) * 1.3) * 0.5, 14); } // 반짝 아르페지오 플럭
+        if (q === 0) ch.forEach((n, k) => add(t, beat * 3.9, NOTE(n), 0.07, 0, (k - 1) * 0.6, 0.6)); // 패드(길게·작게)
+      }
+      if (b % 4 === 3) for (let e = 0; e < 4; e++) add(t0 + beat * 2 + e * beat / 2, beat * 0.4, NOTE(ch[e % 3] + 24), 0.14, 0, 0, 8); // 4마디마다 높은 종소리 응답
+    }
+  }
+  // 11-24 허조교 확대 연출 끝: 호루라기 삑(두 음 겹친 떨림, 0.35초) + 북 한 번(0.5초 뒤)
+  function whistleDrumSfx(l, r, sr) {
+    const K = synthKit(l, r, sr, 5), add = K.add, drum = K.drum;
+    add(0.02, 0.36, 2240, 0.5, 0, 0, 2.5); add(0.02, 0.36, 2300, 0.35, 0, 0, 2.5); add(0.02, 0.36, 3350, 0.12, 0, 0, 3); // 삑(두 진동수 겹침 → 떨림)
+    for (let i = 0; i < 6; i++) add(0.02 + i * 0.06, 0.05, 2240, 0.12, 0, 0, 30); // 혀 떨림 느낌
+    drum(0.55, 0.9); add(0.55, 0.3, 60, 0.5, 0, 0, 8, 40); // 북 한 번(둥)
+  }
+  // 11-24 모쉬 확대 연출 끝: 드롭 1초 — 올라가는 반짝(0~0.45초) → 쿵(0.45초) + 화음 스탭 두 번(Am → C)
+  function dropMosheeSfx(l, r, sr) {
+    const K = synthKit(l, r, sr, 9), NOTE = K.NOTE, add = K.add, kick = K.kick, hat = K.hat;
+    for (let i = 0; i < 8; i++) add(i * 0.055, 0.08, NOTE(72 + i * 2), 0.22, 1, (i % 2 ? 0.4 : -0.4), 20); // 올라가는 반짝
+    kick(0.45, 1.0); add(0.45, 0.35, 55, 0.6, 0, 0, 7, 38); // 쿵(저음)
+    [57, 60, 64].forEach((n, k) => add(0.46, 0.3, NOTE(n + 12), 0.2, 4, (k - 1) * 0.5, 6)); // Am 스탭
+    [60, 64, 67].forEach((n, k) => add(0.78, 0.4, NOTE(n + 12), 0.2, 4, (k - 1) * 0.5, 5)); // C 스탭
+    hat(0.6, 0.15); hat(0.78, 0.15); hat(0.95, 0.12);
+  }
 
   function makeComp(ctx) {
     const comp = ctx.createDynamicsCompressor();

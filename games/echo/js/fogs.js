@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const TG = window.TG, T = THREE;
-  const F = (TG.F = { list: [], notes: [], friends: [], popped: 0, boss: null });
+  const F = (TG.F = { list: [], notes: [], friends: [], popped: 0, boss: null, rule: {}, wallPops: 0 }); // 11-24 rule = 던전 고유 규칙(js/dungeons.js rule, game.js setDungeon 이 넣음)
   const CAP = { bubble: 170, clump: 32, tick: 24, echo: 40, cocoon: 3, note: 200, shadow: 360 };
   const SQ_N = 40; // 「고리 조이기」 구슬 수
   let uid = 1;
@@ -65,7 +65,8 @@
   // 안개 몸 재질: 불투명한 보라빛 회색(#9C98B8, 그늘 #6E6A8E) — 비눗방울처럼 비치지 않게
   // 색조 3단(같은 보라빛 회색 안에서 기본·푸른 기·분홍 기) — 떼가 한 덩어리로 안 보이게
   // 11-16 밤: vVar.x 3 = 쎄니 「퍼플팡팡!」에 물든 보라(진한 보라로 — 게임 바닥·다른 안개와 구분)
-  const TINT = 'diffuseColor.rgb *= vVar.x < 0.5 ? vec3(1.0) : (vVar.x < 1.5 ? vec3(0.86, 0.95, 1.13) : (vVar.x < 2.5 ? vec3(1.12, 0.92, 1.0) : vec3(1.05, 0.55, 1.75)));\n';
+  // 11-24 모쉬 거울 미로: vVar.x 4 = 거울 안개(밝은 시안·유리) · 5 = 깜깜 안개(어둑한 남보라)
+  const TINT = 'diffuseColor.rgb *= vVar.x < 0.5 ? vec3(1.0) : (vVar.x < 1.5 ? vec3(0.86, 0.95, 1.13) : (vVar.x < 2.5 ? vec3(1.12, 0.92, 1.0) : (vVar.x < 3.5 ? vec3(1.05, 0.55, 1.75) : (vVar.x < 4.5 ? vec3(0.78, 1.42, 1.55) : vec3(0.42, 0.40, 0.62)))));\n';
   function fogMat(o) {
     const m = TG.R.toon({
       color: o.color, rim: o.rim != null ? o.rim : 0.3, spec: o.spec != null ? o.spec : 0, inst: o.inst, key: o.key, flashCol: o.flashCol || 'vec3(0.9, 0.84, 1.12)', gain: o.gain, sat: o.sat,
@@ -383,6 +384,7 @@
     u.hp -= dmg; if (!(u.flashT > 0)) { u.flash = 1; u.flashT = 0.34; } u.sqT = 0.13; // 11-18 타격감: 흰 번쩍(0.05초 꽉 → 0.06초 사라짐, fogs draw fl)은 한 안개에 0.34초에 1번만(깜빡임 초당 3회 이하), 찌그러짐은 매번
     const kb = u.kind === 'clump' ? 2.5 : u.kind === 'tick' ? 3 : 5; // 11-18 타격감: 넉백 1.25배를 재 봤으나 자동 모드 쎄니가 보스전에서 1/3 만 깸(+25%) → 원래 값(1.0) 유지. 밀림 느낌은 찌그러짐·번쩍·히트 스톱으로(기록.md)
     u.vx += (dx / d) * kb; u.vz += (dz / d) * kb;
+    if (u.hp > 0) u.kbT = 0.45; // 11-24 허조교 「밀착 넉백」: 맞아 밀리는 중(0.45초) 벽에 닿으면 바로 퐁(F.rule.wallPop, 아래 sim)
     if (u.hp <= 0) {
       if (u.kind === 'tick') { u.state = 'dance'; u.danceT = 0; u.hp = 0; return 'convert'; }
       u.state = 'dying'; u.dieT = 0; return 'pop';
@@ -402,6 +404,8 @@
   // 가운데에서 큰 안개가 뭉쳐 나타남. first = 첫 판(속도 70%)
   F.startBoss = function (first) {
     const b = (F.boss = { x: 0, z: 1.0, y: 0.3, px: 0, pz: 1.0, py: 0.3, state: 'gather', t: 0, hp: BOSS_HP, maxHp: BOSS_HP, phase: 0, scale: 0.03, tscale: 1, flash: 0, sq: 0, spawnT: 2.5, inv: 0, r: 3.0, deadT: 0, ringSpd: 0.7, patT: 2.6, patN: 0, seq: 0, pat: null, drops: [], stun: 0, spdK: first ? 0.7 : 1, slowK: 1, yaw: 0 });
+    { const v = F.rule && F.rule.boss; b.variant = v ? v.var : null; b.order = v && v.order ? v.order : null; b.rainLine = !!(v && v.rainLine); b.sqY = v && v.sqY ? v.sqY : 1; // 11-24 던전 보스 변형(허조교 구령·모쉬 어둠): 행동 순서·안개 비 모양·색·찌그러짐(기록 dun 으로 재생 때 같음)
+      try { F.bossObj.mat.color.set(v && v.tint ? v.tint : 0x77729a); } catch (e) { /* 재질 없음 */ } }
     F.bossObj.group.visible = true;
     F.bossObj.group.position.set(b.x, b.y, b.z);
     F.bossObj.group.scale.setScalar(0.03);
@@ -574,12 +578,17 @@
         }
         u.vx = TG.damp(u.vx, (dx / d) * sp, u.dash ? 8 : 2.2, dt); u.vz = TG.damp(u.vz, (dz / d) * sp, u.dash ? 8 : 2.2, dt);
         const base = u.kind === 'clump' ? 0.12 : 0.95;
-        u.y = TG.damp(u.y, base + Math.sin(t * 2.6 + u.ph) * (u.kind === 'clump' ? 0.08 : 0.16), 6, dt);
+        if (u.line) u.y = TG.damp(u.y, base + Math.abs(Math.sin(t * Math.PI / 0.517)) * 0.42, 12, dt); // 11-24 허조교 줄 안개: 구령 박자(116 BPM = 0.517초)에 맞춰 통통 행진(그림 쪽 높이만)
+        else u.y = TG.damp(u.y, base + Math.sin(t * 2.6 + u.ph) * (u.kind === 'clump' ? 0.08 : 0.16), 6, dt);
         u.yaw += TG.angDiff(u.yaw, Math.atan2(dx, dz)) * (1 - Math.exp(-6 * dt));
         const hitR = u.r * u.scale + 0.5;
         if (d < hitR && u.spawnT > 0.4 && playing) { const h = P.hurt(u.x, u.z); if (h) { G.onHurt(u, h); u.vx -= (dx / d) * 7; u.vz -= (dz / d) * 7; } }
       }
       u.x += u.vx * dt; u.z += u.vz * dt;
+      if (u.kbT > 0) { // 11-24 허조교 「벽에 밀어붙이면 퐁」(F.rule.wallPop): 맞아 밀리는 중 벽(가까운 복도 벽)에 닿으면 체력 남아도 바로 퐁 — 뭉치·메아리도
+        u.kbT -= dt;
+        if (F.rule.wallPop && u.state === 'live' && u.kind !== 'tick') { const ur = u.r * u.scale * 0.8; if (Math.abs(u.x) > AR.bx - ur - 0.05 || Math.abs(u.z) > AR.bz - ur - 0.05) { u.kbT = 0; F.wallPops++; TG.FX.ring(u.x, u.z, { wall: true, r0: 0.4, r1: 2.4, dur: 0.3, color: 0xdce383, h: 1.4, alpha: 0.6, hdr: 1.2 }); TG.FX.text('밀착!', u.x, u.y + 1.6, u.z, 'word'); TG.A.play('sfx_bonk', { rate: 1.4, gain: 0.35 }); G.hitUnit(u, 99, u.x - u.vx * 0.1, u.z - u.vz * 0.1, true, 3, [2.2, 2.3, 1.0]); } }
+      }
     }
     // 서로 밀어내기 (겹침 방지). 고치는 제자리
     for (let i = 0; i < list.length; i++) {
@@ -690,7 +699,8 @@
     } else if (type === 'rain') { // 안개 비: SEFO 자리 + 가는 길 앞(2단계부터) + 둘레
       const n = 3 + Math.min(2, b.phase), pre = 0.8 / sk, spots = [[P.x, P.z]];
       if (b.phase >= 1) spots.push([P.x + P.vx * 0.7, P.z + P.vz * 0.7]);
-      while (spots.length < n) { const a = TG.sr() * 6.28, r = TG.srr(2.5, 5); spots.push([P.x + Math.cos(a) * r, P.z + Math.sin(a) * r]); }
+      if (b.rainLine) { const la = Math.atan2(P.x - b.x, P.z - b.z); while (spots.length < n) { const k = spots.length - 1; spots.push([P.x + Math.sin(la) * k * 2.6 + TG.srr(-0.4, 0.4), P.z + Math.cos(la) * k * 2.6 + TG.srr(-0.4, 0.4)]); } TG.FX.text('줄 맞춰 비!', b.x, 5.6 * b.scale + 0.6, b.z, 'word'); } // 11-24 허조교 구령 변형: 안개 비가 행진 줄처럼 한 줄로(난수 호출 수는 같음 — TG.sr 2번)
+      else while (spots.length < n) { const a = TG.sr() * 6.28, r = TG.srr(2.5, 5); spots.push([P.x + Math.cos(a) * r, P.z + Math.sin(a) * r]); }
       spots.forEach(([x, z], i) => bossDrop(b, TG.clamp(x, -18, 18), TG.clamp(z, -12, 12), pre + i * 0.12, i < 3));
       b.pat = { type: 'rain', t: 0, end: pre + n * 0.12 + 0.3 };
       b.sq = 0.2;
@@ -742,7 +752,7 @@
         b.y = TG.damp(b.y, 0.3 + Math.sin(t * 1.6) * 0.25, 6, dt);
         if (!hold) b.patT -= dt * K;
         if (b.patT <= 0) {
-          const ord = BOSS_ORDER[Math.min(2, b.phase)], type = ord[b.seq % ord.length];
+          const ord = (b.order || BOSS_ORDER)[Math.min(2, b.phase)], type = ord[b.seq % ord.length];
           b.seq++; b.patN++;
           bossBegin(b, type, P);
           b.patT = BOSS_GAP[Math.min(2, b.phase)];
@@ -876,7 +886,7 @@
       const br = 1 + Math.sin(t * 1.3) * 0.035;
       const sq = b.sq > 0 ? Math.sin((b.sq / 0.12) * Math.PI) * 0.12 : 0;
       o.group.position.set(L(b.px, b.x, al), L(b.py, b.y, al), L(b.pz, b.z, al));
-      o.group.scale.set(b.scale * (br + sq), b.scale * (br - sq * 1.2), b.scale * (br + sq));
+      o.group.scale.set(b.scale * (br + sq) * (b.sqY && b.sqY < 1 ? 1.06 : 1), b.scale * (br - sq * 1.2) * (b.sqY || 1), b.scale * (br + sq) * (b.sqY && b.sqY < 1 ? 1.06 : 1)); // 11-24 허조교 변형: 찌그러진 헬멧처럼 납작(그림만)
       o.group.rotation.y = TG.damp(o.group.rotation.y, Math.atan2(P.rx - b.x, P.rz - b.z) * 0.6, 3, dt);
       o.group.rotation.x = b.roll ? Math.sin(b.roll) * 0.25 : TG.damp(o.group.rotation.x, 0, 6, dt);
       o.group.rotation.z = b.wob ? b.wob : TG.damp(o.group.rotation.z, 0, 8, dt);
@@ -973,7 +983,7 @@
       tmpM.compose(tmpP.set(ux, uy, uz), tmpQ, tmpS.set(s * sx, s * sy, s * sx));
       const lkx = TG.clamp(Math.sin(la) * 1.5, -1, 1), lky = TG.clamp(-Math.cos(la), -0.25, 1) * 0.8 - 0.1, ph = (u.id * 0.371) % 1;
       const put = (mesh, flash, look, i, w) => { mesh.setMatrixAt(i, tmpM); flash.array[i] = fl; const a = look.array; a[i * 4] = lkx; a[i * 4 + 1] = lky; a[i * 4 + 2] = ph; a[i * 4 + 3] = w; };
-      const vary = (attr, i) => { const fv = hsh(u.id, 3); attr.array[i * 2] = u.paint > 0 || u.mistT > 0 ? 3 : Math.floor(hsh(u.id, 2) * 3); attr.array[i * 2 + 1] = fv < 0.5 ? 0 : fv < 0.8 ? 1 : 2; }; // 색조 3단(+물든 보라 3) · 표정 3종 (id 해시)
+      const vary = (attr, i) => { const fv = hsh(u.id, 3); attr.array[i * 2] = u.paint > 0 || u.mistT > 0 ? 3 : u.mirror ? 4 : u.dark ? 5 : Math.floor(hsh(u.id, 2) * 3); attr.array[i * 2 + 1] = u.dark ? 1 : fv < 0.5 ? 0 : fv < 0.8 ? 1 : 2; }; // 색조 3단(+물든 보라 3) · 표정 3종 (id 해시)
       if (u.kind === 'bubble') { vary(F.bubbleVar, nb); put(F.bubbleMesh, F.bubbleFlash, F.bubbleLook, nb, 0); nb++; pushShadow(ux, uz, 1.6 * s); }
       else if (u.kind === 'echo') { put(F.echoMesh, F.echoFlash, F.echoLook, ne, u.shield ? 1 : 0); ne++; pushShadow(ux, uz, 1.8 * s); }
       else { vary(F.clumpVar, nc); put(F.clumpMesh, F.clumpFlash, F.clumpLook, nc, 0); nc++; pushShadow(ux, uz, 3.0 * s); }

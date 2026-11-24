@@ -323,6 +323,33 @@
     poseAx.copy(ax).applyQuaternion(poseQ.invert()).normalize();
     b.quaternion.premultiply(poseQ.setFromAxisAngle(poseAx, ang));
   }
+  // 11-24 확대 연출 동작(그림만): PL.cuPose = { name, t, dur } 를 game.js closeupStep 이 켬. k = 부드럽게 들어가고(0.18초) 끝에서 빠짐
+  //  helmet = 오른손을 헬멧(머리 위)으로 올려 톡톡 고쳐 쓰기 · salute = 경례(오른손 눈썹 옆, 손바닥 아래, 가슴 펴고 턱 들기) · thumb = 엄지 척(오른팔 앞으로 뻗어 주먹 위) · dj = 양팔 들고 좌우 스텝(몸 좌우 흔들·고개 끄덕)
+  function cuPose(dt) {
+    const c = PL.cuPose, B = PL.bones; PL.cuPoseK = 0; if (!c || !B) return;
+    const t = c.t || 0, inK = Math.min(1, t / 0.18), outK = c.dur > 8 ? 1 : Math.min(1, Math.max(0, (c.dur - t) / 0.15)), k = inK * outK * (TG.G && TG.G.cu ? 1 : 0); PL.cuPoseK = k; if (k <= 0) return;
+    const yaw = PL.yaw, fwd = poseF.set(Math.sin(yaw), 0, Math.cos(yaw)), right = poseR.set(Math.cos(yaw), 0, -Math.sin(yaw)), up = poseAx2.set(0, 1, 0);
+    if (PL.__cuOps) { for (const [bn, ax, ang] of PL.__cuOps) rotW(B[bn], ax === 'r' ? right : ax === 'f' ? fwd : up, ang * k); return; } // 시험용 덮어쓰기(자세 맞추기)
+    if (c.name === 'helmet') { // 오른손을 헬멧 위로(톡톡) — 자세값은 캡처로 맞춤(11-24 스크래치 pose.py: 위팔 right −1.6·fwd +0.5, 아래팔 right −2.3)
+      const tap = Math.abs(Math.sin(t * 14)) * 0.2;
+      rotW(B.RightArm, right, -1.6 * k); rotW(B.RightArm, fwd, 0.5 * k); rotW(B.RightForeArm, right, -(2.3 - tap) * k);
+      rotW(B.Head, right, 0.1 * k); rotW(B.Spine02, right, -0.06 * k);
+    } else if (c.name === 'salute') { // 오른손 눈썹 옆(위팔 right −1.25·fwd +0.35, 아래팔 right −2.0) + 가슴 펴고 턱 살짝
+      rotW(B.RightArm, right, -1.25 * k); rotW(B.RightArm, fwd, 0.35 * k); rotW(B.RightForeArm, right, -2.0 * k);
+      rotW(B.Spine02, right, -0.2 * k); rotW(B.Head, right, -0.12 * k);
+      rotW(B.LeftArm, fwd, 0.12 * k); // 왼팔은 몸에 붙여 차렷
+    } else if (c.name === 'thumb') { // 오른팔 앞으로 주먹 위(위팔 right −0.9·fwd −0.35, 아래팔 right −1.6) + 살짝 까딱
+      const bob = Math.sin(t * 9) * 0.08;
+      rotW(B.RightArm, right, (-0.9 + bob) * k); rotW(B.RightArm, fwd, -0.35 * k); rotW(B.RightForeArm, right, -1.6 * k);
+      rotW(B.Spine02, right, -0.1 * k); rotW(B.Head, right, -0.08 * k);
+    } else if (c.name === 'dj') { // 양팔 옆으로 번쩍(fwd 축 ±2.4 — 큐브 머리 옆으로 손이 보임) + 아래팔 번갈아 흔들 + 몸 좌우 스텝·고개 끄덕(약 126 BPM)
+      const sw = Math.sin(t * 6.6), bob = Math.abs(Math.sin(t * 6.6));
+      rotW(B.RightArm, fwd, -2.05 * k); rotW(B.LeftArm, fwd, 2.05 * k); rotW(B.RightArm, right, -0.5 * k); rotW(B.LeftArm, right, -0.5 * k); // 똑바로 위(±2.4)면 큐브 뒤에 가려 손이 안 보임 → 비스듬히 위·앞으로 rotW(B.RightForeArm, right, -(0.4 + 0.3 * sw) * k); rotW(B.LeftForeArm, right, -(0.4 - 0.3 * sw) * k);
+      rotW(B.Spine01, fwd, 0.14 * sw * k); rotW(B.Spine02, fwd, -0.06 * sw * k); rotW(B.Spine02, up, 0.18 * sw * k); // 몸통만 좌우 흔들·살짝 돌기(Hips 는 뿌리 뼈라 덧칠하면 몸 전체가 돌아가 보임 — 캡처로 확인, 안 씀)
+      rotW(B.Head, right, (0.08 - 0.14 * bob) * k); rotW(B.Head, fwd, 0.1 * sw * k);
+    }
+  }
+  const poseAx2 = new T.Vector3();
   const MEGA_POSE = [-1.6, -0.2, 1.3], MEGA_OFF = { ahead: 0.25, up: 0.25, tilt: 0.35 }; // 11-18 세포 확성기 자세(위팔·팔꿈치·안쪽 라디안: 오른손을 얼굴 앞 오른쪽으로 뻗음, 이 리그 팔로는 머리 앞 0.37 이 최대) + 확성기 자리 보정(손에서 앞 0.25·위 0.25, 위로 0.35rad 기울여 입 대는 쪽이 입 높이에) — 그런트 검수 11-18(나팔이 뒤를 봄·얼굴 가림)
   function shotPose(dt) {
     const B = PL.bones; if (!B) return;
@@ -397,7 +424,7 @@
     //  → 지난 프레임에 덧칠한 뼈를 먼저 덧칠 전 값으로 되돌린 뒤 mixer 를 돌리고, 덧칠 직전 값을 다시 적어 둠(어느 경우에도 쌓이지 않음)
     if (PL._ovl) for (const o of PL._ovl) o.b.quaternion.copy(o.q);
     PL.mixer.update(dt);
-    if (!PL._ovl && PL.bones) PL._ovl = ['Hips', 'Head', 'Spine01', 'Spine02', 'RightArm', 'RightForeArm', 'LeftArm'].concat(Object.keys(PL.hero.pose || {})).filter((n, i, a) => PL.bones[n] && a.indexOf(n) === i).map((n) => ({ b: PL.bones[n], q: new T.Quaternion() }));
+    if (!PL._ovl && PL.bones) PL._ovl = ['Hips', 'Head', 'Spine01', 'Spine02', 'RightArm', 'RightForeArm', 'LeftArm', 'LeftForeArm'].concat(Object.keys(PL.hero.pose || {})).filter((n, i, a) => PL.bones[n] && a.indexOf(n) === i).map((n) => ({ b: PL.bones[n], q: new T.Quaternion() }));
     if (PL._ovl) for (const o of PL._ovl) o.q.copy(o.b.quaternion);
     // 달리기 클립이 몸을 많이 숙여 위에서 얼굴이 가려짐 → 허리·고개를 세움
     const rw = PL.act.run.getEffectiveWeight(), B = PL.bones;
@@ -408,6 +435,7 @@
     { const bm = TG.WV && TG.WV.beam; PL.headSpin = 0;
       if (bm && bm.on && B.Head) { const ang = TG.WV.beamAngle() - bm.dir; PL.headSpin = ang; B.Head.parent.updateWorldMatrix(true, false); B.Head.parent.getWorldQuaternion(spinQ); spinAx.set(0, 1, 0).applyQuaternion(spinQ.invert()).normalize(); B.Head.quaternion.premultiply(spinQ.setFromAxisAngle(spinAx, ang)); } }
     shotPose(dt); // 11-17 2차: 소리 낼 때 주인공별 몸동작 덧칠(허조교 호각 고함·모쉬 머리 내밀기) — 세계 축 기준 뼈 회전·이동, mixer 가 매 프레임 다시 쓰므로 쌓이지 않음
+    cuPose(dt);   // 11-24 던전 끝 확대 동작 덧칠(허조교 헬멧·경례·엄지 척 / 모쉬 DJ 포즈) — game.js 가 PL.cuPose 를 켬, 같은 방식(쌓이지 않음)
 
     // 스쿼시 스프링
     const sdt = Math.min(dt, 0.033);

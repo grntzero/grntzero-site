@@ -8,7 +8,12 @@
   H.init = function () {
     ['hud', 'lives', 'lvTag', 'xpFill', 'noteN', 'progGear', 'map', 'bossBar', 'bossFill', 'bossGhost', 'combo', 'comboN', 'overPips',
       'speech', 'zoneVig', 'stick', 'stickKnob', 'stickBase', 'keyHint', 'btnBig', 'btnSnd', 'bigArc', 'banner', 'count', 'title', 'pause', 'result', 'rotate', 'loading', 'lfill',
-      'resTitle', 'stars', 'rTime', 'rFog', 'rCombo', 'rNote', 'hint', 'grunt', 'gruntTxt', 'shelter', 'cards', 'cardRow', 'rerollBtn', 'skills', 'skHero', 'skList', 'skClose', 'face'].forEach((k) => (H[k] = $(k)));
+      'resTitle', 'stars', 'rTime', 'rFog', 'rCombo', 'rNote', 'hint', 'grunt', 'gruntTxt', 'shelter', 'cards', 'cardRow', 'rerollBtn', 'skills', 'skHero', 'skList', 'skClose', 'face',
+      'dunRow', 'dunBtn', 'dunPick', 'dunList', 'lvRow', 'lvInfo', 'dunGo', 'cuSkipBtn', 'rStamp'].forEach((k) => (H[k] = $(k))); // 11-24 던전 고르기·확대 건너뛰기·단계 도장
+    H.dunBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.dunOpen(); });
+    H.dunGo.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.dunClose(); });
+    H.dunPick.addEventListener('click', (e) => { if (e.target === H.dunPick) H.dunClose(); });
+    H.cuSkipBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(0.8); if (TG.G && TG.G.skipCloseup) TG.G.skipCloseup(); });
     H.rerollBtn.addEventListener('click', (e) => { e.stopPropagation(); if (H.onReroll) H.onReroll(); }); // 11-18 다시 뽑기
     H.skClose.addEventListener('click', (e) => { e.stopPropagation(); if (H.onSkillsClose) H.onSkillsClose(); });
     H.skills.addEventListener('click', (e) => { if (e.target === H.skills && H.onSkillsClose) H.onSkillsClose(); }); // 바깥 누르면 닫힘
@@ -52,11 +57,50 @@
     if (pop) { im.classList.remove('pop'); void im.offsetWidth; im.classList.add('pop'); }
   };
   // 11-19 타이틀 = 톱니골 광장(모두의 출발지). tut = 튜토리얼(방송 파이프 굴) 끝냈나, back = 던전에서 막 돌아옴
-  let hubTut = false, hubBack = false;
+  let hubTut = false, hubBack = false, hubNext = '';
+  // 11-24 광장: 연습이 끝나면 「던전」 줄(지금 고른 던전·단계)과 던전 고르기 창. 연습 전엔 첫 던전 고정(줄 숨김)
   H.hubRefresh = function (tut, back) {
     hubTut = !!tut; hubBack = !!back;
-    const t = $('hubTag'); if (t) t.textContent = tut ? '톱니골 광장 · 다른 던전 길은 곧 열려요!' : '톱니골 광장 · 첫 던전 「방송 파이프 굴」에서 연습해요!';
+    const DN = TG.DN, d = DN.get(DN.sel.dun), L = TG.LEVELS[DN.sel.lv];
+    hubNext = DN.hasLevels(d.id) ? d.name + ' · ' + DN.levelName(DN.sel.lv, d.id) : d.name;
+    const t = $('hubTag'); if (t) t.textContent = tut ? '톱니골 광장 · 다음 던전: ' + hubNext : '톱니골 광장 · 첫 던전 「방송 파이프 굴」에서 연습해요!';
+    if (H.dunRow) { H.show(H.dunRow, tut); H.dunBtn.querySelector('span').textContent = hubNext; H.dunBtn.style.setProperty('--dc', d.color || '#e5352b'); }
+    void L;
   };
+  H.dunOpen = function () {
+    if (!H.title || H.title.classList.contains('hide')) return false;
+    H.dunRender(); H.show(H.dunPick, true); return true;
+  };
+  H.dunClose = function () { H.show(H.dunPick, false); H.hubRefresh(hubTut, hubBack); if (H.onDunPick) H.onDunPick(); };
+  H.dunRender = function () {
+    const DN = TG.DN, cur = DN.sel.dun;
+    H.dunList.innerHTML = '';
+    TG.DUNGEON_ORDER.forEach((id) => {
+      const d = TG.DUNGEONS[id], b = document.createElement('button'); b.type = 'button'; b.className = 'dunB' + (d.open ? '' : ' lock') + (id === cur ? ' on' : ''); b.dataset.dun = id; b.style.setProperty('--dc', d.color);
+      const done = d.tut ? 0 : DN.cleared(id);
+      b.innerHTML = '<i></i><span class="tx"><b></b><small></small></span>'; // 이름 한 줄 · 설명 아래 줄(낱말 중간 끊김 X — 검수 지적)
+      b.querySelector('b').textContent = d.name; b.querySelector('small').textContent = !d.open ? d.ownerName + ' · 곧 열려요' : d.tut ? '연습 던전 · 모두' : d.ownerName + ' 던전 · 도장 ' + done + '/' + TG.LEVEL_MAX;
+      if (d.open) b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.0); DN.select(id, DN.sel.dun === id ? DN.sel.lv : DN.maxPick(id)); H.dunRender(); });
+      H.dunList.appendChild(b);
+    });
+    // 단계 10칸(연습 던전은 단계 없음): 깬 칸 = 도장, 다음 칸 = 도전, 그 위는 잠김, 10단계는 깨기 전 「???」
+    const d = DN.get(cur), lvs = DN.hasLevels(cur); H.show(H.lvRow, lvs); H.show(H.lvInfo, lvs); // 11-24 베타 깃발이면 연습 던전도 단계 10칸
+    H.lvRow.innerHTML = '';
+    if (lvs) {
+      const done = DN.cleared(cur), can = DN.maxPick(cur);
+      for (let n = 1; n <= TG.LEVEL_MAX; n++) {
+        const L = TG.LEVELS[n], b = document.createElement('button'); b.type = 'button'; b.dataset.lv = n;
+        b.className = 'lvB' + (n <= done ? ' done' : n === done + 1 ? ' next' : n <= can ? ' open' : ' lock') + (n === DN.sel.lv ? ' on' : ''); // open = 베타 깃발로 미리 열린 칸(점선 X·회색 X)
+        b.innerHTML = '<b></b><small></small>'; b.querySelector('b').textContent = n; b.querySelector('small').textContent = DN.levelName(n, cur);
+        if (n <= can) b.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.0); DN.select(cur, n); H.dunRender(); });
+        H.lvRow.appendChild(b);
+      }
+      const L = TG.LEVELS[DN.sel.lv], stars = Math.min(5, Math.ceil(DN.sel.lv / 2));
+      H.lvInfo.textContent = (TG.beta() ? '베타 · 모든 단계 열림 · ' : '') + DN.levelName(DN.sel.lv, cur) + ' · ' + L.note + ' · 이쯤이면 편해요 ' + '★'.repeat(stars) + '☆'.repeat(5 - stars) + ' (Lv ' + L.lv + '+)' + ' · 깨면 ' + L.gear;
+    }
+    H.dunGo.querySelector('span').textContent = (lvs ? d.name + ' · ' + DN.levelName(DN.sel.lv, cur) : d.name) + ' 가기';
+  };
+  H.cuSkip = function (on) { if (H.cuSkipBtn) H.show(H.cuSkipBtn, !!on); };
   // 타이틀: 쎌이 손 흔들며 차례로 안내 (타이틀이 보이는 동안만 돎)
   let titleTO = null, titleI = 0, titleSaid = {};
   H.sselTitleStart = function () {
@@ -67,7 +111,7 @@
         const auto = document.body.classList.contains('atkAuto'), touch = document.body.classList.contains('touch');
         const lines = [
           hubBack ? ['cheer', '어서 와! 여기는 톱니골 광장이야!'] : ['front', '안녕! 난 쎌이야. 내가 안내할게!'],
-          hubTut ? ['ok', '다른 던전 길은 곧 열려! 오늘도 파이프 굴로 가 볼까?'] : ['wink', '여긴 톱니골 광장! 첫 던전 「방송 파이프 굴」에서 연습하자!'],
+          hubTut ? ['ok', '다음은 「' + hubNext + '」! 「던전」을 누르면 바꿀 수 있어~'] : ['wink', '여긴 톱니골 광장! 첫 던전 「방송 파이프 굴」에서 연습하자!'],
           ['smile', touch ? '왼쪽 엄지로 슝슝 움직여 봐!' : 'WASD로 슝슝 움직여 봐!'],
           auto ? ['ok', '소리 방울은 저절로! 넌 음표만 주워~'] : ['wink', touch ? '「소리」 꾹! 끌면 그쪽으로 나가지!' : '마우스 꾹! 가리키는 쪽으로 나가지!'],
           ['cheer', '준비됐지? 「시작」 눌러 봐!'],
@@ -221,7 +265,8 @@
     // 말풍선
     if (!H.speech.classList.contains('hide')) {
       P.headPos(pv); pv.y += 0.9;
-      const [sx, sy] = toScreen(pv);
+      let [sx, sy] = toScreen(pv);
+      if (document.body.classList.contains('closeup')) { sx += 130 * H.s; sy = Math.max(sy + 30 * H.s, 96 * H.s); } // 11-24 확대 연출: 머리가 화면 위쪽이라 말풍선을 머리 오른쪽 위·화면 안으로
       H.speech.style.left = sx.toFixed(1) + 'px'; H.speech.style.top = sy.toFixed(1) + 'px';
     }
     // 큰 소리 게이지 (버튼 둘레 충전 링, 다 차면 반짝)
@@ -326,6 +371,11 @@
 
   H.showResult = function (r) {
     H.resTitle.textContent = r.clear ? '노래를 되찾았어요!' : '다음에 다시!\n모은 건 그대로예요'; // 긴 제목은 두 줄 (패널 밖으로 안 나가게)
+    if (H.rStamp) { // 11-24 단계 도장: 던전 · 단계 깸 → 다음 단계 열림 · 첫 클리어 상자(글)
+      const st = r.stamp; H.show(H.rStamp, !!(r.clear && r.lv && !r.tut && (r.dungeon !== 'pipe' || !!st))); // 베타 깃발이면 연습 던전 도장도
+      if (r.clear && st) H.rStamp.textContent = r.dungeonName + ' · ' + r.lvName + ' 도장!' + (st.first && st.nextName ? ' 다음 「' + st.nextName + '」 열림' : st.first ? ' 금 도장!' : '') + (st.box ? '\n첫 클리어 상자: ' + st.box : '');
+      else if (r.clear) H.rStamp.textContent = r.dungeonName + ' · ' + r.lvName + ' 도장!';
+    }
     H.rTime.textContent = TG.fmtTime(r.time);
     H.rFog.textContent = r.fogs;
     H.rCombo.textContent = r.combo;

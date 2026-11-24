@@ -429,3 +429,35 @@ body:not(.atkAuto) .autoOnly { display: none !important; }
 #btnBig .lbl { font-size: calc(14px * var(--s)); }
 #btnSnd .lbl { font-size: calc(16px * var(--s)); }
 #btnSnd .lbl .autoTag { display: inline-block; margin-left: calc(3px * var(--s)); padding: 0 calc(5px * var(--s)); border-radius: 99px; background: #ffd23f; color: #1b1424; font-size: calc(11px * var(--s)); text-shadow: none; vertical-align: middle; }
+
+/* 11-24 던전 고르기(광장)·단계 10칸·확대 연출 건너뛰기·단계 도장 */
+#dunRow .atkB { --dc: #e5352b; padding-left: calc(22px * var(--s)); position: relative; max-width: calc(230px * var(--s)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#dunRow .atkB::before { content: ""; position: absolute; left: calc(8px * var(--s)); top: 50%; width: calc(9px * var(--s)); height: calc(9px * var(--s)); border-radius: 50%; background: var(--dc); border: 2px solid var(--ink); transform: translateY(-50%); }
+#dunPick { z-index: 21; }
+#dunPick .dunPanel { width: min(94vw, calc(640px * var(--s))); max-height: 92vh; max-height: 92dvh; overflow-y: auto; padding-top: calc(10px * var(--s)); }
+#dunPick .ptitle { margin-top: calc(6px * var(--s)); margin-bottom: calc(4px * var(--s)); }
+#dunList { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(5px * var(--s)); }
+.dunB { --dc: #e5352b; font: inherit; color: var(--ink); text-align: left; display: flex; align-items: center; gap: calc(6px * var(--s)); background: #fff; border: 3px solid var(--ink); border-radius: calc(12px * var(--s)); padding: calc(4px * var(--s)) calc(8px * var(--s)); box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+.dunB i { flex: none; width: calc(14px * var(--s)); height: calc(14px * var(--s)); border-radius: 50%; background: var(--dc); border: 2px solid var(--ink); }
+.dunB .tx { display: flex; flex-direction: column; min-width: 0; word-break: keep-all; overflow-wrap: normal; }
+.dunB b { font-size: calc(15px * var(--s)); line-height: 1.1; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dunB small { display: block; font-size: calc(11px * var(--s)); opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dunB.on { background: linear-gradient(#ffe778, var(--yel) 55%, #f0b400); }
+.dunB.lock { background: #e6e0ea; color: #7a6f8a; cursor: default; box-shadow: 0 2px 0 rgba(27,20,36,0.5); }
+.dunB.lock i { opacity: 0.4; }
+#lvRow { display: grid; grid-template-columns: repeat(10, 1fr); gap: calc(4px * var(--s)); margin-top: calc(7px * var(--s)); }
+.lvB { font: inherit; color: var(--ink); background: #fff; border: 3px solid var(--ink); border-radius: calc(10px * var(--s)); padding: calc(3px * var(--s)) 0; box-shadow: 0 3px 0 var(--ink); cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.lvB b { font-size: calc(17px * var(--s)); }
+.lvB small { font-size: calc(10px * var(--s)); margin-top: 2px; white-space: nowrap; }
+.lvB.done { background: linear-gradient(#ffb3a6, #ff8a7a 60%, #e5352b); color: #fff; }
+.lvB.done b::after { content: " ✓"; font-size: calc(11px * var(--s)); }
+.lvB.next { background: linear-gradient(#ffe778, var(--yel) 55%, #f0b400); border-style: dashed; }
+.lvB.open { background: #fff; border-color: #6a5f7a; } /* 11-24 베타 깃발로 미리 열린 칸 */
+.lvB.lock { background: #e6e0ea; color: #9a90a8; cursor: default; box-shadow: 0 2px 0 rgba(27,20,36,0.5); }
+.lvB.lock b::after { content: "🔒"; font-size: calc(9px * var(--s)); margin-left: 2px; }
+.lvB.on { outline: 3px solid #e5352b; outline-offset: 1px; }
+#lvInfo { margin-top: calc(6px * var(--s)); font-size: calc(13px * var(--s)); text-align: center; word-break: keep-all; background: rgba(201,162,58,0.22); border-radius: 10px; padding: calc(4px * var(--s)) calc(8px * var(--s)); }
+#dunPick .btns { margin-top: calc(8px * var(--s)); }
+#cuSkipBtn { position: absolute; right: max(env(safe-area-inset-right, 0px), 2.5vw); top: calc(max(env(safe-area-inset-top, 0px), 8px) + 6px); z-index: 12; font-size: calc(16px * var(--s)); padding: calc(5px * var(--s)) calc(14px * var(--s)); }
+body.closeup #hpBox, body.closeup #prog, body.closeup #topRight, body.closeup #bossBar, body.closeup #btnBig, body.closeup #btnSnd, body.closeup #stick, body.closeup #hint, body.closeup #keyHint, body.closeup #combo, body.closeup #overPips, body.closeup .mhp, body.closeup #fogArrow { opacity: 0 !important; pointer-events: none; }
+#rStamp { font-size: calc(14px * var(--s)); color: #fff; background: linear-gradient(90deg, #ff8a6a, #e5352b 60%, #b8241b); border: 2px solid var(--ink); border-radius: 12px; padding: calc(3px * var(--s)) calc(10px * var(--s)); margin: 0 auto calc(4px * var(--s)); max-width: calc(360px * var(--s)); white-space: pre-line; word-break: keep-all; line-height: 1.2; }
