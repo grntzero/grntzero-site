@@ -192,7 +192,7 @@
     TG.A.bgm('bgm_win', 0.6, true);
     G.paused = false;
     applyTheme(null);
-    TG.H.hubRefresh(tutDone(), !!G.backFromRun); G.backFromRun = false;
+    TG.H.hubRefresh(true, !!G.backFromRun); G.backFromRun = false; // 11-25 대표: 처음 온 사람도 바로 던전 고르기(연습 안 해도 던전·지갑·카드 줄 보임)
     TG.H.sselTitleStart();
   }
 
@@ -214,7 +214,7 @@
     G.dunBanner = false; // 11-19 광장에서 첫 던전으로 출발 — 이름 띠는 updateIntro 0.25초에
   }
   // 광장에서 고른 던전·단계(js/dungeons.js DN.sel)로. 튜토리얼 전엔 「방송 파이프 굴」 1단계 고정
-  function pickFromHub() { if (!tutDone()) setDungeon('pipe', 1); else setDungeon(TG.DN.sel.dun, TG.DN.sel.lv); applyTheme(DUNGEON, LV); }
+  function pickFromHub() { setDungeon(TG.DN.sel.dun, TG.DN.sel.lv); applyTheme(DUNGEON, LV); } // 11-25 대표: 튜토리얼 전에도 고른 던전으로(첫 판 안내는 G.tutRun 으로 그대로)
   // 던전 테마(그림만): 하늘·빛·광장 고리 색. null = 기본(방송 파이프 굴 = 광장)
   const THEME0 = { bg: 0x9fd7f2, sky: 0xdcefff, ground: 0xd9a878, pulse: 0xff7a52 };
   // 11-24 단계 분위기(js/dungeons.js TG.LEVEL_LOOK): 던전 색 위에 단계 색을 mix 만큼 섞음 — 하늘·반구광·햇빛·멀리 안개·바닥 색조·안개/보스 색. 광장(null)은 늘 1단계(낮). 그림만
@@ -1872,7 +1872,7 @@
     bot(on) { G.bot = on !== false; },
     tutReset() { try { localStorage.removeItem(TUT_KEY); } catch (e) { /* 무시 */ } return tutDone(); }, // 11-19 시험: 튜토리얼 처음부터
     tutSet() { try { localStorage.setItem(TUT_KEY, '1'); } catch (e) { /* 무시 */ } return tutDone(); }, // 11-24 시험: 튜토리얼 끝난 상태로
-    dungeon(id, lv) { const ok = TG.DN.select(id, lv); if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return { ok, sel: Object.assign({}, TG.DN.sel) }; }, // 11-24 던전·단계 고르기(광장 버튼과 같은 길)
+    dungeon(id, lv) { const ok = TG.DN.select(id, lv); if (G.phase === 'title') TG.H.hubRefresh(true, false); return { ok, sel: Object.assign({}, TG.DN.sel) }; }, // 11-24 던전·단계 고르기(광장 버튼과 같은 길)
     lvReset(id) { TG.DN.reset(id || DUNGEON.id); return TG.DN.cleared(id || DUNGEON.id); },
     wallet() { return TG.W ? TG.W.snap() : null; }, // 11-24 톱니 지갑 상태(저장값)
     walletReset() { return TG.W ? TG.W.reset() : null; }, // 11-24 시험: 지갑 비우기(ez_w1_wallet)
@@ -1881,7 +1881,7 @@
     // 11-25 카드 1단계 시험 훅(js/collect.js)
     cards() { return TG.K ? TG.K.snap() : null; },
     cardsReset() { return TG.K ? TG.K.reset() : null; },
-    cardGive(artist, idx, g) { const r = TG.K ? TG.K.give(artist, idx == null ? null : idx, g || 1) : null; if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return r; },
+    cardGive(artist, idx, g) { const r = TG.K ? TG.K.give(artist, idx == null ? null : idx, g || 1) : null; if (G.phase === 'title') TG.H.hubRefresh(true, false); return r; },
     cardForce(list, cells) { if (TG.K) { TG.K._force = (list || []).slice(); TG.K._cell = (cells || []).slice(); } return true; }, // 다음 등급·칸 강제(시험)
     cardEquip(slot, id) { const ok = TG.K ? TG.K.equip(slot, id) : false; if (TG.H.colRender && TG.H.colPick && !TG.H.colPick.classList.contains('hide')) TG.H.colRender(); return ok; },
     cardSwap(id) { return TG.K ? TG.K.swap(id) : null; },
@@ -1893,7 +1893,7 @@
     cardOpen(id) { return TG.H.cardOpen ? TG.H.cardOpen(id) : false; },
     waveStat(lv) { return TG.WV.stat(lv || 0); }, // 장착 능력치가 실제로 들어갔는지(범위·세기)
     magnetR() { return (4.2 + (G.mod ? G.mod.magnet : 0)) * (G.eq && G.eq.note ? 1 + G.eq.note : 1); },
-    beta(on) { if (on != null) TG.BETA_OPEN_ALL = !!on; if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return TG.beta(); }, // 11-24 베타 깃발(모든 단계 열림) 켜고 끄기 — 시험용
+    beta(on) { if (on != null) TG.BETA_OPEN_ALL = !!on; if (G.phase === 'title') TG.H.hubRefresh(true, false); return TG.beta(); }, // 11-24 베타 깃발(모든 단계 열림) 켜고 끄기 — 시험용
     skipCloseup() { G.skipCloseup(); },
     // 시험: 주인공·보조 바꾸기 (타이틀 버튼과 같은 길). hero('berri','sseni')
     hero(h, a) { if (h) setHeroNow(h, a == null ? TG.assistId : a); return { hero: TG.heroId, assist: TG.assistId }; },

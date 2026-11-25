@@ -176,7 +176,8 @@
       g += '<div class="colRowL"><span class="colOut">' + K.OUTFITS[o] + '</span>';
       for (let p = 0; p < K.N_PLACE; p++) { g += '<span class="colGrp" title="' + K.PLACES[p].name + '">';
         for (let e = 0; e < K.N_EFF; e++) { const idx = o * 20 + p * 5 + e, id = K.cid(colArtist, idx), c = K.data.c[id];
-          g += '<button type="button" class="colCell' + (c ? ' own g' + c.g : ' lock') + (K.slotOf(id) >= 0 ? ' eq' : '') + '" data-id="' + id + '" aria-label="' + (c ? K.name(id) : '아직 없는 칸') + '">' + K.effIcon(e) + (c && c.n > 1 ? '<i class="cn">' + c.n + '</i>' : '') + '</button>'; }
+          const F = K.artFiles(id); // 11-25 카드 그림: 칸 = 배경 작은 그림(CSS) + 캐릭터 작은 그림(img lazy, 주민은 실루엣 점) + 효과 아이콘 귀퉁이
+          g += '<button type="button" class="colCell p' + p + (c ? ' own g' + c.g : ' lock') + (K.slotOf(id) >= 0 ? ' eq' : '') + '" data-id="' + id + '" aria-label="' + (c ? K.name(id) : '아직 없는 칸') + '">' + (F && F.chS ? '<img class="ct" loading="lazy" decoding="async" alt="" src="' + F.chS + '">' : '<i class="cs" style="--ac:' + K.byId[colArtist].col + '"></i>') + K.effIcon(e) + (c && c.n > 1 ? '<i class="cn">' + c.n + '</i>' : '') + '</button>'; }
         g += '</span>'; }
       if (o === 0) g += '<button type="button" class="colCell uni' + (K.data.u[colArtist] ? ' own' : ' lock') + (K.slotOf(K.uid(colArtist)) >= 0 ? ' eq' : '') + '" data-id="' + K.uid(colArtist) + '" aria-label="유니크 칸"><b>★</b></button>';
       g += '</div>';

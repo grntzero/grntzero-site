@@ -5,7 +5,7 @@
    · 장착 3칸(어느 아티스트 카드든) → 능력치 5종(✨소리 크기 · 🌸범위 · 🎵줍기 자석 · ⭐이동 · 🌈큰 소리 충전), 상한 능력 하나 +10% · 합계 +15%(유니크 끼우면 15/20). 세트: 같은 아티스트 10장 칭호 「○○ 팬」 · 30장 응원 1개 켜짐(능력치, 상한 안) · 80장 도감 완성.
    · 끝까지 모드(?rank=1)·기록 재생은 능력치 끔(표준 수치 A안, v8 13-4) — game.js startPlay 가 G.eq 를 null 로. 카드 지급도 끝까지 모드는 서버 몫(12/3)이라 여기선 안 함 [대표 확인].
    · 저장 = 기기(localStorage) ez_w1_cards 하나(베타 판 번호 w1 → TG.W.wipe() 가 같이 지움). 서버(2단계 12/4)는 이 파일의 give/award 를 서버 결과로 바꾸면 됨.
-   · 카드 그림 = 코드 SVG(겹쳐 그리기: 배경 4 + 캐릭터 도형(의상 4) + 효과 표시 5 + 틀 색 4, 크레딧 0). 실제 바탕 그림(아트팀 11/27)이 오면 K.art 만 바꿈. 아이 캐릭터(쎄니·베리)도 도형(얼굴 없음). 유니크 A안 실제 사진은 유니크 날(12/1)에. */
+   · 카드 그림(11-25 대표 「카드 그림 제대로」) = 겹쳐 그리기: 틀(등급 색, 코드) + 배경 그림 4(assets/cards/bg_*.webp) + 캐릭터(게임 3D 모델 헤드리스 렌더 ch_<id>_<의상>_<표정>.webp — 11-25 대표 「의상까지 바뀌는 걸로·표정도 여러 가지」: 의상 4 = 포즈 + 옷 색·소품(무대 원래 옷+마이크·별 배지 / 연습 트레이닝복·머리띠·수건·손목밴드 / 축제 축제옷·꽃 화관·망토 / 반짝 금빛·왕관·별), 표정 4(웃음·윙크·놀람·신남, 칸마다 정해진 규칙 K.exprOf) 전부 코드·텍스처 색 바꾸기(AI 얼굴 생성 0)) + 효과 오버레이 5(fx_*.webp) + 아이콘·이름 띠. 쎄니·베리도 게임 3D 모델 그대로(실제 얼굴·AI 얼굴 X). 주민 8명은 공통 실루엣 「곧 만나요」(대표 11-25 「주민은 나중에」). 유니크 A안 실제 사진은 유니크 날(12/1)에. */
 (function () {
   'use strict';
   const TG = window.TG;
@@ -179,7 +179,9 @@
   };
   K.card = (id) => { if (!K.has(id)) return null; const s = K.split(id); if (s.idx === 'U') return { id, artist: s.artist, idx: 'U', g: 5, n: 1, unique: true }; const c = K.data.c[id]; return { id, artist: s.artist, idx: s.idx, g: c.g, n: c.n, unique: false }; };
 
-  // ── 그림(코드 SVG, 크레딧 0): 배경(장소 4) + 캐릭터 도형(아티스트 색·의상 4) + 효과 표시 + 틀 색(등급) ──
+  // ── 그림(11-25 「카드 그림 제대로」): 겹쳐 그리기 = 틀(등급 색, 코드) + 배경 그림 4(assets/cards/bg_*.webp, 힉스필드) + 캐릭터(게임 3D 모델을 헤드리스로 렌더한 ch_<id>_<의상>_<표정>.webp — 의상 4 = 포즈 + 옷 색·소품, 표정 4 = 칸 규칙 K.exprOf, 실제 얼굴·AI 얼굴 X) + 효과 오버레이 5(fx_*.webp, 힉스필드 투명) + 효과 아이콘 + 이름 띠.
+  //    주민 8명(포이~오드)은 캐릭터 그림이 아직 없음(대표 11-25 「나중에」) → 같은 틀·배경·효과에 공통 실루엣 + 「곧 만나요」. 잠긴 칸 = 배경 흐리게 + 캐릭터 어두운 실루엣 + ?. 같은 그림은 캐시. ──
+  K.ASSET = 'assets/cards/';
   const EFF_PATH = { // 44×44 좌표계 가운데 (22,22)
     spark: '<path d="M22 6 L25 19 L38 22 L25 25 L22 38 L19 25 L6 22 L19 19 Z" fill="#fff"/>',
     petal: '<g fill="#fff"><ellipse cx="22" cy="12" rx="5" ry="8"/><ellipse cx="22" cy="32" rx="5" ry="8"/><ellipse cx="12" cy="22" rx="8" ry="5"/><ellipse cx="32" cy="22" rx="8" ry="5"/><circle cx="22" cy="22" r="4" fill="#ffd23f"/></g>',
@@ -189,42 +191,44 @@
   };
   K.effIcon = (eff, size) => { const e = K.EFFECTS[eff]; return '<svg class="kEff" viewBox="0 0 44 44" aria-label="' + e.name + '" role="img"' + (size ? ' width="' + size + '" height="' + size + '"' : '') + '><circle cx="22" cy="22" r="20" fill="' + e.col + '" stroke="#1b1424" stroke-width="2"/>' + EFF_PATH[e.id] + '</svg>'; };
   const shade = (hex, k) => { const n = parseInt(hex.slice(1), 16); const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; const f = (v) => Math.max(0, Math.min(255, Math.round(k >= 0 ? v + (255 - v) * k : v * (1 + k)))); return '#' + [f(r), f(g), f(b)].map((v) => v.toString(16).padStart(2, '0')).join(''); };
-  const bgArt = (p, uid) => {
-    const P = K.PLACES[p]; let s = '<rect x="0" y="0" width="100" height="140" fill="url(#' + uid + 'bg)"/>';
-    if (P.id === 'plaza') s += '<rect x="36" y="30" width="28" height="70" rx="6" fill="#c9a23a" stroke="#7a5a10" stroke-width="1.5"/><circle cx="50" cy="42" r="9" fill="#ffd23f" stroke="#7a5a10" stroke-width="1.5"/><rect x="0" y="100" width="100" height="40" fill="#e0bb52" opacity="0.7"/>';
-    else if (P.id === 'grove') s += '<circle cx="22" cy="50" r="16" fill="#3f8f3a"/><rect x="18" y="60" width="8" height="30" fill="#7a5a10"/><circle cx="80" cy="42" r="19" fill="#4caf50"/><rect x="76" y="56" width="8" height="34" fill="#7a5a10"/><rect x="0" y="100" width="100" height="40" fill="#8bd27a"/>';
-    else if (P.id === 'neon') s += '<rect x="8" y="28" width="22" height="80" fill="#23245f"/><rect x="70" y="36" width="24" height="72" fill="#23245f"/><rect x="12" y="34" width="4" height="60" fill="#2fe0f0" opacity="0.8"/><rect x="86" y="42" width="4" height="52" fill="#ff5fb8" opacity="0.8"/><rect x="0" y="104" width="100" height="36" fill="#15163a"/>';
-    else s += '<circle cx="18" cy="22" r="2" fill="#fff"/><circle cx="70" cy="14" r="1.6" fill="#fff"/><circle cx="86" cy="36" r="2.2" fill="#fff"/><circle cx="40" cy="30" r="1.4" fill="#fff"/><path d="M0 110 Q50 70 100 108 V140 H0 Z" fill="#4a3a8a"/>';
-    return s;
-  };
-  const figArt = (a, out, kid) => { // 둥근 머리 + 몸(의상 색·무늬), 얼굴은 점 눈만(아이도 같음 — 실제 얼굴 X)
-    const base = a.col, body = out === 1 ? shade(base, 0.35) : out === 2 ? shade(base, -0.3) : base, trim = out === 3 ? '#ffd23f' : shade(base, -0.45);
-    const hy = kid ? 66 : 60, by = kid ? 84 : 80, hr = kid ? 13 : 12;
-    let s = '<g>';
-    s += '<rect x="34" y="' + by + '" width="32" height="' + (kid ? 30 : 36) + '" rx="10" fill="' + body + '" stroke="#1b1424" stroke-width="2"/>';
-    if (out === 1) s += '<rect x="34" y="' + (by + 10) + '" width="32" height="5" fill="' + trim + '" opacity="0.8"/>';
-    if (out === 2) s += '<circle cx="44" cy="' + (by + 12) + '" r="2.4" fill="' + trim + '"/><circle cx="56" cy="' + (by + 12) + '" r="2.4" fill="' + trim + '"/><circle cx="50" cy="' + (by + 22) + '" r="2.4" fill="' + trim + '"/>';
-    if (out === 3) s += '<path d="M34 ' + (by + 4) + ' h32" stroke="' + trim + '" stroke-width="3"/><path d="M50 ' + (by + 12) + ' l2.5 5 5.5 .8 -4 3.9 1 5.5 -5 -2.6 -5 2.6 1 -5.5 -4 -3.9 5.5 -.8z" fill="' + trim + '"/>';
-    s += '<circle cx="50" cy="' + hy + '" r="' + hr + '" fill="#ffe4c8" stroke="#1b1424" stroke-width="2"/>';
-    s += '<path d="M' + (50 - hr) + ' ' + (hy - 3) + ' a' + hr + ' ' + hr + ' 0 0 1 ' + hr * 2 + ' 0 v-2 a' + hr + ' ' + hr + ' 0 0 0 -' + hr * 2 + ' 0z" fill="' + shade(base, -0.5) + '"/>';
-    s += '<circle cx="45.5" cy="' + (hy + 1) + '" r="1.6" fill="#1b1424"/><circle cx="54.5" cy="' + (hy + 1) + '" r="1.6" fill="#1b1424"/>';
-    s += '<rect x="26" y="' + (by + 4) + '" width="8" height="18" rx="4" fill="' + body + '" stroke="#1b1424" stroke-width="2"/><rect x="66" y="' + (by + 4) + '" width="8" height="18" rx="4" fill="' + body + '" stroke="#1b1424" stroke-width="2"/>';
-    s += '</g>'; return s;
-  };
+  const OUT_GLOW = ['#fff3b0', '#bfe9ff', '#ffd0e8', '#fff9c4']; // 의상별 캐릭터 뒤 빛(무대 노랑 · 연습 하늘 · 축제 분홍 · 반짝 크림)
+  // 파일 이름: 캐릭터 그림은 플레이 5명만(play:true). 주민은 null → 실루엣
+  K.EXPRS = ['웃음', '윙크', '놀람', '신남'];                       // 표정 4(11-25 「표정도 여러 가지」) — 그림 파일 이름 ch_<id>_<의상>_<표정>.webp
+  K.exprOf = (p) => (p.place + p.eff) % 4;                          // 칸마다 정해진 표정(배경+효과 번호, 저장 데이터·규칙과 무관 — 같은 칸은 늘 같은 표정, 의상 줄 20칸 안에 4표정이 섞임)
+  K.artFiles = (id) => { const s = K.split(id), a = K.byId[s.artist]; if (!a) return null; const p = s.idx === 'U' ? { out: 3, place: 0, eff: K.effOf(id) } : K.parts(s.idx), ch = 'ch_' + a.id + '_' + p.out + '_' + K.exprOf(p);
+    return { bg: K.ASSET + 'bg_' + K.PLACES[p.place].id + '.webp', bgS: K.ASSET + 'bg_' + K.PLACES[p.place].id + '_s.webp', ch: a.play ? K.ASSET + ch + '.webp' : null, chS: a.play ? K.ASSET + ch + '_s.webp' : null, fx: K.ASSET + 'fx_' + K.EFFECTS[p.eff].id + '.webp', expr: K.EXPRS[K.exprOf(p)] }; };
+  // 주민 공통 실루엣(얼굴 없음): 둥근 머리 + 몸 + 음표, 아티스트 색 반투명
+  const silArt = (a, dark) => { const c = dark ? '#2a2238' : shade(a.col, -0.15); return '<g opacity="' + (dark ? '0.8' : '0.85') + '"><ellipse cx="50" cy="112" rx="22" ry="4" fill="#1b1424" opacity="0.25"/><rect x="34" y="72" width="32" height="38" rx="12" fill="' + c + '"/><rect x="25" y="78" width="9" height="20" rx="4.5" fill="' + c + '"/><rect x="66" y="78" width="9" height="20" rx="4.5" fill="' + c + '"/><circle cx="50" cy="58" r="15" fill="' + c + '"/>' + (dark ? '' : '<path d="M56 86 v12 a3.5 3.5 0 1 1 -2.2 -3.2 V84 l9 -2 v10 a3.5 3.5 0 1 1 -2.2 -3.2 V85 z" fill="#fff" opacity="0.9"/>') + '</g>'; };
   let artN = 0; const artCache = {};
   // K.art(id, g, size) → SVG 글. g = 등급(1~4, 5 = 유니크). 모르는 칸(실루엣)은 K.art(id, 0)
   K.art = function (id, g, size) {
     const key = id + '/' + g + '/' + (size || 0); if (artCache[key]) return artCache[key];
     const s = K.split(id), a = K.byId[s.artist] || K.ARTISTS[0], unique = s.idx === 'U', p = unique ? { out: 3, place: 0, eff: K.effOf(id) } : K.parts(s.idx);
-    const G = unique ? K.UNIQUE : K.GRADES[g || 1], uid = 'ka' + (artN++), locked = g === 0, P = K.PLACES[p.place];
+    const G = unique ? K.UNIQUE : K.GRADES[g || 1], uid = 'ka' + (artN++), locked = g === 0, F = K.artFiles(id);
     let h = '<svg class="kArt' + (locked ? ' lock' : '') + '" viewBox="0 0 100 140" role="img" aria-label="' + (locked ? '아직 없는 카드' : K.name(id)) + '"' + (size ? ' width="' + size + '" height="' + Math.round(size * 1.4) + '"' : '') + '>';
-    h += '<defs><linearGradient id="' + uid + 'bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + P.c1 + '"/><stop offset="1" stop-color="' + P.c2 + '"/></linearGradient>' + (unique ? '<linearGradient id="' + uid + 'u" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="0.5" stop-color="#7a5cff"/><stop offset="1" stop-color="#2fe0f0"/></linearGradient>' : '') + '<clipPath id="' + uid + 'c"><rect x="7" y="7" width="86" height="110" rx="6"/></clipPath></defs>';
-    h += '<rect x="1.5" y="1.5" width="97" height="137" rx="10" fill="' + (unique ? 'url(#' + uid + 'u)' : G.col) + '" stroke="#1b1424" stroke-width="3"/>';
-    h += '<g clip-path="url(#' + uid + 'c)">' + bgArt(p.place, uid) + figArt(a, p.out, !!a.kid) + '</g>';
-    if (locked) h += '<rect x="7" y="7" width="86" height="110" rx="6" fill="#5b5566" opacity="0.82"/><text x="50" y="68" text-anchor="middle" font-size="26" font-weight="900" fill="#fff">?</text>';
+    h += '<defs><linearGradient id="' + uid + 'f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + shade(G.col, 0.55) + '"/><stop offset="0.45" stop-color="' + G.col + '"/><stop offset="1" stop-color="' + shade(G.col, -0.35) + '"/></linearGradient>'
+      + (unique ? '<linearGradient id="' + uid + 'u" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="0.5" stop-color="#7a5cff"/><stop offset="1" stop-color="#2fe0f0"/></linearGradient>' : '')
+      + '<radialGradient id="' + uid + 'g" cx="0.5" cy="0.62" r="0.5"><stop offset="0" stop-color="' + OUT_GLOW[p.out] + '" stop-opacity="0.85"/><stop offset="1" stop-color="' + OUT_GLOW[p.out] + '" stop-opacity="0"/></radialGradient>'
+      + '<clipPath id="' + uid + 'c"><rect x="7" y="7" width="86" height="110" rx="6"/></clipPath>'
+      + (locked ? '<filter id="' + uid + 's" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0.16  0 0 0 0 0.13  0 0 0 0 0.22  0 0 0 0.85 0"/></filter>' : '') + '</defs>';
+    // 틀(등급 색 그라데이션 / 유니크 무지개) + 안쪽 테두리 선
+    h += '<rect x="1.5" y="1.5" width="97" height="137" rx="10" fill="' + (unique ? 'url(#' + uid + 'u)' : 'url(#' + uid + 'f)') + '" stroke="#1b1424" stroke-width="3"/>';
+    h += '<rect x="5" y="5" width="90" height="114" rx="7.5" fill="none" stroke="' + (unique ? '#fff' : shade(G.col, 0.7)) + '" stroke-width="1.2" opacity="0.9"/>';
+    // 안: 배경 그림 → 의상 빛 → 그림자 → 캐릭터(렌더 webp / 주민 실루엣) → 효과 오버레이
+    h += '<g clip-path="url(#' + uid + 'c)">';
+    h += '<image href="' + F.bg + '" x="7" y="7" width="86" height="110" preserveAspectRatio="xMidYMid slice"' + (locked ? ' opacity="0.4"' : '') + '/>';
+    if (!locked) h += '<ellipse cx="50" cy="78" rx="40" ry="42" fill="url(#' + uid + 'g)"/>';
+    if (!locked) h += '<ellipse cx="50" cy="113" rx="24" ry="4.5" fill="#1b1424" opacity="0.28"/>';
+    if (F.ch) h += '<image href="' + F.ch + '" x="7" y="12" width="86" height="104" preserveAspectRatio="xMidYMax meet"' + (locked ? ' filter="url(#' + uid + 's)"' : '') + '/>';
+    else h += silArt(a, locked);
+    if (!locked) h += '<image href="' + F.fx + '" x="7" y="7" width="86" height="110" preserveAspectRatio="xMidYMid slice" opacity="0.95"/>';
+    h += '</g>';
+    if (locked) h += '<rect x="7" y="7" width="86" height="110" rx="6" fill="#2a2238" opacity="0.35"/><text x="50" y="72" text-anchor="middle" font-size="28" font-weight="900" fill="#fff" stroke="#1b1424" stroke-width="1.5" paint-order="stroke">?</text>';
+    // 등급 3·4단·유니크: 네 귀퉁이 보석
+    if (!locked && (unique || g >= 3)) { const gem = unique ? '#fff' : shade(G.col, 0.75); [[7.5, 7.5], [92.5, 7.5], [7.5, 116.5], [92.5, 116.5]].forEach((c) => { h += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="2.6" fill="' + gem + '" stroke="#1b1424" stroke-width="1"/>'; }); }
     h += '<g transform="translate(66 10) scale(0.6)">' + K.effIcon(p.eff).replace('<svg class="kEff" viewBox="0 0 44 44"', '<svg viewBox="0 0 44 44" width="44" height="44"') + '</g>';
     h += '<rect x="7" y="117" width="86" height="17" rx="4" fill="#fff6e0" stroke="#1b1424" stroke-width="1.5"/>';
-    h += '<text x="50" y="129.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#1b1424">' + (locked ? '?' : unique ? a.name + ' 유니크' : a.name + ' · ' + K.OUTFITS[p.out]) + '</text>';
+    h += '<text x="50" y="129.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#1b1424">' + (locked ? '?' : unique ? a.name + ' 유니크' : F.ch ? a.name + ' · ' + K.OUTFITS[p.out] : a.name + ' · 곧 만나요') + '</text>';
     if (!locked) h += '<text x="12" y="19" font-size="9" font-weight="900" fill="' + G.ink + '" stroke="#fff" stroke-width="2.4" paint-order="stroke">' + (unique ? '★' : G.name) + '</text>';
     h += '</svg>';
     return (artCache[key] = h);

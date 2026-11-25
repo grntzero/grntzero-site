@@ -546,14 +546,18 @@ body.hasGear #result #rStamp { margin-bottom: calc(3px * var(--s)); }
 .colRowL { display: flex; align-items: center; gap: calc(5px * var(--s)); }
 .colOut { flex: none; width: calc(44px * var(--s)); font-size: calc(10.5px * var(--s)); text-align: right; white-space: nowrap; opacity: 0.85; }
 .colGrp { display: inline-flex; gap: calc(2px * var(--s)); padding: calc(2px * var(--s)); border-radius: calc(7px * var(--s)); background: rgba(27,20,36,0.08); }
-.colCell { position: relative; font: inherit; width: calc(24px * var(--s)); height: calc(24px * var(--s)); padding: 0; border: 2px solid var(--ink); border-radius: calc(6px * var(--s)); background: #fff; box-shadow: 0 2px 0 var(--ink); display: inline-flex; align-items: center; justify-content: center; }
-.colCell .kEff { width: calc(17px * var(--s)); height: calc(17px * var(--s)); }
-.colCell.lock { background: #c9c2d0; border-color: #6b5d80; box-shadow: 0 2px 0 #6b5d80; } .colCell.lock .kEff { opacity: 0.25; filter: grayscale(1); }
-.colCell.own.g1 { background: #cfd3dc; } .colCell.own.g2 { background: #8fe07f; } .colCell.own.g3 { background: #ffe066; } .colCell.own.g4 { background: #ff8a7a; }
+.colCell { position: relative; font: inherit; width: calc(25px * var(--s)); height: calc(30px * var(--s)); padding: 0; border: 2px solid var(--ink); border-radius: calc(6px * var(--s)); background: #fff center / cover no-repeat; box-shadow: 0 2px 0 var(--ink); display: inline-flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+/* 11-25 카드 그림: 칸 배경 = 장소 작은 그림(4종, 1KB), 캐릭터 = 작은 webp(lazy), 효과 아이콘은 오른쪽 위 귀퉁이, 등급 = 테두리 색 */
+.colCell.p0 { background-image: url(../assets/cards/bg_plaza_s.webp); } .colCell.p1 { background-image: url(../assets/cards/bg_grove_s.webp); } .colCell.p2 { background-image: url(../assets/cards/bg_neon_s.webp); } .colCell.p3 { background-image: url(../assets/cards/bg_hill_s.webp); }
+.colCell .ct { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; pointer-events: none; }
+.colCell .cs { --ac: #888; display: block; width: calc(11px * var(--s)); height: calc(16px * var(--s)); margin-bottom: 2px; border-radius: 50% 50% 35% 35%; background: var(--ac); opacity: 0.8; }
+.colCell .kEff { position: absolute; right: -1px; top: -1px; width: calc(11px * var(--s)); height: calc(11px * var(--s)); }
+.colCell.lock { border-color: #6b5d80; box-shadow: 0 2px 0 #6b5d80; } .colCell.lock::before { content: ""; position: absolute; inset: 0; background: rgba(42,34,56,0.55); } .colCell.lock .ct, .colCell.lock .cs { filter: brightness(0.15) grayscale(1); opacity: 0.7; } .colCell.lock .kEff { opacity: 0.35; filter: grayscale(1); }
+.colCell.own.g1 { border-color: #cfd3dc; box-shadow: 0 2px 0 #8a909c; } .colCell.own.g2 { border-color: #4cc93a; box-shadow: 0 2px 0 #1f5a14; } .colCell.own.g3 { border-color: #ffd23f; box-shadow: 0 2px 0 #7a5a10; } .colCell.own.g4 { border-color: #e5352b; box-shadow: 0 2px 0 #7a1a14; }
 .colCell.eq::after { content: ""; position: absolute; left: -4px; top: -4px; right: -4px; bottom: -4px; border: 2px solid #7a5cff; border-radius: calc(8px * var(--s)); pointer-events: none; }
 .colCell .cn { position: absolute; right: -4px; bottom: -5px; font-size: calc(9px * var(--s)); background: #e5352b; color: #fff; border-radius: 99px; padding: 0 3px; line-height: 1.2; font-style: normal; border: 1.5px solid var(--ink); }
-.colCell.uni { margin-left: calc(6px * var(--s)); width: calc(26px * var(--s)); height: calc(26px * var(--s)); background: linear-gradient(135deg, #ffd23f, #7a5cff, #2fe0f0); color: #fff; }
-.colCell.uni b { font-size: calc(14px * var(--s)); text-shadow: 0 1px 0 var(--ink); } .colCell.uni.lock { background: #c9c2d0; color: #6b5d80; }
+.colCell.uni { margin-left: calc(6px * var(--s)); width: calc(26px * var(--s)); height: calc(30px * var(--s)); align-items: center; background: linear-gradient(135deg, #ffd23f, #7a5cff, #2fe0f0); color: #fff; }
+.colCell.uni b { font-size: calc(14px * var(--s)); text-shadow: 0 1px 0 var(--ink); position: relative; } .colCell.uni.lock { background: #c9c2d0; color: #6b5d80; }
 .colNote { margin-top: calc(5px * var(--s)); font-size: calc(10.5px * var(--s)); text-align: center; word-break: keep-all; opacity: 0.85; line-height: 1.25; }
 .colNote.flash { opacity: 1; color: #b8241b; }
 #colPick .btns { margin-top: calc(5px * var(--s)); }
