@@ -3,7 +3,7 @@
   'use strict';
   const TG = window.TG, T = THREE;
   const FX = (TG.FX = {});
-  const CELL = { star: 0, glow: 1, bubble: 2, note: 3, note2: 4, sparkle: 5, puff: 6, flower: 7, dot: 8, drop: 9, ring: 10, heart: 11 };
+  const CELL = { star: 0, glow: 1, bubble: 2, note: 3, note2: 4, sparkle: 5, puff: 6, flower: 7, dot: 8, drop: 9, ring: 10, heart: 11, impact: 12, gear: 13 }; // 11-25 타격감: 12 충격 파편(뾰족 번쩍), 13 톱니 조각
   FX.CELL = CELL;
 
   // ── 입자 아틀라스 (흰색으로 그려 색은 곱해서 입힘) ──
@@ -55,6 +55,10 @@
       cell(10, () => { c.lineWidth = 10; c.strokeStyle = '#fff'; c.beginPath(); c.arc(0, 0, 50, 0, Math.PI * 2); c.stroke(); });
       // 11 하트 (째깍이 고마워)
       cell(11, () => { c.lineWidth = 9; c.strokeStyle = 'rgba(30,20,40,0.9)'; c.beginPath(); c.moveTo(0, 40); c.bezierCurveTo(-60, 0, -40, -50, 0, -20); c.bezierCurveTo(40, -50, 60, 0, 0, 40); c.stroke(); c.fillStyle = '#fff'; c.fill(); });
+      // 12 충격 파편: 길이가 들쭉날쭉한 뾰족 번쩍 10가닥 (맞는 자리에 한 순간, 만화 「퍽」 효과선) — 11-25 타격감
+      cell(12, () => { c.lineJoin = 'round'; c.beginPath(); const R = [60, 30, 46, 26, 58, 28, 44, 24, 56, 30]; for (let i = 0; i < 20; i++) { const r = i % 2 ? 11 : R[(i / 2) | 0], a = (i / 20) * Math.PI * 2 - Math.PI / 2; c.lineTo(Math.cos(a) * r, Math.sin(a) * r); } c.closePath(); c.lineWidth = 9; c.strokeStyle = 'rgba(30,20,40,0.9)'; c.stroke(); c.fillStyle = '#fff'; c.fill(); c.fillStyle = 'rgba(30,20,40,0.55)'; c.beginPath(); c.arc(0, 0, 7, 0, Math.PI * 2); c.fill(); });
+      // 13 톱니 조각: 작은 톱니(이 8개 + 가운데 구멍) — 황동색을 곱해 씀 — 11-25 타격감
+      cell(13, () => { c.lineJoin = 'round'; c.beginPath(); for (let i = 0; i < 32; i++) { const k = i % 4, r = k === 0 || k === 1 ? 44 : 32, a = (i / 32) * Math.PI * 2; c.lineTo(Math.cos(a) * r, Math.sin(a) * r); } c.closePath(); c.lineWidth = 9; c.strokeStyle = 'rgba(30,20,40,0.9)'; c.stroke(); c.fillStyle = '#fff'; c.fill(); c.beginPath(); c.arc(0, 0, 12, 0, Math.PI * 2); c.fillStyle = 'rgba(30,20,40,0.9)'; c.fill(); });
     });
   }
 
@@ -109,7 +113,7 @@
 
   // 꾸밈 입자(별·거품·음표·반짝·점) 동시 상한: 안개가 많을수록 줄여 SEFO·안개가 묻히지 않게 (game.js 가 FX.crowd 를 매 프레임 알려 줌)
   FX.crowd = 0;
-  const DECO = [1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0];
+  const DECO = [1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1]; // 12 충격 파편은 늘(한 번에 1장), 13 톱니 조각은 꾸밈 상한을 따름
   FX.thin = () => (FX.crowd > 55 ? 0.45 : FX.crowd > 30 ? 0.7 : 1);
   const decoCap = () => (FX.crowd > 55 ? 420 : FX.crowd > 30 ? 700 : 1400);
   // 입자 하나 내기
@@ -188,9 +192,13 @@
     FX.emit(CELL.glow, x, y, z, { life: 0.1, size: big ? 1.6 : 0.9, size1: big ? 2.1 : 1.3, color: [1.6, 1.55, 1.5], alpha: 0.4 });
   };
   // 명중 순서: (접촉·히트 스톱은 규칙 쪽) → 흰 번쩍 → 거품 → 별 입자
+  const BRASS = [2.0, 1.5, 0.55];
   FX.hitSeq = function (x, y, z, level, tint, bub) { // bub = 거품 색(안 주면 연보라)
     const big = level >= 2, s = 1 + level * 0.22;
     FX.emit(CELL.glow, x, y, z, { life: 0.09, size: 0.7 * s, size1: 1.2 * s, color: tint || [1.35, 1.2, 1.7], alpha: 0.4 });
+    // 11-25 타격감: 맞는 자리에 뾰족 충격 파편 한 장(0.13초, 0.55 → 1.5배로 벌어지며 사라짐, 매번 다른 각도) + 황동 톱니 조각 2~4개(튀어 올라 떨어짐, 빙글)
+    FX.emit(CELL.impact, x, y + 0.15, z, { life: 0.13, size: 0.55 * s, size1: 1.5 * s, color: [1.9, 1.85, 1.7], alpha: 0.95, rot: TG.fra(0, 6.28), vrot: TG.fra(-3, 3) });
+    for (let i = 0, ng = Math.max(1, Math.round((2 + level) * FX.thin())); i < ng; i++) { const a = TG.fr() * 6.283, sp = TG.fra(2.5, 5) * (big ? 1.3 : 1); FX.emit(CELL.gear, x, y + 0.2, z, { vx: Math.cos(a) * sp, vy: TG.fra(3, 6), vz: Math.sin(a) * sp, life: TG.fra(0.35, 0.5), size: TG.fra(0.2, 0.3) * (big ? 1.3 : 1), size1: 0.06, color: BRASS, grav: 14, drag: 1.5, vrot: TG.fra(-14, 14), pop: true }); }
     FX.later(0.035, () => {
       for (let i = 0, nb = Math.max(1, Math.round((3 + level) * FX.thin())); i < nb; i++) { const a = TG.fr() * 6.283, sp = TG.fra(2, 4) * s; FX.emit(CELL.bubble, x, y, z, { vx: Math.cos(a) * sp, vy: TG.fra(0.5, 2.5), vz: Math.sin(a) * sp, life: TG.fra(0.2, 0.3), size: 0.16 * s, size1: 0.26 * s, color: bub || LAV, drag: 4.5, grav: -1, pop: true }); }
     });
@@ -394,7 +402,9 @@
   // 폰 진동은 js/haptics.js(GZHaptics) + game.js 사건별 패턴으로 옮김(2026-11-13). 화면 흔들림 설정과 따로 켜고 끔
   FX.shake = function (a) { if (shakeOn()) { FX.trauma = Math.min(1, FX.trauma + a); } };
   // 히트 스톱: 규칙 계산 걸음(1/60초) 수로 멈춤 → 같은 입력이면 늘 같은 결과
-  FX.hitstop = function (ms) { const G = TG.G; if (G) G.freeze = Math.max(G.freeze || 0, Math.max(1, Math.round(ms / 16.667))); };
+  // 11-25 타격감: 겹치면 더 긴 쪽 하나만(합치지 않음), 최대 400ms(보스 마지막 명중). 걸음 수 = round(ms/16.667): 50→3, 84→5, 100→6
+  FX.HS_MAX_MS = 400;
+  FX.hitstop = function (ms) { const G = TG.G; if (G) G.freeze = Math.max(G.freeze || 0, Math.max(1, Math.round(Math.min(ms, FX.HS_MAX_MS) / 16.667))); };
   FX.punch = function (a) { if (shakeOn()) FX.punchV = Math.min(0.12, FX.punchV + a); };
   FX.camUpdate = function (dt) {
     FX.trauma = Math.max(0, FX.trauma - dt * 1.7);

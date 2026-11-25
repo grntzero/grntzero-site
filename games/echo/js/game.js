@@ -468,7 +468,10 @@
   };
 
   // ── 명중 처리 (파동·친구 음표·큰 소리·함께하는 친구 공통). 대상은 안개·기계뿐 ──
-  // 순서: 접촉 → 히트 스톱(보통 1걸음, 강한 것만 길게) → 흰 번쩍 → 거품 → 별 → 안개가 눌렸다 터짐 → 음표 방울
+  // 순서: 접촉 → 히트 스톱(보통 3걸음, 강한 것만 길게) → 흰 번쩍 → 충격 파편·톱니 조각 → 거품 → 별 → 안개가 눌렸다 터짐 → 음표 방울
+  // 11-25 타격감(참고 릴스: 한 대 맞는 순간 약 0.1초 멈칫 → 납작 → 고무공 → 흔들림·번쩍 → 파편·숫자·소리). 규칙·밸런스 0 변경 — 히트 스톱은 규칙 걸음(G.tick)·규칙 시간(G.time)을 함께 멈추므로 쿨타임·타이머·안개 움직임이 모두 공평하게 멈춤(빠른 시험 run 에선 건너뜀 → 시험 결과 불변)
+  const HS = { hit: 50, hit2: 84, hit3: 100, bounce: 17, pop: 50, popBig: 84, convert: 67, boss: 50, boss2: 84, cd: 0.14, cdPop: 0.14, max: 400 }; // ms · 평타 1번 뒤 쉼(초) · 최대
+  G.HS = HS;
   let mirrorBusy = false; // 거울 튕김이 또 튕기지 않게
   G.hitUnit = function (u, dmg, ox, oz, quiet, level, tint) {
     const big = dmg >= 50, lv = level || 0;
@@ -480,14 +483,15 @@
       for (let i = 0; i < 3; i++) FX.emit(FX.CELL.ring, u.x, y, u.z, { life: 0.34 + i * 0.12, size: 0.5, size1: 2.4 + i * 1.3, color: [0.8, 1.4, 2.4], alpha: 0.9 });
       FX.text('통!', u.x, y + 1.6, u.z, 'echo');
       TG.A.syn('echo');
-      if (G.hsCd <= 0) { FX.hitstop(17); G.hsCd = 0.1; }
+      if (G.hsCd <= 0) { FX.hitstop(HS.bounce); G.hsCd = 0.1; }
       return r;
     }
     if (!quiet) {
-      if (lv >= 2) FX.hitstop(lv === 3 ? 50 : 34);
-      else if (G.hsCd <= 0) { FX.hitstop(34); G.hsCd = 0.12; } // 11-18 타격감: 기본 맞힘 히트 스톱 17 → 34ms(2프레임, 0.12초에 1번). 그림·실제 시간만 멈추고 규칙 걸음(G.tick·G.time)은 그대로(simTick freeze → step 건너뜀, api.run 은 걸음 수로 셈)
+      if (lv >= 2) { FX.hitstop(lv === 3 ? HS.hit3 : HS.hit2); FX.shake(lv === 3 ? 0.28 : 0.18); } // 11-25 타격감: 큰 소리 2·3단 84/100ms + 흔들림
+      else if (G.hsCd <= 0) { FX.hitstop(HS.hit); G.hsCd = HS.cd; FX.shake(lv === 1 ? 0.1 : 0.07); } // 11-25 타격감: 평타 34 → 50ms(3걸음), 0.14초에 1번 + 살짝 흔들림(설정 「화면 흔들림」 끄면 0). 11-18: 그림·실제 시간만 멈추고 규칙 걸음은 건너뜀(simTick freeze), api.run 은 걸음 수로 셈
       P().kick(1.4); // 11-18 타격감: 맞힌 순간 주인공 몸이 톡(반동 확인)
       TG.A.play('sfx_pop', { rate: 2.1 + lv * 0.15 + TG.fra(-0.08, 0.08), gain: 0.16 }); // 11-18 타격감: 맞을 때 작은 퐁 한 겹 더(hitSmall 톡 위에)
+      TG.A.syn('thud', { lv }); // 11-25 타격감: 「퍽」 낮은 타격음 한 겹(audio.js SYN.thud, 코드 합성)
     }
     FX.hitSeq(u.x, y, u.z, lv, tint);
     if ((!quiet || big) && r !== 'convert') vib(big ? 'hit3' : lv >= 3 ? 'hit3' : lv >= 2 ? 'hit2' : 'hit'); // 바뀌는 순간은 아래 처치 진동만
@@ -505,13 +509,12 @@
       }
     }
     if (!quiet) TG.A.hitSmall();
-    if (lv === 3 && !quiet) FX.shake(0.2);
     if (r === 'convert') {
       FX.popBurst(u.x, 1, u.z, 1.0, [0.8, 2.2, 2.0]);
       FX.text('춤추는 째깍이!', u.x, 2.6, u.z, 'word');
       for (let i = 0; i < 6; i++) FX.emit(FX.CELL.note2, u.x, 1.2, u.z, { vx: TG.fra(-3, 3), vy: TG.fra(3, 6), vz: TG.fra(-3, 3), life: 0.9, size: 0.6, size1: 0.3, color: [[2.4, 0.6, 0.5], [2.4, 2.0, 0.6], [0.6, 2.2, 2.0]][i % 3], grav: 6, pop: true });
       TG.A.pop(G.combo, true); TG.A.play('sfx_pick', { rate: 1.5, gain: 0.6 });
-      FX.hitstop(45); FX.shake(0.18); vib('kill');
+      FX.hitstop(HS.convert); FX.shake(0.18); vib('kill');
       if (!u.byBig) addGauge(8);
       G.popped++; G.lastPopT = G.time; G.arrowU = null;
       TG.F.dropNotes(u.x, u.z, 4, 1, !!u.byBig);
@@ -531,7 +534,7 @@
     else FX.dmg('boss', Math.round(dmg * 120), b.x, 4.6 * b.scale + 0.6, b.z, lv);
     addCombo();
     if (!quiet && r !== 'phase' && r !== 'dead') vib(lv >= 2 ? 'hit2' : 'hit'); // 단계·마지막 명중은 아래 큰 진동만
-    if (!quiet) { TG.A.hitSmall(); if (G.hsCd <= 0) { FX.hitstop(lv >= 2 ? 50 : 34); G.hsCd = 0.12; P().kick(1.4); } } // 11-18 타격감: 보스 맞힘도 34/50ms + 반동
+    if (!quiet) { TG.A.hitSmall(); TG.A.syn('thud', { lv: Math.min(lv, 2) }); if (G.hsCd <= 0) { FX.hitstop(lv >= 2 ? HS.boss2 : HS.boss); G.hsCd = HS.cd; P().kick(1.4); FX.shake(lv >= 2 ? 0.16 : 0.08); } } // 11-25 타격감: 보스 맞힘 50/84ms + 반동 + 살짝 흔들림 + 퍽
     if (r === 'phase') {
       FX.hitstop(100); FX.shake(0.55); FX.punch(0.06); TG.R.bloomPulse = 0.12; vib('bossPhase');
       FX.popBurst(b.x, 2.5, b.z, 2.0, [1.3, 1.26, 1.16]); FX.ring(b.x, b.z, { r0: 1, r1: 8, dur: 0.5, color: 0xfff3d6, width: 0.1, alpha: 0.7, hdr: 1.1 });
@@ -555,12 +558,12 @@
     for (let i = 0; i < (big ? 4 : 2); i++) FX.emit(i % 2 ? FX.CELL.note : FX.CELL.note2, u.x, y + 0.3, u.z, { vx: TG.fra(-2.5, 2.5), vy: TG.fra(4, 6.5), vz: TG.fra(-2.5, 2.5), life: 0.8, size: 0.55, size1: 0.3, color: [[2.4, 0.6, 0.5], [2.4, 2.0, 0.6], [0.7, 1.9, 2.4]][(TG.fr() * 3) | 0], grav: 9, pop: true, vrot: TG.fra(-3, 3), rot: 0 });
     TG.A.pop(G.combo, big);
     vib(big ? 'killBig' : 'kill');
-    if (big) { FX.hitstop(50); FX.shake(0.22); FX.punch(0.025); FX.text('퐁!', u.x, y + 1.6, u.z, 'pop'); }
+    if (big) { FX.hitstop(HS.popBig); FX.shake(0.22); FX.punch(0.025); FX.text('퐁!', u.x, y + 1.6, u.z, 'pop'); }
     else if (u.byBig && G.combo > 0 && G.combo % 10 === 0) FX.text('퐁!', u.x, y + 1.2, u.z, 'pop');
     G.popped++;
     if (u.seed) { G.seedPops = (G.seedPops || 0) + 1; FX.text('열매 익었다!', u.x, y + 1.7, u.z, 'cheer'); for (let i = 0; i < 5; i++) FX.emit(FX.CELL.heart, u.x, y + 0.4, u.z, { vx: TG.fra(-2, 2), vy: TG.fra(3, 5.5), vz: TG.fra(-2, 2), life: 0.8, size: 0.5, size1: 0.2, color: [2.4, 0.7, 0.8], grav: 7, rot: 0, pop: true }); TG.FL.add(u.x, u.z, false); TG.A.play('sfx_pick', { rate: 1.6, gain: 0.5 }); } // 11-24 베리 「씨앗 안개」 퐁 → 열매 익음 + 꽃 자국(밟으면 조금 회복 — 응원 「버티게」)
     if (u.dark) { G.darkPops = (G.darkPops || 0) + 1; FX.text('불 켜졌다!', u.x, y + 1.9, u.z, 'cheer'); FX.ring(u.x, u.z, { r0: 0.5, r1: 6, dur: 0.6, color: 0x9ff4ff, width: 0.25, hdr: 1.3, alpha: 0.8 }); TG.R.bloomPulse = Math.max(TG.R.bloomPulse || 0, 0.3); TG.A.play('sfx_pick', { rate: 1.3, gain: 0.5 }); } // 11-24 모쉬 깜깜 안개 퐁 → 불 켜짐(그림)
-    if (!u.byBig && !big && G.hsCd <= 0) { FX.hitstop(34); G.hsCd = 0.1; } // 11-18 타격감: 평타로 퐁 날 때도 34ms(큰 소리 연쇄 퐁은 X — 화면이 끊기지 않게)
+    if (!u.byBig && !big && G.hsCd <= 0) { FX.hitstop(HS.pop); G.hsCd = HS.cdPop; } // 11-25 타격감: 평타로 퐁 날 때도 50ms(큰 소리 연쇄 퐁은 X — 화면이 끊기지 않게)
     if (!u.byBig) addGauge(big ? 8 : u.kind === 'echo' ? 6 : 4);
     G.lastPopT = G.time; G.arrowU = null; // 11-16 남은 안개 화살표: 터뜨리면 시계 다시
     TG.F.dropNotes(u.x, u.z, big ? 3 : u.kind === 'echo' ? 2 : 1, 1, !!u.byBig);
@@ -1524,7 +1527,7 @@
   // ── 매 프레임: 밀린 시간만큼 규칙 계산을 1/60초 걸음으로 돌리고, 그리기는 한 번 ──
   function frame(now) {
     requestAnimationFrame(frame);
-    const rdt = TG.clamp((now - last) / 1000 || 0.016, 0, 0.1);
+    const rdt = TG.clamp((now - last) / 1000 || 0.016, 0, 0.1) * (api.slowK || 1); // 11-25 타격감: api.slow(k) = 느린 재생(시험 캡처용, 규칙·그림 시간이 같이 느려져 결과 불변)
     last = now;
     TG.R.trackFrame(rdt);
     TG.R.renderer.info.reset();
@@ -1553,7 +1556,7 @@
       chooseCard(c);
       return;
     }
-    if (G.freeze > 0) { G.freeze--; return; }
+    if (G.freeze > 0) { if (G.fast) G.freeze = 0; else { G.freeze--; G.hsFrames = (G.hsFrames || 0) + 1; return; } } // 11-25 타격감: 히트 스톱은 연출(그림·실제 시간)만 — 빠른 시험(api.run)에선 건너뜀 → 시험 결과·재현 해시가 히트 스톱 길이와 무관. hsFrames = 멈춘 걸음 수(시험용)
     step(nextInput());
     G.tick++;
     if (G.tick % 30 === 0) {
@@ -1914,6 +1917,9 @@
     settings: G.settings,
     simK: Math.max(1, Math.min(16, Number(new URLSearchParams(location.search).get('sim')) || 1)),
     speed(k) { api.simK = Math.max(1, Math.min(16, k | 0)); },
+    slow(k) { api.slowK = k > 0 && k < 1 ? k : 1; }, // 11-25 타격감 캡처: 0.1 = 10배 느리게(히트 스톱·찌그러짐을 사진으로 잡기 위해)
+    hs() { return { table: Object.assign({}, HS), freeze: G.freeze, frames: G.hsFrames || 0, cd: +G.hsCd.toFixed(3), trauma: +TG.FX.trauma.toFixed(3), drawT: +G.drawT.toFixed(3) }; }, // 11-25 타격감 시험
+    hsReset() { G.hsFrames = 0; },
     // 그리기 없이 규칙 계산만 n걸음 (빠른 시험용). 카드는 봇/첫 장으로 바로 고름
     run(n) {
       G.fast = true;

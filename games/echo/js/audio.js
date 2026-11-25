@@ -405,6 +405,15 @@
     tone(ctx, out, t, 'square', 900 * (o.jit || 1), 300, 0.05, 0.002, 0.07, 0.05);
     return 0.08;
   };
+  SYN.thud = function (ctx, out, t, o) { // 11-25 타격감: 「퍽」 — 낮은 사인 떨어지는 쿵(150 → 48Hz) + 둔탁한 저역 잡음 한 점. 단계(lv 0~3)가 높을수록 조금 더 낮고 큼
+    const lv = o.lv || 0, k = 1 + lv * 0.18;
+    tone(ctx, out, t, 'sine', 150 / (1 + lv * 0.12), 48, 0.07, 0.003, 0.34 * k, 0.09 + lv * 0.02);
+    const src = ctx.createBufferSource(); src.buffer = noise(ctx);
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520 + lv * 120; lp.Q.value = 1.2;
+    const g = ctx.createGain(); env(g, t, 0.002, 0.3 * k, 0.045);
+    src.connect(lp); lp.connect(g); g.connect(out); src.start(t); src.stop(t + 0.09);
+    return 0.14;
+  };
   SYN.boom = function (ctx, out, t) { // 큰 소리 저음 쿵 + 화음 반짝
     tone(ctx, out, t, 'sine', 140, 38, 0.5, 0.01, 0.5, 0.6);
     [523, 659, 784, 1046].forEach((f, i) => tone(ctx, out, t + 0.05 + i * 0.05, 'triangle', f, 0, 0, 0.01, 0.07, 0.5));

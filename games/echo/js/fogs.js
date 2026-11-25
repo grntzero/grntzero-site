@@ -404,15 +404,17 @@
 
   // ── 맞힘 (안개·기계만. 사람·고치 속 주민은 대상이 아님) ──
   // 돌려줌: 'pop' | 'hit' | 'convert' | 'bounce' | null
+  // 11-25 타격감: 고무공 찌그러짐 곡선(그림 전용). p = 0(맞은 순간) → 1(끝). 1 = 완전 납작, 음수 = 위로 늘어남. 감쇠 진동: 0 → −0.26(0.45 지점) → +0.07 → 0
+  F.bounceQ = function (p) { p = TG.clamp(p, 0, 1); return Math.exp(-3 * p) * Math.cos(p * Math.PI * 2.2) * (1 - p * p * p); };
   F.damage = function (u, dmg, fromX, fromZ, big) {
     if (u.state !== 'live' || u.spawnT < 0.3 || u.kind === 'cocoon') return null;
     const dx = u.x - fromX, dz = u.z - fromZ, d = Math.hypot(dx, dz) || 1;
     if (u.kind === 'echo' && u.shield && !big) { // 메아리 안개: 첫 파동은 통 튕겨냄
-      u.shield = false; u.flash = 0.7; u.sqT = 0.13;
+      u.shield = false; u.flash = 0.7; u.sqT = u.sqD = 0.2; u.sqA = 0.7; // 11-25 타격감: 튕김도 고무공 찌그러짐(그림만, 약하게)
       u.vx += (dx / d) * 3; u.vz += (dz / d) * 3;
       return 'bounce';
     }
-    u.hp -= dmg; if (!(u.flashT > 0)) { u.flash = 1; u.flashT = 0.34; } u.sqT = 0.13; // 11-18 타격감: 흰 번쩍(0.05초 꽉 → 0.06초 사라짐, fogs draw fl)은 한 안개에 0.34초에 1번만(깜빡임 초당 3회 이하), 찌그러짐은 매번
+    u.hp -= dmg; if (!(u.flashT > 0)) { u.flash = 1; u.flashT = 0.34; } u.sqT = u.sqD = big ? 0.26 : 0.22; u.sqA = big ? 1.25 : 1; // 11-25 타격감: 찌그러짐을 고무공 곡선(납작 → 튕겨 늘어남 → 제자리, draw 참고)으로, 0.13 → 0.22초(큰 소리 0.26·1.25배). 그림 전용(sqT·sqD·sqA 는 규칙에서 안 읽음). // 11-18 타격감: 흰 번쩍(0.05초 꽉 → 0.06초 사라짐, fogs draw fl)은 한 안개에 0.34초에 1번만(깜빡임 초당 3회 이하), 찌그러짐은 매번
     const kb = u.kind === 'clump' ? 2.5 : u.kind === 'tick' ? 3 : 5; // 11-18 타격감: 넉백 1.25배를 재 봤으나 자동 모드 쎄니가 보스전에서 1/3 만 깸(+25%) → 원래 값(1.0) 유지. 밀림 느낌은 찌그러짐·번쩍·히트 스톱으로(기록.md)
     u.vx += (dx / d) * kb; u.vz += (dz / d) * kb;
     if (u.hp > 0) u.kbT = 0.45; // 11-24 허조교 「밀착 넉백」: 맞아 밀리는 중(0.45초) 벽에 닿으면 바로 퐁(F.rule.wallPop, 아래 sim)
@@ -447,7 +449,7 @@
   };
   F.damageBoss = function (dmg) {
     const b = F.boss; if (!b || b.state !== 'fight' || b.inv > 0) return null;
-    b.hp = Math.max(0, b.hp - dmg); b.flash = 1; b.sq = 0.12;
+    b.hp = Math.max(0, b.hp - dmg); b.flash = 1; b.sq = b.sqD = 0.2; // 11-25 타격감: 보스도 고무공 곡선 0.2초(그림만)
     const phaseHp = b.maxHp / 3;
     const newPhase = Math.min(3, Math.floor((b.maxHp - b.hp) / phaseHp + 1e-6));
     if (b.hp <= 0) { b.state = 'dying'; b.deadT = 0; bossCancel(b); return 'dead'; }
@@ -474,7 +476,7 @@
       u.px = u.x; u.pz = u.z; u.py = u.y;
       u.spawnT += dt;
       u.flash = Math.max(0, u.flash - dt * 9); if (u.flashT > 0) u.flashT -= dt;
-      u.sqT = Math.max(0, u.sqT - dt);
+      u.sqT = Math.max(0, u.sqT - dt); if (u.sqT <= 0) u.sqD = 0;
       u.poyCd = Math.max(0, u.poyCd - dt);
       if (u.state === 'dying') { // 눌렸다(0.06초) → 부풀며 터짐
         u.dieT += dt;
@@ -767,7 +769,7 @@
     const b = F.boss; if (!b) return;
     b.px = b.x; b.pz = b.z; b.py = b.y;
     if (b.friend) { b.friendT += dt; b.y = 0.3 + Math.abs(Math.sin(b.friendT * 5.2)) * 0.55; b.wob = Math.sin(b.friendT * 5.2) * 0.1; b.scale = b.tscale; return; } // 11-24 귀여운 보스 친구 상태: 제자리에서 깡총 춤(그림 높이·기울기만, 판정 없음)
-    b.t += dt; b.flash = Math.max(0, b.flash - dt * 7); b.sq = Math.max(0, b.sq - dt); b.inv = Math.max(0, b.inv - dt);
+    b.t += dt; b.flash = Math.max(0, b.flash - dt * 7); b.sq = Math.max(0, b.sq - dt); if (b.sq <= 0) b.sqD = 0; b.inv = Math.max(0, b.inv - dt);
     const K = b.spdK * b.slowK; // 첫 판 70% · 째깍 원판 안에서 느려짐
     if (b.state === 'gather') {
       // 가운데로 안개가 모여 큰 덩이가 됨
@@ -937,7 +939,7 @@
     if (b) {
       if (b.popped && !b.friend) o.group.visible = false;
       const br = 1 + Math.sin(t * 1.3) * 0.035;
-      const sq = b.sq > 0 ? Math.sin((b.sq / 0.12) * Math.PI) * 0.12 : 0;
+      const sq = b.sq > 0 ? (b.sqD > 0 ? F.bounceQ(1 - b.sq / b.sqD) * 0.12 : Math.sin((b.sq / 0.12) * Math.PI) * 0.12) : 0; // 11-25 타격감: 맞힘은 고무공 곡선(패턴 쪽 b.sq 는 옛 사인 그대로)
       o.group.position.set(L(b.px, b.x, al), L(b.py, b.y, al) + (b.floatY || 0) * Math.min(1, b.scale), L(b.pz, b.z, al)); // 11-24 먹구름은 미러볼 위에 둥둥(floatY, 그림만)
       o.group.scale.set(b.scale * (br + sq) * (b.sqY && b.sqY < 1 ? 1.06 : 1), b.scale * (br - sq * 1.2) * (b.sqY || 1), b.scale * (br + sq) * (b.sqY && b.sqY < 1 ? 1.06 : 1)); // 11-24 허조교 변형: 찌그러진 헬멧처럼 납작(그림만)
       o.group.rotation.y = TG.damp(o.group.rotation.y, Math.atan2(P.rx - b.x, P.rz - b.z) * 0.6, 3, dt);
@@ -1008,7 +1010,10 @@
       else if (u.kind === 'bubble') s *= 0.87 + 0.27 * hsh(u.id, 1); // 꾸밈용 크기 ±13% (판정 반지름은 그대로)
       if (u.paint > 0 && u.paintD) s *= Math.max(0.35, 1 - 0.65 * TG.clamp((u.paintK || 0) / u.paintD, 0, 1)); // 퍼플팡팡: 물든 동안 65% 까지 작아짐(그림만, 판정 그대로)
       let sx = 1, sy = 1;
-      if (u.sqT > 0) { const q = Math.sin((u.sqT / 0.13) * Math.PI); sx = 1 + q * 0.5; sy = 1 - q * 0.46; } // 11-18 타격감: 찌그러짐 0.4/0.38 → 0.5/0.46
+      if (u.sqT > 0) {
+        if (u.sqD > 0) { const q = F.bounceQ(1 - u.sqT / u.sqD) * (u.sqA || 1); sx = 1 + q * 0.5; sy = Math.max(0.3, 1 - q * 0.46); } // 11-25 타격감: 맞은 순간 바로 납작(히트 스톱 동안 그대로 멈춤) → 고무공처럼 위로 튕겨 늘어남(약 −26%) → 제자리
+        else { const q = Math.sin((u.sqT / 0.13) * Math.PI); sx = 1 + q * 0.5; sy = 1 - q * 0.46; } // 11-18 타격감: 찌그러짐 0.4/0.38 → 0.5/0.46 (뜀·돌진 등 맞힘 아닌 찌그러짐은 그대로)
+      }
       if (u.kind !== 'tick') { const w = Math.sin(t * 3.1 + u.ph) * 0.04; sx += w; sy -= w; }
       if (u.state === 'dying') { // 눌렸다 → 부풀며 터짐
         const q = u.dieT / 0.12;
