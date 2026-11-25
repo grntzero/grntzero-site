@@ -74,6 +74,8 @@
   // ── 합치기: 같은 등급 5개 → 윗등급 1개 (버튼 1번 = 1번, 수수료 없음) ──
   W.canMerge = function (g) { g |= 0; return g >= 1 && g < W.GRADE_MAX && W.data.g[g] >= W.MERGE_N; };
   W.merge = function (g) { if (!W.canMerge(g)) return false; g |= 0; W.data.g[g] -= W.MERGE_N; W.data.g[g + 1] += 1; W.data.merges += 1; W.save(); return true; };
+  // 11-25 카드 1단계: 카드 올리기 재료(1등급 톱니 3/6/12개, js/collect.js K.upgrade) — 모자라면 false
+  W.spend = function (g, n) { g |= 0; n |= 0; if (g < 1 || g > W.GRADE_MAX || n <= 0 || W.data.g[g] < n) return false; W.data.g[g] -= n; W.data.spent = (W.data.spent | 0) + n; W.save(); return true; };
 
   // ── 아이콘 (코드 도형 SVG, 크레딧 0): 이빨 수·색이 등급마다 다름, 3등급 반짝 별, 5등급 박동 고리, 6등급 메아리 고리 ──
   const gearPath = (teeth, R, r, cx, cy) => {

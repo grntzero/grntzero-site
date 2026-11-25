@@ -113,7 +113,7 @@
     <!-- 주인공·함께 가는 친구 고르기 (11-16 순서 세포·허조교·모쉬·쎄니·베리 — 11-16 밤 쎄니 3D 들어와 다섯 다 고를 수 있음). 주인공 모델은 고를 때 따로 받음(버튼 흐려짐 = 받는 중) -->
     <div id="charPick">
       <div class="atkSeg" role="group" aria-label="주인공 고르기"><span class="atkL ol">주인공</span><button class="atkB" data-hero="sefo"><span class="ol">세포</span></button><button class="atkB gunner" data-hero="gunner"><span class="ol">허조교</span></button><button class="atkB moshee" data-hero="moshee"><span class="ol">모쉬</span></button><button class="atkB sseni" data-hero="sseni"><span class="ol">쎄니</span></button><button class="atkB berri" data-hero="berri"><span class="ol">베리</span></button></div>
-      <div class="atkSeg" role="group" aria-label="함께 가는 친구 고르기"><span class="atkL ol">함께</span><button class="atkB" data-assist="none"><span class="ol">없음</span></button><button class="atkB sseni" data-assist="sseni"><span class="ol">쎄니</span></button><button class="atkB berri" data-assist="berri"><span class="ol">베리</span></button></div>
+      <div class="atkSeg" role="group" aria-label="함께 가는 친구 고르기"><span class="atkL ol">함께</span><button class="atkB" data-assist="none"><span class="ol">없음</span></button><button class="atkB sseni" data-assist="sseni"><span class="ol">쎄니</span></button><button class="atkB berri" data-assist="berri"><span class="ol">베리</span></button><span id="colRow" class="hide"><button id="colBtn" class="atkB" type="button" aria-label="카드 도감"><span class="ol">카드 0 / 1,040</span></button></span></div><!-- 11-25 카드 1단계: 도감 단추(연습 뒤에만 — 함께 줄 오른쪽, 줄을 더 늘리면 쎌 말풍선과 겹침) -->
       <!-- 11-24 던전 고르기(연습 뒤에만 보임): 지금 고른 던전·단계 → 누르면 창 -->
       <div id="dunRow" class="atkSeg hide" role="group" aria-label="던전 고르기"><span class="atkL ol">던전</span><button id="dunBtn" class="atkB on" type="button"><span class="ol">방송 파이프 굴</span></button><span id="walRow" class="hide"><button id="walBtn" class="atkB" type="button" aria-label="톱니 지갑"><span class="ol">지갑 · 레벨 1 · 톱니 0</span></button></span></div><!-- 11-24 톱니 지갑 단추(같은 줄 — 줄을 더 늘리면 쎌 말풍선과 겹침) -->
     </div>
@@ -159,6 +159,32 @@
       <div class="btns"><button id="walClose" class="bub sky" type="button"><span class="ol">닫기</span></button></div>
     </div>
   </div>
+  <!-- 11-25 카드 1단계(js/collect.js): 카드 도감 — 장착 3칸·능력치 합계 · 아티스트 탭 13 · 80칸(의상 4 × 배경 4 × 효과 5) + 유니크 별 칸 · 세트 10/30/80 · 확률 공개 -->
+  <div id="colPick" class="screen dim hide">
+    <div class="panel colPanel">
+      <div class="ptitle ol">카드 도감 <small id="colTotal">0 / 1,040</small></div>
+      <div id="colEq"></div>
+      <div id="colTabs"></div>
+      <div id="colSet"></div>
+      <div id="colGrid"></div>
+      <div id="colNote" class="colNote"></div>
+      <div class="btns"><button id="colClose" class="bub sky" type="button"><span class="ol">닫기</span></button></div>
+    </div>
+  </div>
+  <!-- 11-25 카드 1장 상세: 그림 크게 · 효과·등급 · 장착 칸 고르기 · 올리기(1등급 톱니) · 바꾸기(같은 카드 3장) -->
+  <div id="cardView" class="screen dim hide">
+    <div class="panel cvPanel">
+      <div id="cvArt"></div>
+      <div id="cvBody">
+        <div id="cvName" class="ol"></div>
+        <div id="cvInfo"></div>
+        <div id="cvSlots"></div>
+        <div id="cvBtns"></div>
+        <div id="cvMsg"></div>
+        <div class="btns"><button id="cvClose" class="bub sky" type="button"><span class="ol">닫기</span></button></div>
+      </div>
+    </div>
+  </div>
   <!-- 11-24 던전 끝 확대 연출 건너뛰기(끝까지 모드 10분 지키기) -->
   <button id="cuSkipBtn" class="bub sky hide" type="button"><span class="ol">건너뛰기 ▸</span></button>
 
@@ -186,6 +212,7 @@
       <div id="rMode" class="hide">자동</div>
       <div id="rStamp" class="ol hide"></div>
       <div id="rGear" class="hide"></div><!-- 11-24 받은 톱니(판·덤·첫 클리어 상자)·오늘 판 수 -->
+      <div id="rCard" class="hide"></div><!-- 11-25 받은 카드(던전 주인 카드 1장 · 상자 카드)·오늘 카드 수 -->
       <div id="stars"><i class="st"></i><i class="st"></i><i class="st"></i></div>
       <div class="stats">
         <div class="srow"><span>걸린 시간</span><b id="rTime">0:00</b></div>
@@ -230,6 +257,7 @@
 <script src="js/heroes.js"></script>
 <script src="js/dungeons.js"></script>
 <script src="js/wallet.js"></script>
+<script src="js/collect.js"></script>
 <script src="js/render.js"></script>
 <script src="js/looks.js"></script>
 <script src="js/audio.js"></script>

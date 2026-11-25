@@ -658,7 +658,7 @@
     }
 
     // 음표 방울: 튀어나온 뒤 자석처럼 빨려옴
-    const magR = 4.2 + (G.mod ? G.mod.magnet : 0);
+    const magR = (4.2 + (G.mod ? G.mod.magnet : 0)) * (G.eq && G.eq.note ? 1 + G.eq.note : 1); // 11-25 카드 1단계 🎵줍기 자석(장착 능력치, js/collect.js)
     for (let i = 0; i < F.notes.length; i++) {
       const n = F.notes[i];
       n.px = n.x; n.pz = n.z; n.py = n.y;

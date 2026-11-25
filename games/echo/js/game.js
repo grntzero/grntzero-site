@@ -242,6 +242,7 @@
     { const rp0 = G.replay; if (rp0) { const rh = rp0.hero || 'sefo', ra = rp0.assist || 'none'; if (rh !== TG.heroId || ra !== TG.assistId) setHeroNow(rh, ra, true); } } // 기록에 적힌 주인공·보조로 (옛 기록 v2 = SEFO·없음)
     { const rp0 = G.replay; if (rp0) { setDungeon(rp0.dun || 'pipe', rp0.lv || 1); applyTheme(DUNGEON, LV); } else if (skipIntro) pickFromHub(); } // 기록엔 던전·단계가 적힘(없는 옛 기록 = 파이프 굴 1단계)
     resetRun(!skipIntro);
+    G.eq = (!G.replay && !G.rankMode && TG.K) ? TG.K.bonus() : null; if (TG.C && TG.C.recalc) TG.C.recalc(); // 11-25 카드 1단계: 장착 카드 능력치(일반 판만). 끝까지 모드(?rank=1)·기록 재생은 표준 수치(v8 13-4 A안) — 기록(REC_V 7)·시드엔 안 들어감
     if (skipIntro) showHud();
     const p = P();
     p.x = p.px = 0; p.z = p.pz = 3.2; p.root.visible = true; p.ring.visible = true;
@@ -727,7 +728,7 @@
   function addGauge(v) {
     if (G.gaugeLock > 0) return;
     const before = G.gauge;
-    G.gauge = Math.min(100, G.gauge + v * G.mod.charge * ((TG.hero && TG.hero.bigChargeK) || 1)); // bigChargeK: 주인공별 충전 빠르기(11-17 3차 세포 — 층 전체 체조라 느리게)
+    G.gauge = Math.min(100, G.gauge + v * G.mod.charge * ((TG.hero && TG.hero.bigChargeK) || 1) * (G.eq && G.eq.rainbow ? 1 + G.eq.rainbow : 1)); // 11-25 카드 1단계 🌈큰 소리 충전(장착 능력치) // bigChargeK: 주인공별 충전 빠르기(11-17 3차 세포 — 층 전체 체조라 느리게)
     if (before < 100 && G.gauge >= 100) { TG.A.syn('bigReady'); TG.FX.text('큰 소리 준비!', P().x, 3.2, P().z, 'word'); }
   }
 
@@ -1781,6 +1782,8 @@
       G.result.stamp = { first: ci.first, next: ci.next, nextName: ci.next ? TG.LEVELS[ci.next].name : null, box: ci.boxNew ? TG.LEVELS[LV].box : null, gear: TG.LEVELS[LV].gear };
       // 11-24 톱니 지갑(js/wallet.js): 깬 판 톱니 + 첫 클리어 상자를 실제로 지급(기기 저장). 하루 8판까지 100%, 그 뒤 30% + 쎌 휴식 안내(v8 ㉝). 끝까지 모드(?rank=1)는 순위 보상(서버 몫 12/3)이라 여기선 안 줌 [대표 확인]
       if (TG.W && !G.rankMode) G.result.gear = TG.W.payout({ lv: LV, dun: DUNGEON.id, box: ci.boxNew });
+      // 11-25 카드 1단계(js/collect.js): 깨면 그 던전 주인 카드 1장(하루 6장) + 첫 클리어 상자 카드(짝수 단계, 상한 밖). 지갑 지급 뒤에(상자 몫 숫자 맞춤). 끝까지 모드는 서버 몫 [대표 확인]
+      if (TG.K && !G.rankMode) G.result.card = TG.K.award({ dun: DUNGEON.id, lv: LV, box: ci.boxNew && !!TG.LEVELS[LV].boxCard });
     }
     if (G.tutRun && (clear || G.hintStage >= 5)) { try { localStorage.setItem(TUT_KEY, '1'); } catch (e) { /* 무시 */ } } // 끝까지 깼거나 큰 소리까지 배웠으면 튜토리얼 끝
     TG.H.showResult(G.result);
@@ -1836,6 +1839,7 @@
         slowed: F.list.filter((u) => u.state === 'live' && u.slowK < 0.999).map((u) => +u.slowK.toFixed(3)),
         danceMusicAt: G.danceMusicAt == null ? null : +G.danceMusicAt.toFixed(2), danceVoiceAt: G.danceVoiceAt == null ? null : +G.danceVoiceAt.toFixed(2), danceBoomAt: G.danceBoomAt == null ? null : +G.danceBoomAt.toFixed(2),
         headSpin: +(TG.PL.headSpin || 0).toFixed(3), bodySpin: !!TG.PL.spin, hurtBy: Object.assign({}, G.hurtBy || {}), cardMax: Object.fromEntries(TG.C.DEFS.map((d) => [d.id, TG.C.maxOf(d.id)])),
+        eq: G.eq || null, collect: TG.K ? TG.K.snap() : null, colShown: !!(TG.H.colPick && !TG.H.colPick.classList.contains('hide')), cardShown: !!(TG.H.cardView && !TG.H.cardView.classList.contains('hide')), // 11-25 카드 1단계
         wallet: TG.W ? TG.W.snap() : null, walShown: !!(TG.H.walPick && !TG.H.walPick.classList.contains('hide')), // 11-24 톱니 지갑
         remix: TG.C.state ? TG.C.state() : null, rank: !!G.rankMode, bossShoutT: F.boss ? +(F.boss.shoutT || 0).toFixed(2) : 0, // 11-18 리믹스 카드 상태
         rerollLeft: G.rerollLeft, rerollN: G.rerollN || 0, skillOpen: !!G.skillOpen, skillOpenN: G.skillOpenN || 0, reviveT: +(G.reviveT || 0).toFixed(2), resting: !!p.resting, rerollBtn: TG.H.rerollBtn ? { text: TG.H.rerollBtn.textContent, off: TG.H.rerollBtn.classList.contains('off') } : null, skillRows: TG.H.skList ? TG.H.skList.querySelectorAll('.skRow').length : 0,
@@ -1874,6 +1878,21 @@
     walletReset() { return TG.W ? TG.W.reset() : null; }, // 11-24 시험: 지갑 비우기(ez_w1_wallet)
     walletDay(d) { if (TG.W) { TG.W._today = d || null; } return TG.W ? TG.W.today() : null; }, // 11-24 시험: 「오늘」 날짜 덮어쓰기(null 이면 기기 날짜)
     walletMerge(g) { const ok = TG.W ? TG.W.merge(g) : false; if (TG.H.walRender && TG.H.walPick && !TG.H.walPick.classList.contains('hide')) TG.H.walRender(); return ok; },
+    // 11-25 카드 1단계 시험 훅(js/collect.js)
+    cards() { return TG.K ? TG.K.snap() : null; },
+    cardsReset() { return TG.K ? TG.K.reset() : null; },
+    cardGive(artist, idx, g) { const r = TG.K ? TG.K.give(artist, idx == null ? null : idx, g || 1) : null; if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return r; },
+    cardForce(list, cells) { if (TG.K) { TG.K._force = (list || []).slice(); TG.K._cell = (cells || []).slice(); } return true; }, // 다음 등급·칸 강제(시험)
+    cardEquip(slot, id) { const ok = TG.K ? TG.K.equip(slot, id) : false; if (TG.H.colRender && TG.H.colPick && !TG.H.colPick.classList.contains('hide')) TG.H.colRender(); return ok; },
+    cardSwap(id) { return TG.K ? TG.K.swap(id) : null; },
+    cardUp(id) { return TG.K ? TG.K.upgrade(id) : false; },
+    cardBonus() { return TG.K ? TG.K.bonusPct() : null; },
+    cardOf(id) { return TG.K ? TG.K.card(id) : null; },
+    colOpen(artist) { return TG.H.colOpen ? TG.H.colOpen(artist) : false; },
+    colClose() { if (TG.H.colClose_) TG.H.colClose_(); return true; },
+    cardOpen(id) { return TG.H.cardOpen ? TG.H.cardOpen(id) : false; },
+    waveStat(lv) { return TG.WV.stat(lv || 0); }, // 장착 능력치가 실제로 들어갔는지(범위·세기)
+    magnetR() { return (4.2 + (G.mod ? G.mod.magnet : 0)) * (G.eq && G.eq.note ? 1 + G.eq.note : 1); },
     beta(on) { if (on != null) TG.BETA_OPEN_ALL = !!on; if (G.phase === 'title') TG.H.hubRefresh(tutDone(), false); return TG.beta(); }, // 11-24 베타 깃발(모든 단계 열림) 켜고 끄기 — 시험용
     skipCloseup() { G.skipCloseup(); },
     // 시험: 주인공·보조 바꾸기 (타이틀 버튼과 같은 길). hero('berri','sseni')

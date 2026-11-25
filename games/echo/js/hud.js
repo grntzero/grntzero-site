@@ -10,13 +10,21 @@
       'speech', 'zoneVig', 'stick', 'stickKnob', 'stickBase', 'keyHint', 'btnBig', 'btnSnd', 'bigArc', 'banner', 'count', 'title', 'pause', 'result', 'rotate', 'loading', 'lfill',
       'resTitle', 'stars', 'rTime', 'rFog', 'rCombo', 'rNote', 'hint', 'grunt', 'gruntTxt', 'shelter', 'cards', 'cardRow', 'rerollBtn', 'skills', 'skHero', 'skList', 'skClose', 'face',
       'dunRow', 'dunBtn', 'dunPick', 'dunList', 'lvRow', 'lvInfo', 'dunGo', 'cuSkipBtn', 'rStamp',
-      'walRow', 'walBtn', 'walPick', 'walList', 'walClose', 'walLvN', 'walDay', 'walNote', 'rGear'].forEach((k) => (H[k] = $(k))); // 11-24 던전 고르기·확대 건너뛰기·단계 도장 · 톱니 지갑
+      'walRow', 'walBtn', 'walPick', 'walList', 'walClose', 'walLvN', 'walDay', 'walNote', 'rGear',
+      'colRow', 'colBtn', 'colPick', 'colTotal', 'colEq', 'colTabs', 'colSet', 'colGrid', 'colNote', 'colClose', 'cardView', 'cvArt', 'cvName', 'cvInfo', 'cvSlots', 'cvBtns', 'cvMsg', 'cvClose', 'rCard'].forEach((k) => (H[k] = $(k))); // 11-24 던전 고르기·확대 건너뛰기·단계 도장 · 톱니 지갑 · 11-25 카드 도감
     H.dunBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.dunOpen(); });
     H.dunGo.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.dunClose(); });
     H.dunPick.addEventListener('click', (e) => { if (e.target === H.dunPick) H.dunClose(); });
     H.walBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.walOpen(); }); // 11-24 톱니 지갑
     H.walClose.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.walClose_(); });
     H.walPick.addEventListener('click', (e) => { if (e.target === H.walPick) H.walClose_(); });
+    if (H.colBtn) { // 11-25 카드 도감
+      H.colBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.colOpen(); });
+      H.colClose.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.colClose_(); });
+      H.colPick.addEventListener('click', (e) => { if (e.target === H.colPick) H.colClose_(); });
+      H.cvClose.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.cardClose(); });
+      H.cardView.addEventListener('click', (e) => { if (e.target === H.cardView) H.cardClose(); });
+    }
     H.cuSkipBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(0.8); if (TG.G && TG.G.skipCloseup) TG.G.skipCloseup(); });
     H.rerollBtn.addEventListener('click', (e) => { e.stopPropagation(); if (H.onReroll) H.onReroll(); }); // 11-18 다시 뽑기
     H.skClose.addEventListener('click', (e) => { e.stopPropagation(); if (H.onSkillsClose) H.onSkillsClose(); });
@@ -70,6 +78,7 @@
     const t = $('hubTag'); if (t) t.textContent = tut ? '톱니골 광장 · 다음 던전: ' + hubNext : '톱니골 광장 · 첫 던전 「방송 파이프 굴」에서 연습해요!';
     if (H.dunRow) { H.show(H.dunRow, tut); H.dunBtn.querySelector('span').textContent = hubNext; H.dunBtn.style.setProperty('--dc', d.color || '#e5352b'); }
     if (H.walRow && TG.W) { H.show(H.walRow, tut); H.walBtn.querySelector('span').textContent = '지갑 · 레벨 ' + TG.W.data.lvl + ' · 톱니 ' + TG.W.total(); } // 11-24 톱니 지갑 줄(연습 뒤에만)
+    if (H.colRow && TG.K) { H.show(H.colRow, tut); H.colBtn.querySelector('span').textContent = '카드 ' + TG.K.total() + ' / ' + TG.K.TOTAL.toLocaleString('en-US'); } // 11-25 카드 도감 단추(연습 뒤에만)
     void L;
   };
   H.dunOpen = function () {
@@ -129,6 +138,91 @@
       H.walList.appendChild(row);
     }
     H.walNote.textContent = '레벨 올리기는 곧 열려요 · 보호자께: 하루 ' + W.DAY_FULL + '판까지 톱니 100%, 그 뒤엔 30% — 쎌이 쉬는 시간을 안내해요';
+  };
+  // ── 11-25 카드 1단계(js/collect.js): 도감 80칸 · 장착 · 세트 · 상세(장착·올리기·바꾸기) ──
+  let colArtist = 'sefo', cvId = null;
+  const pctTx = (v) => '+' + (Math.round(v * 10) / 10) + '%';
+  H.colOpen = function (artist) {
+    if (!H.title || H.title.classList.contains('hide') || !TG.K) return false;
+    if (artist && TG.K.byId[artist]) colArtist = artist;
+    H.colRender(); H.show(H.colPick, true); return true;
+  };
+  H.colClose_ = function () { H.cardClose(); H.show(H.colPick, false); H.hubRefresh(hubTut, hubBack); };
+  H.colRender = function () {
+    const K = TG.K; if (!K) return;
+    H.colTotal.textContent = K.total() + ' / ' + K.TOTAL.toLocaleString('en-US');
+    // 장착 3칸 + 능력치 합계
+    const b = K.bonusPct(); let h = '<div class="eqSlots">';
+    for (let i = 0; i < 3; i++) { const id = K.data.eq[i]; h += '<button type="button" class="eqSlot' + (id ? '' : ' empty') + '" data-slot="' + i + '">' + (id ? K.art(id, K.card(id).g, 30) : '<span class="eqPlus">+</span>') + '<small>' + (id ? K.EFFECTS[K.effOf(id)].name + ' ' + pctTx(K.cardPct(id)) : '빈 칸 ' + (i + 1)) + '</small></button>'; }
+    h += '</div><div class="eqSum">';
+    const parts = K.EFFECTS.filter((e) => b[e.id] > 0).map((e) => '<span class="eqP">' + K.effIcon(K.EFFECTS.indexOf(e), 16) + e.stat + ' ' + pctTx(b[e.id]) + '</span>');
+    h += (parts.length ? parts.join('') : '<span class="eqP dim">장착한 카드가 없어요 — 칸을 눌러 카드를 끼워요</span>') + '<span class="eqCap">합계 ' + pctTx(b.total) + ' / 상한 ' + b.cap.total + '%' + (b.hasU ? ' (유니크)' : '') + '</span></div>';
+    H.colEq.innerHTML = h;
+    H.colEq.querySelectorAll('.eqSlot').forEach((el) => el.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.0); const id = K.data.eq[el.dataset.slot | 0]; if (id) H.cardOpen(id); else { H.colMsg('도감에서 카드를 누르고 「장착」을 골라요'); } }));
+    // 아티스트 탭 13
+    H.colTabs.innerHTML = '';
+    K.ARTISTS.forEach((a) => { const t = document.createElement('button'); t.type = 'button'; t.className = 'colTab' + (a.id === colArtist ? ' on' : ''); t.dataset.artist = a.id; t.style.setProperty('--ac', a.col);
+      const n = K.count(a.id); t.innerHTML = '<i></i><b></b><small></small>'; t.querySelector('b').textContent = a.name; t.querySelector('small').textContent = n + '/' + K.PER + (K.data.u[a.id] ? ' ★' : '');
+      t.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.0); colArtist = a.id; H.colRender(); }); H.colTabs.appendChild(t); });
+    // 세트 10 / 30 / 80
+    const a = K.byId[colArtist], si = K.setInfo(colArtist), ce = K.EFFECTS.find((e) => e.id === a.set.eff);
+    H.colSet.innerHTML = '<span class="setN">' + a.name + ' 카드 <b>' + si.n + '</b> / ' + K.PER + '</span>' +
+      '<span class="setP' + (si.fan ? ' on' : '') + '">' + K.SETS[0] + '장 칭호 「' + a.name + ' 팬」' + (si.fan ? ' ✓' : '') + '</span>' +
+      '<span class="setP' + (si.cheer ? ' on' : '') + '">' + K.SETS[1] + '장 응원 ' + ce.stat + ' +' + a.set.pct + '%' + (si.cheer ? ' ✓ 켜짐' : '') + '</span>' +
+      '<span class="setP' + (si.full ? ' on' : '') + '">' + K.SETS[2] + '장 도감 완성' + (si.full ? ' ✓' : '') + '</span>';
+    // 80칸(의상 4줄 × 배경 4 × 효과 5) + 유니크 별 칸 — 칸은 작은 div(효과 아이콘만, 그림은 상세에서) → 아이폰에서 끊김 없이
+    let g = '';
+    for (let o = 0; o < K.N_OUT; o++) {
+      g += '<div class="colRowL"><span class="colOut">' + K.OUTFITS[o] + '</span>';
+      for (let p = 0; p < K.N_PLACE; p++) { g += '<span class="colGrp" title="' + K.PLACES[p].name + '">';
+        for (let e = 0; e < K.N_EFF; e++) { const idx = o * 20 + p * 5 + e, id = K.cid(colArtist, idx), c = K.data.c[id];
+          g += '<button type="button" class="colCell' + (c ? ' own g' + c.g : ' lock') + (K.slotOf(id) >= 0 ? ' eq' : '') + '" data-id="' + id + '" aria-label="' + (c ? K.name(id) : '아직 없는 칸') + '">' + K.effIcon(e) + (c && c.n > 1 ? '<i class="cn">' + c.n + '</i>' : '') + '</button>'; }
+        g += '</span>'; }
+      if (o === 0) g += '<button type="button" class="colCell uni' + (K.data.u[colArtist] ? ' own' : ' lock') + (K.slotOf(K.uid(colArtist)) >= 0 ? ' eq' : '') + '" data-id="' + K.uid(colArtist) + '" aria-label="유니크 칸"><b>★</b></button>';
+      g += '</div>';
+    }
+    H.colGrid.innerHTML = g;
+    H.colGrid.querySelectorAll('.colCell').forEach((el) => el.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.0); H.cardOpen(el.dataset.id); }));
+    H.colNote.textContent = K_note();
+  };
+  let colMsgTO = null;
+  H.colMsg = function (txt) { const n = H.colNote; if (!n) return; const keep = K_note(); n.textContent = txt; n.classList.add('flash'); clearTimeout(colMsgTO); colMsgTO = setTimeout(() => { n.classList.remove('flash'); n.textContent = keep; }, 1800); };
+  const K_note = () => { const K = TG.K; return K.probText() + ' · 던전을 깨면 그 던전 주인 카드 1장(하루 ' + K.DAY_MAX + '장) · 같은 카드 ' + K.SWAP_N + '장 → 새 카드로 바꾸기 · 1등급 톱니 ' + K.UP_COST.slice(1).join('/') + '개로 등급 올리기 · 유니크는 80칸 밖(완성 조건 X)'; };
+  // 카드 1장 상세
+  H.cardOpen = function (id) {
+    const K = TG.K; if (!K || !id) return false; const s = K.split(id); if (!K.byId[s.artist]) return false;
+    cvId = id; H.cardRender(); H.show(H.cardView, true); return true;
+  };
+  H.cardClose = function () { cvId = null; H.show(H.cardView, false); if (H.colPick && !H.colPick.classList.contains('hide')) H.colRender(); };
+  H.cardRender = function (msg) {
+    const K = TG.K, id = cvId; if (!K || !id) return;
+    const s = K.split(id), a = K.byId[s.artist], c = K.card(id), has = !!c, eff = K.EFFECTS[K.effOf(id)], W = TG.W;
+    H.cvArt.innerHTML = K.art(id, has ? c.g : 0, 120);
+    H.cvName.textContent = has ? K.name(id) : (s.idx === 'U' ? a.name + ' 유니크 · 아직 없어요' : '아직 없는 칸 · ' + a.name + ' · ' + K.OUTFITS[K.parts(s.idx).out] + ' · ' + K.PLACES[K.parts(s.idx).place].name);
+    let info = '';
+    if (has) { const G = c.unique ? K.UNIQUE : K.GRADES[c.g];
+      info = '<span class="cvEff">' + K.effIcon(K.effOf(id), 18) + eff.name + ' · ' + eff.stat + ' <b>' + pctTx(K.cardPct(id)) + '</b></span><span class="cvG" style="--gc:' + G.col + '">' + (c.unique ? '★ 유니크' : '틀 ' + G.name) + '</span>' + (!c.unique ? '<span class="cvN">가진 수 ×' + c.n + '</span>' : '<span class="cvN">1판 1번 큰 소리는 곧</span>'); }
+    else info = '<span class="cvEff">' + K.effIcon(K.effOf(id), 18) + eff.name + ' · ' + eff.stat + '</span><span class="cvN">' + (a.dun ? '「' + (TG.DUNGEONS[a.dun] ? TG.DUNGEONS[a.dun].name : a.name + ' 던전') + '」을 깨면 받을 수 있어요' : a.name + ' 던전은 곧 열려요 · 지금은 연습 던전에서 가끔') + '</span>';
+    H.cvInfo.innerHTML = info;
+    // 장착 칸 3개
+    let sl = '';
+    if (has) { sl = '<span class="cvL">장착</span>'; for (let i = 0; i < 3; i++) { const cur = K.data.eq[i], mine = cur === id; sl += '<button type="button" class="cvSlot' + (mine ? ' on' : cur ? ' used' : '') + '" data-slot="' + i + '">' + (mine ? '칸 ' + (i + 1) + ' ✓' : cur ? '칸 ' + (i + 1) + ' 바꾸기' : '칸 ' + (i + 1) + ' 끼우기') + '</button>'; }
+      if (K.slotOf(id) >= 0) sl += '<button type="button" class="cvSlot off" data-slot="-1">빼기</button>'; }
+    H.cvSlots.innerHTML = sl;
+    H.cvSlots.querySelectorAll('.cvSlot').forEach((el) => el.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.2); const sidx = el.dataset.slot | 0; if (sidx < 0) { K.equip(K.slotOf(id), null); H.cardRender('뺐어요'); } else { K.equip(sidx, id); H.cardRender('칸 ' + (sidx + 1) + '에 끼웠어요 — 다음 판부터'); } }));
+    // 올리기 · 바꾸기
+    let bt = '';
+    if (has && !c.unique) {
+      const cost = K.upCost(id), can = K.canUp(id);
+      bt += '<button type="button" class="cvBtn up' + (cost && can ? '' : ' off') + '" ' + (cost && can ? '' : 'disabled') + '>' + (cost ? '등급 올리기 ' + (W ? W.icon(1, 18) : '') + '×' + cost + (W ? ' <small>(가진 ' + W.data.g[1] + ')</small>' : '') : '최고 등급(4단)') + '</button>';
+      bt += '<button type="button" class="cvBtn swap' + (K.canSwap(id) ? '' : ' off') + '" ' + (K.canSwap(id) ? '' : 'disabled') + '>같은 카드 ' + K.SWAP_N + '장 → 새 카드로 바꾸기 <small>(' + c.n + '/' + K.SWAP_N + ')</small></button>';
+    }
+    H.cvBtns.innerHTML = bt;
+    const up = H.cvBtns.querySelector('.up'), sw = H.cvBtns.querySelector('.swap');
+    if (up) up.addEventListener('click', (e) => { e.stopPropagation(); if (K.upgrade(id)) { TG.A.ui(1.4); H.cardRender('틀 색이 올랐어요! ' + K.GRADES[K.card(id).g].name); const ar = H.cvArt.querySelector('svg'); if (ar) { ar.classList.add('pop'); } } });
+    if (sw) sw.addEventListener('click', (e) => { e.stopPropagation(); const got = K.swap(id); if (got) { TG.A.ui(1.4); cvId = got.id; H.cardRender((got.isNew ? '새 카드! ' : got.up ? '같은 카드 — 틀 색이 올랐어요! ' : '같은 카드 ×' + got.n + ' ') + K.name(got.id)); } });
+    H.cvMsg.textContent = msg || ''; H.cvMsg.classList.toggle('hide', !msg);
+    if (c && c.unique) { /* 유니크 1판 1번 큰 소리 연출은 12/1 몫 — 글만 */ }
   };
   H.cuSkip = function (on) { if (H.cuSkipBtn) H.show(H.cuSkipBtn, !!on); };
   // 타이틀: 쎌이 손 흔들며 차례로 안내 (타이틀이 보이는 동안만 돎)
@@ -454,6 +548,14 @@
       if (pg) { const W = TG.W; let h = '<div class="gl"><span class="gk">받은 톱니</span>' + W.html(pg.run) + (pg.crumb ? '<span class="gw crumb">+ 덤 ' + W.icon(1, 18) + '<b>×' + pg.crumb + '</b></span>' : '') + (pg.over ? '<span class="gtag">30%</span>' : '') + '<span class="gday' + (pg.over ? ' over' : '') + '">' + (pg.over ? '오늘 ' + pg.runs + '판째' : '오늘 ' + pg.runs + ' / ' + pg.full + '판') + '</span></div>';
         if (pg.box) h += '<div class="gl"><span class="gk">첫 클리어 상자</span>' + W.html(pg.box) + (pg.card ? '<span class="gtag tagCard">카드 1 · 곧</span>' : '') + (pg.gold ? '<span class="gtag tagGold">금 도장</span>' : '') + '</div>';
         H.rGear.innerHTML = h; }
+    }
+    if (H.rCard) { // 11-25 카드 1단계(js/collect.js award): 받은 카드(던전 주인 카드 · 상자 카드) 뒤집히며 등장 · 오늘 N/6장 · 상한이면 안내
+      const pc = r.clear && r.card; H.show(H.rCard, !!pc); document.body.classList.toggle('hasCard', !!pc);
+      if (pc) { const K = TG.K; let h = '<span class="gk">받은 카드</span>';
+        pc.cards.forEach((cd) => { h += '<span class="rcOne' + (cd.isNew ? ' isNew' : '') + '"><span class="rcFlip">' + K.art(cd.id, cd.g, 22) + '</span><span class="rcTx"><b>' + K.name(cd.id) + '</b><small>' + (cd.unique ? '★ 유니크!' : cd.isNew ? '새 카드! · ' + K.GRADES[cd.g].name : cd.up ? '같은 카드 · 틀 색 ' + K.GRADES[cd.g].name + '으로!' : '같은 카드 ×' + cd.n + (cd.n >= K.SWAP_N ? ' · 바꾸기 가능' : '')) + (cd.box ? ' · 상자' : '') + '</small></span></span>'; });
+        if (pc.capped) h += '<span class="rcTx capped"><b>오늘 카드 ' + pc.dayMax + '장 다 받았어요</b><small>내일 또 받아요 · 상자 카드는 따로</small></span>';
+        h += '<span class="gday">' + ((r.atk === 'auto' || r.atk === 'mixed') ? '<i class="rcMode">' + (r.atk === 'mixed' ? '자동 (일부)' : '자동') + '</i> · ' : '') + '오늘 ' + pc.dayN + ' / ' + pc.dayMax + '장</span>'; // 카드 줄이 있으면 「자동」 꼬리표(#rMode)는 CSS 로 숨기고 여기 한 줄에
+        H.rCard.innerHTML = h; }
     }
     H.rTime.textContent = TG.fmtTime(r.time);
     H.rFog.textContent = r.fogs;

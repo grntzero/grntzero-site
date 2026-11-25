@@ -168,6 +168,8 @@
       if (TG.heroId === 'berri') { const sk = N.shakaK[m.shaka || 0]; o.range *= sk; o.speed *= sk; o.drops = N.dropsN[m.drops || 0]; o.dropsBig = (m.drops || 0) >= 3; } // 마라카스 샤카·방울 두 개
       if (TG.heroId === 'sseni') o.stars = N.starsN[m.stars || 0]; // 별 더 많이
     } }
+    // 11-25 카드 1단계(js/collect.js): 장착 카드 능력치 — ✨소리 크기(세기) · 🌸범위. game.js startPlay 가 G.eq 를 둠(끝까지 모드·기록 재생은 null = 표준 수치)
+    { const eq = TG.G.eq; if (eq) { if (eq.spark) { o.dmg *= 1 + eq.spark; if (o.bossDmg) o.bossDmg *= 1 + eq.spark; } if (eq.petal) { o.range *= 1 + eq.petal; if (o.splash) o.splash *= 1 + eq.petal; } } }
     return o;
   };
   // 11-17 기본 소리 개편 수치(초안 — 밸런스 측정으로 맞춤, 기록.md 3절)

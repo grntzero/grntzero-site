@@ -93,7 +93,7 @@
       thick: C.hlv('thick'), echo: C.hlv('echo'), beat: C.hlv('beat'), run: C.hlv('run'), stun: C.hlv('stun'), line: C.hlv('line'), whistle2: C.hlv('whistle2'),
       stars: C.hlv('stars'), stain: C.hlv('stain'), bright: C.hlv('bright'), drops: C.hlv('drops'), path: C.hlv('path'), shaka: C.hlv('shaka'), cheer: C.lv('cheer') };
     if (C.runStk > N.runMax[G.mod.run]) C.runStk = N.runMax[G.mod.run];
-    if (P) P.spdMul = 1 + Math.min(N.moveCap, C.lv('move') * 0.1 + C.runStk * N.runMove); // 「이동 빠르게」+「세포런」 합쳐 +45% 상한
+    if (P) P.spdMul = (1 + Math.min(N.moveCap, C.lv('move') * 0.1 + C.runStk * N.runMove)) * (G.eq && G.eq.star ? 1 + G.eq.star : 1); // 「이동 빠르게」+「세포런」 합쳐 +45% 상한 · 11-25 카드 1단계 ⭐이동(장착 능력치, 최대 +10%)은 따로 곱함
   };
   C.rank = () => !!(TG.G.rankMode || (TG.Q && TG.Q.rank)); // 순위(끝까지) 모드 — 「다시 일어나기」 안 나옴
   // 3장 뽑기 (다 찬 카드는 빼고). 11-18: 전용(hero)은 3장 중 최대 1장 — 「내 캐릭터 1장 + 다른 맛 2장」. 보조 없으면 「친구 응원 더」 X, 순위 모드면 「다시 일어나기」 X
