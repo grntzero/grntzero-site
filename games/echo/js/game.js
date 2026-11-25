@@ -172,7 +172,7 @@
     G.floor = 1; G.fogPop = 0; G.floorDone = false; G.cocoonDone = false; G.level = 1; G.xp = 0; G.xpNeed = XP0; G.pendingCards = 0; G.cardOpen = null; G.cardN = 0; G.revived = false;
     G.rerollLeft = REROLL_MAX; G.rerollN = 0; G.inReroll = false; G.reviveT = 0; if (TG.H.reviveCount) TG.H.reviveCount(null); if (G.skillOpen) closeSkills(); // 11-18 다시 뽑기·다시 일어나기 카운트·내 리믹스 카드 창
     G.rankMode = !!(TG.Q && TG.Q.rank); // 11-18 순위(끝까지) 모드 깃발(?rank=1, 끝까지 모드 만들 때 여기서 켬) — 「다시 일어나기」 카드 안 나옴
-    G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.lined = 0; G.hintT = 0; G.hurts = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
+    G.spawnT = 1.0; G.clumpT = 4; G.echoT = 3; G.tickT = 5; G.autoCd = 0.3; G.stillT = 0; G.faceDir = 0; G.fireOn = false; G.fireDir = 0; G.shots = 0; G.aimShots = 0; G.lined = 0; G.hintT = 0; G.hurts = 0; G.guards = 0; G.testIn = null; G.endT = 0; G.clear = false; G.cheered = false; G.freeze = 0; G.hash = 0; G.hsCd = 0;
     G.gaugeLock = 0; G.hintStage = 0; G.moved = 0; G.afters.length = 0; G.inBig = false; G.inPick = -1; G.inCard = -1; G.botW = 0; G.botStuck = 0; G.botSideT = 0; G.botSideS = 1; G.botLx = 0; G.botLz = 0; G.botCocT = 0; G.machSlow = false; G.camFocusK = 0.45;
     G.autoTicks = 0; G.playTicks = 0; G.autoShots = 0; G.autoOn = false;
     G.lastPopT = 0; G.arrowU = null; G.arrowSaid = false; G.danceN = 0; G.dancePops = 0; G.flyN = 0; G.beamN = 0; G.paintN = 0; G.slowN = G.shrinkN = G.tileN = G.seedN = G.seedPops = G.nudgeN = G.decoN = G.cuStars = G.cuPetals = G.cuSpin = 0; G.decoWordT = null; G.slowSeq = 0; G.friendWord = null; G.danceMusicAt = G.danceVoiceAt = G.danceBoomAt = null; G.hurtBy = {}; // 11-16: 남은 안개 화살표·큰 소리 셈
@@ -242,7 +242,9 @@
     { const rp0 = G.replay; if (rp0) { const rh = rp0.hero || 'sefo', ra = rp0.assist || 'none'; if (rh !== TG.heroId || ra !== TG.assistId) setHeroNow(rh, ra, true); } } // 기록에 적힌 주인공·보조로 (옛 기록 v2 = SEFO·없음)
     { const rp0 = G.replay; if (rp0) { setDungeon(rp0.dun || 'pipe', rp0.lv || 1); applyTheme(DUNGEON, LV); } else if (skipIntro) pickFromHub(); } // 기록엔 던전·단계가 적힘(없는 옛 기록 = 파이프 굴 1단계)
     resetRun(!skipIntro);
-    G.eq = (!G.replay && !G.rankMode && TG.K) ? TG.K.bonus() : null; if (TG.C && TG.C.recalc) TG.C.recalc(); // 11-25 카드 1단계: 장착 카드 능력치(일반 판만). 끝까지 모드(?rank=1)·기록 재생은 표준 수치(v8 13-4 A안) — 기록(REC_V 7)·시드엔 안 들어감
+    G.eq = (!G.replay && !G.rankMode && TG.K) ? TG.K.bonus() : null;
+    G.gear = (!G.replay && !G.rankMode && TG.W) ? TG.W.ability(TG.W.data.lvl) : null; P().guardAcc = 0; // 11-25 톱니 레벨 4능력(js/wallet.js W.ability — 레벨 1 = 전부 0 = 표준). 끝까지 모드·기록 재생은 null(랭킹 공정 A안). 소리 세기·간격 = wave.js stat, 이동 = cards.js recalc, 보호 = player.js hurt
+    if (TG.C && TG.C.recalc) TG.C.recalc(); // 11-25 카드 1단계: 장착 카드 능력치(일반 판만). 끝까지 모드(?rank=1)·기록 재생은 표준 수치(v8 13-4 A안) — 기록(REC_V 7)·시드엔 안 들어감
     if (skipIntro) showHud();
     const p = P();
     p.x = p.px = 0; p.z = p.pz = 3.2; p.root.visible = true; p.ring.visible = true;
@@ -585,6 +587,13 @@
       TG.A.syn('shield'); FX.shake(0.12); vib('shield');
       FX.text('보호 방울 톡!', p.x, 3.6, p.z, 'word');
       FX.ring(p.x, p.z, { r0: 0.6, r1: 3, dur: 0.4, color: 0x8fdcff, width: 0.3 });
+      return;
+    }
+    if (res === 'guard') { // 11-25 톱니 레벨 「보호」(player.js hurt): 이번 닿음은 칸이 안 줄음 — 황동빛 톡
+      TG.A.syn('shield'); FX.shake(0.1); vib('shield');
+      FX.text('보호!', p.x, 3.6, p.z, 'word');
+      FX.ring(p.x, p.z, { r0: 0.6, r1: 2.6, dur: 0.35, color: 0xffd23f, width: 0.28 });
+      G.guards = (G.guards | 0) + 1;
       return;
     }
     TG.A.syn('boing'); TG.A.play('sfx_bonk', { gain: 0.45, rate: TG.fra(0.95, 1.1) });
@@ -1787,6 +1796,8 @@
       if (TG.W && !G.rankMode) G.result.gear = TG.W.payout({ lv: LV, dun: DUNGEON.id, box: ci.boxNew });
       // 11-25 카드 1단계(js/collect.js): 깨면 그 던전 주인 카드 1장(하루 6장) + 첫 클리어 상자 카드(짝수 단계, 상한 밖). 지갑 지급 뒤에(상자 몫 숫자 맞춤). 끝까지 모드는 서버 몫 [대표 확인]
       if (TG.K && !G.rankMode) G.result.card = TG.K.award({ dun: DUNGEON.id, lv: LV, box: ci.boxNew && !!TG.LEVELS[LV].boxCard });
+    } else if (!clear && !G.replay && !G.bot && !G.tutRun && !G.rankMode && TG.W && TG.DN.hasLevels(DUNGEON.id)) { // 11-25 쓰러져도 성장(회의 1-4): 도달 층(1·2·3층·보스 = 4칸) 비율 × 판 톱니 × 최대 60%
+      G.result.fall = TG.W.payoutFall({ lv: LV, dun: DUNGEON.id, reached: G.bossStarted ? 4 : Math.max(1, Math.min(3, G.floor | 0)), of: 4 });
     }
     if (G.tutRun && (clear || G.hintStage >= 5)) { try { localStorage.setItem(TUT_KEY, '1'); } catch (e) { /* 무시 */ } } // 끝까지 깼거나 큰 소리까지 배웠으면 튜토리얼 끝
     TG.H.showResult(G.result);
@@ -1844,6 +1855,7 @@
         headSpin: +(TG.PL.headSpin || 0).toFixed(3), bodySpin: !!TG.PL.spin, hurtBy: Object.assign({}, G.hurtBy || {}), cardMax: Object.fromEntries(TG.C.DEFS.map((d) => [d.id, TG.C.maxOf(d.id)])),
         eq: G.eq || null, collect: TG.K ? TG.K.snap() : null, colShown: !!(TG.H.colPick && !TG.H.colPick.classList.contains('hide')), cardShown: !!(TG.H.cardView && !TG.H.cardView.classList.contains('hide')), // 11-25 카드 1단계
         wallet: TG.W ? TG.W.snap() : null, walShown: !!(TG.H.walPick && !TG.H.walPick.classList.contains('hide')), // 11-24 톱니 지갑
+        gear: G.gear || null, guardAcc: +((P().guardAcc || 0).toFixed(4)), guards: G.guards | 0, spdMul: +((P().spdMul || 1).toFixed(4)), jumpShown: !!(TG.H.walJump && !TG.H.walJump.classList.contains('hide')), // 11-25 톱니 레벨 4능력(일반 판만)
         remix: TG.C.state ? TG.C.state() : null, rank: !!G.rankMode, bossShoutT: F.boss ? +(F.boss.shoutT || 0).toFixed(2) : 0, // 11-18 리믹스 카드 상태
         rerollLeft: G.rerollLeft, rerollN: G.rerollN || 0, skillOpen: !!G.skillOpen, skillOpenN: G.skillOpenN || 0, reviveT: +(G.reviveT || 0).toFixed(2), resting: !!p.resting, rerollBtn: TG.H.rerollBtn ? { text: TG.H.rerollBtn.textContent, off: TG.H.rerollBtn.classList.contains('off') } : null, skillRows: TG.H.skList ? TG.H.skList.querySelectorAll('.skRow').length : 0,
       };
@@ -1881,6 +1893,12 @@
     walletReset() { return TG.W ? TG.W.reset() : null; }, // 11-24 시험: 지갑 비우기(ez_w1_wallet)
     walletDay(d) { if (TG.W) { TG.W._today = d || null; } return TG.W ? TG.W.today() : null; }, // 11-24 시험: 「오늘」 날짜 덮어쓰기(null 이면 기기 날짜)
     walletMerge(g) { const ok = TG.W ? TG.W.merge(g) : false; if (TG.H.walRender && TG.H.walPick && !TG.H.walPick.classList.contains('hide')) TG.H.walRender(); return ok; },
+    // 11-25 톱니 레벨 시험 훅: 레벨 두기 · 톱니 넣기 · 레벨 올리기(지갑 버튼과 같은 길) · 지금 판 능력 · 안개에 닿음 한 번(보호 시험)
+    walletLevel(n) { if (TG.W && n != null) { TG.W.data.lvl = Math.max(1, Math.min(TG.W.LV_MAX, n | 0)); TG.W.save(); if (G.phase === 'title') TG.H.hubRefresh(true, false); } return TG.W ? TG.W.data.lvl : null; },
+    walletGive(g, n) { if (TG.W) { TG.W.data.g[g | 0] = Math.max(0, (TG.W.data.g[g | 0] | 0) + (n | 0)); TG.W.save(); if (TG.H.walRender && TG.H.walPick && !TG.H.walPick.classList.contains('hide')) TG.H.walRender(); } return TG.W ? TG.W.snap() : null; },
+    walletUp() { return TG.H.walUp_ ? TG.H.walUp_() : (TG.W ? TG.W.levelUp() : null); },
+    gear() { return G.gear || null; },
+    hurt() { const p = P(); const h = p.hurt(p.x + 1, p.z); if (h) G.onHurt({ kind: 'test' }, h); return { res: h, hp: p.hp, acc: +((p.guardAcc || 0).toFixed(4)) }; },
     // 11-25 카드 1단계 시험 훅(js/collect.js)
     cards() { return TG.K ? TG.K.snap() : null; },
     cardsReset() { return TG.K ? TG.K.reset() : null; },

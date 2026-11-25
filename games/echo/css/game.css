@@ -492,8 +492,44 @@ body.closeup #hpBox, body.closeup #prog, body.closeup #topRight, body.closeup #b
 .walRow .wmerge.off { background: #e6e0ea; color: #9a90a8; box-shadow: 0 2px 0 rgba(27,20,36,0.5); cursor: default; }
 .walRow .wmerge.off .ol { color: #d6cfdd; }
 .walNote { margin-top: calc(6px * var(--s)); font-size: calc(11px * var(--s)); text-align: center; word-break: keep-all; opacity: 0.85; line-height: 1.25; }
-#walPick .btns { margin-top: calc(6px * var(--s)); }
+#walPick .btns { margin-top: calc(3px * var(--s)); }
+/* 11-25 톱니 레벨: 레벨 칸·4능력이 들어가 6등급 칸·여백을 조금 줄임(가로 폰 390 에서 「닫기」까지 보이게) */
+#walPick .walRow .gIco { width: calc(28px * var(--s)); height: calc(28px * var(--s)); }
+#walPick .walRow { padding-top: calc(2px * var(--s)); padding-bottom: calc(2px * var(--s)); }
+#walPick .walNote { margin-top: calc(3px * var(--s)); }
+#walPick #walTop { margin-bottom: calc(2px * var(--s)); }
+#walPick .walPanel { padding-top: calc(6px * var(--s)); padding-bottom: calc(8px * var(--s)); }
 .gIco.pop { animation: sselPop 0.55s cubic-bezier(.2,1.6,.4,1); }
+/* 11-25 톱니 레벨 1~99: 다음 레벨까지 · 레벨 올리기 · 4능력 칸 · 10 단위 도약 연출 */
+#walTop .walLv b.pop { display: inline-block; animation: sselPop 0.55s cubic-bezier(.2,1.6,.4,1); }
+#walLvBox { display: flex; align-items: center; justify-content: center; gap: calc(10px * var(--s)); margin: 0 0 calc(3px * var(--s)); flex-wrap: wrap; }
+.walNeed { display: flex; align-items: center; gap: calc(6px * var(--s)); background: #fff; border: 3px solid var(--ink); border-radius: calc(12px * var(--s)); padding: calc(3px * var(--s)) calc(10px * var(--s)); font-size: calc(14px * var(--s)); white-space: nowrap; }
+.walNeed .wnK { opacity: 0.8; }
+.walNeed .gw .gIco { width: calc(24px * var(--s)); height: calc(24px * var(--s)); }
+.walNeed .wnH { font-size: calc(11px * var(--s)); opacity: 0.7; }
+.walNeed .wnH.ok { color: #1f7a2e; opacity: 1; }
+.walNeed .wnMax { color: #b8241b; }
+#walUp { font-size: calc(16px * var(--s)); padding: calc(3px * var(--s)) calc(16px * var(--s)); }
+#walUp.off { background: #e6e0ea; box-shadow: 0 2px 0 rgba(27,20,36,0.5); cursor: default; }
+#walUp.off .ol { color: #d6cfdd; }
+#walAb { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(6px * var(--s)); margin-bottom: calc(4px * var(--s)); }
+#walAb .wab { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 calc(4px * var(--s)); min-width: 0; background: rgba(201,162,58,0.22); border: 2px solid rgba(27,20,36,0.25); border-radius: 12px; padding: calc(2px * var(--s)) calc(4px * var(--s)); line-height: 1.15; word-break: keep-all; }
+#walAb .wab b { font-size: calc(10.5px * var(--s)); opacity: 0.85; white-space: nowrap; }
+#walAb .wab .wv { font-size: calc(13px * var(--s)); color: #b8241b; white-space: nowrap; }
+#walAb .wab .wv i { font-style: normal; color: var(--ink); opacity: 0.55; margin: 0 calc(2px * var(--s)); }
+#walJump { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(6px * var(--s)); background: radial-gradient(circle calc(175px * var(--s)) at 50% 50%, rgba(255,246,224,0.98) 0, rgba(255,214,80,0.97) 82%, rgba(255,210,63,0.95) 99%, rgba(27,20,40,0.6) 100%); overflow: hidden; cursor: pointer; }
+#walJump.in .wjN { animation: wjIn 0.6s cubic-bezier(.2,1.6,.4,1); }
+@keyframes wjIn { 0% { transform: scale(2.4); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1); } }
+#walJump .wjN { position: relative; font-size: calc(46px * var(--s)); line-height: 1; color: #ffd23f; }
+#walJump .wjBurst { position: absolute; left: 50%; top: 42%; width: 0; height: 0; pointer-events: none; }
+#walJump .wjBurst i { position: absolute; left: calc(-6px * var(--s)); top: calc(-6px * var(--s)); width: calc(12px * var(--s)); height: calc(12px * var(--s)); border-radius: 50%; background: #fff; border: 2px solid var(--ink); transform: rotate(var(--a)) translateY(0); opacity: 0; }
+#walJump.in .wjBurst i { animation: wjFly 1.1s ease-out var(--d) both; }
+@keyframes wjFly { 0% { transform: rotate(var(--a)) translateY(0) scale(0.4); opacity: 1; } 100% { transform: rotate(var(--a)) translateY(calc(-150px * var(--s))) scale(1.1); opacity: 0; } }
+#sselJump { position: relative; display: flex; flex-direction: row; align-items: flex-end; gap: calc(6px * var(--s)); }
+#sselJump .sselImg { height: min(calc(96px * var(--s)), 26vh); }
+#sselJump .gtxt { max-width: calc(300px * var(--s)); padding: calc(5px * var(--s)) calc(12px * var(--s)); }
+#rGear .gtag.tagFirst { background: #ffe9a8; }
+#rGear .gtag.tagFall { background: #e4f2ff; }
 /* 결과 「받은 톱니」 */
 #rGear { display: flex; flex-direction: column; gap: calc(3px * var(--s)); margin: 0 auto calc(4px * var(--s)); width: calc(340px * var(--s)); max-width: 100%; font-size: calc(12px * var(--s)); }
 #rGear .gl { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: calc(3px * var(--s)) calc(8px * var(--s)); background: rgba(201,162,58,0.22); border: 2px solid rgba(27,20,36,0.25); border-radius: 12px; padding: calc(2px * var(--s)) calc(10px * var(--s)); line-height: 1.2; }

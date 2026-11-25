@@ -209,14 +209,20 @@
   // 안개에 닿음: 「소리 크기」 1칸 줄고 뒤로 통 밀림 (보호 방울이 있으면 대신 톡). 돌려줌: false | 'shield' | true
   PL.hurt = function (fx, fz) {
     if (PL.inv > 0 || PL.resting || TG.Q.god || PL.noHurt > 0) return false;
-    const sh = PL.shield > 0;
-    if (sh) PL.shield--; else PL.hp = Math.max(0, PL.hp - 1);
+    const sh = PL.shield > 0; let gd = false;
+    if (sh) PL.shield--;
+    else {
+      // 11-25 톱니 레벨 「보호」(game.js G.gear.guard, 끝까지 모드·재생은 null = 표준): 닿을 때마다 1/(1+보호) 만큼만 깎여 「쓰러짐이 늦어짐」(보호 +80% = 칸 3개가 5.4번 몫). 난수 없음(한 닿음 = 같은 값). 쌓인 값이 1 이 안 되면 이번은 보호(칸 그대로)
+      const gk = TG.G && TG.G.gear && TG.G.gear.guard > 0 ? TG.G.gear.guard : 0;
+      if (gk > 0) { PL.guardAcc = (PL.guardAcc || 0) + 1 / (1 + gk); if (PL.guardAcc < 1 - 1e-9) gd = true; else PL.guardAcc -= 1; }
+      if (!gd) PL.hp = Math.max(0, PL.hp - 1);
+    }
     PL.inv = 1.5; PL.flash = 1; // 닿은 뒤 1.5초는 다시 안 닿음 (다시 일어나기가 없어져 1.2 → 1.5초)
     const dx = PL.x - fx, dz = PL.z - fz, d = Math.hypot(dx, dz) || 1;
     PL.kx = (dx / d) * 9; PL.kz = (dz / d) * 9;
     PL.kick(-6);
     PL.lastHurt = 0;
-    return sh ? 'shield' : true;
+    return sh ? 'shield' : gd ? 'guard' : true;
   };
 
   // 큰 소리: 점프 → 착지 때 콜백

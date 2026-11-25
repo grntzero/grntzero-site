@@ -10,7 +10,7 @@
       'speech', 'zoneVig', 'stick', 'stickKnob', 'stickBase', 'keyHint', 'btnBig', 'btnSnd', 'bigArc', 'banner', 'count', 'title', 'pause', 'result', 'rotate', 'loading', 'lfill',
       'resTitle', 'stars', 'rTime', 'rFog', 'rCombo', 'rNote', 'hint', 'grunt', 'gruntTxt', 'shelter', 'cards', 'cardRow', 'rerollBtn', 'skills', 'skHero', 'skList', 'skClose', 'face',
       'dunRow', 'dunBtn', 'dunPick', 'dunList', 'lvRow', 'lvInfo', 'dunGo', 'cuSkipBtn', 'rStamp',
-      'walRow', 'walBtn', 'walPick', 'walList', 'walClose', 'walLvN', 'walDay', 'walNote', 'rGear',
+      'walRow', 'walBtn', 'walPick', 'walList', 'walClose', 'walLvN', 'walDay', 'walNote', 'rGear', 'walLvBox', 'walNeed', 'walUp', 'walAb', 'walJump', 'walJumpN', 'sselJump', 'sselJumpTxt', // 11-25 톱니 레벨(올리기·4능력·도약 연출)
       'colRow', 'colBtn', 'colPick', 'colTotal', 'colEq', 'colTabs', 'colSet', 'colGrid', 'colNote', 'colClose', 'cardView', 'cvArt', 'cvName', 'cvInfo', 'cvSlots', 'cvBtns', 'cvMsg', 'cvClose', 'rCard'].forEach((k) => (H[k] = $(k))); // 11-24 던전 고르기·확대 건너뛰기·단계 도장 · 톱니 지갑 · 11-25 카드 도감
     H.dunBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.dunOpen(); });
     H.dunGo.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.dunClose(); });
@@ -18,6 +18,8 @@
     H.walBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.walOpen(); }); // 11-24 톱니 지갑
     H.walClose.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.walClose_(); });
     H.walPick.addEventListener('click', (e) => { if (e.target === H.walPick) H.walClose_(); });
+    if (H.walUp) H.walUp.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); H.walUp_(); }); // 11-25 톱니 레벨 올리기
+    if (H.walJump) H.walJump.addEventListener('click', (e) => { e.stopPropagation(); H.walJumpHide(); });
     if (H.colBtn) { // 11-25 카드 도감
       H.colBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.colOpen(); });
       H.colClose.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.colClose_(); });
@@ -119,10 +121,46 @@
     if (!H.title || H.title.classList.contains('hide') || !TG.W) return false;
     H.walRender(); H.show(H.walPick, true); return true;
   };
-  H.walClose_ = function () { H.show(H.walPick, false); H.hubRefresh(hubTut, hubBack); };
+  H.walClose_ = function () { H.walJumpHide(); H.show(H.walPick, false); H.hubRefresh(hubTut, hubBack); };
+  // 11-25 톱니 레벨(계획 v8 ③ · 회의 11-18 2장): 다음 레벨까지 필요한 톱니(구간 등급) · [레벨 올리기] · 4능력 지금 → 다음 · 10 단위 도약 쎌 축하(그림은 기존 쎌 표정 + 코드 도형)
+  const pct = (v) => '+' + v + '%';
+  H.walLevelRender = function () {
+    const W = TG.W; if (!W || !H.walLvBox) return;
+    const lvl = W.data.lvl, nd = W.nextNeed(), max = lvl >= W.LV_MAX, can = W.canLevelUp();
+    if (max) { H.walNeed.innerHTML = '<span class="wnMax">최고 레벨! 톱니골 최고 친구예요</span>'; H.show(H.walUp, false); }
+    else {
+      const have = W.data.g[nd.g] | 0, prev = W.needFor(lvl), newG = !!(prev && prev.g !== nd.g); // 구간이 바뀌는 레벨(20→21 등)은 「새 등급!」 안내(회의 6-3)
+      H.walNeed.innerHTML = '<span class="wnK">레벨 ' + (lvl + 1) + '까지</span><span class="gw">' + W.icon(nd.g, 24) + '<b>×' + nd.n + '</b></span><small class="wnH' + (can ? ' ok' : '') + '">' + (newG ? '새 등급! ' : '') + W.GRADES[nd.g].name + ' ' + have + '개 있어요</small>';
+      H.show(H.walUp, true); H.walUp.disabled = !can; H.walUp.classList.toggle('off', !can);
+    }
+    const a0 = W.abilityPct(lvl), a1 = max ? null : W.abilityPct(lvl + 1);
+    H.walAb.innerHTML = W.ABIL.map((ab) => '<span class="wab"><b>' + ab.name + '</b><span class="wv">' + pct(a0[ab.id]) + (a1 ? '<i>→</i>' + pct(a1[ab.id]) : '') + '</span></span>').join('');
+  };
+  H.walUp_ = function () {
+    const W = TG.W; if (!W) return null;
+    const r = W.levelUp();
+    if (!r.ok) { TG.A.ui(0.8); return r; }
+    TG.A.ui(1.3); TG.A.play('sfx_pick', { rate: 1.6, gain: 0.5 });
+    H.walRender(); H.hubRefresh(hubTut, hubBack);
+    if (H.walLvN) { H.walLvN.classList.remove('pop'); void H.walLvN.getBoundingClientRect(); H.walLvN.classList.add('pop'); }
+    if (r.jump) H.walJumpShow(r.to);
+    return r;
+  };
+  H.walJumpShow = function (lv) {
+    if (!H.walJump) return;
+    const msg = TG.W.jumpMsg(lv);
+    H.walJumpN.textContent = '레벨 ' + lv + '!';
+    H.sselJumpTxt.textContent = msg; H.sselFace(H.sselJump, lv >= TG.W.LV_MAX ? 'cheer' : 'wink', true); H.sselVoice(msg);
+    const burst = H.walJump.querySelector('.wjBurst'); if (burst) { let s = ''; for (let i = 0; i < 14; i++) s += '<i style="--a:' + Math.round(i * 360 / 14) + 'deg;--d:' + (0.05 * (i % 4)) + 's"></i>'; burst.innerHTML = s; }
+    H.show(H.walJump, true); H.walJump.classList.remove('in'); void H.walJump.getBoundingClientRect(); H.walJump.classList.add('in');
+    TG.A.play('sfx_big', { rate: 1.2, gain: 0.5 });
+    clearTimeout(H.walJumpTO); H.walJumpTO = setTimeout(() => H.walJumpHide(), 3200);
+  };
+  H.walJumpHide = function () { clearTimeout(H.walJumpTO); if (H.walJump) H.show(H.walJump, false); };
   H.walRender = function () {
     const W = TG.W; if (!W) return;
     H.walLvN.textContent = W.data.lvl;
+    H.walLevelRender();
     const runs = W.runsToday(), over = runs >= W.DAY_FULL;
     H.walDay.textContent = over ? '오늘 ' + runs + '판째 · 쉬는 시간 · 톱니 30%' : '오늘 ' + runs + ' / ' + W.DAY_FULL + '판';
     H.walDay.classList.toggle('over', over);
@@ -137,7 +175,7 @@
         row.appendChild(b); }
       H.walList.appendChild(row);
     }
-    H.walNote.textContent = '레벨 올리기는 곧 열려요 · 보호자께: 하루 ' + W.DAY_FULL + '판까지 톱니 100%, 그 뒤엔 30% — 쎌이 쉬는 시간을 안내해요';
+    H.walNote.textContent = '같은 톱니 5개 → 윗등급 1개 · 보호자께: 하루 ' + W.DAY_FULL + '판까지 톱니 100%, 그 뒤엔 30% — 쎌이 쉬는 시간을 안내해요';
   };
   // ── 11-25 카드 1단계(js/collect.js): 도감 80칸 · 장착 · 세트 · 상세(장착·올리기·바꾸기) ──
   let colArtist = 'sefo', cvId = null;
@@ -545,8 +583,10 @@
       else if (r.clear) H.rStamp.textContent = r.dungeonName + ' · ' + r.lvName + ' 도장!';
     }
     if (H.rGear) { // 11-24 받은 톱니(js/wallet.js payout): 판 톱니(+덤) · 첫 클리어 상자 · 오늘 판 수(8판 뒤 30%)
-      const pg = r.clear && r.gear; H.show(H.rGear, !!pg); document.body.classList.toggle('hasGear', !!pg);
-      if (pg) { const W = TG.W; let h = '<div class="gl"><span class="gk">받은 톱니</span>' + W.html(pg.run) + (pg.crumb ? '<span class="gw crumb">+ 덤 ' + W.icon(1, 18) + '<b>×' + pg.crumb + '</b></span>' : '') + (pg.over ? '<span class="gtag">30%</span>' : '') + '<span class="gday' + (pg.over ? ' over' : '') + '">' + (pg.over ? '오늘 ' + pg.runs + '판째' : '오늘 ' + pg.runs + ' / ' + pg.full + '판') + '</span></div>';
+      const pg = r.clear ? r.gear : r.fall; H.show(H.rGear, !!pg); document.body.classList.toggle('hasGear', !!pg); // 11-25 쓰러져도 챙긴 톱니(r.fall)도 같은 줄
+      if (pg && pg.fall) { const W = TG.W; H.rGear.innerHTML = '<div class="gl"><span class="gk">챙긴 톱니</span>' + W.html(pg.run) + '<span class="gtag tagFall">' + pg.reached + ' / ' + pg.of + '층 · ' + pg.pct + '%</span>' + (pg.over ? '<span class="gtag">30%</span>' : '') + '</div>'; }
+      else if (pg) { const W = TG.W; let h = '<div class="gl"><span class="gk">받은 톱니</span>' + W.html(pg.run) + (pg.crumb ? '<span class="gw crumb">+ 덤 ' + W.icon(1, 18) + '<b>×' + pg.crumb + '</b></span>' : '') + (pg.over ? '<span class="gtag">30%</span>' : '') + '<span class="gday' + (pg.over ? ' over' : '') + '">' + (pg.over ? '오늘 ' + pg.runs + '판째' : '오늘 ' + pg.runs + ' / ' + pg.full + '판') + '</span></div>';
+        if (pg.first) h += '<div class="gl"><span class="gk">오늘의 첫 던전</span>' + W.html(pg.first) + '<span class="gtag tagFirst">+' + TG.W.FIRST_BONUS + '판 몫</span></div>'; // 11-25 하루 첫 깸 보너스
         if (pg.box) h += '<div class="gl"><span class="gk">첫 클리어 상자</span>' + W.html(pg.box) + (pg.card ? '<span class="gtag tagCard">카드 1 · 곧</span>' : '') + (pg.gold ? '<span class="gtag tagGold">금 도장</span>' : '') + '</div>';
         H.rGear.innerHTML = h; }
     }
@@ -576,6 +616,7 @@
         H.resTO = setTimeout(() => {
           let L = { 3: ['wink', '별 세 개! 역시 내 친구지~'], 2: ['ok', '보스까지 갔잖아! 거의 다 왔어!'], 1: ['smile', '한 번 더 해 볼까? 금방 늘 거야!'] }[r.stars | 0] || ['smile', '한 번 더 해 볼까?'];
           if (r.clear && r.gear && r.gear.rest) L = ['ok', r.gear.rest]; // 11-24 하루 8판 뒤 쎌 휴식 안내(v8 ㉝) — 별 칭찬 대신
+          else if (!r.clear && r.fall) L = ['ok', r.fall.say]; // 11-25 쓰러져도 챙긴 톱니(회의 1-4) 「조금만 더! 톱니는 챙겼어!」
           if (H.result.classList.contains('hide')) return;
           tx.textContent = L[1]; H.sselFace(box, L[0], true); H.sselVoice(L[1]);
           if (r.tut) H.resTO = setTimeout(() => { if (H.result.classList.contains('hide')) return; tx.textContent = '연습 끝! 「광장으로」 눌러서 톱니골 광장에 가 보자!'; H.sselFace(box, 'smile', true); }, 2600); // 11-19 튜토리얼 판

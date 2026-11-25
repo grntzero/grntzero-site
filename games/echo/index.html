@@ -154,10 +154,15 @@
     <div class="panel walPanel">
       <div class="ptitle ol">톱니 지갑</div>
       <div id="walTop"><div class="walLv"><small class="ol">톱니 레벨</small><b id="walLvN" class="ol">1</b></div><div id="walDay" class="walDay">오늘 0 / 8판</div></div>
+      <!-- 11-25 톱니 레벨 1~99(계획 v8 ③): 다음 레벨까지 필요한 톱니(구간 등급) · 레벨 올리기 · 4능력 지금 → 다음 -->
+      <div id="walLvBox"><div id="walNeed" class="walNeed"></div><button id="walUp" class="bub yel" type="button"><span class="ol">레벨 올리기</span></button></div>
+      <div id="walAb"></div>
       <div id="walList"></div>
       <div id="walNote" class="walNote"></div>
       <div class="btns"><button id="walClose" class="bub sky" type="button"><span class="ol">닫기</span></button></div>
     </div>
+    <!-- 11-25 레벨 10 단위 도약 쎌 축하(기존 쎌 표정 + 코드 도형 반짝, 누르면 닫힘) — 패널 밖(패널은 스크롤되므로) -->
+    <div id="walJump" class="hide"><div class="wjBurst"></div><div id="walJumpN" class="wjN ol">레벨 10!</div><div id="sselJump" class="ssel"><div class="gtxt"><b>쎌</b><span id="sselJumpTxt"></span></div><img class="sselImg" alt="" draggable="false" src="assets/img/assistant/ssel/wink.webp"></div></div>
   </div>
   <!-- 11-25 카드 1단계(js/collect.js): 카드 도감 — 장착 3칸·능력치 합계 · 아티스트 탭 13 · 80칸(의상 4 × 배경 4 × 효과 5) + 유니크 별 칸 · 세트 10/30/80 · 확률 공개 -->
   <div id="colPick" class="screen dim hide">

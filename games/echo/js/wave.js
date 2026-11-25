@@ -170,6 +170,8 @@
     } }
     // 11-25 카드 1단계(js/collect.js): 장착 카드 능력치 — ✨소리 크기(세기) · 🌸범위. game.js startPlay 가 G.eq 를 둠(끝까지 모드·기록 재생은 null = 표준 수치)
     { const eq = TG.G.eq; if (eq) { if (eq.spark) { o.dmg *= 1 + eq.spark; if (o.bossDmg) o.bossDmg *= 1 + eq.spark; } if (eq.petal) { o.range *= 1 + eq.petal; if (o.splash) o.splash *= 1 + eq.petal; } } }
+    // 11-25 톱니 레벨 4능력(js/wallet.js W.ability, game.js G.gear — 레벨 1 = 0 = 표준, 끝까지 모드·기록 재생은 null): 소리 세기(power) → 세기, 소리 간격(rate) → 쉼 ÷(1+rate)
+    { const gr = TG.G.gear; if (gr) { if (gr.power) { o.dmg *= 1 + gr.power; if (o.bossDmg) o.bossDmg *= 1 + gr.power; } if (gr.rate) o.cd /= 1 + gr.rate; } }
     return o;
   };
   // 11-17 기본 소리 개편 수치(초안 — 밸런스 측정으로 맞춤, 기록.md 3절)
