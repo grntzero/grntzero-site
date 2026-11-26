@@ -334,7 +334,7 @@
   //  11-24 쎄니·베리: starhand = 별 손짓(오른팔 앞·위, 손끝 톡톡) · vee = 브이(오른손 볼 옆, 고개 갸웃) · shake = 마라카스 샤카샤카(오른팔 앞에서 좌우 빠르게, 두 번 묶음)
   function cuPose(dt) {
     const c = PL.cuPose, B = PL.bones; PL.cuPoseK = 0; if (!c || !B) return;
-    const t = c.t || 0, inK = Math.min(1, t / 0.18), outK = c.dur > 8 ? 1 : Math.min(1, Math.max(0, (c.dur - t) / 0.15)), k = inK * outK * (TG.G && TG.G.cu ? 1 : 0); PL.cuPoseK = k; if (k <= 0) return;
+    const t = c.t || 0, inK = Math.min(1, t / 0.18), outK = c.dur > 8 ? 1 : Math.min(1, Math.max(0, (c.dur - t) / 0.15)), k = inK * outK * (TG.G && (TG.G.cu || TG.G.uqPose) ? 1 : 0); PL.cuPoseK = k; if (k <= 0) return; // 11-25 유니크 연출(G.uqPose)도 같은 덧칠
     const yaw = PL.yaw, fwd = poseF.set(Math.sin(yaw), 0, Math.cos(yaw)), right = poseR.set(Math.cos(yaw), 0, -Math.sin(yaw)), up = poseAx2.set(0, 1, 0);
     if (PL.__cuOps) { for (const [bn, ax, ang] of PL.__cuOps) rotW(B[bn], ax === 'r' ? right : ax === 'f' ? fwd : up, ang * k); return; } // 시험용 덮어쓰기(자세 맞추기)
     if (c.name === 'helmet') { // 오른손을 헬멧 위로(톡톡) — 자세값은 캡처로 맞춤(11-24 스크래치 pose.py: 위팔 right −1.6·fwd +0.5, 아래팔 right −2.3)
@@ -362,6 +362,20 @@
       const bob = Math.sin(t * 8) * 0.05;
       rotW(B.RightArm, right, -1.3 * k); rotW(B.RightArm, fwd, -0.2 * k); rotW(B.RightForeArm, right, (-2.1 + bob) * k);
       rotW(B.Head, fwd, 0.22 * k); rotW(B.Head, right, 0.06 * k); rotW(B.Spine02, fwd, 0.06 * k);
+    } else if (c.name === 'fist') { // 11-25 세포 유니크 「필승 모드!」: 주먹 불끈(오른팔 위로 쭉, 아래팔 접어 주먹) + 한 발 앞으로(몸 앞쏠림) + 턱 살짝 — 경례 X(허조교 것)
+      const pump = Math.abs(Math.sin(t * 7)) * 0.12;
+      rotW(B.RightArm, right, (-2.5 + pump) * k); rotW(B.RightArm, fwd, -0.15 * k); rotW(B.RightForeArm, right, -0.9 * k);
+      rotW(B.LeftArm, right, -0.35 * k); rotW(B.LeftArm, fwd, 0.25 * k); rotW(B.LeftForeArm, right, -1.0 * k);
+      rotW(B.Spine01, right, 0.14 * k); rotW(B.Spine02, right, -0.22 * k); rotW(B.Head, right, -0.1 * k);
+    } else if (c.name === 'cheerup') { // 11-26 세포 유니크 「세포키즈 출동!」 부름: 양팔 위로 쭉 들고 좌우로 흔들며(모여라~) + 고개 들기 + 발꿈치 들썩 — 그 뒤 춤은 기존 dj 자세
+      const wv = Math.sin(t * 9) * 0.3;
+      rotW(B.RightArm, right, -2.7 * k); rotW(B.RightArm, fwd, (-0.35 + wv) * k); rotW(B.RightForeArm, right, -0.3 * k);
+      rotW(B.LeftArm, right, -2.7 * k); rotW(B.LeftArm, fwd, (0.35 + wv) * k); rotW(B.LeftForeArm, right, -0.3 * k);
+      rotW(B.Spine02, fwd, wv * 0.25 * k); rotW(B.Head, right, -0.3 * k); rotW(B.Head, fwd, wv * 0.2 * k);
+    } else if (c.name === 'whistle') { // 11-25 허조교 유니크 「전원 집합!」: 호루라기 입에(오른손 입 앞) + 왼팔 앞으로 쭉 + 고개 젖혀 호루라기(기본 소리 자세와 같은 결)
+      rotW(B.RightArm, right, -2.2 * k); rotW(B.RightForeArm, right, -1.8 * k); rotW(B.RightArm, fwd, 0.6 * k);
+      rotW(B.LeftArm, right, -2.2 * k); rotW(B.LeftArm, fwd, -0.3 * k);
+      rotW(B.Head, right, -0.7 * k); rotW(B.Spine01, right, 0.2 * k); rotW(B.Spine02, right, -0.15 * k);
     } else if (c.name === 'shake') { // 11-24 베리 「마라카스 샤카샤카」: 오른팔(막대 쥔 손)을 앞으로 들고 좌우로 빠르게 흔듦(두 번 묶음) + 왼팔도 같이 + 어깨 들썩
       const sh = Math.sin(t * 22) * 0.28, grp = (Math.sin(t * 5.5) > 0 ? 1 : 0.35);
       rotW(B.RightArm, right, -0.75 * k); rotW(B.RightArm, fwd, (-0.2 + sh * grp) * k); rotW(B.RightForeArm, right, -1.5 * k); rotW(B.RightForeArm, fwd, sh * grp * 0.6 * k);

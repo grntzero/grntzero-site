@@ -67,13 +67,13 @@
   K.effOf = (id) => { const s = K.split(id); if (s.idx === 'U') return K.EFFECTS.findIndex((e) => e.id === K.byId[s.artist].set.eff); return K.parts(s.idx).eff; }; // 유니크 능력치 = 그 아티스트 응원 종류 [대표 확인]
 
   // ── 저장 ──
-  const blank = () => ({ v: 1, c: {}, u: {}, eq: [null, null, null], day: '', dayN: 0, got: 0, boxSeen: 0, swaps: 0, ups: 0, updated: 0 });
+  const blank = () => ({ v: 1, c: {}, u: {}, eq: [null, null, null], day: '', dayN: 0, got: 0, boxSeen: 0, swaps: 0, ups: 0, updated: 0, alt: {} }); // 11-26 alt: 유니크 연출 고르기(세포 { sefo: 'kids' } = 「세포키즈 출동!」, 없으면 1번 「필승 모드!」) — js/unique.js U.altOf/U.pick
   K.data = blank();
   K.load = function () {
     let d = null; try { d = JSON.parse(localStorage.getItem(K.KEY) || 'null'); } catch (e) { d = null; }
     K.data = blank();
     if (d && typeof d === 'object' && d.v === 1) { for (const k of Object.keys(K.data)) if (d[k] != null) K.data[k] = d[k]; }
-    if (!K.data.c || typeof K.data.c !== 'object') K.data.c = {}; if (!K.data.u || typeof K.data.u !== 'object') K.data.u = {};
+    if (!K.data.c || typeof K.data.c !== 'object') K.data.c = {}; if (!K.data.u || typeof K.data.u !== 'object') K.data.u = {}; if (!K.data.alt || typeof K.data.alt !== 'object') K.data.alt = {};
     if (!Array.isArray(K.data.eq) || K.data.eq.length !== 3) K.data.eq = [null, null, null];
     K.data.eq = K.data.eq.map((id) => (id && K.has(id) ? id : null));
     K.syncBox();
@@ -210,7 +210,8 @@
       + (unique ? '<linearGradient id="' + uid + 'u" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="0.5" stop-color="#7a5cff"/><stop offset="1" stop-color="#2fe0f0"/></linearGradient>' : '')
       + '<radialGradient id="' + uid + 'g" cx="0.5" cy="0.62" r="0.5"><stop offset="0" stop-color="' + OUT_GLOW[p.out] + '" stop-opacity="0.85"/><stop offset="1" stop-color="' + OUT_GLOW[p.out] + '" stop-opacity="0"/></radialGradient>'
       + '<clipPath id="' + uid + 'c"><rect x="7" y="7" width="86" height="110" rx="6"/></clipPath>'
-      + (locked ? '<filter id="' + uid + 's" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0.16  0 0 0 0 0.13  0 0 0 0 0.22  0 0 0 0.85 0"/></filter>' : '') + '</defs>';
+      + (locked ? '<filter id="' + uid + 's" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0.16  0 0 0 0 0.13  0 0 0 0 0.22  0 0 0 0.85 0"/></filter>' : '')
+      + (unique ? '<filter id="' + uid + 'b" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>' : '') + '</defs>';
     // 틀(등급 색 그라데이션 / 유니크 무지개) + 안쪽 테두리 선
     h += '<rect x="1.5" y="1.5" width="97" height="137" rx="10" fill="' + (unique ? 'url(#' + uid + 'u)' : 'url(#' + uid + 'f)') + '" stroke="#1b1424" stroke-width="3"/>';
     h += '<rect x="5" y="5" width="90" height="114" rx="7.5" fill="none" stroke="' + (unique ? '#fff' : shade(G.col, 0.7)) + '" stroke-width="1.2" opacity="0.9"/>';
@@ -219,6 +220,7 @@
     h += '<image href="' + F.bg + '" x="7" y="7" width="86" height="110" preserveAspectRatio="xMidYMid slice"' + (locked ? ' opacity="0.4"' : '') + '/>';
     if (!locked) h += '<ellipse cx="50" cy="78" rx="40" ry="42" fill="url(#' + uid + 'g)"/>';
     if (!locked) h += '<ellipse cx="50" cy="113" rx="24" ry="4.5" fill="#1b1424" opacity="0.28"/>';
+    if (unique && !locked && F.ch) h += '<image href="' + F.ch + '" x="-14" y="-6" width="128" height="120" preserveAspectRatio="xMidYMin slice" opacity="0.38" filter="url(#' + uid + 'b)"/>'; // 11-25 유니크 카드 A안 「실제 사진 뒤 크게」 **자리**: 사진은 대표가 고르는 것(프레스킷 원본, 본인 동의·쎄니·베리는 캐릭터만) → 그때까지 같은 3D 렌더를 크게·흐리게 뒤에(AI 생성 X)
     if (F.ch) h += '<image href="' + F.ch + '" x="7" y="12" width="86" height="104" preserveAspectRatio="xMidYMax meet"' + (locked ? ' filter="url(#' + uid + 's)"' : '') + '/>';
     else h += silArt(a, locked);
     if (!locked) h += '<image href="' + F.fx + '" x="7" y="7" width="86" height="110" preserveAspectRatio="xMidYMid slice" opacity="0.95"/>';
@@ -228,7 +230,8 @@
     if (!locked && (unique || g >= 3)) { const gem = unique ? '#fff' : shade(G.col, 0.75); [[7.5, 7.5], [92.5, 7.5], [7.5, 116.5], [92.5, 116.5]].forEach((c) => { h += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="2.6" fill="' + gem + '" stroke="#1b1424" stroke-width="1"/>'; }); }
     h += '<g transform="translate(66 10) scale(0.6)">' + K.effIcon(p.eff).replace('<svg class="kEff" viewBox="0 0 44 44"', '<svg viewBox="0 0 44 44" width="44" height="44"') + '</g>';
     h += '<rect x="7" y="117" width="86" height="17" rx="4" fill="#fff6e0" stroke="#1b1424" stroke-width="1.5"/>';
-    h += '<text x="50" y="129.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#1b1424">' + (locked ? '?' : unique ? a.name + ' 유니크' : F.ch ? a.name + ' · ' + K.OUTFITS[p.out] : a.name + ' · 곧 만나요') + '</text>';
+    const uqN = unique && !locked && TG.U && TG.U.DEFS[a.id] ? TG.U.DEFS[a.id].name : null; // 11-25 유니크 연출 이름(js/unique.js) — 카드 글에 공격·필살 단어 없음
+    h += '<text x="50" y="129.5" text-anchor="middle" font-size="' + (uqN ? 8.2 : 9.5) + '" font-weight="900" fill="#1b1424">' + (locked ? '?' : unique ? a.name + ' 유니크' + (uqN ? ' · ' + uqN : '') : F.ch ? a.name + ' · ' + K.OUTFITS[p.out] : a.name + ' · 곧 만나요') + '</text>';
     if (!locked) h += '<text x="12" y="19" font-size="9" font-weight="900" fill="' + G.ink + '" stroke="#fff" stroke-width="2.4" paint-order="stroke">' + (unique ? '★' : G.name) + '</text>';
     h += '</svg>';
     return (artCache[key] = h);

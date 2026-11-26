@@ -168,6 +168,7 @@
   }
 
   function resetRun(keepFx) {
+    if (TG.U && G.uq) TG.U.clear(); // 11-25 유니크 ★(js/unique.js): 지난 판 연출·보너스·모자 정리
     G.tick = 0; G.time = 0; G.realT = 0; G.gauge = 0; G.combo = 0; G.comboT = 0; G.maxCombo = 0; G.notes = 0; G.popped = 0; G.rescued = 0; G.bossStarted = false;
     G.floor = 1; G.fogPop = 0; G.floorDone = false; G.cocoonDone = false; G.level = 1; G.xp = 0; G.xpNeed = XP0; G.pendingCards = 0; G.cardOpen = null; G.cardN = 0; G.revived = false;
     G.rerollLeft = REROLL_MAX; G.rerollN = 0; G.inReroll = false; G.reviveT = 0; if (TG.H.reviveCount) TG.H.reviveCount(null); if (G.skillOpen) closeSkills(); // 11-18 다시 뽑기·다시 일어나기 카운트·내 리믹스 카드 창
@@ -245,6 +246,7 @@
     G.eq = (!G.replay && !G.rankMode && TG.K) ? TG.K.bonus() : null;
     G.gear = (!G.replay && !G.rankMode && TG.W) ? TG.W.ability(TG.W.data.lvl) : null; P().guardAcc = 0; // 11-25 톱니 레벨 4능력(js/wallet.js W.ability — 레벨 1 = 전부 0 = 표준). 끝까지 모드·기록 재생은 null(랭킹 공정 A안). 소리 세기·간격 = wave.js stat, 이동 = cards.js recalc, 보호 = player.js hurt
     if (TG.C && TG.C.recalc) TG.C.recalc(); // 11-25 카드 1단계: 장착 카드 능력치(일반 판만). 끝까지 모드(?rank=1)·기록 재생은 표준 수치(v8 13-4 A안) — 기록(REC_V 7)·시드엔 안 들어감
+    if (TG.U) TG.U.setup(); // 11-25 유니크 ★ 1판 1번(js/unique.js): 유니크 카드를 끼고 그 캐릭이면 별 버튼. 끝까지 모드도 가진 사람은 그대로(대표: 유니크 수치 랭킹 유지) · 재생은 기록 깃발이 정함
     if (skipIntro) showHud();
     const p = P();
     p.x = p.px = 0; p.z = p.pz = 3.2; p.root.visible = true; p.ring.visible = true;
@@ -259,7 +261,7 @@
     G.tutRun = !rp && !G.bot && !tutDone(); // 11-19 첫 판 = 튜토리얼(안내는 매 판 같고, 첫 판엔 다 배우면 쎌 칭찬 + 결과에 광장 안내)
     if (rp) TG.Q.god = !!rp.god;
     TG.simSeed(G.seed);
-    G.rec = { v: REC_V, seed: G.seed, first: first ? 1 : 0, god: TG.Q.god ? 1 : 0, hero: TG.heroId, assist: TG.assistId, dun: DUNGEON.id, lv: LV, ticks: [], cards: [] }; // 11-24 dun·lv: 던전·단계(규칙 배율) — 없으면 파이프 굴 1단계라 v7 그대로 // v3(11-16): hero·assist 칸 — 재생 때 같은 주인공·보조로. v4(11-16 오후): 기본 소리 파형 통일·큰 소리 4종 새 규칙 — v3 이하 기록은 규칙이 달라 재생 안 함(api.replay)
+    G.rec = { v: REC_V, seed: G.seed, first: first ? 1 : 0, god: TG.Q.god ? 1 : 0, hero: TG.heroId, assist: TG.assistId, dun: DUNGEON.id, lv: LV, ticks: [], cards: [] }; if (G.uq && G.uq.def && G.uq.def.key) G.rec.uqk = G.uq.def.key; // 11-26 세포 2번째 연출(「세포키즈 출동!」 = 'kids')을 고른 판만 칸 하나 더(없으면 1번 연출) — 재생은 이 칸으로 같은 연출·보너스. 유니크 없는 판은 칸 없음(v7 그대로) // 11-24 dun·lv: 던전·단계(규칙 배율) — 없으면 파이프 굴 1단계라 v7 그대로 // v3(11-16): hero·assist 칸 — 재생 때 같은 주인공·보조로. v4(11-16 오후): 기본 소리 파형 통일·큰 소리 4종 새 규칙 — v3 이하 기록은 규칙이 달라 재생 안 함(api.replay)
     G.rpI = 0; G.rpN = 0; G.replayDone = false;
     TG.A.bgm(DUNGEON.music.floor || 'bgm_battle', 0.8); // 던전별 음악 자리(js/dungeons.js music.floor)
     startFloor(1);
@@ -713,6 +715,9 @@
   }
   // 11-24 덧칠 동작(경례·DJ 등) 동안 기본 idle 클립을 0초에 멈춤 — 허조교·모쉬 idle 클립이 몸을 좌우로 크게 돌려(두리번) 얼굴이 카메라를 등질 때가 있었음(캡처로 확인). 끝나면 다시 돎
   function idleHold(p, on) { const a = p.act && p.act.idle; if (!a) return; if (on) { a.time = 0; a.paused = true; } else a.paused = false; }
+  G.idleHold = idleHold; // 11-25 유니크 연출(js/unique.js)도 같은 방식
+  G.pressStar = function () { if (isPlay() && !G.paused && !G.cardOpen && !G.bot) G.inStar = true; };   // 사람 입력만(봇·자동 X) → 다음 걸음 깃발 16384
+  G.skipStar = function () { if (G.uq && G.uq.act && !G.uq.act.fired) G.inSkipStar = true; };                 // 연출 건너뛰기 → 깃발 32768
   function confetti(p, n) { const FX = TG.FX, cols = [[2.4, 0.6, 0.5], [2.4, 2.0, 0.6], [0.7, 1.9, 2.4], [1.9, 0.8, 2.2]]; for (let i = 0; i < n; i++) FX.emit([FX.CELL.note, FX.CELL.note2, FX.CELL.sparkle][i % 3], p.x + TG.fra(-1.2, 1.2), 1.2 + TG.fra(0, 2.2), p.z + TG.fra(-1.2, 1.2), { vy: TG.fra(2, 4), life: TG.fra(0.6, 1.1), size: 0.5, size1: 0.2, color: cols[i % 4], rot: 0, vrot: TG.fra(-3, 3), pop: true }); }
   function updateCloseup(dt) {
     const c = G.cu, p = P(); if (!c) return;
@@ -1138,6 +1143,8 @@
       if (e.code === 'KeyR' && !G.paused && G.cardOpen) G.inReroll = true; // 11-18 다시 뽑기(PC: R)
       if (e.code === 'Space') e.preventDefault(); // Space = 누르고 있는 동안 소리(keys.Space)
       if ((e.code === 'KeyE' || e.code === 'KeyQ' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') && !e.repeat) pressBig();
+      if (e.code === 'KeyF' && !e.repeat) G.pressStar(); // 11-25 유니크 ★ (PC: F)
+      if (e.code === 'Enter' && G.uq && G.uq.act) G.skipStar(); // 11-25 유니크 연출 건너뛰기
       if ((e.code === 'Escape' || e.code === 'KeyP') && G.skillOpen) { closeSkills(); return; } // 11-18 내 리믹스 카드 창은 ESC 로 닫힘
       if (e.code === 'Escape' || e.code === 'KeyP') togglePause();
       if (e.code === 'Enter' && G.phase === 'title') { startIntro(); }
@@ -1150,10 +1157,12 @@
 
     const btnBig = document.getElementById('btnBig');
     const btnSnd = document.getElementById('btnSnd');
+    const btnStar = document.getElementById('btnStar');
     window.addEventListener('pointerdown', (e) => {
       const tgt = e.target;
       if (tgt.closest && tgt.closest('button, input, .panel, #face')) return; // 11-18 얼굴 칸은 스틱 안 잡음
       if (!isPlay() || G.paused || G.cardOpen) return;
+      if (tgt.closest && tgt.closest('#btnStar')) { G.pressStar(); btnStar.classList.add('press'); setTimeout(() => btnStar.classList.remove('press'), 140); return; } // 11-25 유니크 ★
       if (tgt.closest && tgt.closest('#btnBig')) { pressBig(); btnBig.classList.add('press'); setTimeout(() => btnBig.classList.remove('press'), 140); return; }
       if (e.pointerType === 'mouse') { // PC: 왼쪽 = 누르는 동안 소리, 오른쪽 = 큰 소리
         mouse.x = e.clientX; mouse.y = e.clientY; mouse.seen = true;
@@ -1164,6 +1173,7 @@
       // (버튼 자리로 판정 — 보스 등장 연출로 HUD 가 잠깐 숨은 동안 눌러도 그대로 이어짐)
       const inBtn = (el, pad) => { const r = el.getBoundingClientRect(); return r.width > 0 && Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) <= r.width / 2 + pad; };
       if (inBtn(btnBig, 6 * TG.H.s)) return;
+      if (btnStar && !btnStar.classList.contains('hide') && inBtn(btnStar, 6 * TG.H.s)) return;
       if ((tgt.closest && tgt.closest('#btnSnd')) || inBtn(btnSnd, 20 * TG.H.s)) {
         if (fire.id == null) { fire.id = e.pointerId; fire.ox = e.clientX; fire.oy = e.clientY; fire.aim = false; fire.kx = fire.ky = 0; }
         return;
@@ -1456,6 +1466,7 @@
       } else if (G.phase === 'bossIntro' && b && TG.F.bossObj.group.visible) { const kb = G.camFocusK; tx = TG.clamp(TG.lerp(p.rx, b.x, kb), -11.5, 11.5); tz = TG.clamp(TG.lerp(p.rz, b.z, kb) - 1, -9, 6.8); }
       else if (G.phase === 'bossIntro') { tx = TG.lerp(p.rx, 0, 0.5); tz = TG.lerp(p.rz, 1, 0.5) - 1; }
       if (G.phase === 'bossEnd' && G.cu) { const h = TG.hero.height * 1.2; dist = 6.8; pitch = 0.2; yaw = G.cu.yaw; tx = p.rx; tz = p.rz; ty = h * 0.52; bossCam = false; } // 11-24 확대 연출: 카메라만 캐릭터 얼굴·몸으로(흔들림 0)
+      if (G.uq && G.uq.act && G.uq.act.t < G.uq.act.dur * 0.5 && !bossCam && !G.uq.act.wide) { dist = Math.min(dist, 12.5); ty = 1.4; } // 11-26 wide(세포키즈 맵 휘젓기)는 안 다가감 // 11-25 유니크 연출 앞 절반: 카메라만 조금 다가감(흔들림 0) → 퐁 전에 다시 넓게
     }
     if (api.camOv) { const o = api.camOv; dist = o.dist; pitch = o.pitch; yaw = o.yaw; tx = p.rx; tz = p.rz; ty = o.ty; cam.dist = dist; cam.pitch = pitch; cam.yaw = yaw; cam.x = tx; cam.z = tz; cam.ty = ty; } // 시험: 가까이 보기
     if (G.titleSnap > 0 && G.phase === 'title') { G.titleSnap -= dt; cam.x = tx; cam.z = tz; cam.dist = dist; cam.pitch = pitch; cam.yaw = yaw; cam.ty = ty; }
@@ -1598,14 +1609,14 @@
       ix = Math.round(TG.clamp(m.x, -1, 1) * 100); iz = Math.round(TG.clamp(m.z, -1, 1) * 100);
       // 입력 깃발: 1 = 큰 소리, 2~4 = 쉼터 고르기, 8 = 「소리」 누름, 16~4112 = 겨눈 방향(0 = 안 겨눔, 1~256), 8192 = 자동 모드
       // 8192 = 자동 모드(소리 방울이 가까운 안개에 저절로). 멈춤 창에서 바꾸면 그 걸음부터 기록에 남음 → 재생도 같음
-      fl = (G.inBig ? 1 : 0) | ((G.inPick + 1) << 1) | (f.on ? 8 : 0) | ((f.on ? aimCode(f.a) : 0) << 4) | (isAuto() ? 8192 : 0);
+      fl = (G.inBig ? 1 : 0) | ((G.inPick + 1) << 1) | (f.on ? 8 : 0) | ((f.on ? aimCode(f.a) : 0) << 4) | (isAuto() ? 8192 : 0) | (G.inStar ? 16384 : 0) | (G.inSkipStar ? 32768 : 0); // 11-25 유니크 ★ 누름 16384 · 연출 건너뛰기 32768(사람 입력만 — 봇·자동은 0)
     }
-    G.inBig = false; G.inPick = -1;
+    G.inBig = false; G.inPick = -1; G.inStar = false; G.inSkipStar = false;
     if (G.rec && G.phase !== 'title' && G.phase !== 'intro' && G.phase !== 'result') {
       const t = G.rec.ticks, n = t.length;
       if (n && t[n - 4] === ix && t[n - 3] === iz && t[n - 2] === fl) t[n - 1]++; else t.push(ix, iz, fl, 1);
     }
-    return { x: ix / 100, z: iz / 100, big: !!(fl & 1), pick: ((fl >> 1) & 3) - 1, fire: !!(fl & 8), aim: aimOf((fl >> 4) & 511), auto: !!(fl & 8192) };
+    return { x: ix / 100, z: iz / 100, big: !!(fl & 1), pick: ((fl >> 1) & 3) - 1, fire: !!(fl & 8), aim: aimOf((fl >> 4) & 511), auto: !!(fl & 8192), star: !!(fl & 16384), starSkip: !!(fl & 32768) };
   }
 
   function step(inp) {
@@ -1626,6 +1637,7 @@
       if (inp.big && !bigSound() && G.realT - (G.denyT || -9) > 0.4) { // 못 쓸 때도 반응: 버튼 흔들림 + 짧은 소리 + 한마디
         G.denyT = G.realT; TG.H.bigDeny(G.gauge < 100 ? '아직!' : '잠깐!'); TG.A.ui(0.55);
       }
+      if (inp.star && TG.U) TG.U.press(); if (inp.starSkip && TG.U) TG.U.skip(); // 11-25 유니크 ★(기록 깃발과 같은 길)
       reviveTick(dt); // 11-18 다시 일어나기 카운트(쓰러진 채)
       TG.C.sim(dt, p, G);
       TG.WV.zones(dt, G); // 11-17 쎄니 물감 구역(느려짐·도트) — 안개 움직임 전에, 카드가 되돌린 slowK 에 곱함
@@ -1634,6 +1646,7 @@
     } else { p.charging = false; p.stillLv = 0; G.fireOn = false; p.keepFace = false; }
     if (G.phase === 'covered') updateCovered(dt);
 
+    if (TG.U) TG.U.sim(dt); // 11-25 유니크 ★ 연출·보너스 시계(C.sim 이 되돌린 slowK 뒤·F.update 앞 — 보라 세상 느려짐)
     p.sim(dt, input, play || G.phase === 'intro');
     { // 층 난이도: 새로 나온 안개의 이동 속도에 그 층 배율을 한 번 곱함 (보스전에 나오는 것은 그대로)
       const fk = G.phase === 'floor' ? FL(G.floor).spd : LK.spd, L = TG.F.list;
@@ -1856,6 +1869,7 @@
         eq: G.eq || null, collect: TG.K ? TG.K.snap() : null, colShown: !!(TG.H.colPick && !TG.H.colPick.classList.contains('hide')), cardShown: !!(TG.H.cardView && !TG.H.cardView.classList.contains('hide')), // 11-25 카드 1단계
         wallet: TG.W ? TG.W.snap() : null, walShown: !!(TG.H.walPick && !TG.H.walPick.classList.contains('hide')), // 11-24 톱니 지갑
         gear: G.gear || null, guardAcc: +((P().guardAcc || 0).toFixed(4)), guards: G.guards | 0, spdMul: +((P().spdMul || 1).toFixed(4)), jumpShown: !!(TG.H.walJump && !TG.H.walJump.classList.contains('hide')), // 11-25 톱니 레벨 4능력(일반 판만)
+        uq: TG.U ? TG.U.state() : null, // 11-25 유니크 ★
         remix: TG.C.state ? TG.C.state() : null, rank: !!G.rankMode, bossShoutT: F.boss ? +(F.boss.shoutT || 0).toFixed(2) : 0, // 11-18 리믹스 카드 상태
         rerollLeft: G.rerollLeft, rerollN: G.rerollN || 0, skillOpen: !!G.skillOpen, skillOpenN: G.skillOpenN || 0, reviveT: +(G.reviveT || 0).toFixed(2), resting: !!p.resting, rerollBtn: TG.H.rerollBtn ? { text: TG.H.rerollBtn.textContent, off: TG.H.rerollBtn.classList.contains('off') } : null, skillRows: TG.H.skList ? TG.H.skList.querySelectorAll('.skRow').length : 0,
       };
@@ -1916,6 +1930,14 @@
     magnetR() { return (4.2 + (G.mod ? G.mod.magnet : 0)) * (G.eq && G.eq.note ? 1 + G.eq.note : 1); },
     beta(on) { if (on != null) TG.BETA_OPEN_ALL = !!on; if (G.phase === 'title') TG.H.hubRefresh(true, false); return TG.beta(); }, // 11-24 베타 깃발(모든 단계 열림) 켜고 끄기 — 시험용
     skipCloseup() { G.skipCloseup(); },
+    // 11-25 유니크 ★ 시험 훅(js/unique.js): 상태 · 누르기(사람 버튼과 같은 길 = 다음 걸음 깃발) · 건너뛰기 · 임시 목소리 정보 · 숫자표
+    uq() { return TG.U ? TG.U.state() : null; },
+    star() { G.inStar = true; return true; },
+    starSkip() { G.skipStar(); return !!G.inSkipStar; },
+    uqVoices() { return TG.U ? TG.U.voiceInfo() : null; },
+    uqDefs() { return TG.U ? JSON.parse(JSON.stringify({ DUR: TG.U.DUR, BOSS: TG.U.BOSS, PROB: TG.U.PROB, FLAG: TG.U.FLAG, DEFS: TG.U.DEFS })) : null; },
+    uqPick(h, k) { return TG.U ? TG.U.pick(h, k) : false; },                        // 11-26 세포 연출 고르기('power' | 'kids')
+    uqKids() { return TG.U && TG.U.kidsState ? TG.U.kidsState() : null; },        // 11-26 세포키즈 8명 자리·단계(그림)
     // 시험: 주인공·보조 바꾸기 (타이틀 버튼과 같은 길). hero('berri','sseni')
     hero(h, a) { if (h) setHeroNow(h, a == null ? TG.assistId : a); return { hero: TG.heroId, assist: TG.assistId }; },
     god(on) { TG.Q.god = on !== false; },

@@ -172,6 +172,7 @@
     { const eq = TG.G.eq; if (eq) { if (eq.spark) { o.dmg *= 1 + eq.spark; if (o.bossDmg) o.bossDmg *= 1 + eq.spark; } if (eq.petal) { o.range *= 1 + eq.petal; if (o.splash) o.splash *= 1 + eq.petal; } } }
     // 11-25 톱니 레벨 4능력(js/wallet.js W.ability, game.js G.gear — 레벨 1 = 0 = 표준, 끝까지 모드·기록 재생은 null): 소리 세기(power) → 세기, 소리 간격(rate) → 쉼 ÷(1+rate)
     { const gr = TG.G.gear; if (gr) { if (gr.power) { o.dmg *= 1 + gr.power; if (o.bossDmg) o.bossDmg *= 1 + gr.power; } if (gr.rate) o.cd /= 1 + gr.rate; } }
+    if (TG.U) TG.U.stat(o, st); // 11-25 유니크 ★ 보너스(js/unique.js): 세포 필승 모드 범위 +20%·간격 −20% / 허조교 멈춤 둘레 2배 / 모쉬 튕김 +2 — 보너스 중에만, 카드 상한 밖 잠깐 효과
     return o;
   };
   // 11-17 기본 소리 개편 수치(초안 — 밸런스 측정으로 맞춤, 기록.md 3절)

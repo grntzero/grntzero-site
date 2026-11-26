@@ -11,7 +11,8 @@
       'resTitle', 'stars', 'rTime', 'rFog', 'rCombo', 'rNote', 'hint', 'grunt', 'gruntTxt', 'shelter', 'cards', 'cardRow', 'rerollBtn', 'skills', 'skHero', 'skList', 'skClose', 'face',
       'dunRow', 'dunBtn', 'dunPick', 'dunList', 'lvRow', 'lvInfo', 'dunGo', 'cuSkipBtn', 'rStamp',
       'walRow', 'walBtn', 'walPick', 'walList', 'walClose', 'walLvN', 'walDay', 'walNote', 'rGear', 'walLvBox', 'walNeed', 'walUp', 'walAb', 'walJump', 'walJumpN', 'sselJump', 'sselJumpTxt', // 11-25 톱니 레벨(올리기·4능력·도약 연출)
-      'colRow', 'colBtn', 'colPick', 'colTotal', 'colEq', 'colTabs', 'colSet', 'colGrid', 'colNote', 'colClose', 'cardView', 'cvArt', 'cvName', 'cvInfo', 'cvSlots', 'cvBtns', 'cvMsg', 'cvClose', 'rCard'].forEach((k) => (H[k] = $(k))); // 11-24 던전 고르기·확대 건너뛰기·단계 도장 · 톱니 지갑 · 11-25 카드 도감
+      'colRow', 'colBtn', 'colPick', 'colTotal', 'colEq', 'colTabs', 'colSet', 'colGrid', 'colNote', 'colClose', 'cardView', 'cvArt', 'cvName', 'cvInfo', 'cvSlots', 'cvBtns', 'cvMsg', 'cvClose', 'rCard',
+      'btnStar', 'starArc', 'starLbl'].forEach((k) => (H[k] = $(k))); // 11-24 던전 고르기·확대 건너뛰기·단계 도장 · 톱니 지갑 · 11-25 카드 도감 · 11-25 유니크 ★ 버튼
     H.dunBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.unlock(); TG.A.ui(1.1); H.dunOpen(); });
     H.dunGo.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.dunClose(); });
     H.dunPick.addEventListener('click', (e) => { if (e.target === H.dunPick) H.dunClose(); });
@@ -27,7 +28,7 @@
       H.cvClose.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(1.1); H.cardClose(); });
       H.cardView.addEventListener('click', (e) => { if (e.target === H.cardView) H.cardClose(); });
     }
-    H.cuSkipBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(0.8); if (TG.G && TG.G.skipCloseup) TG.G.skipCloseup(); });
+    H.cuSkipBtn.addEventListener('click', (e) => { e.stopPropagation(); TG.A.ui(0.8); if (TG.G && TG.G.uq && TG.G.uq.act && TG.G.skipStar) TG.G.skipStar(); else if (TG.G && TG.G.skipCloseup) TG.G.skipCloseup(); }); // 11-25 유니크 연출 중이면 그 건너뛰기(기록 깃발)
     H.rerollBtn.addEventListener('click', (e) => { e.stopPropagation(); if (H.onReroll) H.onReroll(); }); // 11-18 다시 뽑기
     H.skClose.addEventListener('click', (e) => { e.stopPropagation(); if (H.onSkillsClose) H.onSkillsClose(); });
     H.skills.addEventListener('click', (e) => { if (e.target === H.skills && H.onSkillsClose) H.onSkillsClose(); }); // 바깥 누르면 닫힘
@@ -239,8 +240,12 @@
     H.cvArt.innerHTML = K.art(id, has ? c.g : 0, 120);
     H.cvName.textContent = has ? K.name(id) : (s.idx === 'U' ? a.name + ' 유니크 · 아직 없어요' : '아직 없는 칸 · ' + a.name + ' · ' + K.OUTFITS[K.parts(s.idx).out] + ' · ' + K.PLACES[K.parts(s.idx).place].name);
     let info = '';
+    const UD0 = TG.U && TG.U.DEFS[s.artist]; // 11-25 유니크 ★(js/unique.js): 연출 이름·한 줄·확률 글
+    const UDc = UD0 && TG.U.defFor ? TG.U.defFor(s.artist, TG.U.altOf(s.artist)) : UD0; // 11-26 고른 연출(세포키즈 출동!)의 이름·한 줄로
+    const UD = UD0 ? Object.assign({}, UDc, { alt: UD0.alt, name: UDc.name, desc: UDc.desc }) : UD0;
     if (has) { const G = c.unique ? K.UNIQUE : K.GRADES[c.g];
-      info = '<span class="cvEff">' + K.effIcon(K.effOf(id), 18) + eff.name + ' · ' + eff.stat + ' <b>' + pctTx(K.cardPct(id)) + '</b></span><span class="cvG" style="--gc:' + G.col + '">' + (c.unique ? '★ 유니크' : '틀 ' + G.name) + '</span>' + (!c.unique ? '<span class="cvN">가진 수 ×' + c.n + '</span>' : '<span class="cvN">1판 1번 큰 소리는 곧</span>'); }
+      info = '<span class="cvEff">' + K.effIcon(K.effOf(id), 18) + eff.name + ' · ' + eff.stat + ' <b>' + pctTx(K.cardPct(id)) + '</b></span><span class="cvG" style="--gc:' + G.col + '">' + (c.unique ? '★ 유니크' : '틀 ' + G.name) + '</span>' + (!c.unique ? '<span class="cvN">가진 수 ×' + c.n + '</span>' : (UD ? '<span class="cvN">1판 1번 ★ 「' + UD.name + '」 — ' + a.name + '(으)로 할 때 큰 소리 버튼 위 별 버튼</span><span class="cvN uqDesc">' + UD.desc + '</span>' : '<span class="cvN">1판 1번 큰 소리는 곧</span>') + '<span class="cvN uqProb">확률 ' + K.PROB[4] + '%, 보장 없음(천장 없음) · 도감 완성 조건 밖</span>'); }
+    else if (s.idx === 'U') info = '<span class="cvEff">' + K.effIcon(K.effOf(id), 18) + eff.name + ' · ' + eff.stat + '</span>' + (UD ? '<span class="cvN">1판 1번 ★ 「' + UD.name + '」</span>' : '') + '<span class="cvN uqProb">확률 ' + K.PROB[4] + '%, 보장 없음(천장 없음) · ' + (a.dun && TG.DUNGEONS[a.dun] ? '「' + TG.DUNGEONS[a.dun].name + '」에서만' : a.name + ' 던전에서만') + ' · 도감 완성 조건 밖</span>';
     else info = '<span class="cvEff">' + K.effIcon(K.effOf(id), 18) + eff.name + ' · ' + eff.stat + '</span><span class="cvN">' + (a.dun ? '「' + (TG.DUNGEONS[a.dun] ? TG.DUNGEONS[a.dun].name : a.name + ' 던전') + '」을 깨면 받을 수 있어요' : a.name + ' 던전은 곧 열려요 · 지금은 연습 던전에서 가끔') + '</span>';
     H.cvInfo.innerHTML = info;
     // 장착 칸 3개
@@ -261,7 +266,12 @@
     if (up) up.addEventListener('click', (e) => { e.stopPropagation(); if (K.upgrade(id)) { TG.A.ui(1.4); H.cardRender('틀 색이 올랐어요! ' + K.GRADES[K.card(id).g].name); const ar = H.cvArt.querySelector('svg'); if (ar) { ar.classList.add('pop'); } } });
     if (sw) sw.addEventListener('click', (e) => { e.stopPropagation(); const got = K.swap(id); if (got) { TG.A.ui(1.4); cvId = got.id; H.cardRender((got.isNew ? '새 카드! ' : got.up ? '같은 카드 — 틀 색이 올랐어요! ' : '같은 카드 ×' + got.n + ' ') + K.name(got.id)); } });
     H.cvMsg.textContent = msg || ''; H.cvMsg.classList.toggle('hide', !msg);
-    if (c && c.unique) { /* 유니크 1판 1번 큰 소리 연출은 12/1 몫 — 글만 */ }
+    if (c && c.unique && UD && UD.alt) { // 11-19 세포 한 카드 두 연출: 장착 때 고름 — 11-26 2번째 「세포키즈 출동!」 들어옴(js/unique.js U.ALT). 고른 쪽 ✓(못 누름), 다른 쪽을 누르면 바뀜(저장 K.data.alt, 판 안에서는 못 바꿈 — 도감은 타이틀에서만 열림)
+      const cur = TG.U && TG.U.altOf ? TG.U.altOf(c.artist) : 'power', ready = !!UD.alt.ready;
+      const mk = (key, name, on, can, note) => '<button type="button" class="cvBtn uqPick ' + (on ? 'on' : 'off') + '" data-key="' + key + '"' + (on || !can ? ' disabled' : '') + '>「' + name + '」' + (on ? ' ✓' : '') + (note ? ' <small>' + note + '</small>' : '') + '</button>';
+      H.cvBtns.innerHTML = '<span class="cvL">연출</span>' + mk('power', UD0.name, cur !== 'kids', true, cur !== 'kids' ? '' : '누르면 바꿈') + mk('kids', UD.alt.name, cur === 'kids' && ready, ready, !ready ? UD.alt.note : cur === 'kids' ? '' : '누르면 바꿈');
+      H.cvBtns.querySelectorAll('.uqPick:not([disabled])').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); if (TG.U.pick(c.artist, b.dataset.key)) { TG.A.ui(1.2); H.cardRender('연출을 「' + (b.dataset.key === 'kids' ? UD.alt.name : UD0.name) + '」로 바꿨어요'); } }));
+    }
   };
   H.cuSkip = function (on) { if (H.cuSkipBtn) H.show(H.cuSkipBtn, !!on); };
   // 타이틀: 쎌이 손 흔들며 차례로 안내 (타이틀이 보이는 동안만 돎)
@@ -309,6 +319,23 @@
     if (!H.bigNo) { H.bigNo = document.createElement('div'); H.bigNo.id = 'bigNo'; H.bigNo.className = 'ol'; b.appendChild(H.bigNo); }
     H.bigNo.textContent = txt;
     b.classList.remove('deny'); void b.offsetWidth; b.classList.add('deny'); clearTimeout(denyTO); denyTO = setTimeout(() => b.classList.remove('deny'), 520);
+  };
+  // 11-25 유니크 ★ 버튼(js/unique.js): 유니크 카드를 끼고 그 캐릭일 때만 보임 · 쓰면 회색 「다음 판에!」 · 세포 필승 모드 10초는 둘레 링이 줄어듦
+  H.starSync = function (G) {
+    const b = H.btnStar; if (!b) return; const q = G && G.uq;
+    const show = !!(q && q.avail && q.def); H.show(b, show); if (!show) return;
+    b.classList.toggle('used', !!(q.used && !q.act && !q.bonus)); b.classList.toggle('act', !!q.act); b.classList.toggle('bonus', !!q.bonus);
+    const t = q.used ? (q.act || q.bonus ? q.def.name : '다음 판에!') : q.def.name;
+    if (H.starLbl && H.starLbl.textContent !== t) H.starLbl.textContent = t;
+    if (H.starArc) { const k = q.bonus && q.bonusDur ? Math.max(0, q.bonusT / q.bonusDur) : (q.used ? 0 : 1); H.starArc.setAttribute('stroke-dashoffset', (282.7 * (1 - k)).toFixed(1)); }
+  };
+  let starTO = null, starDenyTO = null;
+  H.starFire = function () { const b = H.btnStar; if (!b) return; b.classList.remove('fire'); void b.offsetWidth; b.classList.add('fire'); clearTimeout(starTO); starTO = setTimeout(() => b.classList.remove('fire'), 420); };
+  H.starDeny = function (txt) {
+    const b = H.btnStar; if (!b) return;
+    if (!H.starNo) { H.starNo = document.createElement('div'); H.starNo.id = 'starNo'; H.starNo.className = 'ol'; b.appendChild(H.starNo); }
+    H.starNo.textContent = txt;
+    b.classList.remove('deny'); void b.offsetWidth; b.classList.add('deny'); clearTimeout(starDenyTO); starDenyTO = setTimeout(() => b.classList.remove('deny'), 520);
   };
   // 「소리」 버튼: 누르는 동안 눌린 모습, 끌면 알맹이가 그쪽으로 살짝 따라감
   let sndOn = false, sndKx = 0, sndKy = 0;
@@ -440,6 +467,7 @@
     const g = G.gauge / 100;
     H.bigArc.setAttribute('stroke-dashoffset', (282.7 * (1 - g)).toFixed(1));
     H.btnBig.classList.toggle('ready', g >= 1);
+    H.starSync(G); // 11-25 유니크 ★ 버튼(보임·쓴 뒤 회색·보너스 남은 시간 링)
     // 회색 구역
     // 회색 구역 테두리: 들어선 순간·구역에서 닿은 순간에만 0.3초 옅게 (화면이 계속 보라로 덮이지 않게). 구역 표시는 바닥 고리가 함
     const zin = !!P.inZone;

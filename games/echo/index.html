@@ -89,6 +89,12 @@
       <div class="core"><svg viewBox="0 0 60 60" class="ico"><path d="M10 23 h9 l13 -11 v36 l-13 -11 h-9 z" fill="#fff" stroke="#1b1424" stroke-width="3.5" stroke-linejoin="round"/><path d="M38 21 q6 9 0 18 M44 15 q11 15 0 30" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/><path d="M38 21 q6 9 0 18 M44 15 q11 15 0 30" fill="none" stroke="#1b1424" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/></svg></div>
       <div class="lbl ol">큰 소리</div>
     </div>
+    <!-- 11-25 유니크 ★(js/unique.js): 유니크 카드를 끼고 그 캐릭일 때만, 한 판 1번(충전 없음, 자동 모드에서도 직접). 쓰면 회색 「다음 판에!」. 둘레 링 = 세포 필승 모드 남은 시간 -->
+    <div id="btnStar" class="rbtn hide">
+      <svg id="starRing" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(27,20,36,0.6)" stroke-width="9"/><circle id="starArc" cx="50" cy="50" r="45" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="0" transform="rotate(-90 50 50)"/></svg>
+      <div class="core"><span class="starIco ol">★</span></div>
+      <div id="starLbl" class="lbl ol">유니크</div>
+    </div>
 
     <div id="hint" class="hide ol"></div>
     <!-- 남은 안개 방향 화살표(11-16 대표): 층에 안개가 3개 이하로 남았는데 8초 넘게 못 맞히면 화면 가장자리에 가장 가까운 남은 안개 쪽 화살표. 안개가 화면 안에 들어오면 사라짐 -->
@@ -277,6 +283,7 @@
 <script src="js/fogs.js"></script>
 <script src="js/wave.js"></script>
 <script src="js/cards.js"></script>
+<script src="js/unique.js"></script>
 <script src="js/hud.js"></script>
 <script src="js/game.js"></script>
 <div id="gzBeta" style="position:fixed;top:max(10px,env(safe-area-inset-top));z-index:99999;right:max(64px,calc(env(safe-area-inset-right) + 64px));max-width:min(44vw,420px);width:max-content;box-sizing:border-box;word-break:keep-all;background:rgba(13,10,6,.72);color:#fff;border-radius:12px;padding:4px 12px 5px;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;text-align:center;pointer-events:none;transition:opacity .3s;opacity:0;visibility:hidden"><div>🧪 <b>시험용(베타)</b> · 등급분류 전 시험 버전</div><button id="gzBetaMore" type="button" aria-expanded="false" style="pointer-events:auto;cursor:pointer;margin-top:1px;padding:0 9px;border:1px solid rgba(255,255,255,.55);border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;font-size:10.5px;line-height:1.6">ⓘ 자세히</button><div id="gzBetaBox" style="display:none;position:absolute;right:0;top:calc(100% + 6px);width:max-content;max-width:min(80vw,440px);box-sizing:border-box;text-align:left;pointer-events:auto;background:rgba(13,10,6,.92);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:8px 12px 9px;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;"><div>🧪 <b>시험용(베타 테스트)</b> — 등급분류 전 시험 버전입니다</div><div style="opacity:.9;margin-top:3px">설치·로그인 없이 브라우저에서 바로 · 기록은 이 기기에만 저장 · 시험 참가 최대 20,000명</div><div style="opacity:.9;margin-top:3px">⚠ 시험 기간(최대 60일)의 점수·기록·카드는 정식 오픈 때 모두 초기화됩니다 · 오류 제보 grnt@grntzero.com</div><button id="gzBetaClose" type="button" style="pointer-events:auto;cursor:pointer;display:block;margin:7px auto 0;padding:1px 14px;border:1px solid rgba(255,255,255,.55);border-radius:99px;background:rgba(255,255,255,.14);color:#fff;font:500 11.5px/1.45 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;">닫기</button></div></div>

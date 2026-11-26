@@ -35,6 +35,14 @@
     sfx_drop_moshee: { sfx: true, sec: 1.3, make: dropMosheeSfx }, // 모쉬: 자체 음원 드롭 1초 자리(저음 쿵 + 올라가는 반짝 + 화음 스탭)
     sfx_twinkle_sseni: { sfx: true, sec: 1.1, make: twinkleSseniSfx }, // 11-24 쎄니: 반짝 효과음(올라가는 종소리)
     sfx_maraca_berri: { sfx: true, sec: 1.0, make: maracaBerriSfx }, // 11-24 베리: 마라카스 샤카샤카 두 번 + 톡
+    // 11-25 유니크 ★ 목소리 **임시 자리**(js/unique.js U.DEFS[].voice): 녹음(대표 「필승!」·허조교·모쉬·쎄니·베리 보호자, 각 1~1.5초·−15 LUFS)이 오면 assets/audio/uq_<id>.mp3 넣고 tools/pack_assets.py → 이 합성은 자동으로 건너뜀. 사람 목소리 합성 X — 짧은 「부름」 효과음(말렛 두 음 + 북/반짝) + 말풍선 자막
+    uq_sefo: { sfx: true, sec: 0.8, make: uqCallSefo },     // 세포 「필승!」: 밝은 기합 두 음(C→G) + 북 둥 한 번(고함 X)
+    uq_gunner: { sfx: true, sec: 0.8, make: uqCallGunner }, // 허조교 「전원 집합!」: 호루라기 짧게 두 번 + 말렛 한 음
+    uq_moshee: { sfx: true, sec: 0.8, make: uqCallMoshee }, // 모쉬 「픽셀 폭죽!」: 픽셀 아르페지오 올라감 + 작은 쿵
+    uq_sseni: { sfx: true, sec: 0.8, make: uqCallSseni },   // 쎄니 「보라 세상!」: 종소리 세 음(위로) + 반짝
+    uq_berri: { sfx: true, sec: 0.8, make: uqCallBerri },   // 베리 「베리 비!」: 마림바 두 음 + 마라카스 톡톡
+    uq_sefo_kids: { sfx: true, sec: 0.9, make: uqCallSefoKids }, // 11-26 세포 「세포키즈 출동!」(2번째 연출): 호루라기 삑 짧게 + 박수 둘 + 말렛 세 음 올라감(아이 목소리 X — 효과음만). 대표 녹음 오면 assets/audio/uq_sefo_kids.mp3
+    sfx_kids_stomp: { sfx: true, sec: 0.6, make: kidsStompSfx },   // 11-26 세포키즈 다 같이 「쿵!」: 낮은 북 둥 + 박수 한 번 + 반짝
   };
   A.fillTempLoops = function () {
     const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext; if (!AC) return;
@@ -246,6 +254,27 @@
     [0.02, 0.15, 0.36, 0.49].forEach((t, i) => { add(t, 0.09, 0, i % 2 ? 0.4 : 0.55, 3, i < 2 ? -0.3 : 0.3, 38); add(t + 0.01, 0.05, 0, 0.2, 3, 0, 60); }); // 샤카·샤카 ×2
     add(0.78, 0.12, 980, 0.6, 0, 0, 34, 620); add(0.78, 0.06, 0, 0.25, 3, 0, 70); // 톡(나무)
   }
+
+  // 11-25 유니크 ★ 임시 「부름」 소리 5개(0.8초, 녹음 전 자리 — 위 TEMP_LOOPS 주석)
+  function uqCallSefo(l, r, sr) { const K = synthKit(l, r, sr, 21), NOTE = K.NOTE, add = K.add, drum = K.drum;
+    add(0.0, 0.22, NOTE(72), 0.5, 1, -0.2, 9); add(0.0, 0.22, NOTE(72) * 2.003, 0.1, 2, 0, 12); add(0.2, 0.3, NOTE(79), 0.55, 1, 0.2, 7); add(0.2, 0.3, NOTE(79) * 2.003, 0.1, 2, 0, 10); drum(0.42, 0.8); }
+  function uqCallGunner(l, r, sr) { const K = synthKit(l, r, sr, 22), NOTE = K.NOTE, add = K.add;
+    [0.0, 0.16].forEach((t) => { add(t, 0.11, 2240, 0.45, 0, 0, 14); add(t, 0.11, 2300, 0.3, 0, 0, 14); for (let i = 0; i < 3; i++) add(t + i * 0.035, 0.03, 2240, 0.1, 0, 0, 40); });
+    add(0.36, 0.35, NOTE(67), 0.45, 0, -0.1, 7); add(0.36, 0.08, NOTE(67) * 4, 0.12, 0, 0, 30); }
+  function uqCallMoshee(l, r, sr) { const K = synthKit(l, r, sr, 23), NOTE = K.NOTE, add = K.add, kick = K.kick;
+    for (let i = 0; i < 6; i++) add(i * 0.06, 0.1, NOTE(69 + i * 3), 0.25, 2, (i % 2 ? 0.4 : -0.4), 16); kick(0.4, 0.7); add(0.42, 0.3, NOTE(81), 0.3, 2, 0, 8); add(0.42, 0.3, NOTE(88), 0.2, 2, 0, 8); }
+  function uqCallSseni(l, r, sr) { const K = synthKit(l, r, sr, 24), NOTE = K.NOTE, add = K.add;
+    [74, 78, 81].forEach((n, i) => { add(i * 0.14, 0.4, NOTE(n), 0.4, 0, (i - 1) * 0.35, 6); add(i * 0.14, 0.12, NOTE(n) * 4, 0.1, 0, 0, 24); }); for (let i = 0; i < 5; i++) add(0.45 + i * 0.05, 0.06, NOTE(93 + i * 2), 0.12, 0, (i % 2 ? 0.5 : -0.5), 30); }
+  function uqCallSefoKids(l, r, sr) { const K = synthKit(l, r, sr, 26), NOTE = K.NOTE, add = K.add;
+    add(0.0, 0.1, 2240, 0.4, 0, 0, 16); add(0.0, 0.1, 2300, 0.25, 0, 0, 16); for (let i = 0; i < 3; i++) add(i * 0.03, 0.03, 2240, 0.08, 0, 0, 40); // 호루라기 삑
+    [0.16, 0.28].forEach((t, i) => { add(t, 0.07, 0, 0.42, 3, i ? 0.35 : -0.35, 45); add(t + 0.01, 0.04, 0, 0.2, 3, 0, 70); }); // 박수 둘
+    [72, 76, 79].forEach((n, i) => { add(0.4 + i * 0.12, 0.3, NOTE(n), 0.45, 1, (i - 1) * 0.3, 8); add(0.4 + i * 0.12, 0.3, NOTE(n) * 2.003, 0.1, 2, 0, 12); }); } // 말렛 세 음 올라감
+  function kidsStompSfx(l, r, sr) { const K = synthKit(l, r, sr, 27), NOTE = K.NOTE, add = K.add, drum = K.drum;
+    drum(0.0, 1.0); add(0.0, 0.25, NOTE(36), 0.5, 1, 0, 10); add(0.02, 0.07, 0, 0.45, 3, 0, 45); add(0.03, 0.04, 0, 0.2, 3, 0.2, 70); // 둥 + 박수
+    for (let i = 0; i < 4; i++) add(0.18 + i * 0.05, 0.08, NOTE(91 + i * 2), 0.14, 0, (i % 2 ? 0.5 : -0.5), 28); } // 반짝
+  function uqCallBerri(l, r, sr) { const K = synthKit(l, r, sr, 25), NOTE = K.NOTE, add = K.add;
+    add(0.0, 0.3, NOTE(72), 0.5, 0, -0.2, 8); add(0.0, 0.07, NOTE(72) * 4, 0.15, 0, 0, 30); add(0.18, 0.35, NOTE(76), 0.5, 0, 0.2, 7); add(0.18, 0.07, NOTE(76) * 4, 0.15, 0, 0, 30);
+    [0.42, 0.52].forEach((t, i) => { add(t, 0.08, 0, 0.4, 3, i ? 0.3 : -0.3, 40); add(t + 0.01, 0.05, 0, 0.18, 3, 0, 60); }); }
 
   function makeComp(ctx) {
     const comp = ctx.createDynamicsCompressor();

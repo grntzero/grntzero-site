@@ -138,6 +138,26 @@ button { font: inherit; cursor: pointer; pointer-events: auto; }
 @keyframes arcBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
 @keyframes twinkle { 0%,100% { transform: scale(0.6) rotate(0); opacity: 0.6; } 50% { transform: scale(1.2) rotate(40deg); opacity: 1; } }
 body.lefty #btnBig { right: auto; left: calc(152px * var(--s)); }
+/* 11-25 유니크 ★ 버튼(큰 소리 버튼 위 작은 별): 무지개 틀, 쓰면 회색 「다음 판에!」, 연출 중 번쩍, 보너스 동안 둘레 링 */
+#btnStar { right: calc(176px * var(--s)); bottom: calc(232px * var(--s)); width: calc(56px * var(--s)); height: calc(56px * var(--s)); z-index: 2; }
+#starRing { position: absolute; inset: calc(-7px * var(--s)); width: calc(100% + 14px * var(--s)); height: calc(100% + 14px * var(--s)); }
+#btnStar .core { width: 100%; height: 100%; background: linear-gradient(135deg, #ffd23f, #7a5cff 55%, #2fe0f0); transition: transform 0.06s; }
+#btnStar .starIco { font-size: calc(26px * var(--s)); color: #fff; line-height: 1; transform: translateY(-1px); }
+#btnStar .lbl { font-size: calc(12px * var(--s)); bottom: calc(-12px * var(--s)); color: #fff; }
+#btnStar.press .core { transform: scale(0.92); }
+#btnStar.fire .core { animation: bigFire 0.4s ease-out; }
+#btnStar.deny { animation: bigDeny 0.36s ease-in-out; }
+#starNo { position: absolute; left: 50%; top: calc(-26px * var(--s)); transform: translateX(-50%); font-size: calc(17px * var(--s)); white-space: nowrap; color: #ffe778; display: none; pointer-events: none; }
+#btnStar.deny #starNo { display: block; animation: popInBar 0.2s cubic-bezier(.2,1.6,.4,1); }
+#btnStar.used .core { background: #b8b2c2; } #btnStar.used .starIco { color: #e6e0ea; } #btnStar.used .lbl { color: #d8d2e0; }
+#btnStar.act .core, #btnStar.bonus .core { box-shadow: 0 5px 0 var(--ink), inset 0 6px 0 rgba(255,255,255,0.5), inset 0 -7px 0 rgba(0,0,0,0.16), 0 0 calc(18px * var(--s)) calc(6px * var(--s)) rgba(255,214,70,0.9); }
+#btnStar.bonus #starArc { stroke: #ffd23f; filter: drop-shadow(0 0 3px #ffe778); }
+body.lefty #btnStar { right: auto; left: calc(176px * var(--s)); }
+body.cine #btnStar, body.closeup #btnStar, body.uqAct #btnSnd, body.uqAct #stick { opacity: 0 !important; pointer-events: none; }
+body.ended #btnStar { display: none !important; }
+#cvInfo .uqProb { color: #5b3fd6; font-weight: 900; } #cvInfo .uqDesc { white-space: normal; }
+.cvBtn.uqPick.on { background: linear-gradient(#fff3b0, #ffd23f 55%, #f0a000); color: var(--ink); } .cvBtn.uqPick.off small { opacity: 0.9; }
+.cvBtn.uqPick.off:not([disabled]) { background: linear-gradient(#f3e9ff, #d9c3ff 55%, #b48cff); color: var(--ink); cursor: pointer; } /* 11-26 세포 2번째 연출 「세포키즈 출동!」 — 누르면 바뀜(보라) */
 body.lefty #btnSnd { right: auto; left: max(calc(26px * var(--s)), env(safe-area-inset-left, 0px)); }
 body.lefty #keyHint { left: auto; right: 14px; }
 
